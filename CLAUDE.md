@@ -20,7 +20,8 @@ Leer primero `README.md` y `docs/` (necesidades del INE, arquitectura, plan, hal
 
 ## Cómo se ejecuta
 - Pruebas: `cargo test` (deben pasar todas antes de cada commit).
-- Todo junto: `docker compose up -d --build` (o `iniciar.bat` en Windows) → http://localhost:8080.
+- Todo junto: `docker compose up -d --build` (o `iniciar.bat` en Windows) → http://localhost:8090
+  (puerto en `FARO_PUERTO` de `.env`; `iniciar.bat` busca uno libre si está ocupado).
 - Servidor sin Docker: PostgreSQL 16 + variables `DATABASE_URL`, `FARO_TOKEN`, `FARO_SAL`.
 
 ## Estado al 23-nov-2026, 17:30

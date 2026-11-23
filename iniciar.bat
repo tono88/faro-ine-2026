@@ -14,6 +14,10 @@ if errorlevel 1 (
 )
 
 powershell -NoProfile -ExecutionPolicy Bypass -File crear_env.ps1 >> %LOG% 2>&1
+rem El puerto sale de .env: crear_env.ps1 elige uno libre si el configurado esta ocupado.
+set PUERTO=8090
+for /f "tokens=2 delims==" %%p in ('findstr /b "FARO_PUERTO=" .env') do set PUERTO=%%p
+echo PUERTO: %PUERTO% >> %LOG%
 
 echo Construyendo y levantando FARO. La primera vez tarda varios minutos...
 docker compose up -d --build >> %LOG% 2>&1
@@ -39,8 +43,8 @@ docker compose ps >> %LOG% 2>&1
 echo ESTADO: LISTO %date% %time% >> %LOG%
 
 echo.
-echo FARO esta en http://localhost:8080
+echo FARO esta en http://localhost:%PUERTO%
 echo La clave de acceso que pide la pantalla es:
 findstr FARO_TOKEN .env
-start http://localhost:8080
+start http://localhost:%PUERTO%
 pause

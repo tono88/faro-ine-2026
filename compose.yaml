@@ -1,7 +1,7 @@
 # Despliegue completo: base de datos + FARO.
 #   Windows: doble clic en iniciar.bat
 #   Otros:   cp .env.example .env (cambiar las claves) && docker compose up -d --build
-#   Abrir http://localhost:8080
+#   Abrir http://localhost:8090 (el puerto se cambia con FARO_PUERTO en .env)
 services:
   bd:
     image: postgres:16
@@ -30,7 +30,7 @@ services:
       FARO_SAL: ${FARO_SAL:?defina FARO_SAL en .env}
       FARO_SYNC_HORAS: ${FARO_SYNC_HORAS:-24}
     ports:
-      - "${FARO_PUERTO:-8080}:8080"
+      - "${FARO_PUERTO:-8090}:8080"
     volumes:
       # Salidas fila por fila (sin nombres ni identificadores directos). No se versiona.
       - faro_privado:/app/datos/privado

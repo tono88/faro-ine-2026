@@ -41,7 +41,12 @@ cp .env.example .env          # cambie las tres claves
 docker compose up --build     # base de datos PostgreSQL + FARO
 ```
 
-Abra <http://localhost:8080>. La pantalla tiene seis secciones: recibir un envío, revisar
+Abra <http://localhost:8090>. Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
+(`iniciar.bat` elige solo uno libre y muestra la dirección).
+
+En Linux, el contenedor escribe las descargas de fuentes abiertas en `datos/crudo` con un usuario
+sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecute
+`chmod o+w datos/crudo`. En Windows y macOS (Docker Desktop) no hace falta. La pantalla tiene seis secciones: recibir un envío, revisar
 pendientes, equivalencias confirmadas, resultados por departamento, conjuntos del portal del INE
 (se sincroniza sola al arrancar y cada 24 horas) y crecimiento urbano.
 
