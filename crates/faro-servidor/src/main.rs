@@ -416,8 +416,10 @@ async fn api_ine(State(e): State<Compartido>) -> Res<Json<Value>> {
     })))
 }
 
-/// Carga la serie de edificaciones (CSV: departamento, municipio, anio, edificaciones) homologando
-/// los nombres de municipio al código INE con el mismo motor que los envíos.
+/// Carga la serie de edificaciones. Acepta dos formas de CSV:
+/// - `codigo, anio, edificaciones`: el código INE del municipio, que debe existir en el catálogo;
+/// - `departamento, municipio, anio, edificaciones`: nombres, que se homologan al código INE con
+///   el mismo motor que los envíos.
 async fn api_edificaciones(State(e): State<Compartido>, cabeceras: HeaderMap, cuerpo: String) -> Res<Json<Value>> {
     autorizar(&e, &cabeceras)?;
     let mem = memoria(&e).await?;
@@ -425,14 +427,29 @@ async fn api_edificaciones(State(e): State<Compartido>, cabeceras: HeaderMap, cu
     let mut lector = csv::Reader::from_reader(cuerpo.as_bytes());
     let cab: Vec<String> = lector.headers().map_err(pedido)?.iter().map(|c| c.trim().to_lowercase()).collect();
     let pos = |n: &str| cab.iter().position(|c| c == n).ok_or_else(|| pedido(format!("falta la columna {n}")));
-    let (id, im, ia, ie) = (pos("departamento")?, pos("municipio")?, pos("anio")?, pos("edificaciones")?);
+    let (ia, ie) = (pos("anio")?, pos("edificaciones")?);
+    let ic = cab.iter().position(|c| c == "codigo");
+    let nombres = match ic {
+        Some(_) => None,
+        None => Some((pos("departamento")?, pos("municipio")?)),
+    };
     let (mut cargadas, mut sin_lugar) = (0, BTreeMap::<String, usize>::new());
     for fila in lector.records() {
         let f = fila.map_err(pedido)?;
-        let depto = h.homologar(&f[id], Nivel::Departamento, None);
-        let muni = h.homologar(&f[im], Nivel::Municipio, depto.codigo.as_deref());
-        let (Some(codigo), Ok(anio), Ok(valor)) = (muni.codigo, f[ia].trim().parse::<i32>(), f[ie].trim().parse::<f64>()) else {
-            *sin_lugar.entry(format!("{} / {}", &f[id], &f[im])).or_default() += 1;
+        let celda = |i: usize| f.get(i).unwrap_or("").trim();
+        let (codigo, etiqueta) = match (ic, nombres) {
+            (Some(i), _) => {
+                let c = celda(i);
+                (e.catalogo.por_codigo(c).filter(|l| l.nivel == Nivel::Municipio).map(|l| l.codigo.clone()), format!("código {c}"))
+            }
+            (None, Some((id, im))) => {
+                let depto = h.homologar(celda(id), Nivel::Departamento, None);
+                (h.homologar(celda(im), Nivel::Municipio, depto.codigo.as_deref()).codigo, format!("{} / {}", celda(id), celda(im)))
+            }
+            (None, None) => (None, String::new()),
+        };
+        let (Some(codigo), Ok(anio), Ok(valor)) = (codigo, celda(ia).parse::<i32>(), celda(ie).parse::<f64>()) else {
+            *sin_lugar.entry(etiqueta).or_default() += 1;
             continue;
         };
         e.bd.execute("INSERT INTO edificaciones (municipio, anio, edificaciones) VALUES ($1,$2,$3) ON CONFLICT (municipio, anio) DO UPDATE SET edificaciones = $3", &[&codigo, &anio, &valor]).await.map_err(interno)?;
