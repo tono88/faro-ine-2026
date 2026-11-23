@@ -1,0 +1,10 @@
+{"success": true, "result": {
+  "name": "censo-2018-lugares-poblados",
+  "title": "CENSO 2018 - LUGARES POBLADOS",
+  "license_id": "cc-by",
+  "metadata_modified": "2025-06-11T16:19:42.382242",
+  "resources": [
+    {"id": "053dfa99-b3f9-4b1f-a99f-fc933ef00da4", "name": "Listado de lugares poblados", "format": "XLSX", "datastore_active": false,
+     "url": "https://datos.ine.gob.gt/dataset/78019333-d80b-45e8-b694-fb3b8d65e19e/resource/053dfa99-b3f9-4b1f-a99f-fc933ef00da4/download/centroides-de-lugares-poblados-de-la-republica-de-guatemala.-censo-2018.xlsx"},
+    {"id": "36fc875f-9a36-48cc-b7cc-7522cc6b57ef", "name": "BASE DE DATOS DE HOGARES (Enlace)", "format": "CSV", "datastore_active": true, "url": ""}
+  ]}}
