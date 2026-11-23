@@ -6,5 +6,6 @@
 //!
 //! Cuidado de interpretación: se cuentan edificaciones, no viviendas ni personas. Sirve para
 //! priorizar actualización cartográfica, no para sustituir un conteo.
+pub mod aire;
 pub mod crecimiento;
 pub use crecimiento::{analizar, leer_series, Crecimiento, Punto};

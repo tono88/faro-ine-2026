@@ -73,6 +73,19 @@ enum Comando {
         #[arg(long, default_value = "salida/crecimiento.csv")]
         salida: PathBuf,
     },
+    /// Promedios mensuales de calidad del aire con la regla de representatividad (formato INSIVUMEH).
+    Aire {
+        #[arg(long)]
+        entrada: PathBuf,
+        /// Un día con más horas sin dato que este número no cuenta.
+        #[arg(long, default_value_t = 4)]
+        max_horas_sin_dato: usize,
+        /// Un mes con más días no válidos que este número se descarta.
+        #[arg(long, default_value_t = 2)]
+        max_dias_no_validos: usize,
+        #[arg(long, default_value = "salida/aire_mensual.csv")]
+        salida: PathBuf,
+    },
 }
 
 #[derive(Subcommand)]
@@ -111,6 +124,21 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
     let comando = match cli.comando {
         Comando::Fuentes { portal, manifiesto, accion } => return fuentes(&portal, &manifiesto, accion),
         Comando::Crecimiento { entrada, proyectar, salida } => return crecimiento(&entrada, proyectar, &salida),
+        Comando::Aire { entrada, max_horas_sin_dato, max_dias_no_validos, salida } => {
+            let filas = faro_homologa::lectura::leer_crudo(&entrada)?;
+            let meses = faro_territorio::aire::promedios_mensuales(&filas, max_horas_sin_dato, max_dias_no_validos)?;
+            if let Some(dir) = salida.parent() {
+                std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+            }
+            let mut w = csv::Writer::from_path(&salida).map_err(|e| e.to_string())?;
+            for m in &meses {
+                w.serialize(m).map_err(|e| e.to_string())?;
+            }
+            w.flush().map_err(|e| e.to_string())?;
+            let cuenta = |e: &str| meses.iter().filter(|m| m.estado == e).count();
+            println!("{} meses-estación-contaminante: {} válidos, {} descartados, {} sin datos -> {}", meses.len(), cuenta("valido"), cuenta("descartado"), cuenta("sin_datos"), salida.display());
+            return Ok(ExitCode::SUCCESS);
+        }
         otro => otro,
     };
     let catalogo = Catalogo::cargar_carpeta(&cli.catalogo)?;
@@ -136,7 +164,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             Ok(ExitCode::SUCCESS)
         }
         Comando::Recibir { solicitud, entrada, salida } => recibir(&catalogo, &memoria, &solicitud, &entrada, &salida),
-        Comando::Fuentes { .. } | Comando::Crecimiento { .. } => unreachable!("atendidos arriba"),
+        Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } => unreachable!("atendidos arriba"),
     }
 }
 
