@@ -33,10 +33,10 @@ repositorio.
 **Errores que hoy pasan inadvertidos y FARO reporta en vez de corregir en silencio:**
 
 - Defunciones: 23 filas con un código de departamento que no existe y 37 con municipio inexistente.
-- Nacimientos: 1,197 filas con municipio de residencia de la madre que no corresponde a su departamento.
-- Emergencias: un municipio asignado a un departamento equivocado en 2 filas (lo delata el contexto),
-  nombres partidos (`La De Mocracia`), y letras dañadas por la codificación (`Vi±as` por `Viñas`).
-- Emergencias: 174 celdas numéricas con texto (`**`) y totales con punto de miles mezclados.
+- Nacimientos: 1,197 filas con un código de municipio de residencia de la madre que no existe (en 943 de ellas tampoco existe el departamento).
+- Emergencias: 2 filas con un municipio que no pertenece al departamento indicado (lo delata el
+  contexto), nombres partidos (`La De Mocracia`), y letras dañadas por la codificación (`Vi±as` por `Viñas`).
+- Emergencias: 174 celdas numéricas con contenido no numérico (por ejemplo `**`).
 - Pueblo de pertenencia: aparecen categorías fuera del catálogo del censo (por ejemplo, descripciones
   de color de piel). FARO las lista para que la OCSE decida, no las reasigna.
 
