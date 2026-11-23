@@ -1,7 +1,7 @@
 # Despliegue completo: base de datos + FARO.
-#   cp .env.example .env    (y cambiar las claves)
-#   docker compose up --build
-#   abrir http://localhost:8080
+#   Windows: doble clic en iniciar.bat
+#   Otros:   cp .env.example .env (cambiar las claves) && docker compose up -d --build
+#   Abrir http://localhost:8080
 services:
   bd:
     image: postgres:16
@@ -16,6 +16,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+      start_period: 10s
     restart: unless-stopped
 
   faro:
@@ -33,6 +34,8 @@ services:
     volumes:
       # Salidas fila por fila (sin nombres ni identificadores directos). No se versiona.
       - faro_privado:/app/datos/privado
+      # Descargas de fuentes abiertas (INE, OpenStreetMap) con su manifiesto de procedencia.
+      - ./datos/crudo:/app/datos/crudo
     restart: unless-stopped
 
 volumes:

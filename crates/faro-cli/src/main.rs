@@ -101,6 +101,22 @@ enum Fuentes {
         /// Solo estos formatos (ej. XLSX,CSV). Vacío = todos.
         #[arg(long, value_delimiter = ',')]
         formato: Vec<String>,
+        /// Solo recursos cuyo nombre contenga este texto.
+        #[arg(long)]
+        recurso: Option<String>,
+        #[arg(long, default_value = "datos/crudo")]
+        destino: PathBuf,
+    },
+    /// Descarga un archivo de otra fuente abierta por su URL, con el mismo registro de procedencia.
+    Url {
+        url: String,
+        /// Nombre corto de la fuente (carpeta de destino).
+        #[arg(long)]
+        fuente: String,
+        #[arg(long)]
+        editor: String,
+        #[arg(long)]
+        licencia: String,
         #[arg(long, default_value = "datos/crudo")]
         destino: PathBuf,
     },
@@ -189,11 +205,20 @@ fn fuentes(portal: &str, ruta_manifiesto: &Path, accion: Fuentes) -> Result<Exit
             w.flush().map_err(|e| e.to_string())?;
             println!("{} conjuntos, {recursos} recursos -> {}", conjuntos.len(), salida.display());
         }
-        Fuentes::Descargar { conjunto, formato, destino } => {
+        Fuentes::Url { url, fuente, editor, licencia, destino } => {
+            if !url.starts_with("https://") {
+                return Err("solo se descargan URL https".into());
+            }
+            let archivo = destino.join(&fuente).join(faro_fuentes::procedencia::nombre_de_url(&url));
+            let d = manifiesto.descargar(&fuente, &url, &archivo, &editor, &licencia)?;
+            println!("{:>6}  {:>10} bytes  {}", d.estado, d.bytes, d.archivo);
+        }
+        Fuentes::Descargar { conjunto, formato, recurso, destino } => {
             let c = faro_fuentes::Ckan::new(portal).conjunto(&conjunto)?;
             let quiere = |f: &str| formato.is_empty() || formato.iter().any(|x| x.eq_ignore_ascii_case(f));
             let mut fallos = 0;
-            for r in c.resources.iter().filter(|r| quiere(&r.format) && r.url.starts_with("http")) {
+            let nombre_ok = |n: &str| recurso.as_deref().map_or(true, |x| n.to_lowercase().contains(&x.to_lowercase()));
+            for r in c.resources.iter().filter(|r| quiere(&r.format) && nombre_ok(&r.name) && r.url.starts_with("http")) {
                 let id_corto: String = r.id.chars().take(8).collect();
                 let archivo = destino.join(&c.name).join(format!("{id_corto}_{}", faro_fuentes::procedencia::nombre_de_url(&r.url)));
                 match manifiesto.descargar(&c.name, &r.url, &archivo, "Instituto Nacional de Estadística (INE)", c.licencia()) {

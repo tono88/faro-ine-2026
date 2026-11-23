@@ -2,5 +2,5 @@ target
 .git
 .env
 datos/privado
-datos/crudo
+datos/crudo/*
 salida
