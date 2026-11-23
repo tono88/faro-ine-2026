@@ -35,6 +35,7 @@ tipo = "texto"
 requerida = true
 valores = ["automóvil", "motocicleta", "pick-up", "camión", "bus", "otro", "ignorado"]
 alias = ["vehiculo", "tipo de vehículo"]
+equivalencias = { "moto" = "motocicleta", "carro" = "automóvil", "picop" = "pick-up", "camioneta" = "bus", "tuc tuc" = "otro", "mototaxi" = "otro" }
 
 [[columna]]
 nombre = "fallecidos"

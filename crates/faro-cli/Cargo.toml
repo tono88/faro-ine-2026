@@ -9,6 +9,8 @@ path = "src/main.rs"
 
 [dependencies]
 faro-homologa = { path = "../faro-homologa" }
+faro-fuentes = { path = "../faro-fuentes" }
+faro-territorio = { path = "../faro-territorio" }
 clap = { version = "4", features = ["derive"] }
 csv = "1"
 serde_json = "1"

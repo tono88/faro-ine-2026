@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/faro-homologa", "crates/faro-cli"]
+members = ["crates/faro-homologa", "crates/faro-fuentes", "crates/faro-territorio", "crates/faro-cli"]
 
 [workspace.package]
 version = "0.1.0"

@@ -36,8 +36,24 @@ pub struct Columna {
     /// Valores permitidos (catálogo cerrado), comparados sin tildes ni mayúsculas.
     #[serde(default)]
     pub valores: Vec<String>,
+    /// Otras formas de escribir un valor permitido: `{ "m" = "hombre", "masculino" = "hombre" }`.
+    #[serde(default)]
+    pub equivalencias: HashMap<String, String>,
     #[serde(default)]
     pub descripcion: String,
+}
+
+impl Columna {
+    /// Valor canónico de un catálogo cerrado: "M", "masculino" y "Hombre" -> "hombre".
+    /// `None` si la columna no tiene catálogo o el valor no pertenece a él.
+    pub fn canonico(&self, valor: &str) -> Option<&str> {
+        let v = basico(valor);
+        if let Some(c) = self.valores.iter().find(|c| basico(c) == v) {
+            return Some(c);
+        }
+        let destino = self.equivalencias.iter().find(|(k, _)| basico(k) == v).map(|(_, d)| basico(d))?;
+        self.valores.iter().find(|c| basico(c) == destino).map(String::as_str)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -136,7 +152,7 @@ impl Solicitud {
                 }
                 if !tipo_valido(c.tipo, valor) {
                     anotar(&mut rep, n + 1, &c.nombre, format!("{valor:?} no es {:?}", c.tipo).to_lowercase());
-                } else if !c.valores.is_empty() && !c.valores.iter().any(|v| basico(v) == basico(valor)) {
+                } else if !c.valores.is_empty() && c.canonico(valor).is_none() {
                     anotar(&mut rep, n + 1, &c.nombre, format!("{valor:?} no está en los valores permitidos"));
                 }
             }
@@ -177,6 +193,7 @@ mod pruebas {
             nombre = "sexo"
             tipo = "texto"
             valores = ["hombre", "mujer", "ignorado"]
+            equivalencias = { "M" = "hombre", "masculino" = "hombre", "F" = "mujer" }
             "#,
         )
         .unwrap()
@@ -192,6 +209,16 @@ mod pruebas {
         assert!(rep.aceptado(), "{:?}", rep.problemas);
         assert_eq!(rep.columnas_reconocidas["departamento"], "Depto.");
         assert_eq!(rep.columnas_sobrantes, vec!["obs"]);
+    }
+
+    #[test]
+    fn equivalencias_de_valores_llevan_al_canonico() {
+        let sol = solicitud();
+        let sexo = &sol.columnas[2];
+        assert_eq!(sexo.canonico("MASCULINO"), Some("hombre"));
+        assert_eq!(sexo.canonico(" f "), Some("mujer"));
+        assert_eq!(sexo.canonico("Mujer"), Some("mujer"));
+        assert_eq!(sexo.canonico("N/A"), None);
     }
 
     #[test]
