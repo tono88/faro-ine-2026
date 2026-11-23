@@ -1,0 +1,40 @@
+# Despliegue completo: base de datos + FARO.
+#   cp .env.example .env    (y cambiar las claves)
+#   docker compose up --build
+#   abrir http://localhost:8080
+services:
+  bd:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: faro
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en .env}
+      POSTGRES_DB: faro
+    volumes:
+      - faro_bd:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U faro -d faro"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  faro:
+    build: .
+    depends_on:
+      bd:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: host=bd user=faro password=${POSTGRES_PASSWORD} dbname=faro
+      FARO_TOKEN: ${FARO_TOKEN:?defina FARO_TOKEN en .env}
+      FARO_SAL: ${FARO_SAL:?defina FARO_SAL en .env}
+      FARO_SYNC_HORAS: ${FARO_SYNC_HORAS:-24}
+    ports:
+      - "${FARO_PUERTO:-8080}:8080"
+    volumes:
+      # Salidas fila por fila (sin nombres ni identificadores directos). No se versiona.
+      - faro_privado:/app/datos/privado
+    restart: unless-stopped
+
+volumes:
+  faro_bd:
+  faro_privado:

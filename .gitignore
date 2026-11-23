@@ -3,3 +3,4 @@ target/
 *.env
 datos/privado/
 datos/crudo/
+salida/

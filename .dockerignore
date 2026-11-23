@@ -1,0 +1,6 @@
+target
+.git
+.env
+datos/privado
+datos/crudo
+salida
