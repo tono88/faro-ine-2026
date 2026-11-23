@@ -26,12 +26,17 @@ INE define SOLICITUD  ->  Institución ENVÍA  ->  VALIDAR  ->  HOMOLOGAR  ->  i
 
 | Componente | Tecnología | Estado |
 |---|---|---|
-| Núcleo de homologación (`faro-homologa`) | Rust | Hecho (día 1) |
-| Línea de comandos (`faro`) | Rust | Hecho (día 1) |
-| Catálogo oficial de lugares poblados (Censo 2018) | CSV generado desde el XLSX del INE | Día 2 |
-| Interfaz web de revisión de pendientes | Web estática sobre el núcleo | Día 2 |
-| Llaves de pareo entre fuentes | Rust | Día 2 |
-| Módulos secundarios (operadores, crecimiento urbano, red vial, precios) | Por definir según tiempo | Día 3 |
+| Núcleo: lectura, validación, homologación, memoria, salida estándar | Rust (`faro-homologa`) | Hecho; probado con archivos reales |
+| Fuentes: portal CKAN del INE con procedencia | Rust (`faro-fuentes`) | Hecho; sincronización probada contra un portal simulado |
+| Territorio: crecimiento de edificaciones, calidad del aire | Rust (`faro-territorio`) | Hecho; falta cargar la serie real de Open Buildings |
+| Servidor y API | Rust (`faro-servidor`, axum) | Hecho |
+| Base de datos | PostgreSQL 16 | Hecho: equivalencias, bitácora de envíos, pendientes y agregados |
+| Pantalla | HTML y JavaScript sin dependencias, servida por el servidor | Hecho (primera versión) |
+| Despliegue | Docker Compose | Escrito; pendiente de probar en una máquina con Docker |
+| Red vial (OpenStreetMap) y asignación de operadores | — | Pendiente |
+
+La base de datos guarda equivalencias, bitácora y **agregados** (periodo, municipio, sexo). La
+salida fila por fila queda en un volumen privado, ya sin nombres ni identificadores directos.
 
 ## Relación con X-Road
 
