@@ -1,0 +1,20 @@
+[package]
+name = "faro-servidor"
+description = "Servidor web de FARO: recepción de envíos, revisión de pendientes, sincronización con el INE"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "faro-servidor"
+path = "src/main.rs"
+
+[dependencies]
+faro-homologa = { path = "../faro-homologa" }
+faro-fuentes = { path = "../faro-fuentes" }
+faro-territorio = { path = "../faro-territorio" }
+axum = { version = "0.7", features = ["multipart"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "fs", "signal"] }
+tokio-postgres = { version = "0.7", features = ["with-serde_json-1"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+csv = "1"

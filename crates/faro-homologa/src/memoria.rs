@@ -53,6 +53,15 @@ impl Memoria {
         Ok(m)
     }
 
+    /// Memoria armada con equivalencias que viven en otro lado (ej. la base de datos).
+    pub fn desde(equivalencias: impl IntoIterator<Item = Equivalencia>) -> Self {
+        let mut m = Memoria::default();
+        for e in equivalencias {
+            m.indexar(&e);
+        }
+        m
+    }
+
     fn indexar(&mut self, e: &Equivalencia) {
         // La confirmación más reciente gana: permite corregir una equivalencia equivocada.
         self.indice.insert((e.nivel, e.contexto.clone(), e.clave.clone()), e.codigo.clone());

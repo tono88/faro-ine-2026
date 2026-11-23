@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FARO · Recepción y homologación de registros</title>
+<style>
+  :root { --tinta:#14263a; --azul:#0b5cab; --fondo:#f6f8fa; --borde:#d5dce3; --ok:#1a7f4b; --alerta:#a15c00; --mal:#b3261e; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--tinta); background:var(--fondo); }
+  header { background:var(--tinta); color:#fff; padding:14px 20px; display:flex; gap:16px; align-items:baseline; flex-wrap:wrap; }
+  header h1 { font-size:20px; margin:0; } header span { opacity:.8; font-size:14px; }
+  nav { display:flex; gap:4px; padding:0 16px; background:#fff; border-bottom:1px solid var(--borde); overflow-x:auto; }
+  nav button { border:0; background:none; padding:12px 14px; font:inherit; cursor:pointer; border-bottom:3px solid transparent; color:var(--tinta); white-space:nowrap; }
+  nav button[aria-selected=true] { border-color:var(--azul); color:var(--azul); font-weight:600; }
+  main { max-width:1100px; margin:0 auto; padding:20px; }
+  section { display:none; } section.activa { display:block; }
+  .tarjetas { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:20px; }
+  .tarjeta { background:#fff; border:1px solid var(--borde); border-radius:8px; padding:12px 14px; }
+  .tarjeta b { display:block; font-size:26px; } .tarjeta small { color:#55616d; }
+  .panel { background:#fff; border:1px solid var(--borde); border-radius:8px; padding:16px; margin-bottom:16px; }
+  h2 { font-size:18px; margin:0 0 10px; } p.nota { color:#55616d; font-size:14px; margin:6px 0 12px; }
+  label { display:block; font-weight:600; margin:10px 0 4px; font-size:14px; }
+  select, input[type=text], input[type=password], input[type=number], input[type=file] { width:100%; max-width:520px; padding:8px; font:inherit; border:1px solid #8a96a3; border-radius:6px; background:#fff; }
+  button.accion { background:var(--azul); color:#fff; border:0; border-radius:6px; padding:9px 16px; font:inherit; font-weight:600; cursor:pointer; margin-top:12px; }
+  button.accion:disabled { opacity:.5; cursor:wait; } button.chico { padding:4px 10px; margin:0 4px 4px 0; font-size:14px; font-weight:500; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline:3px solid #f5a623; outline-offset:2px; }
+  table { border-collapse:collapse; width:100%; font-size:14px; } th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--borde); vertical-align:top; }
+  th { background:#eef2f6; position:sticky; top:0; } td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .tabla { overflow:auto; max-height:520px; border:1px solid var(--borde); border-radius:6px; }
+  .etq { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; font-weight:600; background:#e6ebf0; }
+  .etq.ok { background:#dff3e7; color:var(--ok); } .etq.alerta { background:#fdeecf; color:var(--alerta); } .etq.mal { background:#fbe0de; color:var(--mal); }
+  .barra { height:10px; background:#e6ebf0; border-radius:5px; overflow:hidden; min-width:80px; } .barra i { display:block; height:100%; background:var(--ok); }
+  #aviso { position:fixed; right:16px; bottom:16px; background:var(--tinta); color:#fff; padding:10px 14px; border-radius:8px; display:none; max-width:420px; }
+  #aviso.mal { background:var(--mal); }
+</style>
+</head>
+<body>
+<header><h1>FARO</h1><span>Recepción y homologación de registros administrativos · prototipo Datatón INE 2026</span></header>
+<nav role="tablist" aria-label="Secciones">
+  <button role="tab" data-s="recibir" aria-selected="true">1. Recibir envío</button>
+  <button role="tab" data-s="pendientes">2. Revisar pendientes</button>
+  <button role="tab" data-s="memoria">3. Equivalencias</button>
+  <button role="tab" data-s="resultados">4. Resultados</button>
+  <button role="tab" data-s="ine">Portal INE</button>
+  <button role="tab" data-s="crecimiento">Crecimiento urbano</button>
+</nav>
+<main>
+  <div class="tarjetas" id="tarjetas" aria-live="polite"></div>
+
+  <section id="recibir" class="activa">
+    <div class="panel">
+      <h2>Recibir un envío</h2>
+      <p class="nota">Elija qué registro envía la institución y suba el archivo tal como llega (CSV o Excel). Solo pasan las columnas pedidas; nombres y documentos de identidad se eliminan o se sustituyen por una llave.</p>
+      <label for="sol">Solicitud de datos</label><select id="sol"></select>
+      <div id="solinfo" class="nota"></div>
+      <label for="archivo">Archivo</label><input type="file" id="archivo" accept=".csv,.txt,.xlsx,.xls,.xlsm,.ods">
+      <label for="token">Clave de acceso</label><input type="password" id="token" autocomplete="off" placeholder="solo si el servidor la exige">
+      <button class="accion" id="enviar">Validar y homologar</button>
+    </div>
+    <div class="panel" id="resultado" hidden></div>
+    <div class="panel"><h2>Envíos recibidos</h2><div class="tabla"><table id="envios"></table></div></div>
+  </section>
+
+  <section id="pendientes">
+    <div class="panel">
+      <h2>Lugares que el sistema no quiso adivinar</h2>
+      <p class="nota">Elija el lugar correcto. La decisión queda grabada con su nombre y no se vuelve a preguntar, sin importar qué institución lo envíe.</p>
+      <label for="usuario">Su nombre (queda en la bitácora)</label><input type="text" id="usuario">
+      <div class="tabla" style="margin-top:12px"><table id="tpend"></table></div>
+    </div>
+  </section>
+
+  <section id="memoria"><div class="panel"><h2>Equivalencias confirmadas</h2><p class="nota">Bitácora de decisiones: qué texto equivale a qué lugar oficial, quién lo confirmó y cuándo.</p><div class="tabla"><table id="tmem"></table></div></div></section>
+
+  <section id="resultados"><div class="panel"><h2>Registros por departamento</h2><p class="nota">Conteos de los envíos recibidos, ya con código oficial. Si un periodo se reenvía, cuenta solo el envío más reciente.</p><div class="tabla"><table id="thechos"></table></div></div></section>
+
+  <section id="ine"><div class="panel"><h2>Conjuntos del portal de datos abiertos del INE</h2><p class="nota" id="ineinfo"></p><button class="accion" id="sync">Sincronizar ahora</button><div class="tabla" style="margin-top:12px"><table id="tine"></table></div></div></section>
+
+  <section id="crecimiento">
+    <div class="panel">
+      <h2>Crecimiento de edificaciones por municipio</h2>
+      <p class="nota">Edificaciones observadas por satélite cada año (Google Open Buildings 2.5D Temporal, 2016–2023) y su proyección. Son edificaciones, no viviendas ni personas: sirve para priorizar la actualización cartográfica.</p>
+      <label for="anio">Proyectar al año</label><input type="number" id="anio" value="2030" min="2024" max="2050" style="max-width:120px">
+      <label for="csvedif">Cargar serie (CSV: departamento, municipio, anio, edificaciones)</label><input type="file" id="csvedif" accept=".csv">
+      <button class="accion" id="cargaredif">Cargar y calcular</button>
+      <div class="tabla" style="margin-top:12px"><table id="tcrec"></table></div>
+    </div>
+  </section>
+</main>
+<div id="aviso" role="status"></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num = n => Number(n ?? 0).toLocaleString('es-GT', {maximumFractionDigits: 1});
+function aviso(texto, mal) { const a = $('#aviso'); a.textContent = texto; a.className = mal ? 'mal' : ''; a.style.display = 'block'; clearTimeout(aviso.t); aviso.t = setTimeout(() => a.style.display = 'none', 6000); }
+async function api(ruta, opciones = {}) {
+  opciones.headers = Object.assign({'x-faro-token': $('#token').value}, opciones.headers || {});
+  const r = await fetch(ruta, opciones); const j = await r.json().catch(() => ({error: 'respuesta inesperada del servidor'}));
+  if (!r.ok) throw new Error(j.error || r.statusText); return j;
+}
+function tabla(sel, columnas, filas, vacio) {
+  $(sel).innerHTML = '<thead><tr>' + columnas.map(c => `<th${c.num ? ' class="num"' : ''} scope="col">${esc(c.t)}</th>`).join('') + '</tr></thead><tbody>' +
+    (filas.length ? filas.map(f => '<tr>' + columnas.map(c => `<td${c.num ? ' class="num"' : ''}>${c.f(f)}</td>`).join('') + '</tr>').join('') : `<tr><td colspan="${columnas.length}">${esc(vacio)}</td></tr>`) + '</tbody>';
+}
+const etq = e => `<span class="etq ${({exacto:'ok',memoria:'ok',sugerido:'alerta',revisar:'alerta',ambiguo:'alerta'}[e]) || 'mal'}">${esc(e.replace('_',' '))}</span>`;
+let solicitudes = [];
+
+async function estado() {
+  const e = await api('/api/estado');
+  $('#tarjetas').innerHTML = [['envios','envíos recibidos'],['filas','filas procesadas'],['pendientes','valores por revisar'],['equivalencias','equivalencias aprendidas'],['conjuntos_ine','conjuntos del INE vigilados'],['lugares_en_catalogo','lugares en el catálogo']]
+    .map(([k,t]) => `<div class="tarjeta"><b>${num(e[k])}</b><small>${t}</small></div>`).join('');
+}
+async function cargarSolicitudes() {
+  solicitudes = await api('/api/solicitudes');
+  $('#sol').innerHTML = solicitudes.map(s => `<option value="${esc(s.id)}">${esc(s.institucion)} · ${esc(s.titulo)}</option>`).join('');
+  infoSolicitud();
+}
+function infoSolicitud() {
+  const s = solicitudes.find(x => x.id === $('#sol').value); if (!s) return;
+  const c = s.columna;
+  $('#solinfo').textContent = `Pide ${c.length} columnas (${c.filter(x => x.requerida).length} obligatorias, ${c.filter(x => x.pareo).length} para pareo, ${c.filter(x => x.sensible).length} con dato personal protegido): ` + c.map(x => x.nombre).join(', ') + '.';
+}
+async function envios() {
+  tabla('#envios', [
+    {t:'#', f:f => f.id}, {t:'Recibido', f:f => esc(f.recibido)}, {t:'Institución', f:f => esc(f.institucion)}, {t:'Solicitud', f:f => esc(f.solicitud)},
+    {t:'Archivo', f:f => esc(f.archivo)}, {t:'Filas', num:1, f:f => num(f.filas)}, {t:'Problemas', num:1, f:f => num(f.problemas)},
+    {t:'Lugares resueltos', f:f => `<div class="barra" title="${num(f.pct_resuelto)} %"><i style="width:${f.pct_resuelto}%"></i></div>${num(f.pct_resuelto)} %`},
+  ], await api('/api/envios'), 'Todavía no hay envíos.');
+}
+function mostrarResultado(r) {
+  const rec = r.recepcion, rep = rec.reporte;
+  const geo = Object.entries(rec.homologacion).map(([col, est]) => `<tr><td>${esc(col)}</td><td>${Object.entries(est).map(([k, v]) => `${etq(k)} ${num(v)}`).join(' &nbsp; ')}</td></tr>`).join('');
+  const fuera = Object.entries(rec.valores_no_reconocidos).map(([col, v]) => `<li><b>${esc(col)}</b>: ${Object.entries(v).slice(0, 8).map(([k, n]) => `${esc(k)} (${n})`).join(', ')}</li>`).join('');
+  const prob = rep.problemas.slice(0, 15).map(p => `<li>Fila ${p.fila} · <b>${esc(p.columna)}</b> · ${esc(p.detalle)}</li>`).join('');
+  $('#resultado').hidden = false;
+  $('#resultado').innerHTML = `<h2>Envío #${r.envio}: ${num(rep.filas)} filas, ${num(r.porcentaje_resuelto)} % de lugares con código oficial</h2>
+    <p class="nota">${Object.keys(rep.columnas_reconocidas).length} columnas reconocidas · ${rep.columnas_sobrantes.length} no pedidas (no pasan) · ${rec.columnas_eliminadas.length} eliminadas por ser dato personal · ${rec.columnas_seudonimizadas.length} sustituidas por llave.</p>
+    <table><tbody>${geo}</tbody></table>
+    ${fuera ? `<h2 style="margin-top:14px">Valores fuera de catálogo</h2><ul>${fuera}</ul>` : ''}
+    ${prob ? `<h2 style="margin-top:14px">Problemas de contenido (${num(rep.problemas.length + rep.problemas_omitidos)})</h2><ul>${prob}</ul>` : ''}
+    <p class="nota">${rec.pendientes.length} valor(es) de lugar por revisar en la pestaña 2.</p>`;
+}
+async function pendientes() {
+  const filas = await api('/api/pendientes');
+  tabla('#tpend', [
+    {t:'Texto recibido', f:f => `<b>${esc(f.valor)}</b>`}, {t:'En', f:f => esc(f.contexto_nombre || (f.contexto ? 'código ' + f.contexto : '(sin nivel superior)'))},
+    {t:'Veces', num:1, f:f => num(f.veces)}, {t:'Institución', f:f => esc(f.instituciones)}, {t:'Estado', f:f => etq(f.estado)},
+    {t:'¿A qué lugar corresponde?', f:(f) => f.candidatos.map(c => `<button class="accion chico" data-v="${esc(f.valor)}" data-n="${esc(f.nivel)}" data-x="${esc(f.contexto)}" data-c="${esc(c.codigo)}" data-i="${esc(f.instituciones)}">${esc(c.codigo)} ${esc(c.nombre)}</button>`).join('') +
+        `<input type="text" placeholder="otro código" aria-label="Otro código para ${esc(f.valor)}" style="max-width:110px;padding:4px" data-v="${esc(f.valor)}" data-n="${esc(f.nivel)}" data-x="${esc(f.contexto)}" data-i="${esc(f.instituciones)}">`},
+  ], filas, 'No hay nada por revisar.');
+}
+async function confirmar(d, codigo) {
+  try {
+    const r = await api('/api/confirmar', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({valor:d.v, nivel:d.n, contexto:d.x, codigo, institucion:d.i, usuario:$('#usuario').value})});
+    aviso(`Grabado: "${d.v}" = ${r.codigo} ${r.nombre}`); pendientes(); estado();
+  } catch (e) { aviso(e.message, true); }
+}
+async function memoria() {
+  tabla('#tmem', [{t:'Texto', f:f => esc(f.original)}, {t:'Equivale a', f:f => `${esc(f.codigo)} ${esc(f.nombre)}`}, {t:'Nivel', f:f => esc(f.nivel)}, {t:'Contexto', f:f => esc(f.contexto)},
+    {t:'Institución', f:f => esc(f.institucion)}, {t:'Confirmó', f:f => esc(f.confirmado_por)}, {t:'Fecha', f:f => esc(f.fecha)}], await api('/api/equivalencias'), 'Aún no hay equivalencias confirmadas.');
+}
+async function hechos() {
+  tabla('#thechos', [{t:'Solicitud', f:f => esc(f.solicitud)}, {t:'Departamento', f:f => `${esc(f.departamento)} ${esc(f.nombre)}`}, {t:'Total', num:1, f:f => num(f.total)},
+    {t:'Hombres', num:1, f:f => f.hombres == null ? '' : num(f.hombres)}, {t:'Mujeres', num:1, f:f => f.mujeres == null ? '' : num(f.mujeres)}], await api('/api/hechos'), 'Sin envíos todavía.');
+}
+async function ine() {
+  const r = await api('/api/ine'), u = r.ultima;
+  $('#ineinfo').textContent = u ? (u.ok ? `Última sincronización: ${u.cuando}. ${u.conjuntos} conjuntos, ${u.nuevos} nuevos y ${u.cambiados} con cambios.` : `Última sincronización (${u.cuando}) falló: ${u.detalle}`) : 'Todavía no se ha sincronizado.';
+  tabla('#tine', [{t:'Conjunto', f:f => `<b>${esc(f.titulo)}</b><br><small>${esc(f.nombre)}</small>`}, {t:'Modificado', f:f => esc(f.modificado)}, {t:'Recursos', num:1, f:f => f.recursos},
+    {t:'Formatos', f:f => esc(f.formatos)}, {t:'Licencia', f:f => esc(f.licencia)}], r.conjuntos, 'Sin datos: pulse "Sincronizar ahora".');
+}
+async function crecimiento() {
+  tabla('#tcrec', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:`${''}Inicio`, num:1, f:f => `${num(f.edificaciones_inicial)} <small>(${f.anio_inicial})</small>`},
+    {t:'Final', num:1, f:f => `${num(f.edificaciones_final)} <small>(${f.anio_final})</small>`}, {t:'Crecimiento anual', num:1, f:f => `${num(f.tasa_anual_pct)} %`},
+    {t:'Proyección', num:1, f:f => `${num(f.proyeccion)} ± ${num(f.proyeccion_margen)} <small>(${f.anio_proyectado})</small>`}, {t:'Confianza', f:f => `<span class="etq ${f.confianza === 'alta' ? 'ok' : f.confianza === 'media' ? 'alerta' : 'mal'}">${esc(f.confianza)}</span>`}],
+    await api('/api/crecimiento?anio=' + encodeURIComponent($('#anio').value)), 'Aún no se ha cargado la serie de edificaciones.');
+}
+const cargar = {recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento};
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('section').forEach(s => s.classList.toggle('activa', s.id === b.dataset.s));
+  cargar[b.dataset.s]().catch(e => aviso(e.message, true));
+});
+$('#sol').onchange = infoSolicitud;
+$('#enviar').onclick = async () => {
+  const f = $('#archivo').files[0]; if (!f) return aviso('Elija un archivo.', true);
+  const cuerpo = new FormData(); cuerpo.append('archivo', f); $('#enviar').disabled = true;
+  try { mostrarResultado(await api('/api/envios/' + encodeURIComponent($('#sol').value), {method:'POST', body: cuerpo})); envios(); estado(); }
+  catch (e) { aviso(e.message, true); } finally { $('#enviar').disabled = false; }
+};
+$('#tpend').onclick = e => { const b = e.target.closest('button[data-c]'); if (b) confirmar(b.dataset, b.dataset.c); };
+$('#tpend').onkeydown = e => { if (e.key === 'Enter' && e.target.matches('input[data-v]') && e.target.value.trim()) confirmar(e.target.dataset, e.target.value.trim()); };
+$('#sync').onclick = async () => { $('#sync').disabled = true; try { const r = await api('/api/ine/sincronizar', {method:'POST'}); aviso(`${r.conjuntos} conjuntos; ${r.nuevos} nuevos, ${r.cambiados} con cambios.`); ine(); estado(); } catch (e) { aviso(e.message, true); ine(); } finally { $('#sync').disabled = false; } };
+$('#cargaredif').onclick = async () => {
+  const f = $('#csvedif').files[0];
+  try { if (f) { const r = await api('/api/edificaciones', {method:'POST', headers:{'content-type':'text/csv'}, body: await f.text()}); aviso(`${r.filas_cargadas} filas cargadas; ${Object.keys(r.sin_lugar_reconocido).length} lugares sin reconocer.`); } await crecimiento(); estado(); }
+  catch (e) { aviso(e.message, true); }
+};
+$('#anio').onchange = () => crecimiento().catch(e => aviso(e.message, true));
+estado().then(cargarSolicitudes).then(envios).catch(e => aviso(e.message, true));
+</script>
+</body>
+</html>

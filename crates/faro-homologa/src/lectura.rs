@@ -63,6 +63,14 @@ fn armar(crudas: Vec<Vec<String>>, esperados: &[String], tabla: &mut Tabla) {
     }
 }
 
+/// Primera hoja de un Excel tal cual, sin buscar encabezado (para formatos de varias filas de títulos).
+pub fn leer_crudo(ruta: &Path) -> Result<Vec<Vec<String>>, String> {
+    let mut libro = calamine::open_workbook_auto(ruta).map_err(|e| format!("{}: {e}", ruta.display()))?;
+    let nombre = libro.sheet_names().first().cloned().ok_or("el libro no tiene hojas")?;
+    let rango = libro.worksheet_range(&nombre).map_err(|e| format!("{nombre}: {e}"))?;
+    Ok(rango.rows().map(|f| f.iter().map(celda).collect()).collect())
+}
+
 /// Lee un envío. `hoja`: nombre de la hoja, "todas" para unirlas, o `None` para la primera.
 /// `esperados`: nombres y alias de las columnas pedidas (para ubicar el encabezado).
 pub fn leer(ruta: &Path, hoja: Option<&str>, esperados: &[String]) -> Result<Tabla, String> {
