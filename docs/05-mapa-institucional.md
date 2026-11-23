@@ -30,7 +30,7 @@ presentación del INE, o **por confirmar** con la OCSE correspondiente.
 |---|---|---|---|
 | Salud | Nacimientos, defunciones, defunciones fetales, matrimonios, divorcios; hospitalarias internas y externas | RENAP*, hospitales privados | Proyecciones de población (tasas), Censo 2018, ENCOVI |
 | Educación | Educación formal, establecimientos, educación superior, bibliotecas | MINEDUC*, universidades* | Censo 2018 (asistencia escolar), ENCOVI |
-| Seguridad y justicia | Víctimas y detenidos PNC, agraviados y sindicados MP, sentencias OJ, faltas judiciales, INACIF, violencia intrafamiliar y contra la mujer, tránsito | PNC, MP, OJ, INACIF | Proyecciones (tasas por 100 mil), ENPEVI si se actualiza |
+| Seguridad y justicia | Víctimas y detenidos PNC, agraviados y sindicados MP, sentencias OJ, faltas judiciales, INACIF, violencia intrafamiliar y contra la mujer, tránsito | PNC, MP, OJ, INACIF | Proyecciones de población (tasas por 100 mil) |
 | Migración | Flujo migratorio, extranjeros atendidos, expulsados e inadmitidos, retornados | Instituto Guatemalteco de Migración* | ENEI, Censo 2018 (migración) |
 | Ambiente | Compendio ambiental (8 temas), incentivos forestales | INAB y otras* | Censo 2018 (agua, saneamiento, basura) |
 | Económicas | DINESE, comercio exterior, construcciones particulares, destace | SAT, otras* | ENEI, ENIGH 2023, IPC |
