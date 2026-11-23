@@ -55,7 +55,7 @@ pendientes, equivalencias confirmadas, resultados por departamento, conjuntos de
 Requiere [Rust](https://rustup.rs) estable (probado con 1.97) y, para el servidor, PostgreSQL 16.
 
 ```bash
-cargo test                       # 27 pruebas
+cargo test                       # 31 pruebas
 cargo build --release
 
 # Línea de comandos (no necesita base de datos)
@@ -64,6 +64,7 @@ cargo build --release
 ./target/release/faro confirmar "El puerto" --codigo 0509 --contexto 05 --institucion Ejemplo --usuario analista
 ./target/release/faro fuentes inventario                       # conjuntos del INE (requiere internet)
 ./target/release/faro fuentes descargar censo-2018-lugares-poblados --formato XLSX
+./target/release/faro catalogo verificar --listado <listado de lugares poblados.xlsx>   # catálogo contra el Censo 2018
 ./target/release/faro crecimiento --entrada datos/ejemplos/edificaciones_ficticias.csv --proyectar 2030
 ./target/release/faro aire --entrada <archivo de calidad del aire.xlsx>
 
@@ -88,8 +89,8 @@ Si una solicitud sustituye identificadores por llaves, defina el secreto `FARO_S
 
 | Fuente | Uso | Estado |
 |---|---|---|
-| INE, Censo 2018, "Listado de lugares poblados" ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados), CC BY) | Catálogo oficial de lugares con código y coordenadas: fuente principal | Pendiente de cargar (día 2) |
-| `datos/catalogo/` | 22 departamentos y 340 municipios con código INE y alias | Incluido; provisional hasta verificar contra el listado oficial |
+| INE, Censo 2018, "Listado de lugares poblados" ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados), CC BY) | Catálogo oficial de lugares con código y coordenadas: fuente principal | Cargado: 20,036 lugares poblados, 19,723 con coordenadas (`faro catalogo importar`) |
+| `datos/catalogo/` | 22 departamentos, 340 municipios y 20,036 lugares poblados con código INE y alias | Incluido; verificado código por código contra el listado oficial ([detalle](datos/catalogo/LEEME.md)) |
 | `datos/solicitudes/` | Solicitudes de datos para RENAP (defunciones, nacimientos), PNC (detenidos) y SE-CONRED (emergencias) | Incluido |
 | Archivos de ejemplo de instituciones compartidos por el INE (23-nov-2026) | Diseño y prueba de las solicitudes | **No están en el repositorio** (contienen datos personales) |
 | Google Research, Open Buildings 2.5D Temporal (CC BY 4.0 / ODbL) | Edificaciones por año 2016–2023 para crecimiento urbano | Script listo (`scripts/`), pendiente de ejecutar |

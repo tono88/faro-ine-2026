@@ -173,7 +173,7 @@ mod pruebas {
     fn la_salida_es_estandar_y_no_deja_pasar_datos_personales() {
         let mut cat = Catalogo::default();
         for (codigo, nombre, nivel, padre) in [("08", "Totonicapán", Nivel::Departamento, ""), ("0801", "Totonicapán", Nivel::Municipio, "08")] {
-            cat.agregar(Lugar { codigo: codigo.into(), nombre: nombre.into(), nivel, padre: padre.into(), alias: String::new(), clave: String::new(), claves: vec![] });
+            cat.agregar(Lugar { codigo: codigo.into(), nombre: nombre.into(), nivel, padre: padre.into(), alias: String::new(), ..Default::default() });
         }
         let sol: Solicitud = toml::from_str(
             r#"

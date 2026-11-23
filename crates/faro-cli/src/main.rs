@@ -63,6 +63,11 @@ enum Comando {
         #[command(subcommand)]
         accion: Fuentes,
     },
+    /// Verifica el catálogo contra el Listado de lugares poblados del Censo 2018 y carga sus lugares.
+    Catalogo {
+        #[command(subcommand)]
+        accion: AccionCatalogo,
+    },
     /// Crecimiento de edificaciones por territorio y proyección (CSV: codigo,anio,edificaciones).
     Crecimiento {
         #[arg(long)]
@@ -85,6 +90,22 @@ enum Comando {
         max_dias_no_validos: usize,
         #[arg(long, default_value = "salida/aire_mensual.csv")]
         salida: PathBuf,
+    },
+}
+
+#[derive(Subcommand)]
+enum AccionCatalogo {
+    /// Compara departamentos y municipios con el listado, código por código. No cambia nada.
+    Verificar {
+        /// Excel "Listado de lugares poblados" (faro fuentes descargar censo-2018-lugares-poblados).
+        #[arg(long)]
+        listado: PathBuf,
+    },
+    /// Adopta los nombres oficiales de municipio (el anterior queda como alias) y escribe
+    /// lugares_poblados.csv con coordenadas. Solo procede si los códigos coinciden.
+    Importar {
+        #[arg(long)]
+        listado: PathBuf,
     },
 }
 
@@ -180,6 +201,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             Ok(ExitCode::SUCCESS)
         }
         Comando::Recibir { solicitud, entrada, salida } => recibir(&catalogo, &memoria, &solicitud, &entrada, &salida),
+        Comando::Catalogo { accion } => catalogo_censo(&catalogo, &cli.catalogo, accion),
         Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } => unreachable!("atendidos arriba"),
     }
 }
@@ -234,6 +256,63 @@ fn fuentes(portal: &str, ruta_manifiesto: &Path, accion: Fuentes) -> Result<Exit
             }
         }
     }
+    Ok(ExitCode::SUCCESS)
+}
+
+fn informar(nivel: &str, v: &faro_homologa::censo::Verificacion) {
+    println!("{nivel}: {} en el listado · {} con el mismo nombre · {} con otro nombre · {} faltan · {} sobran", v.en_listado, v.iguales, v.diferencias.len(), v.faltan.len(), v.sobran.len());
+    for (codigo, nombre) in &v.faltan {
+        println!("  falta en el catálogo   {codigo}  {nombre}");
+    }
+    for (codigo, nombre) in &v.sobran {
+        println!("  no está en el listado  {codigo}  {nombre}");
+    }
+    for d in &v.diferencias {
+        let nota = if d.solo_grafia { "solo grafía" } else if d.cubierto_por_alias { "ya era alias" } else { "nombre nuevo" };
+        println!("  {}  catálogo: {:<28} listado: {:<32} ({nota})", d.codigo, d.en_catalogo, d.en_listado);
+    }
+}
+
+fn catalogo_censo(catalogo: &Catalogo, carpeta: &Path, accion: AccionCatalogo) -> Result<ExitCode, String> {
+    use faro_homologa::censo;
+    let (AccionCatalogo::Verificar { listado } | AccionCatalogo::Importar { listado }) = &accion;
+    let lugares = censo::interpretar(&faro_homologa::lectura::leer_crudo(listado)?)?;
+    let departamentos = censo::verificar(catalogo, &lugares, Nivel::Departamento);
+    let municipios = censo::verificar(catalogo, &lugares, Nivel::Municipio);
+    informar("departamentos", &departamentos);
+    informar("municipios", &municipios);
+    let con_coordenadas = lugares.iter().filter(|l| l.longitud.is_some()).count();
+    println!("lugares poblados: {} en el listado · {con_coordenadas} con coordenadas · {} sin coordenadas", lugares.len(), lugares.len() - con_coordenadas);
+    let coinciden = departamentos.codigos_coinciden() && municipios.codigos_coinciden();
+    if matches!(accion, AccionCatalogo::Verificar { .. }) {
+        return Ok(if coinciden && departamentos.diferencias.is_empty() && municipios.diferencias.is_empty() { ExitCode::SUCCESS } else { ExitCode::from(2) });
+    }
+    if !coinciden || !departamentos.diferencias.is_empty() {
+        return Err("los códigos o los departamentos no coinciden con el listado: corrija el catálogo a mano antes de importar".into());
+    }
+
+    let texto = |e: csv::Error| e.to_string();
+    let oficiales = censo::oficiales(&lugares, Nivel::Municipio);
+    let ruta_municipios = carpeta.join("municipios.csv");
+    // Mismo fin de línea que el resto del catálogo, para que el historial muestre solo lo que cambió.
+    let escritor = |ruta: &Path| csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(ruta);
+    let mut w = escritor(&ruta_municipios).map_err(texto)?;
+    w.write_record(["codigo", "nombre", "nivel", "padre", "alias"]).map_err(texto)?;
+    for (codigo, oficial) in &oficiales {
+        let l = catalogo.por_codigo(codigo).ok_or(format!("{codigo}: no está en el catálogo"))?;
+        w.write_record([codigo.as_str(), oficial.as_str(), "municipio", l.padre.as_str(), censo::alias_al_adoptar(oficial, &l.nombre, &l.alias).as_str()]).map_err(texto)?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+
+    let ruta_lugares = carpeta.join("lugares_poblados.csv");
+    let mut w = escritor(&ruta_lugares).map_err(texto)?;
+    w.write_record(["codigo", "nombre", "nivel", "padre", "alias", "longitud", "latitud"]).map_err(texto)?;
+    let numero = |v: Option<f64>| v.map(|x| x.to_string()).unwrap_or_default();
+    for l in &lugares {
+        w.write_record([l.codigo.as_str(), l.nombre.as_str(), "lugar_poblado", l.municipio.as_str(), "", numero(l.longitud).as_str(), numero(l.latitud).as_str()]).map_err(texto)?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    println!("escrito: {} ({} municipios, {} nombres actualizados) y {} ({} lugares poblados)", ruta_municipios.display(), oficiales.len(), municipios.diferencias.len(), ruta_lugares.display(), lugares.len());
     Ok(ExitCode::SUCCESS)
 }
 

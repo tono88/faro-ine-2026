@@ -4,9 +4,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Nivel {
+    #[default]
     Departamento,
     Municipio,
     LugarPoblado,
@@ -24,7 +25,7 @@ impl std::str::FromStr for Nivel {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Lugar {
     pub codigo: String,
     pub nombre: String,
@@ -35,6 +36,11 @@ pub struct Lugar {
     /// Otros nombres de uso oficial o común, separados por `|`.
     #[serde(default)]
     pub alias: String,
+    /// Centroide (grados decimales, WGS 84). Solo lo traen los lugares poblados.
+    #[serde(default)]
+    pub longitud: Option<f64>,
+    #[serde(default)]
+    pub latitud: Option<f64>,
     #[serde(skip)]
     pub clave: String,
     /// Claves de comparación: la del nombre y las de sus alias.
@@ -60,7 +66,7 @@ impl Catalogo {
         self.lugares.push(lugar);
     }
 
-    /// Lee un CSV con columnas `codigo,nombre,nivel,padre`.
+    /// Lee un CSV con columnas `codigo,nombre,nivel,padre` y, opcionales, `alias,longitud,latitud`.
     pub fn cargar_csv(&mut self, ruta: &Path) -> Result<usize, String> {
         let mut lector = csv::Reader::from_path(ruta).map_err(|e| format!("{}: {e}", ruta.display()))?;
         let mut n = 0;

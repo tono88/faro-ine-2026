@@ -49,6 +49,7 @@ pub fn es_ignorado(texto: &str) -> bool {
 
 /// Código INE a partir de un número: departamento a 2 dígitos; municipio como
 /// correlativo dentro de su departamento (con contexto) o código completo de 3–4 dígitos.
+/// Lugar poblado: código completo de 6–7 dígitos (municipio + correlativo de 3).
 fn codigo_numerico(texto: &str, nivel: Nivel, contexto: Option<&str>) -> Option<String> {
     let t = texto.trim().trim_end_matches(".0");
     if t.is_empty() || !t.chars().all(|c| c.is_ascii_digit()) {
@@ -60,7 +61,7 @@ fn codigo_numerico(texto: &str, nivel: Nivel, contexto: Option<&str>) -> Option<
             Some(c) if t.len() <= 2 => format!("{c}{t:0>2}"),
             _ => format!("{t:0>4}"),
         },
-        Nivel::LugarPoblado => t.to_string(),
+        Nivel::LugarPoblado => format!("{t:0>7}"),
     })
 }
 
@@ -217,7 +218,7 @@ mod pruebas {
             ("1702", "San José", Nivel::Municipio, "17"),
             ("1703", "San Benito", Nivel::Municipio, "17"),
         ] {
-            c.agregar(Lugar { codigo: codigo.into(), nombre: nombre.into(), nivel, padre: padre.into(), alias: if codigo == "0509" { "Puerto San José".into() } else { String::new() }, clave: String::new(), claves: vec![] });
+            c.agregar(Lugar { codigo: codigo.into(), nombre: nombre.into(), nivel, padre: padre.into(), alias: if codigo == "0509" { "Puerto San José".into() } else { String::new() }, ..Default::default() });
         }
         c
     }

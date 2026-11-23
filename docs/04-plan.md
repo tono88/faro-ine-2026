@@ -18,4 +18,4 @@
 
 - Dar acceso al repositorio a los cinco correos del jurado.
 - Enviar la nota de consentimiento firmada.
-- Descargar el "Listado de lugares poblados" (XLSX) del INE y agregarlo al proyecto.
+- ~~Descargar el "Listado de lugares poblados" (XLSX) del INE y agregarlo al proyecto.~~ Hecho el 23-nov: catálogo verificado y lugares poblados cargados con coordenadas.

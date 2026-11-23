@@ -6,6 +6,7 @@
 //!   memoria de equivalencias ya confirmadas por una persona.
 //! - [`solicitud`]: describe qué columnas pide el INE a una institución y valida un envío.
 pub mod catalogo;
+pub mod censo;
 pub mod homologar;
 pub mod lectura;
 pub mod memoria;
