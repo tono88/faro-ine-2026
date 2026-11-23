@@ -1,0 +1,65 @@
+# Núcleo común de variables: las columnas que TODA institución debería enviar igual.
+# Cada solicitud de datos reutiliza estas definiciones y agrega las propias del registro.
+# Borrador del equipo para discutir en las OCSE; los catálogos deben alinearse con los del INE.
+id = "nucleo-comun-v0"
+titulo = "Núcleo común de variables para registros administrativos"
+institucion = "Todas"
+
+[[columna]]
+nombre = "fecha_hecho"
+tipo = "fecha"
+requerida = true
+pareo = true
+descripcion = "Fecha en que ocurrió el hecho (no la de registro). AAAA-MM-DD."
+alias = ["fecha", "fecha del hecho", "fecha ocurrencia", "fec_hecho"]
+
+[[columna]]
+nombre = "departamento"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "departamento"
+descripcion = "Departamento de ocurrencia. Nombre o código INE de 2 dígitos."
+alias = ["depto", "depto.", "dep", "departamento de ocurrencia", "departamento del hecho"]
+
+[[columna]]
+nombre = "municipio"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "municipio"
+contexto = "departamento"
+descripcion = "Municipio de ocurrencia. Nombre o código INE de 4 dígitos."
+alias = ["mupio", "muni", "mun", "municipio de ocurrencia", "municipio del hecho"]
+
+[[columna]]
+nombre = "lugar_poblado"
+tipo = "texto"
+pareo = true
+homologar = "lugar_poblado"
+contexto = "municipio"
+descripcion = "Aldea, caserío, colonia o zona, según el listado del Censo 2018."
+alias = ["aldea", "caserio", "localidad", "comunidad", "lugar"]
+
+[[columna]]
+nombre = "sexo"
+tipo = "texto"
+pareo = true
+valores = ["hombre", "mujer", "ignorado"]
+equivalencias = { "m" = "hombre", "masculino" = "hombre", "h" = "hombre", "f" = "mujer", "femenino" = "mujer", "ns/nr" = "ignorado", "no indica" = "ignorado", "sin dato" = "ignorado" }
+alias = ["genero", "sexo de la persona"]
+
+[[columna]]
+nombre = "edad"
+tipo = "entero"
+pareo = true
+descripcion = "Edad en años cumplidos. Vacío si se ignora (no usar 99 ni 999)."
+alias = ["edad en años", "edad_anios"]
+
+[[columna]]
+nombre = "pueblo"
+tipo = "texto"
+valores = ["maya", "garífuna", "xinka", "afrodescendiente", "ladino", "extranjero", "ignorado"]
+equivalencias = { "garifuna" = "garífuna", "xinca" = "xinka", "mestizo" = "ladino", "ladina" = "ladino", "indigena" = "maya", "no indica" = "ignorado" }
+descripcion = "Pueblo de pertenencia por autoidentificación, como en el Censo 2018."
+alias = ["pueblo de pertenencia", "grupo etnico", "etnia"]

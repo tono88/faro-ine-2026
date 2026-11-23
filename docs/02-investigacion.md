@@ -22,18 +22,18 @@ Consultado el 23 de noviembre de 2026.
 
 ## 2. Crecimiento urbano a partir de imágenes
 
-**Universidad Rafael Landívar.** No se localizó en línea el estudio específico de techos de
-vivienda con imágenes satelitales y proyección de crecimiento. Lo más cercano encontrado:
+**Universidad Rafael Landívar.** La investigadora es Michelle Tercero (Iarna-URL; temas urbanos,
+planificación y geoinformática).
 
-- *Perfil urbano de Guatemala. Análisis del crecimiento de áreas urbanas*, coordinado por el
-  Instituto de Investigación y Proyección sobre Ciencia y Tecnología (Incyt-URL): analiza aumento
-  de población y expansión territorial e incluye modelos predictivos.
+- Charla "Monitoreo de crecimiento de la mancha urbana y su aplicación en el Observatorio Urbano
+  de Guatemala". <https://www.youtube.com/watch?v=IooJRPRnhXc>
+- Perfil de investigadora: <https://www.researchgate.net/profile/Michelle-Tercero>
+- *Perfil urbano de Guatemala. Análisis del crecimiento de áreas urbanas* (Incyt-URL): aumento de
+  población, expansión territorial y modelos predictivos.
   <https://biblioteca.url.edu.gt/vrip/galeria-libros-incyt/>
-- A. Alonso (Iarna-URL), "Información satelital como herramienta para el diseño habitable
-  climático omnicomprensivo": usa temperatura satelital (GLDAS, 42 años), no techos.
-  <https://sie.url.edu.gt/wp-content/uploads/publicaciones/ensayos_ri/2025/ensri-2025-cuad-cedc_inf_satelit_dis_habit-aar.pdf>
 
-Pendiente: confirmar con la universidad el título y autores del estudio de techos.
+Pendiente: ver la charla completa y contactarla para conocer el método de techos y si los datos
+son reutilizables.
 
 **Trabajos similares y datos abiertos utilizables.**
 

@@ -1,0 +1,41 @@
+conjunto_ine,tema,ocse,institucion_fuente,evidencia,llaves_de_pareo
+estadisticas-vitales-nacimientos,Vitales,Salud,RENAP,por confirmar,fecha|departamento|municipio|sexo|edad_madre
+estadisticas-vitales-defunciones,Vitales,Salud,RENAP,por confirmar,fecha|departamento|municipio|sexo|edad|causa_cie10
+estadisticas-vitales-defunciones-fetales,Vitales,Salud,RENAP,por confirmar,fecha|departamento|municipio|sexo
+estadisticas-vitales-matrimonios,Vitales,Salud,RENAP,por confirmar,fecha|departamento|municipio
+estadisticas-vitales-divorcios,Vitales,Salud,RENAP,por confirmar,fecha|departamento|municipio
+estadisticas-hospitalarias-servicios-internos,Hospitalarias,Salud,Hospitales privados,presentación INE 23-nov-2026,fecha|departamento|municipio|sexo|edad|causa_cie10
+estadisticas-hospitalarias-servicios-externos,Hospitalarias,Salud,Hospitales privados,presentación INE 23-nov-2026,fecha|departamento|municipio|sexo|edad|causa_cie10
+educacion-formal,Educación,Educación,MINEDUC,por confirmar,anio|departamento|municipio|sexo|nivel|sector|codigo_establecimiento
+establecimientos-educacion-formal,Educación,Educación,MINEDUC,por confirmar,departamento|municipio|codigo_establecimiento
+educacion-superior-matriculados,Educación,Educación,Universidades,por confirmar,anio|departamento|sexo|universidad
+educacion-superior-graduados,Educación,Educación,Universidades,por confirmar,anio|departamento|sexo|universidad
+educacion-superior-docentes,Educación,Educación,Universidades,por confirmar,anio|departamento|sexo|universidad
+bibliotecas-y-centros-de-documentacion,Cultura,Educación,Bibliotecas,por confirmar,anio|departamento|municipio
+hechos-delictivos-victimas-pnc,Seguridad,Seguridad,PNC,nombre del conjunto,fecha|departamento|municipio|sexo|edad|delito
+detenidos-pnc,Seguridad,Seguridad,PNC,nombre del conjunto,fecha|departamento|municipio|sexo|edad|delito
+base-anual_2025_incautaciones_pnc_diprona,Seguridad,Seguridad,PNC (DIPRONA),nombre del conjunto,fecha|departamento|municipio
+hechos-delictivos-agraviados-mp,Seguridad,Seguridad,Ministerio Público,nombre del conjunto,fecha|departamento|municipio|sexo|edad|delito
+hechos-delictivos-sindicados-mp,Seguridad,Seguridad,Ministerio Público,nombre del conjunto,fecha|departamento|municipio|sexo|edad|delito
+hechos-delictivos-sentencias-oj,Justicia,Seguridad,Organismo Judicial,nombre del conjunto,fecha|departamento|municipio|sexo|delito
+faltas-judiciales,Justicia,Seguridad,Organismo Judicial,por confirmar,fecha|departamento|municipio|sexo|edad
+hechos-delictivos-servicio-medico-legal-inacif,Seguridad,Seguridad,INACIF,nombre del conjunto,fecha|departamento|municipio|sexo|edad
+hechos-delictivos-servicio-medico-necropsias-inacif,Seguridad,Seguridad,INACIF,nombre del conjunto,fecha|departamento|municipio|sexo|edad|causa
+hechos-delictivos-servicio-medico-exhumaciones-inacif,Seguridad,Seguridad,INACIF,nombre del conjunto,fecha|departamento|municipio
+violencia-intrafamiliar,Violencia,Seguridad,Varias instituciones receptoras de denuncias,por confirmar,fecha|departamento|municipio|sexo|edad|pueblo
+violencia-contra-la-mujer,Violencia,Seguridad,Varias instituciones (SNIVCM),por confirmar,fecha|departamento|municipio|edad|pueblo|delito
+accidentes-de-transito-hechos,Tránsito,Seguridad,PNC,por confirmar,fecha|departamento|municipio|tipo_vehiculo
+accidentes-de-transito-fallecidos-y-lesionados,Tránsito,Seguridad,PNC,por confirmar,fecha|departamento|municipio|sexo|edad
+accidentes-de-transito-vehiculos-involucrados,Tránsito,Seguridad,PNC,por confirmar,fecha|departamento|municipio|tipo_vehiculo
+flujo-migratorio,Migración,Migración,Instituto Guatemalteco de Migración,por confirmar,fecha|puesto_fronterizo|nacionalidad|sexo
+extranjeros-atendidos,Migración,Migración,Instituto Guatemalteco de Migración,por confirmar,fecha|nacionalidad|sexo
+extranjeros-expulsados,Migración,Migración,Instituto Guatemalteco de Migración,por confirmar,fecha|nacionalidad|sexo
+extranjeros-inadmitidos,Migración,Migración,Instituto Guatemalteco de Migración,por confirmar,fecha|nacionalidad|sexo
+retornados,Migración,Migración,Instituto Guatemalteco de Migración,por confirmar,fecha|departamento|municipio|sexo|edad
+directorio-nacional-estadistico-de-empresas-dinese,Empresas,(económicas),SAT,presentación INE 23-nov-2026,departamento|municipio|actividad_ciiu4|tamano
+exportaciones-ano-2022,Comercio exterior,(económicas),SAT / Banguat,por confirmar,fecha|pais|partida_arancelaria
+importaciones-ano-2022,Comercio exterior,(económicas),SAT / Banguat,por confirmar,fecha|pais|partida_arancelaria
+construcciones-particulares-nivel-departamental,Construcción,(económicas),Municipalidades,por confirmar,anio|departamento|municipio
+destace,Agropecuarias,(económicas),por confirmar,por confirmar,fecha|departamento|municipio|especie
+base-de-datos-de-incentivos-inab,Ambiente,Ambiente,INAB,nombre del conjunto,anio|departamento|municipio
+compendio-ambiental (8 temas),Ambiente,Ambiente,"Varias (ambiente, clima, riesgo, energía)",por confirmar,anio|departamento|municipio

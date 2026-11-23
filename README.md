@@ -12,7 +12,7 @@ Las instituciones que envían datos al INE no tienen un formato común. El mismo
 escrito como "Puerto de San José", "El puerto", "PTO. SAN JOSE" o "San José" (que además existe
 en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde.
 
-## Qué hace hoy (día 1)
+## Qué hace hoy
 
 1. **Solicitud de datos.** El INE declara una vez qué columnas necesita, de qué tipo, cuáles son
    obligatorias y cuáles sirven para el pareo (`datos/ejemplos/solicitud_hechos_transito.toml`).
@@ -24,12 +24,18 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
 4. **Memoria.** Cada decisión queda grabada (qué texto, qué código, quién, cuándo, de qué
    institución). El siguiente envío ya no pregunta lo mismo.
 
+5. **Fuentes con procedencia.** Descubre y descarga conjuntos del portal del INE y deja
+   registrada la URL, la fecha y la huella de cada archivo (`faro fuentes`).
+6. **Crecimiento urbano.** A partir de edificaciones por año vistas por satélite, calcula el
+   ritmo de crecimiento de cada municipio y lo proyecta con su margen (`faro crecimiento`).
+
 ## Probarlo
 
-Requiere [Rust](https://rustup.rs) estable (probado con 1.97). No usa servicios en la nube ni de pago.
+Requiere [Rust](https://rustup.rs) estable (probado con 1.97). El núcleo no usa servicios en la nube ni de pago.
+El módulo de crecimiento urbano obtiene sus datos con Google Earth Engine (servicio en la nube de Google, sin costo para uso no comercial).
 
 ```bash
-cargo test                      # 11 pruebas
+cargo test                      # 21 pruebas
 cargo build --release
 
 # 1. Recibir un envío de ejemplo (datos ficticios)
@@ -48,6 +54,16 @@ cat salida/pendientes.csv
 # 4. Recibir de nuevo: ahora esas filas salen resueltas por memoria
 ./target/release/faro recibir --solicitud datos/ejemplos/solicitud_hechos_transito.toml \
   --entrada datos/ejemplos/envio_hechos_transito.csv --salida salida
+```
+
+```bash
+# Fuentes del INE (requiere internet)
+./target/release/faro fuentes inventario                      # todos los conjuntos y recursos
+./target/release/faro fuentes descargar censo-2018-lugares-poblados --formato XLSX
+./target/release/faro fuentes citar                           # tabla de fuentes y fechas
+
+# Crecimiento urbano (ejemplo con datos ficticios)
+./target/release/faro crecimiento --entrada datos/ejemplos/edificaciones_ficticias.csv --proyectar 2030
 ```
 
 Salidas en `salida/`: `homologado.csv` (el envío más código y estado por columna geográfica),
@@ -71,7 +87,9 @@ Salidas en `salida/`: `homologado.csv` (el envío más código y estado por colu
 | INE, Censo 2018, "Listado de lugares poblados" ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados), CC BY) | Catálogo oficial de lugares con código y coordenadas: fuente principal | Pendiente de cargar (día 2) |
 | `datos/catalogo/departamentos.csv` | 22 departamentos con código INE | Incluido |
 | `datos/catalogo/municipios_muestra.csv` | Muestra de municipios (Escuintla y Petén) para pruebas; se reemplaza por el listado oficial | Incluido, por verificar contra el listado oficial |
-| `datos/ejemplos/` | Envío y solicitud **ficticios** para demostración | Incluido |
+| Google Research, Open Buildings 2.5D Temporal (CC BY 4.0 / ODbL) | Edificaciones por año 2016–2023 para crecimiento urbano | Script listo (`scripts/`), pendiente de ejecutar |
+| `datos/estandar/` | Núcleo común de variables y mapa de registros e instituciones (borrador del equipo) | Incluido |
+| `datos/ejemplos/` | Envío, solicitud y serie de edificaciones **ficticios** para demostración | Incluido |
 
 El repositorio no contiene datos de personas. Los ejemplos son inventados.
 
@@ -79,8 +97,12 @@ El repositorio no contiene datos de personas. Los ejemplos son inventados.
 
 ```
 crates/faro-homologa/   biblioteca: normalizar, catálogo, homologar, memoria, solicitud
+crates/faro-fuentes/    cliente CKAN y descargas con procedencia
+crates/faro-territorio/ crecimiento de edificaciones y proyección
 crates/faro-cli/        ejecutable `faro`
+scripts/                script de Earth Engine para edificaciones por municipio
 datos/catalogo/         catálogos oficiales en CSV (codigo,nombre,nivel,padre)
+datos/estandar/         núcleo común de variables y mapa de registros
 datos/ejemplos/         solicitud y envío de demostración
 docs/                   necesidades del INE, investigación, arquitectura y plan
 ```
@@ -91,11 +113,12 @@ docs/                   necesidades del INE, investigación, arquitectura y plan
 - [Investigación y referencias](docs/02-investigacion.md)
 - [Arquitectura y relación con X-Road](docs/03-arquitectura.md)
 - [Plan hasta la entrega](docs/04-plan.md)
+- [Cómo se conectan todas las instituciones](docs/05-mapa-institucional.md)
 
 ## Componentes de terceros
 
 Bibliotecas de Rust de código abierto (licencias MIT o Apache-2.0): `serde`, `serde_json`, `toml`,
-`csv`, `strsim`, `unicode-normalization`, `chrono`, `clap`. Versiones exactas en `Cargo.lock`.
+`csv`, `strsim`, `unicode-normalization`, `chrono`, `clap`, `ureq`, `sha2`. Versiones exactas en `Cargo.lock`.
 
 ## Uso de inteligencia artificial
 
