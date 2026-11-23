@@ -1,0 +1,47 @@
+# Solicitud de datos: lo que el INE pide a una institución, declarado una sola vez.
+# Cada envío se valida contra este archivo antes de aceptarse.
+id = "hechos-transito-v1"
+titulo = "Hechos de tránsito"
+institucion = "Institución de ejemplo (datos ficticios)"
+periodicidad = "mensual"
+
+[[columna]]
+nombre = "fecha_hecho"
+tipo = "fecha"
+requerida = true
+pareo = true
+alias = ["fecha", "fecha del hecho", "fec_hecho"]
+
+[[columna]]
+nombre = "departamento"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "departamento"
+alias = ["depto", "depto.", "departamento del hecho"]
+
+[[columna]]
+nombre = "municipio"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "municipio"
+contexto = "departamento"
+alias = ["mupio", "muni", "municipio del hecho"]
+
+[[columna]]
+nombre = "tipo_vehiculo"
+tipo = "texto"
+requerida = true
+valores = ["automóvil", "motocicleta", "pick-up", "camión", "bus", "otro", "ignorado"]
+alias = ["vehiculo", "tipo de vehículo"]
+
+[[columna]]
+nombre = "fallecidos"
+tipo = "entero"
+alias = ["muertos"]
+
+[[columna]]
+nombre = "lesionados"
+tipo = "entero"
+alias = ["heridos"]
