@@ -1,0 +1,61 @@
+# Basada en el archivo de ejemplo que el INE compartió el 23-nov-2026 (detenidos, PNC).
+# Alias, apodos, tatuajes, direcciones y placas no se declaran: no pasan a la salida.
+id = "pnc-detenidos-v1"
+titulo = "Personas detenidas"
+institucion = "PNC"
+periodicidad = "mensual"
+
+[[columna]]
+nombre = "fecha_hecho"
+tipo = "fecha"
+requerida = true
+pareo = true
+alias = ["FECHA"]
+
+[[columna]]
+nombre = "hora"
+tipo = "texto"
+alias = ["HORA"]
+
+[[columna]]
+nombre = "municipio"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "municipio"
+alias = ["MUNICIPIO"]
+descripcion = "Municipio del hecho; la PNC envía el código completo sin cero inicial (101 = 0101)."
+
+[[columna]]
+nombre = "area_urbana"
+tipo = "texto"
+alias = ["URBANO"]
+valores = ["si", "no"]
+
+[[columna]]
+nombre = "sexo"
+tipo = "texto"
+pareo = true
+valores = ["hombre", "mujer", "ignorado"]
+equivalencias = { "m" = "hombre", "masculino" = "hombre", "h" = "hombre", "f" = "mujer", "femenino" = "mujer", "indeterminado" = "ignorado" }
+
+[[columna]]
+nombre = "edad"
+tipo = "entero"
+pareo = true
+
+[[columna]]
+nombre = "nacionalidad"
+tipo = "texto"
+alias = ["NACIONALIDAD"]
+
+[[columna]]
+nombre = "delito_codigo"
+tipo = "entero"
+alias = ["DELITO"]
+descripcion = "Código de delito según el diccionario de hechos delictivos del INE."
+
+[[columna]]
+nombre = "delito"
+tipo = "texto"
+alias = ["MOTIVO"]

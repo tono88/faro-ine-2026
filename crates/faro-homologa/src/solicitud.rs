@@ -41,6 +41,10 @@ pub struct Columna {
     pub equivalencias: HashMap<String, String>,
     #[serde(default)]
     pub descripcion: String,
+    /// Dato personal: "eliminar" (no sale del envío) o "seudonimizar" (se sustituye por una
+    /// llave no reversible, útil para parear sin conocer la identidad).
+    #[serde(default)]
+    pub sensible: Option<String>,
 }
 
 impl Columna {
@@ -63,6 +67,9 @@ pub struct Solicitud {
     pub institucion: String,
     #[serde(default)]
     pub periodicidad: String,
+    /// Hoja de Excel a leer; "todas" une todas las hojas. Por defecto, la primera.
+    #[serde(default)]
+    pub hoja: Option<String>,
     #[serde(rename = "columna")]
     pub columnas: Vec<Columna>,
 }
@@ -98,6 +105,11 @@ impl Solicitud {
     pub fn cargar(ruta: &Path) -> Result<Self, String> {
         let texto = std::fs::read_to_string(ruta).map_err(|e| format!("{}: {e}", ruta.display()))?;
         toml::from_str(&texto).map_err(|e| format!("{}: {e}", ruta.display()))
+    }
+
+    /// Nombres y alias de todas las columnas pedidas (para ubicar el encabezado en el archivo).
+    pub fn nombres_esperados(&self) -> Vec<String> {
+        self.columnas.iter().flat_map(|c| std::iter::once(c.nombre.clone()).chain(c.alias.iter().cloned())).collect()
     }
 
     /// Para cada columna pedida, índice de la columna del archivo que la contiene.
@@ -144,11 +156,14 @@ impl Solicitud {
             for c in &self.columnas {
                 let Some(&i) = mapa.get(&c.nombre) else { continue };
                 let valor = fila.get(i).map(|v| v.trim()).unwrap_or("");
-                if valor.is_empty() {
-                    if c.requerida {
+                if valor.is_empty() || crate::homologar::es_ignorado(valor) {
+                    if c.requerida && valor.is_empty() {
                         anotar(&mut rep, n + 1, &c.nombre, "valor vacío en columna requerida".into());
                     }
                     continue;
+                }
+                if c.homologar.is_some() {
+                    continue; // lo geográfico lo juzga la homologación, no el tipo
                 }
                 if !tipo_valido(c.tipo, valor) {
                     anotar(&mut rep, n + 1, &c.nombre, format!("{valor:?} no es {:?}", c.tipo).to_lowercase());
@@ -166,8 +181,17 @@ fn tipo_valido(tipo: Tipo, valor: &str) -> bool {
         Tipo::Texto => true,
         Tipo::Entero => valor.parse::<i64>().is_ok(),
         Tipo::Decimal => valor.replace(',', "").parse::<f64>().is_ok(),
-        Tipo::Fecha => ["%Y-%m-%d", "%d/%m/%Y"].iter().any(|f| chrono::NaiveDate::parse_from_str(valor, f).is_ok()),
+        Tipo::Fecha => fecha_iso(valor).is_some(),
     }
+}
+
+/// Lleva una fecha a AAAA-MM-DD. Acepta AAAA-MM-DD, DD/MM/AAAA y fecha con hora.
+pub fn fecha_iso(valor: &str) -> Option<String> {
+    let solo_fecha = valor.trim().split([' ', 'T']).next().unwrap_or("");
+    ["%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"]
+        .iter()
+        .find_map(|f| chrono::NaiveDate::parse_from_str(solo_fecha, f).ok())
+        .map(|d| d.format("%Y-%m-%d").to_string())
 }
 
 #[cfg(test)]
@@ -218,14 +242,14 @@ mod pruebas {
         assert_eq!(sexo.canonico("MASCULINO"), Some("hombre"));
         assert_eq!(sexo.canonico(" f "), Some("mujer"));
         assert_eq!(sexo.canonico("Mujer"), Some("mujer"));
-        assert_eq!(sexo.canonico("N/A"), None);
+        assert_eq!(sexo.canonico("X"), None);
     }
 
     #[test]
     fn detecta_columna_faltante_fecha_mala_vacio_y_valor_fuera_de_catalogo() {
         let rep = solicitud().validar(
             &s(&["departamento", "fecha_hecho", "sexo"]),
-            vec![s(&["Escuintla", "31/01/2025", "Mujer"]), s(&["", "2025-13-01", "N/A"])].into_iter(),
+            vec![s(&["Escuintla", "31/01/2025", "Mujer"]), s(&["", "2025-13-01", "X"])].into_iter(),
         );
         let detalles: Vec<_> = rep.problemas.iter().map(|p| (p.fila, p.columna.as_str())).collect();
         assert_eq!(detalles, vec![(2, "departamento"), (2, "fecha_hecho"), (2, "sexo")]);

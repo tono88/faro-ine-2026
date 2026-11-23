@@ -29,7 +29,39 @@ pub enum Estado {
     /// Hay candidatos parecidos pero ninguno claro.
     Revisar,
     SinCoincidencia,
+    /// Llegó un número que no corresponde a ningún código del catálogo.
+    CodigoInvalido,
+    /// Vacío o marcado como ignorado en origen ("IGNORADO", "-1", "N.D.").
     Vacio,
+}
+
+/// Formas en que las instituciones escriben "no se sabe".
+pub fn es_ignorado(texto: &str) -> bool {
+    let t = texto.trim();
+    if t.is_empty() || t.starts_with('-') && t[1..].chars().all(|c| c.is_ascii_digit()) {
+        return true;
+    }
+    matches!(
+        crate::normalizar::basico(t).as_str(),
+        "ignorado" | "ignorada" | "desconocido" | "no indica" | "no determinado" | "sin dato" | "sin datos" | "n d" | "nd" | "ns nr" | "todos" | "none" | "null" | "na" | "n a"
+    )
+}
+
+/// Código INE a partir de un número: departamento a 2 dígitos; municipio como
+/// correlativo dentro de su departamento (con contexto) o código completo de 3–4 dígitos.
+fn codigo_numerico(texto: &str, nivel: Nivel, contexto: Option<&str>) -> Option<String> {
+    let t = texto.trim().trim_end_matches(".0");
+    if t.is_empty() || !t.chars().all(|c| c.is_ascii_digit()) {
+        return None;
+    }
+    Some(match nivel {
+        Nivel::Departamento => format!("{t:0>2}"),
+        Nivel::Municipio => match contexto {
+            Some(c) if t.len() <= 2 => format!("{c}{t:0>2}"),
+            _ => format!("{t:0>4}"),
+        },
+        Nivel::LugarPoblado => t.to_string(),
+    })
 }
 
 impl Estado {
@@ -41,6 +73,7 @@ impl Estado {
             Estado::Ambiguo => "ambiguo",
             Estado::Revisar => "revisar",
             Estado::SinCoincidencia => "sin_coincidencia",
+            Estado::CodigoInvalido => "codigo_invalido",
             Estado::Vacio => "vacio",
         }
     }
@@ -92,21 +125,33 @@ impl<'a> Homologador<'a> {
             puntaje: 0.0,
             candidatos: vec![],
         };
-        if k.is_empty() {
+        if k.is_empty() || es_ignorado(texto) {
             return r;
         }
 
-        // Si ya viene el código oficial, se respeta.
-        if let Some(l) = self.catalogo.por_codigo(texto.trim()) {
-            if l.nivel == nivel && contexto.map_or(true, |c| l.padre == c) {
-                return self.asignar(r, Estado::Exacto, &l.codigo, 1.0);
-            }
+        // Si viene un código, se interpreta: "8" + contexto "08" no aplica a departamento;
+        // municipio "1" con contexto "08" es 0801; municipio "101" es 0101.
+        if let Some(codigo) = codigo_numerico(texto, nivel, contexto) {
+            return match self.catalogo.por_codigo(&codigo) {
+                Some(l) if l.nivel == nivel && contexto.map_or(true, |c| l.padre == c) => {
+                    let codigo = l.codigo.clone();
+                    self.asignar(r, Estado::Exacto, &codigo, 1.0)
+                }
+                _ => {
+                    r.estado = Estado::CodigoInvalido;
+                    r
+                }
+            };
         }
 
         let mut puntuados: Vec<Candidato> = self
             .catalogo
             .de_nivel(nivel, contexto)
-            .map(|l| Candidato { codigo: l.codigo.clone(), nombre: l.nombre.clone(), puntaje: similitud(&k, &l.clave) })
+            .map(|l| Candidato {
+                codigo: l.codigo.clone(),
+                nombre: l.nombre.clone(),
+                puntaje: l.claves.iter().map(|c| similitud(&k, c)).fold(0.0, f64::max),
+            })
             .filter(|c| c.puntaje >= UMBRAL_CANDIDATO)
             .collect();
         puntuados.sort_by(|a, b| b.puntaje.total_cmp(&a.puntaje).then(a.codigo.cmp(&b.codigo)));
@@ -172,7 +217,7 @@ mod pruebas {
             ("1702", "San José", Nivel::Municipio, "17"),
             ("1703", "San Benito", Nivel::Municipio, "17"),
         ] {
-            c.agregar(Lugar { codigo: codigo.into(), nombre: nombre.into(), nivel, padre: padre.into(), clave: String::new() });
+            c.agregar(Lugar { codigo: codigo.into(), nombre: nombre.into(), nivel, padre: padre.into(), alias: if codigo == "0509" { "Puerto San José".into() } else { String::new() }, clave: String::new(), claves: vec![] });
         }
         c
     }
@@ -216,14 +261,34 @@ mod pruebas {
             assert!(!r.estado.resuelto());
         }
         m.confirmar("El Puerto", Nivel::Municipio, Some("05"), "0509", "MP", "analista").unwrap();
-        m.confirmar("Puerto de San José", Nivel::Municipio, Some("05"), "0509", "MP", "analista").unwrap();
         let h = Homologador::new(&c, &m);
-        for v in ["el puerto", "EL PUERTO.", "Pto. San José", "puerto san jose"] {
+        for v in ["el puerto", "EL PUERTO."] {
             let r = h.homologar(v, Nivel::Municipio, Some("05"));
             assert_eq!((r.estado, r.codigo.as_deref()), (Estado::Memoria, Some("0509")), "falló {v:?}");
         }
+        // Los alias del catálogo resuelven sin memoria.
+        for v in ["Pto. San José", "puerto de san jose"] {
+            assert_eq!(h.homologar(v, Nivel::Municipio, Some("05")).estado, Estado::Exacto, "falló {v:?}");
+        }
         // La equivalencia vale solo en su contexto: en Petén "El Puerto" no se asigna.
         assert!(!h.homologar("El Puerto", Nivel::Municipio, Some("17")).estado.resuelto());
+    }
+
+    #[test]
+    fn codigos_como_los_envian_renap_y_pnc() {
+        let (c, m) = (catalogo(), Memoria::default());
+        let h = Homologador::new(&c, &m);
+        // RENAP: departamento "5" y municipio "9" como correlativo.
+        assert_eq!(h.homologar("5", Nivel::Departamento, None).codigo.as_deref(), Some("05"));
+        assert_eq!(h.homologar("9", Nivel::Municipio, Some("05")).codigo.as_deref(), Some("0509"));
+        // PNC: código completo sin cero inicial.
+        assert_eq!(h.homologar("510", Nivel::Municipio, None).codigo.as_deref(), Some("0510"));
+        // Un código que no existe no se "arregla": se reporta.
+        assert_eq!(h.homologar("97", Nivel::Municipio, Some("05")).estado, Estado::CodigoInvalido);
+        assert_eq!(h.homologar("43", Nivel::Departamento, None).estado, Estado::CodigoInvalido);
+        for v in ["-1", "IGNORADO", "N.D.", "Todos", ""] {
+            assert_eq!(h.homologar(v, Nivel::Municipio, None).estado, Estado::Vacio, "{v:?}");
+        }
     }
 
     #[test]

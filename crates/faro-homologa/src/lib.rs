@@ -7,8 +7,10 @@
 //! - [`solicitud`]: describe qué columnas pide el INE a una institución y valida un envío.
 pub mod catalogo;
 pub mod homologar;
+pub mod lectura;
 pub mod memoria;
 pub mod normalizar;
+pub mod recepcion;
 pub mod solicitud;
 
 pub use catalogo::{Catalogo, Lugar, Nivel};

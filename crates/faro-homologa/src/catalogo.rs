@@ -32,8 +32,14 @@ pub struct Lugar {
     /// Código del nivel superior (departamento del municipio, municipio del lugar poblado).
     #[serde(default)]
     pub padre: String,
+    /// Otros nombres de uso oficial o común, separados por `|`.
+    #[serde(default)]
+    pub alias: String,
     #[serde(skip)]
     pub clave: String,
+    /// Claves de comparación: la del nombre y las de sus alias.
+    #[serde(skip)]
+    pub claves: Vec<String>,
 }
 
 #[derive(Debug, Default)]
@@ -45,6 +51,11 @@ pub struct Catalogo {
 impl Catalogo {
     pub fn agregar(&mut self, mut lugar: Lugar) {
         lugar.clave = clave(&lugar.nombre);
+        lugar.claves = std::iter::once(lugar.nombre.as_str())
+            .chain(lugar.alias.split('|'))
+            .map(clave)
+            .filter(|c| !c.is_empty())
+            .collect();
         self.por_codigo.insert(lugar.codigo.clone(), self.lugares.len());
         self.lugares.push(lugar);
     }

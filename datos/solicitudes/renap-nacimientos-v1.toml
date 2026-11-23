@@ -1,0 +1,89 @@
+# Basada en el archivo de ejemplo que el INE compartió el 23-nov-2026 (nacimientos, RENAP).
+id = "renap-nacimientos-v1"
+titulo = "Nacimientos"
+institucion = "RENAP"
+periodicidad = "mensual"
+
+[[columna]]
+nombre = "fecha_hecho"
+tipo = "fecha"
+requerida = true
+pareo = true
+alias = ["FECHA_NACIMIENTO"]
+
+[[columna]]
+nombre = "departamento"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "departamento"
+alias = ["COD_DEPTO_NACIMIENTO"]
+
+[[columna]]
+nombre = "municipio"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "municipio"
+contexto = "departamento"
+alias = ["COD_MUNIC_NACIMIENTO"]
+
+[[columna]]
+nombre = "sexo"
+tipo = "texto"
+pareo = true
+valores = ["hombre", "mujer", "ignorado"]
+equivalencias = { "m" = "hombre", "masculino" = "hombre", "h" = "hombre", "f" = "mujer", "femenino" = "mujer", "indeterminado" = "ignorado" }
+
+[[columna]]
+nombre = "peso_libras"
+tipo = "entero"
+alias = ["PESO_LIBRAS"]
+
+[[columna]]
+nombre = "peso_onzas"
+tipo = "entero"
+alias = ["PESO_ONZAS"]
+
+[[columna]]
+nombre = "tipo_parto"
+tipo = "texto"
+alias = ["TIPO_PARTO"]
+valores = ["simple", "doble", "triple", "cuádruple", "quíntuple"]
+
+[[columna]]
+nombre = "asistencia"
+tipo = "texto"
+alias = ["TIPO_ASISTENCIA"]
+valores = ["médica", "comadrona", "paramédica", "empírica", "ninguna"]
+
+[[columna]]
+nombre = "edad_madre"
+tipo = "entero"
+alias = ["EDAD_MADRE"]
+
+[[columna]]
+nombre = "pueblo_madre"
+tipo = "texto"
+alias = ["GRUPO_ETNICO_MADRE"]
+valores = ["maya", "garífuna", "xinka", "afrodescendiente", "ladino", "extranjero", "otro", "ignorado"]
+equivalencias = { "ladino/mestizo" = "ladino", "mestizo" = "ladino", "indigena" = "maya", "xinca" = "xinka", "garifuna" = "garífuna", "desconocido" = "ignorado", "no indica" = "ignorado", "no determinado" = "ignorado" }
+
+[[columna]]
+nombre = "escolaridad_madre"
+tipo = "texto"
+alias = ["ESCOLARIDAD_MADRE"]
+valores = ["ninguno", "primaria", "básica", "diversificado", "universitario", "post grado", "ignorado"]
+
+[[columna]]
+nombre = "departamento_residencia_madre"
+tipo = "texto"
+homologar = "departamento"
+alias = ["COD_DEPTO_RESIDENCIA_MADRE"]
+
+[[columna]]
+nombre = "municipio_residencia_madre"
+tipo = "texto"
+homologar = "municipio"
+contexto = "departamento_residencia_madre"
+alias = ["COD_MUNIC_RESIDENCIA_MADRE"]

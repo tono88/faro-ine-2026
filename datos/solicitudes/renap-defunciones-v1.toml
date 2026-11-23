@@ -1,0 +1,100 @@
+# Basada en el archivo de ejemplo que el INE compartió el 23-nov-2026 (defunciones, RENAP).
+# Solo salen las columnas declaradas aquí; nombres y direcciones no pasan.
+id = "renap-defunciones-v1"
+titulo = "Defunciones"
+institucion = "RENAP"
+periodicidad = "mensual"
+
+[[columna]]
+nombre = "persona"
+tipo = "texto"
+alias = ["CUI"]
+sensible = "seudonimizar"
+pareo = true
+descripcion = "Llave no reversible derivada del CUI; permite parear sin conocer la identidad."
+
+[[columna]]
+nombre = "nombre"
+tipo = "texto"
+alias = ["NOMBRE_FALLECIDO"]
+sensible = "eliminar"
+
+[[columna]]
+nombre = "fecha_hecho"
+tipo = "fecha"
+requerida = true
+pareo = true
+alias = ["FECHA_DEFUNCION"]
+
+[[columna]]
+nombre = "pais_ocurrencia"
+tipo = "entero"
+alias = ["PAIS_OCURRENCIA"]
+descripcion = "Código numérico de país (320 = Guatemala)."
+
+[[columna]]
+nombre = "departamento"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "departamento"
+alias = ["DEPTO_DEFUNCION"]
+
+[[columna]]
+nombre = "municipio"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "municipio"
+contexto = "departamento"
+alias = ["MUNIC_DEFUNCION"]
+
+[[columna]]
+nombre = "departamento_residencia"
+tipo = "texto"
+homologar = "departamento"
+alias = ["DEPTO_RESIDENCIA"]
+
+[[columna]]
+nombre = "municipio_residencia"
+tipo = "texto"
+homologar = "municipio"
+contexto = "departamento_residencia"
+alias = ["MUNIC_RESIDENCIA"]
+
+[[columna]]
+nombre = "sexo"
+tipo = "texto"
+pareo = true
+valores = ["hombre", "mujer", "ignorado"]
+equivalencias = { "m" = "hombre", "masculino" = "hombre", "h" = "hombre", "f" = "mujer", "femenino" = "mujer", "indeterminado" = "ignorado" }
+
+[[columna]]
+nombre = "edad"
+tipo = "entero"
+pareo = true
+
+[[columna]]
+nombre = "periodo_edad"
+tipo = "entero"
+alias = ["PERIODO_EDAD"]
+descripcion = "Unidad de la edad según el diccionario de RENAP (por documentar)."
+
+[[columna]]
+nombre = "pueblo"
+tipo = "texto"
+alias = ["GRUPO_ETNICO"]
+valores = ["maya", "garífuna", "xinka", "afrodescendiente", "ladino", "extranjero", "otro", "ignorado"]
+equivalencias = { "ladino/mestizo" = "ladino", "mestizo" = "ladino", "indigena" = "maya", "xinca" = "xinka", "garifuna" = "garífuna", "desconocido" = "ignorado", "no indica" = "ignorado", "no determinado" = "ignorado" }
+
+[[columna]]
+nombre = "tipo_muerte"
+tipo = "texto"
+alias = ["TIPO_MUERTE"]
+valores = ["natural", "accidente", "homicidio", "suicidio", "indeterminado", "ignorado"]
+
+[[columna]]
+nombre = "causa_directa"
+tipo = "texto"
+alias = ["CAUSA_A"]
+descripcion = "Texto libre; pendiente de codificar con CIE-10."

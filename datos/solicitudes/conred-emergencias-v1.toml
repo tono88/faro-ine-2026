@@ -1,0 +1,69 @@
+# Basada en el archivo de ejemplo que el INE compartió el 23-nov-2026 (emergencias, SE-CONRED).
+# El libro trae una hoja por mes, con totales y títulos encima del encabezado.
+id = "conred-emergencias-v1"
+titulo = "Emergencias atendidas"
+institucion = "SE-CONRED"
+periodicidad = "mensual"
+hoja = "todas"
+
+[[columna]]
+nombre = "fecha_hecho"
+tipo = "fecha"
+requerida = true
+pareo = true
+alias = ["Fecha y hora"]
+
+[[columna]]
+nombre = "departamento"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "departamento"
+alias = ["Departamento"]
+
+[[columna]]
+nombre = "municipio"
+tipo = "texto"
+requerida = true
+pareo = true
+homologar = "municipio"
+contexto = "departamento"
+alias = ["Municipio"]
+
+[[columna]]
+nombre = "lugar"
+tipo = "texto"
+alias = ["Lugar"]
+descripcion = "Texto libre; se homologará contra lugares poblados cuando se cargue el listado del Censo 2018."
+
+[[columna]]
+nombre = "amenaza"
+tipo = "texto"
+alias = ["Amenaza"]
+valores = ["hidrometeorológico", "geológico", "materiales peligrosos", "socio-organizativo", "sanitario", "otro"]
+equivalencias = { "hidrometeorologico" = "hidrometeorológico", "geologico" = "geológico" }
+
+[[columna]]
+nombre = "tipo_emergencia"
+tipo = "texto"
+alias = ["Emergencia (anteriormente tipo incidente)"]
+
+[[columna]]
+nombre = "personas_afectadas"
+tipo = "decimal"
+alias = ["Afectadas"]
+
+[[columna]]
+nombre = "personas_evacuadas"
+tipo = "decimal"
+alias = ["Evacuadas"]
+
+[[columna]]
+nombre = "personas_fallecidas"
+tipo = "decimal"
+alias = ["Fallecidas"]
+
+[[columna]]
+nombre = "viviendas_dano_severo"
+tipo = "decimal"
+alias = ["Severo"]
