@@ -31,7 +31,7 @@
   .etq { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; font-weight:600; background:#e6ebf0; }
   .etq.ok { background:#dff3e7; color:var(--ok); } .etq.alerta { background:#fdeecf; color:var(--alerta); } .etq.mal { background:#fbe0de; color:var(--mal); }
   .barra { height:10px; background:#e6ebf0; border-radius:5px; overflow:hidden; min-width:80px; } .barra i { display:block; height:100%; background:var(--ok); }
-  #aviso { position:fixed; right:16px; bottom:16px; background:var(--tinta); color:#fff; padding:10px 14px; border-radius:8px; display:none; max-width:420px; }
+  #aviso { position:fixed; right:16px; bottom:16px; background:var(--tinta); color:#fff; padding:10px 14px; border-radius:8px; display:none; max-width:420px; white-space:pre-line; }
   #aviso.mal { background:var(--mal); }
 </style>
 </head>
@@ -44,6 +44,7 @@
   <button role="tab" data-s="resultados">4. Resultados</button>
   <button role="tab" data-s="ine">Portal INE</button>
   <button role="tab" data-s="crecimiento">Crecimiento urbano</button>
+  <button role="tab" data-s="operadores">Operadores de campo</button>
 </nav>
 <main>
   <div class="tarjetas" id="tarjetas" aria-live="polite"></div>
@@ -85,6 +86,23 @@
       <label for="csvedif">Cargar serie (CSV: codigo, anio, edificaciones; o departamento, municipio, anio, edificaciones)</label><input type="file" id="csvedif" accept=".csv">
       <button class="accion" id="cargaredif">Cargar y calcular</button>
       <div class="tabla" style="margin-top:12px"><table id="tcrec"></table></div>
+    </div>
+  </section>
+
+  <section id="operadores">
+    <div class="panel">
+      <h2>Asignar operadores de campo al puesto más conveniente</h2>
+      <p class="nota">Reparte a los operadores entre los puestos de modo que la suma de distancias casa–puesto sea la menor posible (cálculo exacto). La distancia es en línea recta entre centroides de lugares poblados del Censo 2018, no por carretera. Dónde vive cada operador no se guarda en el servidor.</p>
+      <label for="csvops">Operadores (CSV: operador, lugar; o operador, longitud, latitud)</label><input type="file" id="csvops" accept=".csv">
+      <label for="csvpuestos">Puestos (CSV: puesto, lugar, operadores)</label><input type="file" id="csvpuestos" accept=".csv">
+      <p class="nota"><code>lugar</code> es el código de lugar poblado del INE (siete dígitos). Use un identificador en vez del nombre del operador.</p>
+      <button class="accion" id="asignar">Calcular asignación</button>
+    </div>
+    <div class="panel" id="asigres" hidden>
+      <div class="tarjetas" id="asigtarjetas"></div>
+      <p class="nota" id="asignota"></p>
+      <button class="accion chico" id="asigcsv">Descargar CSV</button>
+      <div class="tabla" style="margin-top:12px"><table id="tasig"></table></div>
     </div>
   </section>
 </main>
@@ -176,7 +194,20 @@ async function crecimiento() {
     {t:'Proyección', num:1, f:f => `${num(f.proyeccion)} ± ${num(f.proyeccion_margen)} <small>(${f.anio_proyectado})</small>`}, {t:'Confianza', f:f => `<span class="etq ${f.confianza === 'alta' ? 'ok' : f.confianza === 'media' ? 'alerta' : 'mal'}">${esc(f.confianza)}</span>`}],
     await api('/api/crecimiento?anio=' + encodeURIComponent($('#anio').value)), 'Aún no se ha cargado la serie de edificaciones.');
 }
-const cargar = {recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento};
+let ultimaAsignacion = null;
+function mostrarAsignacion(r) {
+  const a = r.asignacion, x = a.resumen, o = a.en_orden_de_lista; ultimaAsignacion = a;
+  $('#asigres').hidden = false;
+  $('#asigtarjetas').innerHTML = [[x.asignados, 'operadores asignados'], [num(x.promedio_km) + ' km', 'distancia promedio'], [num(x.maximo_km) + ' km', 'el más lejano'], [num(x.total_km) + ' km', 'distancia total']]
+    .map(([v, t]) => `<div class="tarjeta"><b>${esc(v)}</b><small>${esc(t)}</small></div>`).join('');
+  const partes = [`${r.operadores} operadores y ${r.puestos} puestos con ${r.plazas} plazas.`];
+  if (o.total_km > x.total_km) partes.push(`Repartiendo en el orden de las listas, sin mirar distancias, el total sería ${num(o.total_km)} km (promedio ${num(o.promedio_km)} km).`);
+  if (a.sin_puesto.length) partes.push(`Sin puesto (${a.sin_puesto.length}): ${a.sin_puesto.join(', ')}.`);
+  if (a.sin_cubrir.length) partes.push('Plazas sin cubrir: ' + a.sin_cubrir.map(([p, n]) => `${p} (${n})`).join('; ') + '.');
+  $('#asignota').textContent = partes.join(' ');
+  tabla('#tasig', [{t:'Puesto', f:f => esc(f.puesto)}, {t:'Operador', f:f => esc(f.operador)}, {t:'Distancia', num:1, f:f => `${num(f.km)} km`}], a.asignados, 'No se asignó a nadie.');
+}
+const cargar = {recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
   document.querySelectorAll('section').forEach(s => s.classList.toggle('activa', s.id === b.dataset.s));
@@ -196,6 +227,19 @@ $('#cargaredif').onclick = async () => {
   const f = $('#csvedif').files[0];
   try { if (f) { const r = await api('/api/edificaciones', {method:'POST', headers:{'content-type':'text/csv'}, body: await f.text()}); aviso(`${r.filas_cargadas} filas cargadas; ${Object.keys(r.sin_lugar_reconocido).length} lugares sin reconocer.`); } await crecimiento(); estado(); }
   catch (e) { aviso(e.message, true); }
+};
+$('#asignar').onclick = async () => {
+  const [o, p] = [$('#csvops').files[0], $('#csvpuestos').files[0]];
+  if (!o || !p) return aviso('Elija los dos archivos: operadores y puestos.', true);
+  $('#asignar').disabled = true;
+  try { mostrarAsignacion(await api('/api/asignar', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({operadores: await o.text(), puestos: await p.text()})})); }
+  catch (e) { aviso(e.message, true); } finally { $('#asignar').disabled = false; }
+};
+$('#asigcsv').onclick = () => {
+  if (!ultimaAsignacion) return;
+  const q = t => /[",\n]/.test(t) ? '"' + String(t).replace(/"/g, '""') + '"' : t;
+  const lineas = ['operador,puesto,km'].concat(ultimaAsignacion.asignados.map(a => [q(a.operador), q(a.puesto), a.km.toFixed(1)].join(',')), ultimaAsignacion.sin_puesto.map(o => q(o) + ',,'));
+  const enlace = document.createElement('a'); enlace.href = URL.createObjectURL(new Blob([lineas.join('\n') + '\n'], {type: 'text/csv'})); enlace.download = 'asignacion.csv'; enlace.click(); URL.revokeObjectURL(enlace.href);
 };
 $('#anio').onchange = () => crecimiento().catch(e => aviso(e.message, true));
 estado().then(cargarSolicitudes).then(envios).catch(e => aviso(e.message, true));

@@ -23,15 +23,20 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
    asigna cuando no hay duda; lo demás lo propone con candidatos y lo decide una persona.
 4. **Memoria.** Cada decisión queda grabada (qué texto, qué código, quién, cuándo, de qué
    institución). El siguiente envío ya no pregunta lo mismo.
-
 5. **Fuentes con procedencia.** Descubre y descarga conjuntos del portal del INE y deja
    registrada la URL, la fecha y la huella de cada archivo (`faro fuentes`).
-7. **Datos personales protegidos.** Solo salen las columnas pedidas; nombres se eliminan y
+6. **Datos personales protegidos.** Solo salen las columnas pedidas; nombres se eliminan y
    documentos de identidad se sustituyen por una llave no reversible.
-8. **Probado con archivos reales** de RENAP, PNC, SE-CONRED e INSIVUMEH compartidos por el INE:
+7. **Probado con archivos reales** de RENAP, PNC, SE-CONRED e INSIVUMEH compartidos por el INE:
    51,719 filas en menos de 3 segundos, entre 97.9 % y 100 % de lugares con código oficial.
    Ver [hallazgos](docs/06-hallazgos-datos-reales.md).
-6. **Crecimiento urbano.** A partir de edificaciones por año vistas por satélite, calcula el
+8. **Catálogo oficial verificado.** Departamentos, municipios y 20,036 lugares poblados del
+   Censo 2018 con coordenadas, comprobados código por código contra el listado del INE
+   (`faro catalogo verificar`).
+9. **Operadores de campo cerca de su casa.** Reparte operadores entre puestos con la menor
+   distancia total posible, usando las coordenadas del catálogo (`faro asignar` y la pantalla).
+   Cálculo exacto (método húngaro); distancia en línea recta, no por carretera.
+10. **Crecimiento urbano.** A partir de edificaciones por año vistas por satélite, calcula el
    ritmo de crecimiento de cada municipio y lo proyecta con su margen (`faro crecimiento`).
 
 ## Levantarlo con Docker
@@ -44,18 +49,20 @@ docker compose up --build     # base de datos PostgreSQL + FARO
 Abra <http://localhost:8090>. Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
+La pantalla tiene siete secciones: recibir un envío, revisar pendientes, equivalencias
+confirmadas, resultados por departamento, conjuntos del portal del INE (se sincroniza sola al
+arrancar y cada 24 horas), crecimiento urbano y asignación de operadores de campo.
+
 En Linux, el contenedor escribe las descargas de fuentes abiertas en `datos/crudo` con un usuario
 sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecute
-`chmod o+w datos/crudo`. En Windows y macOS (Docker Desktop) no hace falta. La pantalla tiene seis secciones: recibir un envío, revisar
-pendientes, equivalencias confirmadas, resultados por departamento, conjuntos del portal del INE
-(se sincroniza sola al arrancar y cada 24 horas) y crecimiento urbano.
+`chmod o+w datos/crudo`. En Windows y macOS (Docker Desktop) no hace falta.
 
 ## Probarlo sin Docker
 
 Requiere [Rust](https://rustup.rs) estable (probado con 1.97) y, para el servidor, PostgreSQL 16.
 
 ```bash
-cargo test                       # 31 pruebas
+cargo test                       # 37 pruebas
 cargo build --release
 
 # Línea de comandos (no necesita base de datos)
@@ -67,6 +74,7 @@ cargo build --release
 ./target/release/faro catalogo verificar --listado <listado de lugares poblados.xlsx>   # catálogo contra el Censo 2018
 ./target/release/faro crecimiento --entrada datos/ejemplos/edificaciones_ficticias.csv --proyectar 2030
 ./target/release/faro aire --entrada <archivo de calidad del aire.xlsx>
+./target/release/faro asignar --operadores datos/ejemplos/operadores_ficticios.csv --puestos datos/ejemplos/puestos_ficticios.csv
 
 # Servidor
 DATABASE_URL="host=localhost user=faro password=... dbname=faro" FARO_TOKEN=... FARO_SAL=... ./target/release/faro-servidor
@@ -95,7 +103,7 @@ Si una solicitud sustituye identificadores por llaves, defina el secreto `FARO_S
 | Archivos de ejemplo de instituciones compartidos por el INE (23-nov-2026) | Diseño y prueba de las solicitudes | **No están en el repositorio** (contienen datos personales) |
 | Google Research, Open Buildings 2.5D Temporal (CC BY 4.0 / ODbL) | Edificaciones por año 2016–2023 para crecimiento urbano | Script listo (`scripts/`), pendiente de ejecutar |
 | `datos/estandar/` | Núcleo común de variables y mapa de registros e instituciones (borrador del equipo) | Incluido |
-| `datos/ejemplos/` | Envío, solicitud y serie de edificaciones **ficticios** para demostración | Incluido |
+| `datos/ejemplos/` | Envío, solicitud, serie de edificaciones, operadores y puestos **ficticios** para demostración ([detalle](datos/ejemplos/LEEME.md)) | Incluido |
 
 El repositorio no contiene datos de personas. Los ejemplos son inventados.
 

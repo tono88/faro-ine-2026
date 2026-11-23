@@ -155,6 +155,22 @@ pub fn verificar(catalogo: &Catalogo, lugares: &[LugarCenso], nivel: Nivel) -> V
     v
 }
 
+/// Centroide (longitud, latitud) de un lugar poblado del catálogo a partir de su código.
+/// Si el código no existe, no es un lugar poblado o no trae coordenadas, lo dice: no se estima.
+pub fn centroide(catalogo: &Catalogo, codigo: &str) -> Result<(f64, f64), String> {
+    let t = codigo.trim();
+    // Las hojas de cálculo suelen comerse el cero inicial: "701006" es 0701006.
+    let codigo = if t.len() == 6 && t.chars().all(|c| c.is_ascii_digit()) { format!("0{t}") } else { t.to_string() };
+    match catalogo.por_codigo(&codigo) {
+        None => Err(format!("el código {codigo} no existe en el catálogo")),
+        Some(l) if l.nivel != Nivel::LugarPoblado => Err(format!("{codigo} ({}) no es un lugar poblado", l.nombre)),
+        Some(l) => match (l.longitud, l.latitud) {
+            (Some(longitud), Some(latitud)) => Ok((longitud, latitud)),
+            _ => Err(format!("{codigo} ({}) no tiene coordenadas en el catálogo", l.nombre)),
+        },
+    }
+}
+
 /// Alias de un lugar al adoptar el nombre oficial: los que ya tenía (menos el que pasó a ser el
 /// nombre) más el nombre anterior, si no se compara igual que alguno de los demás.
 pub fn alias_al_adoptar(oficial: &str, anterior: &str, alias: &str) -> String {
@@ -226,6 +242,18 @@ mod pruebas {
         assert!(v.faltan.is_empty() && !v.codigos_coinciden());
         assert_eq!(v.diferencias.len(), 1);
         assert_eq!((v.diferencias[0].en_listado.as_str(), v.diferencias[0].cubierto_por_alias, v.diferencias[0].solo_grafia), ("San Juan Olintepeque", false, false));
+    }
+
+    #[test]
+    fn centroide_solo_de_lugares_poblados_con_coordenadas() {
+        let mut c = Catalogo::default();
+        c.agregar(Lugar { codigo: "0903".into(), nombre: "San Juan Olintepeque".into(), nivel: Nivel::Municipio, padre: "09".into(), ..Default::default() });
+        c.agregar(Lugar { codigo: "0903002".into(), nombre: "La Cumbre".into(), nivel: Nivel::LugarPoblado, padre: "0903".into(), longitud: Some(-91.51), latitud: Some(14.89), ..Default::default() });
+        c.agregar(Lugar { codigo: "0903999".into(), nombre: "Otros Lugares Poblados".into(), nivel: Nivel::LugarPoblado, padre: "0903".into(), ..Default::default() });
+        assert_eq!(centroide(&c, "903002"), Ok((-91.51, 14.89)));
+        assert!(centroide(&c, "0903").unwrap_err().contains("no es un lugar poblado"));
+        assert!(centroide(&c, "0903999").unwrap_err().contains("no tiene coordenadas"));
+        assert!(centroide(&c, "0903555").unwrap_err().contains("no existe"));
     }
 
     #[test]

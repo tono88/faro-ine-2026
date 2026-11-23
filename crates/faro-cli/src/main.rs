@@ -78,6 +78,17 @@ enum Comando {
         #[arg(long, default_value = "salida/crecimiento.csv")]
         salida: PathBuf,
     },
+    /// Reparte operadores de campo entre puestos con la menor distancia total (línea recta).
+    Asignar {
+        /// CSV: operador, lugar (código de lugar poblado donde vive) o longitud y latitud.
+        #[arg(long)]
+        operadores: PathBuf,
+        /// CSV: puesto, lugar (código de lugar poblado) o longitud y latitud; operadores (cuántos necesita, 1 si falta).
+        #[arg(long)]
+        puestos: PathBuf,
+        #[arg(long, default_value = "salida/asignacion.csv")]
+        salida: PathBuf,
+    },
     /// Promedios mensuales de calidad del aire con la regla de representatividad (formato INSIVUMEH).
     Aire {
         #[arg(long)]
@@ -202,6 +213,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         }
         Comando::Recibir { solicitud, entrada, salida } => recibir(&catalogo, &memoria, &solicitud, &entrada, &salida),
         Comando::Catalogo { accion } => catalogo_censo(&catalogo, &cli.catalogo, accion),
+        Comando::Asignar { operadores, puestos, salida } => asignar(&catalogo, &operadores, &puestos, &salida),
         Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } => unreachable!("atendidos arriba"),
     }
 }
@@ -313,6 +325,47 @@ fn catalogo_censo(catalogo: &Catalogo, carpeta: &Path, accion: AccionCatalogo) -
     }
     w.flush().map_err(|e| e.to_string())?;
     println!("escrito: {} ({} municipios, {} nombres actualizados) y {} ({} lugares poblados)", ruta_municipios.display(), oficiales.len(), municipios.diferencias.len(), ruta_lugares.display(), lugares.len());
+    Ok(ExitCode::SUCCESS)
+}
+
+/// Centroide de un lugar poblado del catálogo, para ubicar operadores y puestos.
+fn centroide(catalogo: &Catalogo, codigo: &str) -> Result<faro_territorio::asignacion::Coordenada, String> {
+    faro_homologa::censo::centroide(catalogo, codigo).map(|(longitud, latitud)| faro_territorio::asignacion::Coordenada { longitud, latitud })
+}
+
+fn asignar(catalogo: &Catalogo, ruta_operadores: &Path, ruta_puestos: &Path, salida: &Path) -> Result<ExitCode, String> {
+    use faro_territorio::asignacion::{self, Operador, Puesto};
+    let abrir = |ruta: &Path| std::fs::File::open(ruta).map_err(|e| format!("{}: {e}", ruta.display()));
+    let donde = |codigo: &str| centroide(catalogo, codigo);
+    let operadores: Vec<Operador> = asignacion::leer_operadores(abrir(ruta_operadores)?, &donde).map_err(|e| format!("{}: {e}", ruta_operadores.display()))?;
+    let puestos: Vec<Puesto> = asignacion::leer_puestos(abrir(ruta_puestos)?, &donde).map_err(|e| format!("{}: {e}", ruta_puestos.display()))?;
+    let a = asignacion::asignar(&operadores, &puestos)?;
+
+    if let Some(dir) = salida.parent() {
+        std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    }
+    let mut w = csv::Writer::from_path(salida).map_err(|e| e.to_string())?;
+    w.write_record(["operador", "puesto", "km"]).map_err(|e| e.to_string())?;
+    for x in &a.asignados {
+        w.write_record([x.operador.as_str(), x.puesto.as_str(), format!("{:.1}", x.km).as_str()]).map_err(|e| e.to_string())?;
+    }
+    for o in &a.sin_puesto {
+        w.write_record([o.as_str(), "", ""]).map_err(|e| e.to_string())?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+
+    let (r, ref_) = (&a.resumen, &a.en_orden_de_lista);
+    println!("{} operadores, {} puestos ({} plazas) -> {}", operadores.len(), puestos.len(), puestos.iter().map(|p| p.operadores).sum::<usize>(), salida.display());
+    println!("asignados: {} · total {:.1} km · promedio {:.1} km · el más lejano {:.1} km (línea recta)", r.asignados, r.total_km, r.promedio_km, r.maximo_km);
+    if ref_.total_km > 0.0 {
+        println!("repartiendo en el orden de las listas: total {:.1} km · promedio {:.1} km · el más lejano {:.1} km ({:.0} % más)", ref_.total_km, ref_.promedio_km, ref_.maximo_km, (ref_.total_km / r.total_km.max(f64::MIN_POSITIVE) - 1.0) * 100.0);
+    }
+    if !a.sin_puesto.is_empty() {
+        println!("sin puesto ({}): {}", a.sin_puesto.len(), a.sin_puesto.join(", "));
+    }
+    for (puesto, n) in &a.sin_cubrir {
+        println!("plazas sin cubrir: {puesto} ({n})");
+    }
     Ok(ExitCode::SUCCESS)
 }
 

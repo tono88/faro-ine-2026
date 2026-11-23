@@ -112,6 +112,7 @@ async fn main() -> Result<(), String> {
         .route("/api/ine/sincronizar", post(api_sincronizar))
         .route("/api/edificaciones", post(api_edificaciones))
         .route("/api/crecimiento", get(api_crecimiento))
+        .route("/api/asignar", post(api_asignar))
         .layer(DefaultBodyLimit::max(300 * 1024 * 1024))
         .with_state(estado);
 
@@ -481,4 +482,30 @@ async fn api_crecimiento(State(e): State<Compartido>, Query(q): Query<HashMap<St
         .collect();
     salida.sort_by(|a, b| b["tasa_anual_pct"].as_f64().unwrap_or(0.0).total_cmp(&a["tasa_anual_pct"].as_f64().unwrap_or(0.0)));
     Ok(Json(json!(salida)))
+}
+
+#[derive(Deserialize)]
+struct PedidoAsignacion {
+    /// Texto CSV: operador, lugar (o longitud y latitud).
+    operadores: String,
+    /// Texto CSV: puesto, lugar (o longitud y latitud), operadores.
+    puestos: String,
+}
+
+/// Reparte operadores entre puestos con la menor distancia total. Dónde vive cada operador es un
+/// dato personal: se usa para el cálculo y se devuelve el resultado, pero no se guarda nada.
+async fn api_asignar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(p): Json<PedidoAsignacion>) -> Res<Json<Value>> {
+    use faro_territorio::asignacion::{self, Coordenada};
+    autorizar(&e, &cabeceras)?;
+    let resultado = tokio::task::spawn_blocking(move || {
+        let donde = |codigo: &str| faro_homologa::censo::centroide(&e.catalogo, codigo).map(|(longitud, latitud)| Coordenada { longitud, latitud });
+        let operadores = asignacion::leer_operadores(p.operadores.as_bytes(), &donde).map_err(|x| format!("operadores: {x}"))?;
+        let puestos = asignacion::leer_puestos(p.puestos.as_bytes(), &donde).map_err(|x| format!("puestos: {x}"))?;
+        let plazas: usize = puestos.iter().map(|x| x.operadores).sum();
+        let a = asignacion::asignar(&operadores, &puestos)?;
+        Ok::<_, String>(json!({ "operadores": operadores.len(), "puestos": puestos.len(), "plazas": plazas, "asignacion": a }))
+    })
+    .await
+    .map_err(interno)?;
+    Ok(Json(resultado.map_err(pedido)?))
 }
