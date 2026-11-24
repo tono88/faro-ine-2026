@@ -6,7 +6,7 @@ Equipo: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval.
 FARO es una herramienta para que el INE **pida, reciba y homologue** registros administrativos
 de otras instituciones de forma estándar, y los deje listos para integrarse con censos y encuestas.
 
-**Lo más importante que encontró con datos reales:** [logros y hallazgos](docs/09-logros.md).
+**Qué se ha hecho, en una página:** [descripción](docs/00-que-se-hizo.md) · **Lo más importante que encontró con datos reales:** [logros y hallazgos](docs/09-logros.md) · **De dónde sale cada dato:** [fuentes y citas](docs/11-fuentes-y-citas.md) · **Cómo fluye el trabajo:** [proceso](docs/12-proceso.md).
 
 ## El problema
 
@@ -75,11 +75,15 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
 16. **Mapa y capas publicables.** Un mapa por municipio con población, crecimiento, superficie
     construida, conexión vial y registros recibidos; cada capa tiene una dirección estable en
     GeoJSON o CSV para un portal o un SIG (`/capas`).
-17. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
+17. **Antecedentes de precios del INE.** Búsqueda en los 4,990 precios de referencia que el INE ya
+    emitió y publica en su portal (`faro referencias` y la pantalla).
+18. **Todo se puede repetir y auditar.** El cálculo de población se rehace desde la pantalla contra
+    el portal del INE, mostrando cada paso; la sección "Proceso" enseña qué hace cada etapa y quién.
+19. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
     y elige como lo explica la Dirección de Precios e Índices de Referencia (mediana si hay
     precios extremos, media si son parecidos); avisa si faltan cotizaciones directas o se mezclan
     unidades (`faro precios` y la pantalla).
-18. **Crecimiento urbano real.** Superficie construida por municipio de 1975 a 2020 con la capa
+20. **Crecimiento urbano real.** Superficie construida por municipio de 1975 a 2020 con la capa
     satelital abierta GHSL de la Comisión Europea, sin Earth Engine; ritmo de crecimiento y
     proyección con su margen (`faro construido`, `faro crecimiento`).
 
@@ -93,7 +97,7 @@ docker compose up --build     # base de datos PostgreSQL + FARO
 Abra <http://localhost:8082>. Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
-La pantalla abre en un mapa por municipio y tiene doce secciones agrupadas por área: recibir un envío, revisar pendientes, equivalencias
+La pantalla abre en un mapa por municipio y tiene catorce secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
 confirmadas, resultados y avance por institución, conjuntos del portal del INE (se sincroniza
 sola al arrancar y cada 24 horas), crecimiento poblacional y urbano, asignación de operadores de
 campo, red vial, materiales de construcción, precios de referencia y capas publicadas. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.
@@ -107,7 +111,7 @@ sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecu
 Requiere [Rust](https://rustup.rs) estable (probado con 1.97) y, para el servidor, PostgreSQL 16.
 
 ```bash
-cargo test                       # 65 pruebas
+cargo test                       # 66 pruebas
 cargo build --release
 
 # Línea de comandos (no necesita base de datos)
@@ -156,6 +160,7 @@ Si una solicitud sustituye identificadores por llaves, defina el secreto `FARO_S
 | Comisión Europea, JRC, GHSL GHS-BUILT-S R2023A (datos abiertos con atribución), descargado el 24-nov-2026 | Superficie construida 1975–2020 para crecimiento urbano | Resumida por municipio en `datos/referencia/superficie_construida_municipio.csv` |
 | INE, Índice de Precios de Materiales de Construcción ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/indice-de-precios-de-materiales-de-construccion-ipmc)), descargado el 24-nov-2026 | Catálogo oficial de 89 artículos, con índice y variación | `datos/catalogo_precios/ipmc_articulos.csv` |
 | Páginas públicas de 116 negocios de materiales de construcción, consultadas el 24-nov-2026 | Perfil de proveedores y precios publicados | `datos/referencia/proveedores_construccion.csv` y `precios_construccion.csv`, con la dirección de cada página |
+| INE, Precios de referencia ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/precios-de-referencia)), descargado el 24-nov-2026 | Antecedentes: 4,990 precios emitidos de 2016 a 2023 | `datos/catalogo_precios/precios_referencia_ine.csv` |
 | `datos/solicitudes/` | Solicitudes de datos para RENAP (defunciones, nacimientos), PNC (detenidos) y SE-CONRED (emergencias) | Incluido |
 | Archivos de ejemplo de instituciones compartidos por el INE (23-nov-2026) | Diseño y prueba de las solicitudes | **No están en el repositorio** (contienen datos personales) |
 | Google Research, Open Buildings 2.5D Temporal (CC BY 4.0 / ODbL) | Edificaciones por año 2016–2023 | Opcional: script listo (`scripts/`); la serie que se usa es GHSL ([opciones](docs/10-imagenes-satelitales.md)) |
@@ -194,6 +199,9 @@ docs/                   necesidades del INE, investigación, arquitectura y plan
 - [Versiones](docs/08-versiones.md)
 - [Logros y hallazgos](docs/09-logros.md)
 - [Crecimiento urbano con imágenes satelitales abiertas](docs/10-imagenes-satelitales.md)
+- [Fuentes y citas](docs/11-fuentes-y-citas.md)
+- [Flujo de proceso](docs/12-proceso.md)
+- [Qué se ha hecho](docs/00-que-se-hizo.md)
 
 ## Limitaciones y mejoras
 
@@ -206,7 +214,7 @@ docs/                   necesidades del INE, investigación, arquitectura y plan
 - **Crecimiento urbano a 100 m y cada cinco años.** GHSL mide superficie construida, no
   viviendas; para detalle de edificios haría falta Open Buildings (140 GB por año).
 - **Precios de construcción: pocas fuentes y solo en línea.** 16 proveedores con precios, casi
-  todos cadenas de la capital; las reglas del IPMC cubren 24 de 89 artículos y son un borrador.
+  todos cadenas de la capital; las reglas del IPMC cubren 42 de 89 artículos y son un borrador.
 - **Límites municipales operativos.** La capa de mapas no sirve para definir linderos.
 - **Precios sin históricos de Guatecompras.** El cálculo usa las cotizaciones que se le den.
 - **Un solo nivel de acceso.** Hay una clave compartida para enviar y confirmar; faltan usuarios y
@@ -225,11 +233,6 @@ Bibliotecas de Rust de código abierto (licencias MIT o Apache-2.0): `serde`, `s
 `rust`, `debian` y `postgres` oficiales. Versiones exactas en `Cargo.lock`. No se copió código de
 proyectos previos; los algoritmos (homologación, método húngaro, grafo vial, lector de Shapefile)
 se escribieron durante el evento.
-
-Los criterios para comparar productos entre tiendas (no unir medidas distintas, comparar por
-unidad, dejar "por revisar" lo que solo coincide por nombre y apartar precios que difieren más de
-tres veces) vienen de `allseeneye`, un comparador de precios propio del equipo anterior al evento.
-Se tomaron las ideas y se programaron de nuevo en Rust; no se copió código.
 
 ## Servicios en la nube
 

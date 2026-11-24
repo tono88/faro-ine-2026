@@ -163,6 +163,14 @@ enum Comando {
         #[arg(long, default_value = "salida/construccion")]
         salida: PathBuf,
     },
+    /// Pasa a una tabla limpia los precios de referencia que publica el INE (portal de datos abiertos).
+    Referencias {
+        /// Libro "Precios de Referencia" (faro fuentes descargar precios-de-referencia).
+        #[arg(long)]
+        entrada: PathBuf,
+        #[arg(long, default_value = "datos/catalogo_precios/precios_referencia_ine.csv")]
+        salida: PathBuf,
+    },
     /// Reparte operadores de campo entre puestos con la menor distancia total (línea recta).
     Asignar {
         /// CSV: operador, lugar (código de lugar poblado donde vive) o longitud y latitud.
@@ -256,6 +264,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
     // Estos comandos no necesitan catálogo ni memoria.
     let comando = match cli.comando {
         Comando::Fuentes { portal, manifiesto, accion } => return fuentes(&portal, &manifiesto, accion),
+        Comando::Referencias { entrada, salida } => return referencias(&entrada, &salida),
         Comando::Construido { mosaicos, municipios, salida } => return construido(&mosaicos, &municipios, &salida),
         Comando::Precios { cotizaciones, cv_parecidos, salida } => {
             use faro_territorio::precios;
@@ -331,30 +340,21 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         Comando::Limites { entrada, tolerancia, salida } => limites(&catalogo, &entrada, tolerancia, &salida),
         Comando::Vial { carreteras, cerca_m, max_enlace_km, con_senderos, salida } => vial(&catalogo, &carreteras, faro_territorio::vial::Parametros { cerca_m, max_enlace_km }, con_senderos, &salida),
         Comando::Poblacion { entrada, diccionario, salida } => {
-            let mut filas = faro_territorio::poblacion::resumir(&faro_homologa::lectura::leer_crudo(&entrada)?)?;
-            // Cada municipio del libro debe existir en el catálogo: si no, el cruce por código no vale.
+            let h = Homologador::new(&catalogo, &memoria);
             let es_municipio = |m: &str| catalogo.por_codigo(m).is_some_and(|l| l.nivel == Nivel::Municipio);
-            let ajenos: std::collections::BTreeSet<String> = filas.iter().map(|p| p.municipio.clone()).filter(|m| !es_municipio(m)).collect();
-            if !ajenos.is_empty() {
-                let ruta = diccionario.ok_or(format!("el libro trae {} códigos de municipio que no existen ({}...): indique --diccionario para ubicarlos por nombre", ajenos.len(), ajenos.iter().next().cloned().unwrap_or_default()))?;
-                let nombres = faro_territorio::poblacion::diccionario_municipios(&faro_homologa::lectura::leer_crudo(&ruta)?);
-                let h = Homologador::new(&catalogo, &memoria);
-                let presentes: std::collections::BTreeSet<String> = filas.iter().map(|p| p.municipio.clone()).collect();
-                let mut equivalencias = std::collections::BTreeMap::new();
-                println!("{} códigos de municipio del libro no existen en el catálogo; se ubican por el nombre que les da su diccionario:", ajenos.len());
-                for codigo in &ajenos {
-                    let nombre = nombres.get(codigo).ok_or(format!("{codigo}: el diccionario no lo nombra"))?;
-                    // Solo coincidencia exacta y única dentro del mismo departamento, y sin pisar otro código del libro.
-                    let r = h.homologar(nombre, Nivel::Municipio, Some(&codigo[..2]));
-                    let oficial = r.codigo.filter(|_| r.estado.resuelto()).ok_or(format!("{codigo} ({nombre}): no coincide con un único municipio del departamento {}", &codigo[..2]))?;
-                    if presentes.contains(&oficial) || equivalencias.values().any(|v| *v == oficial) {
-                        return Err(format!("{codigo} ({nombre}) correspondería a {oficial}, que ya tiene datos propios en el libro"));
-                    }
-                    println!("  {codigo} {nombre} -> {oficial}");
-                    equivalencias.insert(codigo.clone(), oficial);
-                }
-                faro_territorio::poblacion::recodificar(&mut filas, &equivalencias);
-                filas.sort_by(|a, b| (&a.municipio, a.anio).cmp(&(&b.municipio, b.anio)));
+            // Solo coincidencia exacta y única dentro del mismo departamento.
+            let ubicar = |codigo: &str, nombre: &str| {
+                let r = h.homologar(nombre, Nivel::Municipio, Some(&codigo[..2]));
+                r.codigo.filter(|_| r.estado.resuelto()).ok_or(format!("{codigo} ({nombre}): no coincide con un único municipio del departamento {}", &codigo[..2]))
+            };
+            let libro = faro_homologa::lectura::leer_crudo(&entrada)?;
+            let dic = match &diccionario {
+                Some(r) => Some(faro_homologa::lectura::leer_crudo(r)?),
+                None => None,
+            };
+            let (filas, pasos) = faro_territorio::poblacion::procesar(&libro, dic.as_deref(), &es_municipio, &ubicar)?;
+            for (n, p) in pasos.iter().enumerate() {
+                println!("{}. {}: {}", n + 1, p.titulo, p.detalle);
             }
             if let Some(dir) = salida.parent() {
                 std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
@@ -374,7 +374,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } => unreachable!("atendidos arriba"),
+        Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::Referencias { .. } => unreachable!("atendidos arriba"),
     }
 }
 
@@ -526,6 +526,43 @@ fn asignar(catalogo: &Catalogo, ruta_operadores: &Path, ruta_puestos: &Path, sal
     for (puesto, n) in &a.sin_cubrir {
         println!("plazas sin cubrir: {puesto} ({n})");
     }
+    Ok(ExitCode::SUCCESS)
+}
+
+fn referencias(entrada: &Path, salida: &Path) -> Result<ExitCode, String> {
+    use faro_homologa::normalizar::basico;
+    let filas = faro_homologa::lectura::leer_crudo(entrada)?;
+    let pos = filas.iter().take(10).position(|f| f.iter().any(|c| basico(c) == "precio de referencia q")).ok_or(format!("{}: no parece el libro de precios de referencia", entrada.display()))?;
+    let enc: Vec<String> = filas[pos].iter().map(|c| basico(c)).collect();
+    let col = |n: &str| enc.iter().position(|c| c == n).ok_or(format!("{}: falta la columna {n}", entrada.display()));
+    let (inog, iev, imod, iprod, icar, ipre, iprecio, ifecha, icat) = (col("nog")?, col("evento")?, col("modalidad")?, col("producto")?, col("caracteristicas")?, col("presentacion")?, col("precio de referencia q")?, col("fecha de entrega")?, col("categoria")?);
+    if let Some(d) = salida.parent() {
+        std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+    }
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(salida).map_err(|e| e.to_string())?;
+    w.write_record(["nog", "evento", "modalidad", "categoria", "producto", "caracteristicas", "presentacion", "precio", "fecha"]).map_err(|e| e.to_string())?;
+    let una = |t: &str| t.split_whitespace().collect::<Vec<_>>().join(" ");
+    let (mut escritas, mut sin_precio) = (0, 0);
+    let mut categorias = std::collections::BTreeSet::new();
+    for f in filas.iter().skip(pos + 1) {
+        let c = |i: usize| f.get(i).map(|x| x.trim()).unwrap_or("");
+        if c(iprod).is_empty() {
+            continue;
+        }
+        // Solo entran las filas con precio numérico; las demás se cuentan.
+        let Some(precio) = c(iprecio).replace(',', "").parse::<f64>().ok().filter(|p| *p > 0.0) else {
+            sin_precio += 1;
+            continue;
+        };
+        // Recorta las características largas: para buscar basta el inicio y el archivo queda liviano.
+        let caracteristicas: String = una(c(icar)).chars().take(300).collect();
+        let fecha = faro_homologa::solicitud::fecha_iso(c(ifecha)).unwrap_or_default();
+        categorias.insert(basico(c(icat)));
+        w.write_record([c(inog), &una(c(iev)), &una(c(imod)), &una(c(icat)), &una(c(iprod)), &caracteristicas, &una(c(ipre)), &format!("{precio:.2}"), &fecha]).map_err(|e| e.to_string())?;
+        escritas += 1;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    println!("{escritas} precios de referencia en {} categorías tal como vienen escritas; {sin_precio} filas sin precio numérico no se incluyen -> {}", categorias.len(), salida.display());
     Ok(ExitCode::SUCCESS)
 }
 

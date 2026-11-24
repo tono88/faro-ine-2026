@@ -63,9 +63,9 @@ y cómo repetirlo.
 ## Precios de materiales de construcción
 
 10. **116 proveedores perfilados y 2,332 precios publicados, comparados contra la canasta oficial
-    del IPMC.** De esos precios, FARO declara comparables solo 45 (coinciden palabras, medidas y
-    presentación), deja 117 para que decida una persona y aparta 42 por ser de otra medida. Con
-    eso hay precio para 17 de los 89 artículos; por ejemplo, el saco de cemento UGC de 42.5 kg
+    del IPMC.** Con reglas para 42 de los 89 artículos, FARO declara comparables solo 70 precios
+    (coinciden palabras, medidas y presentación), deja 563 para que decida una persona y aparta 99
+    por ser de otra medida. Con eso hay precio para 20 artículos; por ejemplo, el saco de cemento UGC de 42.5 kg
     está entre Q81.00 y Q83.04 en tres proveedores. La cifra baja de comparables es deliberada: el
     sistema no compara lo que no puede comprobar.
     Detalle: [`datos/referencia/LEEME.md`](../datos/referencia/LEEME.md). Repetir: `faro construccion`.

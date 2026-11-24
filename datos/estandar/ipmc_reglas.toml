@@ -173,3 +173,133 @@ codigo = 85
 requiere = [["pala"], ["redonda", "redondo"], ["largo", "larga"]]
 excluye = ["plastica", "jardin", "mini"]
 presentaciones = [{ contiene = [] }]
+
+# ---- Ampliación del 24-nov: más artículos. Donde el IPMC pide algo que el texto de una tienda no
+# permite comprobar (calidad, origen, "tipo económico"), el artículo queda siempre para revisión.
+
+[[articulo]]
+codigo = 5
+requiere = [["inodoro"], ["blanco"]]
+excluye = ["combo", "one piece", "una pieza", "elongado", "asiento", "tapa", "kit", "inteligente", "suspendido"]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide inodoro tipo económico con accesorios: el texto no permite comprobar la gama ni qué accesorios incluye."
+
+[[articulo]]
+codigo = 6
+requiere = [["lavamanos"], ["blanco"]]
+excluye = ["combo", "sobreponer", "pedestal", "mueble", "gabinete", "llave", "grifo", "mezcladora", "vidrio"]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide lavamanos tipo económico de empotrar con accesorios: el texto no permite comprobarlo."
+
+[[articulo]]
+codigo = 23
+requiere = [["malla", "electromalla", "estructumalla"], ["electrosoldada", "electromalla", "estructumalla"]]
+medidas = [["dim:2.35x6"]]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide tipo 6x6, 6/6: confirme el calibre del alambre en la ficha del producto."
+
+[[articulo]]
+codigo = 29
+requiere = [["lamina"], ["negra"]]
+excluye = ["galvanizada", "aluzinc", "pintura"]
+medidas = [["in:1/16"]]
+presentaciones = [{ contiene = [] }]
+
+[[articulo]]
+codigo = 31
+requiere = [["lamina"], ["policarbonato"]]
+excluye = ["alveolar", "celular", "tornillo", "perfil"]
+presentaciones = [{ contiene = ["pie lineal"] }, { contiene = [], divide_por = "ft", nota = "precio de la lámina entre su largo en pies" }]
+revisar = "El IPMC pide lámina ondulada traslúcida de 1.08 m de ancho: confirme el ancho y el perfil."
+
+[[articulo]]
+codigo = 34
+requiere = [["aglomerado", "aglomerada"]]
+excluye = ["melamina", "osb", "plywood", "mdf"]
+medidas = [["in:3/4"]]
+presentaciones = [{ contiene = [] }]
+
+[[articulo]]
+codigo = 46
+requiere = [["alambre"], ["espigado", "puas"]]
+medidas = [["cal:15", "num:15"]]
+presentaciones = [{ contiene = ["metro lineal"] }]
+nota = "El IPMC lo mide por metro lineal; las tiendas lo venden por rollo en varas, sin conversión declarada."
+
+[[articulo]]
+codigo = 48
+requiere = [["switch", "interruptor"], ["sencillo"], ["sobreponer"]]
+excluye = ["3 way", "doble", "triple", "placa"]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide 10 amperios y forma ovalada: confírmelo en la ficha."
+
+[[articulo]]
+codigo = 49
+requiere = [["tablero"], ["monofasico"], ["8 circuitos", "8 polos", "8x125a"]]
+excluye = ["flip", "breaker incluido"]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide 8 circuitos y 3 líneas, sin flip-on: confirme las líneas en la ficha."
+
+[[articulo]]
+codigo = 51
+requiere = [["flexitubo", "tubo flexible", "poliducto corrugado", "manguera corrugada"]]
+medidas = [["in:1"]]
+presentaciones = [{ contiene = ["metro", "m"] }]
+
+[[articulo]]
+codigo = 52
+requiere = [["lampara", "luminaria"], ["liston"], ["1 tubo"]]
+excluye = ["2 tubos", "24 pulg"]
+medidas = [["in:48"]]
+presentaciones = [{ contiene = [] }]
+
+[[articulo]]
+codigo = 66
+requiere = [["anticorrosiva", "anticorrosivo"]]
+excluye = ["aerosol", "spray", "base agua", "convertidor"]
+medidas = [["gal:1"]]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide pintura nacional de secado normal: el origen y el tipo de secado no se pueden comprobar con el texto."
+
+[[articulo]]
+codigo = 68
+requiere = [["pintura"], ["aceite"], ["blanco", "blanca"]]
+excluye = ["aerosol", "spray"]
+medidas = [["gal:1"]]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide pintura de primera y nacional: no se puede comprobar con el texto."
+
+[[articulo]]
+codigo = 69
+requiere = [["impermeabilizante"], ["acrilico", "acrilica", "acril"]]
+excluye = ["cubeta", "fibratado", "asfaltico", "cementicio", "manto", "membrana"]
+medidas = [["gal:1"]]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide impermeabilizante nacional económico: la gama y el origen no se pueden comprobar con el texto."
+
+[[articulo]]
+codigo = 70
+requiere = [["pintura"], ["trafico"]]
+medidas = [["gal:1"]]
+presentaciones = [{ contiene = [] }]
+
+[[articulo]]
+codigo = 71
+requiere = [["azulejo"], ["blanco", "blanca", "white"]]
+medidas = [["dim:20x30"]]
+presentaciones = [{ contiene = ["m2", "m²", "metro cuadrado"] }]
+revisar = "El IPMC pide azulejo nacional: el origen no se puede comprobar con el texto."
+
+[[articulo]]
+codigo = 74
+requiere = [["porcelanato"], ["blanco", "blanca", "white"]]
+medidas = [["dim:60x60"]]
+presentaciones = [{ contiene = ["m2", "m²", "metro cuadrado"] }]
+revisar = "El IPMC pide porcelanato nacional: el origen no se puede comprobar con el texto."
+
+[[articulo]]
+codigo = 83
+requiere = [["puerta"], ["mdf"], ["lisa", "lisas"]]
+excluye = ["bisagra", "chapa", "marco suelto"]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide puerta de 0.90 x 2.10 m con marco: confirme la medida y si incluye marco."

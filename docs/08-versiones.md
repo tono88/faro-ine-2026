@@ -2,6 +2,12 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.7.0 · 24-nov-2026
+- El cálculo de población se puede repetir desde la pantalla, paso a paso, contra el portal del INE.
+- Flujo de proceso por etapas y responsables, con cifras en vivo.
+- Precios: 4,990 precios de referencia del INE consultables; reglas del IPMC ampliadas a 42 artículos.
+- Fuentes y citas en la pantalla y en la documentación; descripción de lo hecho.
+
 ## v0.6.0 · 24-nov-2026
 - Mapa de municipios con indicadores y capas; publicación de capas (GeoJSON y CSV) con catálogo.
 - Pantalla rediseñada con la paleta y la tipografía del INE, menú por áreas y versión para móvil.

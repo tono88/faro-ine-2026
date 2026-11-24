@@ -62,6 +62,20 @@
   .leyenda { display:grid; gap:3px; font-size:13px; } .leyenda span { display:flex; gap:8px; align-items:center; } .leyenda i { width:22px; height:12px; border-radius:2px; border:1px solid rgba(0,0,0,.15); }
   .ficha dl { display:grid; grid-template-columns:1fr auto; gap:4px 12px; margin:8px 0 0; font-size:14px; } .ficha dt { color:var(--gris); } .ficha dd { margin:0; font-weight:600; text-align:right; font-variant-numeric:tabular-nums; }
   .leaflet-container { font:inherit; }
+  /* Flujo de proceso: carriles (quién) y etapas (qué) */
+  .flujo { display:grid; gap:0; overflow-x:auto; border:1px solid var(--borde); border-radius:var(--radio); background:#fff; }
+  .flujo .carril { display:contents; }
+  .flujo .rol { position:sticky; left:0; z-index:1; background:var(--azul-oscuro); color:#fff; font-size:12px; font-weight:600; letter-spacing:.4px; padding:10px; display:flex; align-items:center; border-bottom:1px solid rgba(255,255,255,.2); min-width:118px; }
+  .flujo .celda { border-bottom:1px solid var(--borde); border-left:1px dashed var(--borde); padding:10px 8px; min-width:168px; display:flex; align-items:stretch; }
+  .flujo .carril:last-child .rol, .flujo .carril:last-child .celda { border-bottom:0; }
+  .etapa { position:relative; background:var(--cielo); border:1px solid #b9d6f5; border-left:4px solid var(--azul); border-radius:8px; padding:8px 10px; width:100%; font-size:13px; }
+  .etapa.decision { background:#fff7e6; border-color:#f3d9a4; border-left-color:#f5a623; }
+  .etapa.fin { background:#e9f7ef; border-color:#b9e2c8; border-left-color:var(--ok); }
+  .etapa b { display:block; color:var(--azul-oscuro); font-size:13.5px; } .etapa i { font-style:normal; display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%; background:var(--azul); color:#fff; font-size:11px; font-weight:700; margin-right:6px; }
+  .etapa p { margin:4px 0 0; color:var(--tinta); } .etapa strong { display:block; margin-top:6px; font-size:16px; color:var(--azul-oscuro); font-variant-numeric:tabular-nums; } .etapa strong small { font-weight:400; color:var(--gris); font-size:12px; }
+  .etapa:not(.fin)::after { content:"→"; position:absolute; right:-15px; top:50%; transform:translateY(-50%); color:var(--azul); font-weight:700; z-index:2; }
+  ol.pasos { margin:10px 0 0; padding-left:22px; } ol.pasos li { margin:6px 0; } ol.pasos li b { color:var(--azul-oscuro); } ol.pasos small { word-break:break-all; }
+  .citas li { margin:8px 0; } .citas small { color:var(--gris); }
   @media (max-width: 980px) {
     body { grid-template-columns:1fr; } #menu { display:block; }
     nav { display:none; position:fixed; inset:58px 0 0 0; z-index:1500; } nav.abierto { display:block; }
@@ -80,6 +94,7 @@
 <nav aria-label="Secciones">
   <h3>Panorama</h3>
   <button data-s="mapa" aria-selected="true">Mapa</button>
+  <button data-s="proceso">Proceso</button>
   <h3>Registros administrativos</h3>
   <button data-s="recibir">Recibir envío</button>
   <button data-s="pendientes">Revisar pendientes <b id="npend" hidden></b></button>
@@ -95,6 +110,7 @@
   <h3>Datos</h3>
   <button data-s="ine">Portal del INE</button>
   <button data-s="capas">Capas publicadas</button>
+  <button data-s="acerca">Acerca y fuentes</button>
 </nav>
 <main><div class="ancho">
   <section id="mapa" class="activa">
@@ -160,6 +176,10 @@
       <label for="pobdesde">Comparar del año</label><input type="number" id="pobdesde" value="2018" min="2015" max="2029" style="max-width:120px">
       <label for="pobhasta">al año</label><input type="number" id="pobhasta" value="2030" min="2016" max="2030" style="max-width:120px">
       <div class="tabla" style="margin-top:12px"><table id="tpob"></table></div>
+      <h2 style="margin-top:18px">Repetir el cálculo desde el portal del INE</h2>
+      <p class="nota">Vuelve a hacer, ahora mismo y a la vista, todo el proceso que produjo esta tabla: consulta el conjunto en el portal de datos abiertos, descarga el libro y su diccionario, suma las edades, cruza los códigos con el catálogo y compara el resultado con la tabla en uso. Requiere internet y la clave. Por línea de comandos: <code>faro poblacion --entrada &lt;libro&gt; --diccionario &lt;diccionario&gt;</code>.</p>
+      <button class="accion" id="reproducir">Repetir el proceso ahora</button>
+      <div id="reproducido" aria-live="polite"></div>
     </div>
     <div class="panel">
       <h2>Crecimiento urbano: superficie construida vista por satélite</h2>
@@ -226,6 +246,30 @@
       <button class="accion" id="calcprecios">Calcular precios de referencia</button>
     </div>
     <div class="panel" id="preciosres" hidden><p class="nota" id="preciosnota"></p><div class="tabla"><table id="tprecios"></table></div></div>
+    <div class="panel">
+      <h2>Precios de referencia ya emitidos por el INE</h2>
+      <p class="nota">Busca en la base que el INE publica en su portal de datos abiertos (precios emitidos de 2016 a 2023, con el evento de Guatecompras al que respondieron). Sirve como antecedente antes de investigar un producto. <span id="refinfo"></span></p>
+      <label for="refq">Producto</label><input type="text" id="refq" placeholder="por ejemplo: papel bond carta, guantes, laptop, frijol">
+      <p class="nota" id="refresumen" style="margin-top:10px"></p>
+      <div class="tabla"><table id="trefs"></table></div>
+    </div>
+  </section>
+
+  <section id="proceso">
+    <div class="titulo"><h2>Cómo fluye el trabajo</h2><p>Qué pasa en cada etapa, quién la hace y cuánto ha pasado por ella en este servidor. De izquierda a derecha; cada carril es un responsable. Las etapas en amarillo son decisiones de una persona: el sistema nunca las toma solo.</p></div>
+    <div class="panel"><h2>Registros administrativos: de la solicitud a la estadística</h2><div class="flujo" id="flujo1"></div></div>
+    <div class="panel"><h2>Fuentes abiertas: del portal a la capa publicada</h2><p class="nota">El mismo cuidado para los datos que FARO toma de fuera: nada entra sin fuente, fecha y huella, y nada se cruza sin verificarlo contra el catálogo oficial.</p><div class="flujo" id="flujo2"></div></div>
+    <div class="panel"><h2>Precios: de la canasta oficial al precio de referencia</h2><div class="flujo" id="flujo3"></div></div>
+  </section>
+
+  <section id="acerca">
+    <div class="titulo"><h2>Acerca de FARO y sus fuentes</h2><p>Qué es, qué hace hoy y de dónde sale cada dato.</p></div>
+    <div class="panel"><h2>Qué es</h2>
+      <p>FARO es una herramienta para que el INE <b>pida, reciba y homologue</b> registros administrativos de otras instituciones, y para aprovechar junto a ellos los datos abiertos del propio INE y del territorio. Parte de una regla: <b>el sistema no adivina</b>. Asigna un código solo cuando no hay duda; lo demás lo propone, lo decide una persona y queda aprendido.</p>
+      <h2 style="margin-top:14px">Qué se ha hecho</h2>
+      <ul id="hecho"></ul>
+      <p class="nota" style="margin-bottom:0">Prototipo del Datatón INE 2026, categoría 2. Equipo: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval. No es un producto oficial del INE.</p></div>
+    <div class="panel"><h2>Fuentes y citas</h2><p class="nota">Fuente principal: Instituto Nacional de Estadística (INE), Guatemala. Cada archivo descargado queda registrado con su dirección, fecha y huella.</p><div id="citas"></div></div>
   </section>
 
   <section id="capas">
@@ -505,7 +549,67 @@ $('#tconsrev').onclick = async e => {
     aviso(b.dataset.c === 'ninguno' ? 'Apartado: no corresponde a ningún artículo.' : 'Grabado: entra a la comparación.'); construccion(); }
   catch (x) { aviso(x.message, true); }
 };
-const cargar = {construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: async () => {}, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
+// ---- Proceso ----
+function flujo(sel, carriles, etapas) {
+  // Una columna por etapa; cada etapa va en el carril de quien la hace.
+  const caja = $(sel); caja.style.gridTemplateColumns = `auto repeat(${etapas.length}, minmax(168px, 1fr))`;
+  caja.innerHTML = carriles.map(c => `<div class="carril"><div class="rol">${esc(c)}</div>` + etapas.map((e, i) => `<div class="celda">${e.quien === c ? `<div class="etapa ${e.clase || ''}"><b><i>${i + 1}</i>${esc(e.t)}</b><p>${esc(e.d)}</p>${e.n == null ? '' : `<strong>${esc(e.n)} <small>${esc(e.u || '')}</small></strong>`}</div>` : ''}</div>`).join('') + '</div>').join('');
+}
+async function proceso() {
+  const x = await api('/api/proceso');
+  flujo('#flujo1', ['INE: quien pide', 'Institución', 'FARO (automático)', 'Analista del INE', 'Usuarios y portal'], [
+    {quien:'INE: quien pide', t:'Solicitud de datos', d:'Declara una vez qué columnas pide, de qué tipo, cuáles son obligatorias, cuáles son dato personal y qué valores admite cada una.', n:num(x.solicitudes), u:'solicitudes vigentes'},
+    {quien:'Institución', t:'Envío', d:'Manda su archivo como lo tiene (Excel o CSV), sin reformatearlo.', n:num(x.envios), u:`envíos de ${num(x.instituciones)} institución(es)`},
+    {quien:'FARO (automático)', t:'Lectura y validación', d:'Ubica el encabezado, reconoce columnas con otro nombre y reporta fila por fila fechas inválidas, vacíos y valores fuera de catálogo.', n:num(x.filas), u:`filas · ${num(x.problemas)} problemas reportados`},
+    {quien:'FARO (automático)', t:'Protección de datos', d:'Solo pasan las columnas pedidas; nombres y direcciones se eliminan y el documento de identidad se sustituye por una llave no reversible.'},
+    {quien:'FARO (automático)', t:'Homologación', d:'Lleva lugares y valores al código oficial. Asigna solo si la coincidencia es exacta y única, o si ya se decidió antes.', n:num(x.lugares_en_catalogo), u:'lugares en el catálogo oficial'},
+    {quien:'Analista del INE', clase:'decision', t:'Revisión', d:'Decide lo que el sistema no quiso adivinar: elige entre candidatos o busca en el catálogo.', n:num(x.pendientes), u:'valores por revisar'},
+    {quien:'FARO (automático)', t:'Memoria', d:'Guarda cada decisión con quién y cuándo. El siguiente envío, de cualquier institución, ya no pregunta lo mismo.', n:num(x.equivalencias), u:'equivalencias aprendidas'},
+    {quien:'FARO (automático)', t:'Salida estándar', d:'Mismo formato para todas las instituciones, con código INE; conteos por periodo, municipio y sexo.', n:num(x.registros_agregados), u:'registros en conteos'},
+    {quien:'Usuarios y portal', clase:'fin', t:'Estadística y mapa', d:'Tasas por 100 mil habitantes, avance por institución, mapa por municipio y capas con dirección estable.', n:num(x.capas), u:'capas publicadas'},
+  ]);
+  flujo('#flujo2', ['FARO (automático)', 'Analista del INE', 'Usuarios y portal'], [
+    {quien:'FARO (automático)', t:'Descubrir', d:'Consulta a diario el catálogo del portal de datos abiertos del INE y detecta conjuntos nuevos o cambiados.', n:num(x.conjuntos_ine), u:'conjuntos vigilados'},
+    {quien:'FARO (automático)', t:'Descargar con huella', d:'Guarda cada archivo con su dirección, fecha, licencia y huella SHA-256.', n:num(x.fuentes), u:'fuentes citadas'},
+    {quien:'FARO (automático)', t:'Verificar contra el catálogo', d:'Cruza códigos y nombres con el catálogo oficial antes de usar el dato. Así aparecieron 16 códigos de municipio inexistentes en las proyecciones.'},
+    {quien:'Analista del INE', clase:'decision', t:'Resolver lo que no cuadra', d:'Si un código no se ubica con coincidencia exacta y única, el proceso se detiene y lo dice; no se corrige en silencio.'},
+    {quien:'FARO (automático)', t:'Derivar la tabla', d:'Resume a municipio y año, comprobando que las partes sumen el total publicado.', n:num(x.municipios_con_poblacion), u:'municipios con población'},
+    {quien:'Usuarios y portal', clase:'fin', t:'Publicar y poder repetir', d:'La capa sale con su fuente y licencia, y el cálculo se puede repetir desde esta pantalla.', n:num(x.capas), u:'capas publicadas'},
+  ]);
+  flujo('#flujo3', ['INE: Precios', 'FARO (automático)', 'Analista del INE', 'Usuarios y portal'], [
+    {quien:'INE: Precios', t:'Canasta oficial', d:'El artículo se define una vez con su especificación y unidad (IPMC) y las reglas para reconocerlo.', n:num(x.articulos_ipmc), u:'artículos del IPMC'},
+    {quien:'FARO (automático)', t:'Reunir precios', d:'Cotizaciones que sube el analista y precios publicados por proveedores, cada uno con su fuente y fecha.'},
+    {quien:'FARO (automático)', t:'Homologar el producto', d:'Compara palabras, medidas y presentación con el artículo oficial: comparable, por revisar o de otra medida.'},
+    {quien:'Analista del INE', clase:'decision', t:'Revisar', d:'Decide los productos dudosos; su decisión queda aprendida.'},
+    {quien:'FARO (automático)', t:'Calcular', d:'Un precio por proveedor en la unidad oficial; media si son parecidos, mediana si hay extremos; avisa si faltan fuentes directas.'},
+    {quien:'Usuarios y portal', clase:'fin', t:'Precio de referencia', d:'Con sus fuentes, el método usado y los antecedentes ya emitidos por el INE.', n:num(x.precios_referencia_ine), u:'antecedentes del INE'},
+  ]);
+}
+const HECHO = [
+  ['Solicitud, recepción y homologación', 'Solicitudes declarativas para RENAP, PNC y SE-CONRED; lectura de Excel y CSV reales; homologación de lugares y de valores de catálogo con memoria; datos personales eliminados o sustituidos por una llave.'],
+  ['Catálogo oficial verificado', '22 departamentos, 340 municipios y 20,036 lugares poblados del Censo 2018, comprobados código por código.'],
+  ['Población y tasas', 'Proyecciones del INE por municipio 2015–2030, con el proceso repetible desde esta pantalla; resultados por 100 mil habitantes.'],
+  ['Crecimiento urbano', 'Superficie construida por municipio de 1975 a 2020 con la capa satelital abierta GHSL, sin Earth Engine.'],
+  ['Red vial', 'Caminos de OpenStreetMap como grafo: lugares poblados sin conexión y enlaces que probablemente faltan en el mapa.'],
+  ['Operadores de campo', 'Asignación a puestos con la menor distancia total posible (cálculo exacto).'],
+  ['Precios', 'Precio de referencia con la regla de la Dirección de Precios; materiales de construcción contra la canasta del IPMC, con 116 proveedores perfilados; búsqueda en los precios de referencia ya emitidos por el INE.'],
+  ['Mapa y capas', 'Un mapa por municipio con todos los indicadores y capas publicadas en GeoJSON y CSV para un portal o un SIG.'],
+  ['Proceso y trazabilidad', 'Cada descarga con fuente, fecha y huella; cada decisión con quién y cuándo; cada cifra con su cita.'],
+];
+async function acerca() {
+  $('#hecho').innerHTML = HECHO.map(([t, d]) => `<li><b>${esc(t)}.</b> ${esc(d)}</li>`).join('');
+  const r = await api('/api/fuentes'), grupo = (t, tipos) => { const l = r.fuentes.filter(f => tipos.includes(f.tipo)); return l.length ? `<h2 style="margin-top:14px">${t}</h2><ul class="citas">` + l.map(f => `<li>${esc(f.cita).replace(/(https?:\/\/\S+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')}<br><small>Uso: ${esc(f.uso)}${f.licencia ? ' Licencia: ' + esc(f.licencia) + '.' : ''}</small></li>`).join('') + '</ul>' : ''; };
+  $('#citas').innerHTML = grupo('Datos', ['conjunto de datos', 'sitio web', 'archivos no publicados']) + grupo('Documentos del INE y de referencia', ['presentación', 'presentaciones', 'documento']) + grupo('Métodos y programas', ['artículo', 'libro', 'ponencia', 'programa']);
+}
+let esperaRef;
+async function buscarReferencias() {
+  const r = await api('/api/referencias?q=' + encodeURIComponent($('#refq').value));
+  $('#refinfo').textContent = `${num(r.total)} precios en la base.`;
+  $('#refresumen').textContent = !$('#refq').value.trim() ? '' : r.coincidencias ? `${num(r.coincidencias)} coincidencia(s); precios entre ${q(r.minimo)} y ${q(r.maximo)}, mediana ${q(r.mediana)}. Compare solo presentaciones iguales.${r.coincidencias > 100 ? ' Se muestran las 100 más recientes.' : ''}` : 'Sin coincidencias.';
+  tabla('#trefs', [{t:'Producto', f:f => `<b>${esc(f.producto)}</b><br><small>${esc(f.caracteristicas)}</small>`}, {t:'Presentación', f:f => esc(f.presentacion)}, {t:'Precio de referencia', num:1, f:f => `<b>${q(f.precio)}</b>`}, {t:'Fecha', f:f => esc(f.fecha)},
+    {t:'Evento', f:f => `${esc(f.modalidad)}<br><small>NOG ${esc(f.nog)} · ${esc(f.categoria)}</small>`}], r.filas, $('#refq').value.trim() ? 'Sin coincidencias.' : 'Escriba un producto para buscar.');
+}
+const cargar = {proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   document.querySelector('nav').classList.remove('abierto');
@@ -548,6 +652,13 @@ $('#asigcsv').onclick = () => {
 $('#calcprecios').onclick = async () => {
   const f = $('#csvprecios').files[0]; if (!f) return aviso('Elija el archivo de cotizaciones.', true);
   try { mostrarPrecios(await api('/api/precios', {method:'POST', headers:{'content-type':'text/csv'}, body: await f.text()})); } catch (e) { aviso(e.message, true); }
+};
+$('#refq').oninput = () => { clearTimeout(esperaRef); esperaRef = setTimeout(() => buscarReferencias().catch(e => aviso(e.message, true)), 250); };
+$('#reproducir').onclick = async () => {
+  $('#reproducir').disabled = true; $('#reproducido').innerHTML = '<p class="nota">Consultando el portal del INE y procesando el libro… puede tardar hasta un minuto.</p>';
+  try { const r = await api('/api/reproducir/poblacion', {method:'POST'});
+    $('#reproducido').innerHTML = `<p><span class="etq ${r.identica ? 'ok' : 'alerta'}">${r.identica ? 'Resultado idéntico a la tabla en uso' : 'El resultado difiere de la tabla en uso'}</span></p><ol class="pasos">` + r.pasos.map(p => `<li><b>${esc(p.titulo)}.</b> <small>${esc(p.detalle)}</small></li>`).join('') + '</ol>'; }
+  catch (e) { $('#reproducido').innerHTML = ''; aviso(e.message, true); } finally { $('#reproducir').disabled = false; }
 };
 $('#consanio').onchange = () => construido().catch(e => aviso(e.message, true));
 $('#pobdesde').onchange = $('#pobhasta').onchange = () => poblacion().catch(e => aviso(e.message, true));

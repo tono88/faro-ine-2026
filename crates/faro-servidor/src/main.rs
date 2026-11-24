@@ -25,6 +25,10 @@ struct Estado {
     dir_ejemplos: PathBuf,
     /// Resultado del análisis de la red vial (`faro vial`), ya con nombres del catálogo.
     vial: Value,
+    /// Precios de referencia publicados por el INE (tabla limpia de `faro referencias`).
+    referencias: Vec<HashMap<String, String>>,
+    /// Fuentes y citas (datos/estandar/fuentes.json).
+    fuentes: Value,
     /// Materiales de construcción: reglas del IPMC, artículos, precios publicados y proveedores.
     construccion: Construccion,
     /// Superficie construida (hectáreas) por municipio y época, de GHSL: código -> [(año, ha)].
@@ -113,6 +117,8 @@ async fn main() -> Result<(), String> {
     let estado = Arc::new(Estado {
         bd,
         vial,
+        referencias: csv::Reader::from_path(var("FARO_REFERENCIAS_INE", "datos/catalogo_precios/precios_referencia_ine.csv")).map(|mut l| l.deserialize().flatten().collect()).unwrap_or_default(),
+        fuentes: std::fs::read_to_string(var("FARO_FUENTES", "datos/estandar/fuentes.json")).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_else(|| json!({ "fuentes": [] })),
         construccion,
         construido,
         capas,
@@ -162,6 +168,10 @@ async fn main() -> Result<(), String> {
         .route("/api/poblacion", get(api_poblacion))
         .route("/api/construido", get(api_construido))
         .route("/api/construccion", get(api_construccion))
+        .route("/api/referencias", get(api_referencias))
+        .route("/api/proceso", get(api_proceso))
+        .route("/api/fuentes", get(|State(e): State<Compartido>| async move { Json(e.fuentes.clone()) }))
+        .route("/api/reproducir/poblacion", post(api_reproducir_poblacion))
         .route("/api/vial", get(|State(e): State<Compartido>| async move { Json(e.vial.clone()) }))
         .route("/api/precios", post(api_precios))
         .route("/api/avance", get(api_avance))
@@ -990,4 +1000,94 @@ async fn api_construccion(State(e): State<Compartido>) -> Res<Json<Value>> {
                      "articulos_con_precio": resumenes.values().filter(|r| r["por_proveedor"].as_array().is_some_and(|a| !a.is_empty())).count() },
         "articulos": articulos, "por_revisar": por_revisar, "proveedores": proveedores,
     })))
+}
+
+/// Busca en los precios de referencia publicados por el INE. Todas las palabras de la consulta
+/// deben aparecer en el producto, sus características o su categoría.
+async fn api_referencias(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
+    let consulta = faro_homologa::normalizar::basico(q.get("q").map(String::as_str).unwrap_or(""));
+    let palabras: Vec<&str> = consulta.split(' ').filter(|p| p.len() >= 2).collect();
+    let categorias: std::collections::BTreeSet<&str> = e.referencias.iter().filter_map(|f| f.get("categoria").map(String::as_str)).collect();
+    if palabras.is_empty() {
+        return Ok(Json(json!({ "total": e.referencias.len(), "categorias": categorias.len(), "coincidencias": 0, "filas": [] })));
+    }
+    let hallados: Vec<&HashMap<String, String>> = e
+        .referencias
+        .iter()
+        .filter(|f| {
+            let texto = faro_homologa::normalizar::basico(&format!("{} {} {}", f.get("producto").map_or("", String::as_str), f.get("caracteristicas").map_or("", String::as_str), f.get("categoria").map_or("", String::as_str)));
+            palabras.iter().all(|p| texto.split(' ').any(|t| t.starts_with(p)))
+        })
+        .collect();
+    let mut precios: Vec<f64> = hallados.iter().filter_map(|f| f.get("precio")?.parse().ok()).collect();
+    precios.sort_by(f64::total_cmp);
+    let mut filas: Vec<&&HashMap<String, String>> = hallados.iter().collect();
+    filas.sort_by(|a, b| b.get("fecha").cmp(&a.get("fecha")));
+    Ok(Json(json!({ "total": e.referencias.len(), "categorias": categorias.len(), "coincidencias": hallados.len(),
+        "minimo": precios.first(), "mediana": precios.get(precios.len() / 2), "maximo": precios.last(), "filas": filas.into_iter().take(100).collect::<Vec<_>>() })))
+}
+
+/// Cifras de cada etapa del proceso, para el diagrama de flujo.
+async fn api_proceso(State(e): State<Compartido>) -> Res<Json<Value>> {
+    let f = e
+        .bd
+        .query_one(
+            "SELECT (SELECT count(*) FROM envios), (SELECT coalesce(sum(filas),0)::bigint FROM envios), (SELECT coalesce(sum(problemas),0)::bigint FROM envios),
+                    (SELECT count(*) FROM (SELECT 1 FROM pendientes WHERE NOT resuelto GROUP BY columna, nivel, contexto, valor) p),
+                    (SELECT count(*) FROM equivalencias) + (SELECT count(*) FROM equivalencias_valor), (SELECT coalesce(sum(n),0)::bigint FROM hechos),
+                    (SELECT count(*) FROM conjuntos_ine), (SELECT count(DISTINCT institucion) FROM envios)",
+            &[],
+        )
+        .await
+        .map_err(interno)?;
+    Ok(Json(json!({
+        "solicitudes": solicitudes(&e).map_err(interno)?.len(), "envios": f.get::<_, i64>(0), "filas": f.get::<_, i64>(1), "problemas": f.get::<_, i64>(2), "pendientes": f.get::<_, i64>(3),
+        "equivalencias": f.get::<_, i64>(4), "registros_agregados": f.get::<_, i64>(5), "conjuntos_ine": f.get::<_, i64>(6), "instituciones": f.get::<_, i64>(7),
+        "lugares_en_catalogo": e.catalogo.len(), "capas": e.catalogo_capas.len(), "fuentes": e.fuentes["fuentes"].as_array().map_or(0, Vec::len),
+        "municipios_con_poblacion": e.poblacion.municipios().len(), "articulos_ipmc": e.construccion.articulos.len(), "precios_referencia_ine": e.referencias.len(),
+    })))
+}
+
+/// Repite, desde el portal del INE, el proceso que produjo la tabla de población: consulta el
+/// conjunto, descarga el libro y su diccionario, los procesa y compara el resultado con la tabla
+/// que usa este servidor. Devuelve cada paso con sus cifras.
+async fn api_reproducir_poblacion(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    use faro_territorio::poblacion::{procesar, Paso};
+    autorizar(&e, &cabeceras)?;
+    let resultado = tokio::task::spawn_blocking(move || -> Result<Value, String> {
+        const CONJUNTO: &str = "proyecciones-de-poblacion-2015-2030";
+        let mut pasos: Vec<Paso> = Vec::new();
+        let conjunto = faro_fuentes::Ckan::new(&e.portal).conjunto(CONJUNTO)?;
+        let libros: Vec<&faro_fuentes::ckan::Recurso> = conjunto.resources.iter().filter(|r| r.format.eq_ignore_ascii_case("xlsx")).collect();
+        let es_diccionario = |r: &&&faro_fuentes::ckan::Recurso| r.name.to_lowercase().contains("diccionario");
+        let (libro, diccionario) = (libros.iter().find(|r| !es_diccionario(r)).ok_or("el conjunto no trae el libro de proyecciones")?, libros.iter().find(es_diccionario).ok_or("el conjunto no trae el diccionario")?);
+        pasos.push(Paso { titulo: "Consultar el portal del INE".into(), detalle: format!("Conjunto «{}» en {}; licencia {}; última modificación {}. Recursos: «{}» y «{}».", conjunto.title, e.portal, conjunto.licencia(), conjunto.metadata_modified.get(..10).unwrap_or(""), libro.name, diccionario.name) });
+        // Las descargas quedan en una carpeta temporal con su propio registro de procedencia.
+        let dir = std::env::temp_dir().join("faro-reproducir");
+        let manifiesto = faro_fuentes::Manifiesto::new(&dir.join("manifiesto.jsonl"));
+        let mut rutas = Vec::new();
+        for r in [libro, diccionario] {
+            let destino = dir.join(faro_fuentes::procedencia::nombre_de_url(&r.url));
+            let d = manifiesto.descargar(CONJUNTO, &r.url, &destino, "Instituto Nacional de Estadística (INE)", conjunto.licencia())?;
+            pasos.push(Paso { titulo: "Descargar".into(), detalle: format!("{} · {} bytes · {} · SHA-256 {}", r.url, d.bytes, d.fecha, d.sha256) });
+            rutas.push(destino);
+        }
+        let memoria = Memoria::default();
+        let h = Homologador::new(&e.catalogo, &memoria);
+        let es_municipio = |m: &str| e.catalogo.por_codigo(m).is_some_and(|l| l.nivel == Nivel::Municipio);
+        let ubicar = |codigo: &str, nombre: &str| {
+            let r = h.homologar(nombre, Nivel::Municipio, Some(&codigo[..2.min(codigo.len())]));
+            r.codigo.filter(|_| r.estado.resuelto()).ok_or(format!("{codigo} ({nombre}): no coincide con un único municipio de su departamento"))
+        };
+        let (filas, proceso) = procesar(&lectura::leer_crudo(&rutas[0])?, Some(&lectura::leer_crudo(&rutas[1])?), &es_municipio, &ubicar)?;
+        pasos.extend(proceso);
+        // ¿Sale lo mismo que la tabla con la que trabaja este servidor?
+        let distintas = filas.iter().filter(|f| e.poblacion.fila(&f.municipio, f.anio) != Some(f)).count();
+        let identica = distintas == 0 && filas.len() == e.poblacion.len();
+        pasos.push(Paso { titulo: "Comparar con la tabla en uso".into(), detalle: if identica { format!("Las {} filas recién calculadas son idénticas a las que usa este servidor.", filas.len()) } else { format!("{distintas} filas difieren de la tabla en uso (que tiene {} filas): el INE pudo haber actualizado el libro.", e.poblacion.len()) } });
+        Ok(json!({ "pasos": pasos, "identica": identica, "filas": filas.len() }))
+    })
+    .await
+    .map_err(interno)?;
+    Ok(Json(resultado.map_err(|x| Fallo(StatusCode::BAD_GATEWAY, format!("no se pudo repetir el proceso: {x}")).1).map_err(pedido)?))
 }
