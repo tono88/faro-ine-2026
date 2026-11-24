@@ -28,6 +28,14 @@ pub fn mollweide(longitud: f64, latitud: f64) -> (f64, f64) {
     (2.0 * 2f64.sqrt() / std::f64::consts::PI * RADIO_M * lam * t.cos(), 2f64.sqrt() * RADIO_M * t.sin())
 }
 
+/// Mollweide (metros) a longitud y latitud (grados).
+pub fn mollweide_inversa(x: f64, y: f64) -> (f64, f64) {
+    let t = (y / (2f64.sqrt() * RADIO_M)).clamp(-1.0, 1.0).asin();
+    let latitud = ((2.0 * t + (2.0 * t).sin()) / std::f64::consts::PI).clamp(-1.0, 1.0).asin();
+    let longitud = std::f64::consts::PI * x / (2.0 * 2f64.sqrt() * RADIO_M * t.cos());
+    (longitud.to_degrees(), latitud.to_degrees())
+}
+
 pub fn proyectar(poligonos: &[Poligono]) -> Vec<Poligono> {
     poligonos.iter().map(|p| p.iter().map(|a| a.iter().map(|(x, y)| mollweide(*x, *y)).collect()).collect()).collect()
 }
@@ -48,6 +56,16 @@ pub struct Mosaico<'a> {
 /// cuántas celdas se sumaron. Recorre por filas y, en cada una, los tramos que quedan dentro.
 pub fn sumar(m: &Mosaico, poligonos: &[Poligono]) -> (f64, usize) {
     let (mut suma, mut celdas) = (0.0, 0usize);
+    recorrer(m, poligonos, &mut |_, _, v| {
+        suma += v as f64;
+        celdas += 1;
+    });
+    (suma, celdas)
+}
+
+/// Llama a `f(x, y, valor)` por cada celda con dato cuyo centro (x, y en Mollweide) cae dentro
+/// de los polígonos.
+pub fn recorrer(m: &Mosaico, poligonos: &[Poligono], f: &mut dyn FnMut(f64, f64, u16)) {
     for p in poligonos {
         let (mut ymin, mut ymax) = (f64::INFINITY, f64::NEG_INFINITY);
         for (_, y) in p.iter().flatten() {
@@ -83,14 +101,12 @@ pub fn sumar(m: &Mosaico, poligonos: &[Poligono]) -> (f64, usize) {
                 for col in desde..=hasta as usize {
                     let v = m.celdas[fila * m.ancho + col];
                     if v != m.sin_dato {
-                        suma += v as f64;
-                        celdas += 1;
+                        f(m.x0 + (col as f64 + 0.5) * m.paso, y, v);
                     }
                 }
             }
         }
     }
-    (suma, celdas)
 }
 
 #[cfg(test)]
@@ -104,6 +120,8 @@ mod pruebas {
         assert!((x - 2.0 * 2f64.sqrt() * RADIO_M).abs() < 1e-3 && y.abs() < 1e-9);
         let (_, y) = mollweide(0.0, 90.0);
         assert!((y - 2f64.sqrt() * RADIO_M).abs() < 1.0);
+        let (lon, lat) = mollweide_inversa(mollweide(-90.51, 14.63).0, mollweide(-90.51, 14.63).1);
+        assert!((lon + 90.51).abs() < 1e-6 && (lat - 14.63).abs() < 1e-6, "ida y vuelta: {lon}, {lat}");
         // Ciudad de Guatemala cae en el mosaico R8_C10 de GHSL (x de −9,041,000 a −8,041,000; y de 1,000,000 a 2,000,000).
         let (x, y) = mollweide(-90.51, 14.63);
         assert!((-9_041_000.0..-8_041_000.0).contains(&x) && (1_000_000.0..2_000_000.0).contains(&y), "{x}, {y}");

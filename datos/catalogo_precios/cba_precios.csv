@@ -1,0 +1,1191 @@
+periodo,numero,producto,precio_promedio
+2020-12,1,Arroz,5.55
+2020-12,2,Avena de toda clase,12.59
+2020-12,3,Pan tipo francés,7.20
+2020-12,4,Pan dulce corriente o de manteca,6.79
+2020-12,5,Pastas de todos los tipos,4.61
+2020-12,6,Tortilla de maíz,3.41
+2020-12,7,Carne de res sin hueso,27.17
+2020-12,8,Carne de res con hueso,15.62
+2020-12,9,Carne de cerdo sin hueso,20.32
+2020-12,10,Carne de pollo o gallina,11.76
+2020-12,11,Embutidos,13.01
+2020-12,12,Leche en polvo,37.00
+2020-12,13,Leche líquida,11.86
+2020-12,14,Queso fresco o duro,22.89
+2020-12,15,Crema fresca,9.96
+2020-12,16,Huevos de gallina,13.30
+2020-12,17,Aceites comestibles,13.26
+2020-12,18,Aguacates,8.12
+2020-12,19,Bananos/guineos,2.53
+2020-12,20,Plátanos,2.84
+2020-12,21,Piñas,2.57
+2020-12,22,Sandias,2.17
+2020-12,23,Tomate,4.98
+2020-12,24,Güisquil,2.64
+2020-12,25,Cebolla blanca sin tallo,5.38
+2020-12,26,Papas,4.15
+2020-12,27,Hierbas,4.49
+2020-12,28,Frijol,7.44
+2020-12,29,Azúcar,3.21
+2020-12,30,Preparación nutricional a base de maíz y soya,9.16
+2020-12,31,Sal,0.40
+2020-12,32,Sopas instantáneas en vaso,14.18
+2020-12,33,"Café en grano, molido, instantáneo",42.60
+2020-12,34,Aguas gaseosas,10.09
+2021-01,1,Arroz,5.57
+2021-01,2,Avena de toda clase,12.44
+2021-01,3,Pan tipo francés,7.29
+2021-01,4,Pan dulce corriente o de manteca,6.90
+2021-01,5,Pastas de todos los tipos,4.60
+2021-01,6,Tortilla de maíz,3.43
+2021-01,7,Carne de res sin hueso,27.19
+2021-01,8,Carne de res con hueso,15.69
+2021-01,9,Carne de cerdo sin hueso,20.50
+2021-01,10,Carne de pollo o gallina,11.80
+2021-01,11,Embutidos,12.84
+2021-01,12,Leche en polvo,36.92
+2021-01,13,Leche líquida,11.92
+2021-01,14,Queso fresco o duro,24.11
+2021-01,15,Crema fresca,9.92
+2021-01,16,Huevos de gallina,12.92
+2021-01,17,Aceites comestibles,13.35
+2021-01,18,Aguacates,7.96
+2021-01,19,Bananos/guineos,2.48
+2021-01,20,Plátanos,2.80
+2021-01,21,Piñas,2.49
+2021-01,22,Sandias,1.97
+2021-01,23,Tomate,5.08
+2021-01,24,Güisquil,2.61
+2021-01,25,Cebolla blanca sin tallo,4.67
+2021-01,26,Papas,4.40
+2021-01,27,Hierbas,4.36
+2021-01,28,Frijol,7.22
+2021-01,29,Azúcar,3.30
+2021-01,30,Preparación nutricional a base de maíz y soya,9.12
+2021-01,31,Sal,0.38
+2021-01,32,Sopas instantáneas en vaso,14.24
+2021-01,33,"Café en grano, molido, instantáneo",42.83
+2021-01,34,Aguas gaseosas,10.08
+2021-02,1,Arroz,5.58
+2021-02,2,Avena de toda clase,12.47
+2021-02,3,Pan tipo francés,7.20
+2021-02,4,Pan dulce corriente o de manteca,6.82
+2021-02,5,Pastas de todos los tipos,4.60
+2021-02,6,Tortilla de maíz,3.45
+2021-02,7,Carne de res sin hueso,27.26
+2021-02,8,Carne de res con hueso,15.74
+2021-02,9,Carne de cerdo sin hueso,20.54
+2021-02,10,Carne de pollo o gallina,12.07
+2021-02,11,Embutidos,12.76
+2021-02,12,Leche en polvo,36.69
+2021-02,13,Leche líquida,11.87
+2021-02,14,Queso fresco o duro,24.21
+2021-02,15,Crema fresca,9.83
+2021-02,16,Huevos de gallina,12.51
+2021-02,17,Aceites comestibles,13.35
+2021-02,18,Aguacates,7.86
+2021-02,19,Bananos/guineos,2.55
+2021-02,20,Plátanos,2.85
+2021-02,21,Piñas,2.53
+2021-02,22,Sandias,1.90
+2021-02,23,Tomate,5.11
+2021-02,24,Güisquil,2.72
+2021-02,25,Cebolla blanca sin tallo,4.33
+2021-02,26,Papas,4.19
+2021-02,27,Hierbas,4.58
+2021-02,28,Frijol,7.29
+2021-02,29,Azúcar,3.31
+2021-02,30,Preparación nutricional a base de maíz y soya,9.10
+2021-02,31,Sal,0.35
+2021-02,32,Sopas instantáneas en vaso,14.23
+2021-02,33,"Café en grano, molido, instantáneo",42.45
+2021-02,34,Aguas gaseosas,10.09
+2021-03,1,Arroz,5.59
+2021-03,2,Avena de toda clase,12.67
+2021-03,3,Pan tipo francés,7.18
+2021-03,4,Pan dulce corriente o de manteca,6.75
+2021-03,5,Pastas de todos los tipos,4.57
+2021-03,6,Tortilla de maíz,3.53
+2021-03,7,Carne de res sin hueso,27.33
+2021-03,8,Carne de res con hueso,15.78
+2021-03,9,Carne de cerdo sin hueso,20.66
+2021-03,10,Carne de pollo o gallina,12.26
+2021-03,11,Embutidos,12.89
+2021-03,12,Leche en polvo,36.58
+2021-03,13,Leche líquida,12.03
+2021-03,14,Queso fresco o duro,24.09
+2021-03,15,Crema fresca,9.89
+2021-03,16,Huevos de gallina,12.63
+2021-03,17,Aceites comestibles,13.63
+2021-03,18,Aguacates,7.59
+2021-03,19,Bananos/guineos,2.54
+2021-03,20,Plátanos,2.73
+2021-03,21,Piñas,2.41
+2021-03,22,Sandias,1.84
+2021-03,23,Tomate,4.86
+2021-03,24,Güisquil,2.48
+2021-03,25,Cebolla blanca sin tallo,3.76
+2021-03,26,Papas,3.99
+2021-03,27,Hierbas,4.41
+2021-03,28,Frijol,7.29
+2021-03,29,Azúcar,3.31
+2021-03,30,Preparación nutricional a base de maíz y soya,9.15
+2021-03,31,Sal,0.34
+2021-03,32,Sopas instantáneas en vaso,14.25
+2021-03,33,"Café en grano, molido, instantáneo",42.00
+2021-03,34,Aguas gaseosas,10.10
+2021-04,1,Arroz,5.62
+2021-04,2,Avena de toda clase,12.68
+2021-04,3,Pan tipo francés,7.21
+2021-04,4,Pan dulce corriente o de manteca,6.81
+2021-04,5,Pastas de todos los tipos,4.59
+2021-04,6,Tortilla de maíz,3.53
+2021-04,7,Carne de res sin hueso,27.39
+2021-04,8,Carne de res con hueso,15.81
+2021-04,9,Carne de cerdo sin hueso,20.73
+2021-04,10,Carne de pollo o gallina,12.34
+2021-04,11,Embutidos,12.86
+2021-04,12,Leche en polvo,36.53
+2021-04,13,Leche líquida,12.09
+2021-04,14,Queso fresco o duro,24.44
+2021-04,15,Crema fresca,9.86
+2021-04,16,Huevos de gallina,12.87
+2021-04,17,Aceites comestibles,13.87
+2021-04,18,Aguacates,8.30
+2021-04,19,Bananos/guineos,2.59
+2021-04,20,Plátanos,2.79
+2021-04,21,Piñas,2.38
+2021-04,22,Sandias,1.81
+2021-04,23,Tomate,4.73
+2021-04,24,Güisquil,2.56
+2021-04,25,Cebolla blanca sin tallo,3.68
+2021-04,26,Papas,4.04
+2021-04,27,Hierbas,4.29
+2021-04,28,Frijol,7.24
+2021-04,29,Azúcar,3.31
+2021-04,30,Preparación nutricional a base de maíz y soya,9.17
+2021-04,31,Sal,0.33
+2021-04,32,Sopas instantáneas en vaso,14.37
+2021-04,33,"Café en grano, molido, instantáneo",41.68
+2021-04,34,Aguas gaseosas,10.15
+2021-05,1,Arroz,5.59
+2021-05,2,Avena de toda clase,12.69
+2021-05,3,Pan tipo francés,7.25
+2021-05,4,Pan dulce corriente o de manteca,6.85
+2021-05,5,Pastas de todos los tipos,4.66
+2021-05,6,Tortilla de maíz,3.54
+2021-05,7,Carne de res sin hueso,27.41
+2021-05,8,Carne de res con hueso,15.85
+2021-05,9,Carne de cerdo sin hueso,20.76
+2021-05,10,Carne de pollo o gallina,12.37
+2021-05,11,Embutidos,12.86
+2021-05,12,Leche en polvo,36.48
+2021-05,13,Leche líquida,12.02
+2021-05,14,Queso fresco o duro,23.75
+2021-05,15,Crema fresca,9.81
+2021-05,16,Huevos de gallina,12.97
+2021-05,17,Aceites comestibles,13.96
+2021-05,18,Aguacates,8.33
+2021-05,19,Bananos/guineos,2.56
+2021-05,20,Plátanos,2.79
+2021-05,21,Piñas,2.39
+2021-05,22,Sandias,1.80
+2021-05,23,Tomate,4.70
+2021-05,24,Güisquil,2.56
+2021-05,25,Cebolla blanca sin tallo,3.68
+2021-05,26,Papas,4.06
+2021-05,27,Hierbas,4.27
+2021-05,28,Frijol,7.29
+2021-05,29,Azúcar,3.30
+2021-05,30,Preparación nutricional a base de maíz y soya,9.17
+2021-05,31,Sal,0.33
+2021-05,32,Sopas instantáneas en vaso,14.46
+2021-05,33,"Café en grano, molido, instantáneo",41.30
+2021-05,34,Aguas gaseosas,10.15
+2021-06,1,Arroz,5.57
+2021-06,2,Avena de toda clase,12.67
+2021-06,3,Pan tipo francés,7.25
+2021-06,4,Pan dulce corriente o de manteca,6.85
+2021-06,5,Pastas de todos los tipos,4.67
+2021-06,6,Tortilla de maíz,3.54
+2021-06,7,Carne de res sin hueso,27.58
+2021-06,8,Carne de res con hueso,15.92
+2021-06,9,Carne de cerdo sin hueso,20.72
+2021-06,10,Carne de pollo o gallina,12.67
+2021-06,11,Embutidos,12.83
+2021-06,12,Leche en polvo,36.42
+2021-06,13,Leche líquida,12.07
+2021-06,14,Queso fresco o duro,23.64
+2021-06,15,Crema fresca,9.92
+2021-06,16,Huevos de gallina,12.88
+2021-06,17,Aceites comestibles,14.05
+2021-06,18,Aguacates,8.37
+2021-06,19,Bananos/guineos,2.56
+2021-06,20,Plátanos,2.79
+2021-06,21,Piñas,2.39
+2021-06,22,Sandias,1.81
+2021-06,23,Tomate,4.70
+2021-06,24,Güisquil,2.55
+2021-06,25,Cebolla blanca sin tallo,3.64
+2021-06,26,Papas,4.04
+2021-06,27,Hierbas,4.39
+2021-06,28,Frijol,7.28
+2021-06,29,Azúcar,3.32
+2021-06,30,Preparación nutricional a base de maíz y soya,9.22
+2021-06,31,Sal,0.33
+2021-06,32,Sopas instantáneas en vaso,14.47
+2021-06,33,"Café en grano, molido, instantáneo",41.22
+2021-06,34,Aguas gaseosas,10.18
+2021-07,1,Arroz,5.60
+2021-07,2,Avena de toda clase,12.65
+2021-07,3,Pan tipo francés,7.28
+2021-07,4,Pan dulce corriente o de manteca,6.87
+2021-07,5,Pastas de todos los tipos,4.65
+2021-07,6,Tortilla de maíz,3.55
+2021-07,7,Carne de res sin hueso,27.65
+2021-07,8,Carne de res con hueso,16.00
+2021-07,9,Carne de cerdo sin hueso,20.89
+2021-07,10,Carne de pollo o gallina,12.82
+2021-07,11,Embutidos,12.77
+2021-07,12,Leche en polvo,36.80
+2021-07,13,Leche líquida,12.07
+2021-07,14,Queso fresco o duro,23.87
+2021-07,15,Crema fresca,10.05
+2021-07,16,Huevos de gallina,12.63
+2021-07,17,Aceites comestibles,14.46
+2021-07,18,Aguacates,8.17
+2021-07,19,Bananos/guineos,2.56
+2021-07,20,Plátanos,2.76
+2021-07,21,Piñas,2.39
+2021-07,22,Sandias,1.83
+2021-07,23,Tomate,4.76
+2021-07,24,Güisquil,2.48
+2021-07,25,Cebolla blanca sin tallo,3.78
+2021-07,26,Papas,3.92
+2021-07,27,Hierbas,4.39
+2021-07,28,Frijol,7.23
+2021-07,29,Azúcar,3.33
+2021-07,30,Preparación nutricional a base de maíz y soya,9.25
+2021-07,31,Sal,0.33
+2021-07,32,Sopas instantáneas en vaso,14.41
+2021-07,33,"Café en grano, molido, instantáneo",41.36
+2021-07,34,Aguas gaseosas,10.17
+2021-08,1,Arroz,5.62
+2021-08,2,Avena de toda clase,12.83
+2021-08,3,Pan tipo francés,7.28
+2021-08,4,Pan dulce corriente o de manteca,6.87
+2021-08,5,Pastas de todos los tipos,4.68
+2021-08,6,Tortilla de maíz,3.56
+2021-08,7,Carne de res sin hueso,27.76
+2021-08,8,Carne de res con hueso,16.01
+2021-08,9,Carne de cerdo sin hueso,20.94
+2021-08,10,Carne de pollo o gallina,12.81
+2021-08,11,Embutidos,12.80
+2021-08,12,Leche en polvo,36.97
+2021-08,13,Leche líquida,12.05
+2021-08,14,Queso fresco o duro,23.85
+2021-08,15,Crema fresca,10.08
+2021-08,16,Huevos de gallina,12.64
+2021-08,17,Aceites comestibles,14.81
+2021-08,18,Aguacates,8.09
+2021-08,19,Bananos/guineos,2.53
+2021-08,20,Plátanos,2.71
+2021-08,21,Piñas,2.38
+2021-08,22,Sandias,1.83
+2021-08,23,Tomate,4.85
+2021-08,24,Güisquil,2.46
+2021-08,25,Cebolla blanca sin tallo,4.11
+2021-08,26,Papas,3.86
+2021-08,27,Hierbas,4.40
+2021-08,28,Frijol,7.24
+2021-08,29,Azúcar,3.35
+2021-08,30,Preparación nutricional a base de maíz y soya,9.40
+2021-08,31,Sal,0.33
+2021-08,32,Sopas instantáneas en vaso,14.40
+2021-08,33,"Café en grano, molido, instantáneo",41.28
+2021-08,34,Aguas gaseosas,10.22
+2021-09,1,Arroz,5.65
+2021-09,2,Avena de toda clase,12.95
+2021-09,3,Pan tipo francés,7.28
+2021-09,4,Pan dulce corriente o de manteca,6.87
+2021-09,5,Pastas de todos los tipos,4.67
+2021-09,6,Tortilla de maíz,3.57
+2021-09,7,Carne de res sin hueso,27.82
+2021-09,8,Carne de res con hueso,16.14
+2021-09,9,Carne de cerdo sin hueso,20.90
+2021-09,10,Carne de pollo o gallina,12.76
+2021-09,11,Embutidos,12.91
+2021-09,12,Leche en polvo,36.95
+2021-09,13,Leche líquida,12.07
+2021-09,14,Queso fresco o duro,23.76
+2021-09,15,Crema fresca,10.08
+2021-09,16,Huevos de gallina,12.64
+2021-09,17,Aceites comestibles,14.92
+2021-09,18,Aguacates,8.22
+2021-09,19,Bananos/guineos,2.52
+2021-09,20,Plátanos,2.72
+2021-09,21,Piñas,2.44
+2021-09,22,Sandias,1.89
+2021-09,23,Tomate,5.01
+2021-09,24,Güisquil,2.44
+2021-09,25,Cebolla blanca sin tallo,4.52
+2021-09,26,Papas,3.86
+2021-09,27,Hierbas,4.50
+2021-09,28,Frijol,7.26
+2021-09,29,Azúcar,3.34
+2021-09,30,Preparación nutricional a base de maíz y soya,9.45
+2021-09,31,Sal,0.33
+2021-09,32,Sopas instantáneas en vaso,14.54
+2021-09,33,"Café en grano, molido, instantáneo",41.35
+2021-09,34,Aguas gaseosas,10.24
+2021-10,1,Arroz,5.67
+2021-10,2,Avena de toda clase,13.06
+2021-10,3,Pan tipo francés,7.28
+2021-10,4,Pan dulce corriente o de manteca,6.88
+2021-10,5,Pastas de todos los tipos,4.67
+2021-10,6,Tortilla de maíz,3.58
+2021-10,7,Carne de res sin hueso,27.85
+2021-10,8,Carne de res con hueso,16.28
+2021-10,9,Carne de cerdo sin hueso,20.83
+2021-10,10,Carne de pollo o gallina,12.83
+2021-10,11,Embutidos,12.85
+2021-10,12,Leche en polvo,36.95
+2021-10,13,Leche líquida,12.14
+2021-10,14,Queso fresco o duro,24.02
+2021-10,15,Crema fresca,9.98
+2021-10,16,Huevos de gallina,12.94
+2021-10,17,Aceites comestibles,15.28
+2021-10,18,Aguacates,8.61
+2021-10,19,Bananos/guineos,2.56
+2021-10,20,Plátanos,2.75
+2021-10,21,Piñas,2.51
+2021-10,22,Sandias,2.00
+2021-10,23,Tomate,5.54
+2021-10,24,Güisquil,2.53
+2021-10,25,Cebolla blanca sin tallo,5.02
+2021-10,26,Papas,3.96
+2021-10,27,Hierbas,4.64
+2021-10,28,Frijol,7.28
+2021-10,29,Azúcar,3.32
+2021-10,30,Preparación nutricional a base de maíz y soya,9.49
+2021-10,31,Sal,0.33
+2021-10,32,Sopas instantáneas en vaso,14.63
+2021-10,33,"Café en grano, molido, instantáneo",41.30
+2021-10,34,Aguas gaseosas,10.22
+2021-11,1,Arroz,5.73
+2021-11,2,Avena de toda clase,13.12
+2021-11,3,Pan tipo francés,7.41
+2021-11,4,Pan dulce corriente o de manteca,7.01
+2021-11,5,Pastas de todos los tipos,4.68
+2021-11,6,Tortilla de maíz,3.60
+2021-11,7,Carne de res sin hueso,27.98
+2021-11,8,Carne de res con hueso,16.43
+2021-11,9,Carne de cerdo sin hueso,20.85
+2021-11,10,Carne de pollo o gallina,12.88
+2021-11,11,Embutidos,12.88
+2021-11,12,Leche en polvo,37.08
+2021-11,13,Leche líquida,12.07
+2021-11,14,Queso fresco o duro,24.06
+2021-11,15,Crema fresca,10.04
+2021-11,16,Huevos de gallina,13.31
+2021-11,17,Aceites comestibles,16.17
+2021-11,18,Aguacates,8.46
+2021-11,19,Bananos/guineos,2.54
+2021-11,20,Plátanos,2.76
+2021-11,21,Piñas,2.51
+2021-11,22,Sandias,2.09
+2021-11,23,Tomate,5.81
+2021-11,24,Güisquil,2.50
+2021-11,25,Cebolla blanca sin tallo,5.14
+2021-11,26,Papas,4.05
+2021-11,27,Hierbas,4.62
+2021-11,28,Frijol,7.51
+2021-11,29,Azúcar,3.32
+2021-11,30,Preparación nutricional a base de maíz y soya,9.51
+2021-11,31,Sal,0.33
+2021-11,32,Sopas instantáneas en vaso,14.62
+2021-11,33,"Café en grano, molido, instantáneo",41.42
+2021-11,34,Aguas gaseosas,10.23
+2021-12,1,Arroz,5.76
+2021-12,2,Avena de toda clase,13.13
+2021-12,3,Pan tipo francés,7.47
+2021-12,4,Pan dulce corriente o de manteca,7.06
+2021-12,5,Pastas de todos los tipos,4.69
+2021-12,6,Tortilla de maíz,3.60
+2021-12,7,Carne de res sin hueso,28.28
+2021-12,8,Carne de res con hueso,16.66
+2021-12,9,Carne de cerdo sin hueso,21.04
+2021-12,10,Carne de pollo o gallina,12.85
+2021-12,11,Embutidos,12.93
+2021-12,12,Leche en polvo,37.03
+2021-12,13,Leche líquida,12.13
+2021-12,14,Queso fresco o duro,24.29
+2021-12,15,Crema fresca,10.04
+2021-12,16,Huevos de gallina,13.56
+2021-12,17,Aceites comestibles,16.35
+2021-12,18,Aguacates,8.39
+2021-12,19,Bananos/guineos,2.58
+2021-12,20,Plátanos,2.79
+2021-12,21,Piñas,2.52
+2021-12,22,Sandias,2.06
+2021-12,23,Tomate,5.98
+2021-12,24,Güisquil,2.49
+2021-12,25,Cebolla blanca sin tallo,5.06
+2021-12,26,Papas,4.03
+2021-12,27,Hierbas,4.59
+2021-12,28,Frijol,7.62
+2021-12,29,Azúcar,3.32
+2021-12,30,Preparación nutricional a base de maíz y soya,9.54
+2021-12,31,Sal,0.33
+2021-12,32,Sopas instantáneas en vaso,14.51
+2021-12,33,"Café en grano, molido, instantáneo",41.32
+2021-12,34,Aguas gaseosas,10.28
+2022-01,1,Arroz,5.78
+2022-01,2,Avena de toda clase,13.19
+2022-01,3,Pan tipo francés,7.47
+2022-01,4,Pan dulce corriente o de manteca,7.07
+2022-01,5,Pastas de todos los tipos,4.70
+2022-01,6,Tortilla de maíz,3.60
+2022-01,7,Carne de res sin hueso,28.49
+2022-01,8,Carne de res con hueso,16.90
+2022-01,9,Carne de cerdo sin hueso,21.08
+2022-01,10,Carne de pollo o gallina,12.93
+2022-01,11,Embutidos,13.19
+2022-01,12,Leche en polvo,37.03
+2022-01,13,Leche líquida,12.35
+2022-01,14,Queso fresco o duro,24.82
+2022-01,15,Crema fresca,10.18
+2022-01,16,Huevos de gallina,13.20
+2022-01,17,Aceites comestibles,16.64
+2022-01,18,Aguacates,8.35
+2022-01,19,Bananos/guineos,2.58
+2022-01,20,Plátanos,2.81
+2022-01,21,Piñas,2.52
+2022-01,22,Sandias,2.05
+2022-01,23,Tomate,5.58
+2022-01,24,Güisquil,2.51
+2022-01,25,Cebolla blanca sin tallo,4.95
+2022-01,26,Papas,3.96
+2022-01,27,Hierbas,4.61
+2022-01,28,Frijol,7.66
+2022-01,29,Azúcar,3.54
+2022-01,30,Preparación nutricional a base de maíz y soya,9.72
+2022-01,31,Sal,0.33
+2022-01,32,Sopas instantáneas en vaso,14.50
+2022-01,33,"Café en grano, molido, instantáneo",41.29
+2022-01,34,Aguas gaseosas,10.30
+2022-02,1,Arroz,5.85
+2022-02,2,Avena de toda clase,13.22
+2022-02,3,Pan tipo francés,7.56
+2022-02,4,Pan dulce corriente o de manteca,7.12
+2022-02,5,Pastas de todos los tipos,4.73
+2022-02,6,Tortilla de maíz,3.61
+2022-02,7,Carne de res sin hueso,28.79
+2022-02,8,Carne de res con hueso,17.13
+2022-02,9,Carne de cerdo sin hueso,21.07
+2022-02,10,Carne de pollo o gallina,13.06
+2022-02,11,Embutidos,13.35
+2022-02,12,Leche en polvo,37.44
+2022-02,13,Leche líquida,12.72
+2022-02,14,Queso fresco o duro,25.06
+2022-02,15,Crema fresca,10.27
+2022-02,16,Huevos de gallina,13.02
+2022-02,17,Aceites comestibles,16.93
+2022-02,18,Aguacates,8.27
+2022-02,19,Bananos/guineos,2.62
+2022-02,20,Plátanos,2.81
+2022-02,21,Piñas,2.49
+2022-02,22,Sandias,2.03
+2022-02,23,Tomate,5.45
+2022-02,24,Güisquil,2.50
+2022-02,25,Cebolla blanca sin tallo,5.01
+2022-02,26,Papas,3.96
+2022-02,27,Hierbas,4.74
+2022-02,28,Frijol,7.73
+2022-02,29,Azúcar,3.65
+2022-02,30,Preparación nutricional a base de maíz y soya,9.89
+2022-02,31,Sal,0.33
+2022-02,32,Sopas instantáneas en vaso,14.62
+2022-02,33,"Café en grano, molido, instantáneo",42.13
+2022-02,34,Aguas gaseosas,10.28
+2022-03,1,Arroz,5.92
+2022-03,2,Avena de toda clase,13.45
+2022-03,3,Pan tipo francés,7.99
+2022-03,4,Pan dulce corriente o de manteca,7.47
+2022-03,5,Pastas de todos los tipos,4.84
+2022-03,6,Tortilla de maíz,3.68
+2022-03,7,Carne de res sin hueso,29.26
+2022-03,8,Carne de res con hueso,17.35
+2022-03,9,Carne de cerdo sin hueso,21.16
+2022-03,10,Carne de pollo o gallina,13.23
+2022-03,11,Embutidos,13.40
+2022-03,12,Leche en polvo,37.93
+2022-03,13,Leche líquida,12.89
+2022-03,14,Queso fresco o duro,25.27
+2022-03,15,Crema fresca,10.36
+2022-03,16,Huevos de gallina,13.21
+2022-03,17,Aceites comestibles,17.36
+2022-03,18,Aguacates,8.41
+2022-03,19,Bananos/guineos,2.63
+2022-03,20,Plátanos,2.84
+2022-03,21,Piñas,2.48
+2022-03,22,Sandias,1.99
+2022-03,23,Tomate,5.44
+2022-03,24,Güisquil,2.53
+2022-03,25,Cebolla blanca sin tallo,5.19
+2022-03,26,Papas,3.99
+2022-03,27,Hierbas,4.76
+2022-03,28,Frijol,7.76
+2022-03,29,Azúcar,3.66
+2022-03,30,Preparación nutricional a base de maíz y soya,9.98
+2022-03,31,Sal,0.33
+2022-03,32,Sopas instantáneas en vaso,14.83
+2022-03,33,"Café en grano, molido, instantáneo",43.14
+2022-03,34,Aguas gaseosas,10.35
+2022-04,1,Arroz,5.97
+2022-04,2,Avena de toda clase,13.49
+2022-04,3,Pan tipo francés,8.06
+2022-04,4,Pan dulce corriente o de manteca,7.56
+2022-04,5,Pastas de todos los tipos,4.91
+2022-04,6,Tortilla de maíz,3.77
+2022-04,7,Carne de res sin hueso,29.39
+2022-04,8,Carne de res con hueso,17.38
+2022-04,9,Carne de cerdo sin hueso,21.37
+2022-04,10,Carne de pollo o gallina,13.39
+2022-04,11,Embutidos,13.43
+2022-04,12,Leche en polvo,38.00
+2022-04,13,Leche líquida,12.89
+2022-04,14,Queso fresco o duro,25.54
+2022-04,15,Crema fresca,10.42
+2022-04,16,Huevos de gallina,13.27
+2022-04,17,Aceites comestibles,17.79
+2022-04,18,Aguacates,8.82
+2022-04,19,Bananos/guineos,2.65
+2022-04,20,Plátanos,2.84
+2022-04,21,Piñas,2.57
+2022-04,22,Sandias,2.02
+2022-04,23,Tomate,5.46
+2022-04,24,Güisquil,2.55
+2022-04,25,Cebolla blanca sin tallo,5.06
+2022-04,26,Papas,4.12
+2022-04,27,Hierbas,4.66
+2022-04,28,Frijol,7.89
+2022-04,29,Azúcar,3.66
+2022-04,30,Preparación nutricional a base de maíz y soya,10.01
+2022-04,31,Sal,0.32
+2022-04,32,Sopas instantáneas en vaso,14.95
+2022-04,33,"Café en grano, molido, instantáneo",43.65
+2022-04,34,Aguas gaseosas,10.50
+2022-05,1,Arroz,6.04
+2022-05,2,Avena de toda clase,13.49
+2022-05,3,Pan tipo francés,8.28
+2022-05,4,Pan dulce corriente o de manteca,7.66
+2022-05,5,Pastas de todos los tipos,5.17
+2022-05,6,Tortilla de maíz,3.75
+2022-05,7,Carne de res sin hueso,29.57
+2022-05,8,Carne de res con hueso,17.57
+2022-05,9,Carne de cerdo sin hueso,21.34
+2022-05,10,Carne de pollo o gallina,13.55
+2022-05,11,Embutidos,13.34
+2022-05,12,Leche en polvo,38.06
+2022-05,13,Leche líquida,12.96
+2022-05,14,Queso fresco o duro,25.33
+2022-05,15,Crema fresca,11.12
+2022-05,16,Huevos de gallina,13.29
+2022-05,17,Aceites comestibles,18.30
+2022-05,18,Aguacates,8.54
+2022-05,19,Bananos/guineos,2.60
+2022-05,20,Plátanos,2.83
+2022-05,21,Piñas,2.62
+2022-05,22,Sandias,2.08
+2022-05,23,Tomate,5.76
+2022-05,24,Güisquil,2.47
+2022-05,25,Cebolla blanca sin tallo,4.84
+2022-05,26,Papas,4.22
+2022-05,27,Hierbas,4.63
+2022-05,28,Frijol,7.88
+2022-05,29,Azúcar,3.63
+2022-05,30,Preparación nutricional a base de maíz y soya,9.99
+2022-05,31,Sal,0.32
+2022-05,32,Sopas instantáneas en vaso,15.00
+2022-05,33,"Café en grano, molido, instantáneo",44.47
+2022-05,34,Aguas gaseosas,10.38
+2022-06,1,Arroz,6.08
+2022-06,2,Avena de toda clase,13.77
+2022-06,3,Pan tipo francés,8.20
+2022-06,4,Pan dulce corriente o de manteca,7.67
+2022-06,5,Pastas de todos los tipos,5.27
+2022-06,6,Tortilla de maíz,3.87
+2022-06,7,Carne de res sin hueso,30.06
+2022-06,8,Carne de res con hueso,17.69
+2022-06,9,Carne de cerdo sin hueso,21.50
+2022-06,10,Carne de pollo o gallina,13.90
+2022-06,11,Embutidos,13.48
+2022-06,12,Leche en polvo,39.79
+2022-06,13,Leche líquida,13.08
+2022-06,14,Queso fresco o duro,25.73
+2022-06,15,Crema fresca,10.69
+2022-06,16,Huevos de gallina,13.86
+2022-06,17,Aceites comestibles,18.46
+2022-06,18,Aguacates,9.28
+2022-06,19,Bananos/guineos,2.67
+2022-06,20,Plátanos,2.83
+2022-06,21,Piñas,2.57
+2022-06,22,Sandias,2.14
+2022-06,23,Tomate,5.88
+2022-06,24,Güisquil,2.75
+2022-06,25,Cebolla blanca sin tallo,5.13
+2022-06,26,Papas,5.00
+2022-06,27,Hierbas,4.62
+2022-06,28,Frijol,8.31
+2022-06,29,Azúcar,3.66
+2022-06,30,Preparación nutricional a base de maíz y soya,10.03
+2022-06,31,Sal,0.32
+2022-06,32,Sopas instantáneas en vaso,15.16
+2022-06,33,"Café en grano, molido, instantáneo",44.27
+2022-06,34,Aguas gaseosas,10.75
+2022-07,1,Arroz,6.12
+2022-07,2,Avena de toda clase,14.04
+2022-07,3,Pan tipo francés,8.17
+2022-07,4,Pan dulce corriente o de manteca,7.73
+2022-07,5,Pastas de todos los tipos,5.31
+2022-07,6,Tortilla de maíz,3.98
+2022-07,7,Carne de res sin hueso,30.42
+2022-07,8,Carne de res con hueso,18.04
+2022-07,9,Carne de cerdo sin hueso,21.83
+2022-07,10,Carne de pollo o gallina,14.38
+2022-07,11,Embutidos,13.56
+2022-07,12,Leche en polvo,40.51
+2022-07,13,Leche líquida,13.09
+2022-07,14,Queso fresco o duro,25.86
+2022-07,15,Crema fresca,10.89
+2022-07,16,Huevos de gallina,14.53
+2022-07,17,Aceites comestibles,18.71
+2022-07,18,Aguacates,9.47
+2022-07,19,Bananos/guineos,2.74
+2022-07,20,Plátanos,2.64
+2022-07,21,Piñas,2.61
+2022-07,22,Sandias,2.11
+2022-07,23,Tomate,5.99
+2022-07,24,Güisquil,2.85
+2022-07,25,Cebolla blanca sin tallo,5.27
+2022-07,26,Papas,5.41
+2022-07,27,Hierbas,4.66
+2022-07,28,Frijol,8.49
+2022-07,29,Azúcar,3.67
+2022-07,30,Preparación nutricional a base de maíz y soya,10.43
+2022-07,31,Sal,0.32
+2022-07,32,Sopas instantáneas en vaso,15.25
+2022-07,33,"Café en grano, molido, instantáneo",44.54
+2022-07,34,Aguas gaseosas,10.80
+2022-08,1,Arroz,6.16
+2022-08,2,Avena de toda clase,14.12
+2022-08,3,Pan tipo francés,8.60
+2022-08,4,Pan dulce corriente o de manteca,8.09
+2022-08,5,Pastas de todos los tipos,5.39
+2022-08,6,Tortilla de maíz,4.36
+2022-08,7,Carne de res sin hueso,30.65
+2022-08,8,Carne de res con hueso,18.15
+2022-08,9,Carne de cerdo sin hueso,21.94
+2022-08,10,Carne de pollo o gallina,14.54
+2022-08,11,Embutidos,14.35
+2022-08,12,Leche en polvo,42.28
+2022-08,13,Leche líquida,13.10
+2022-08,14,Queso fresco o duro,26.09
+2022-08,15,Crema fresca,10.92
+2022-08,16,Huevos de gallina,14.92
+2022-08,17,Aceites comestibles,18.92
+2022-08,18,Aguacates,10.01
+2022-08,19,Bananos/guineos,2.70
+2022-08,20,Plátanos,2.67
+2022-08,21,Piñas,2.63
+2022-08,22,Sandias,2.11
+2022-08,23,Tomate,6.12
+2022-08,24,Güisquil,2.64
+2022-08,25,Cebolla blanca sin tallo,5.78
+2022-08,26,Papas,5.07
+2022-08,27,Hierbas,4.67
+2022-08,28,Frijol,8.74
+2022-08,29,Azúcar,3.61
+2022-08,30,Preparación nutricional a base de maíz y soya,10.57
+2022-08,31,Sal,0.33
+2022-08,32,Sopas instantáneas en vaso,15.49
+2022-08,33,"Café en grano, molido, instantáneo",44.78
+2022-08,34,Aguas gaseosas,10.87
+2022-09,1,Arroz,6.27
+2022-09,2,Avena de toda clase,14.10
+2022-09,3,Pan tipo francés,8.90
+2022-09,4,Pan dulce corriente o de manteca,8.52
+2022-09,5,Pastas de todos los tipos,5.42
+2022-09,6,Tortilla de maíz,4.72
+2022-09,7,Carne de res sin hueso,30.86
+2022-09,8,Carne de res con hueso,18.44
+2022-09,9,Carne de cerdo sin hueso,22.01
+2022-09,10,Carne de pollo o gallina,14.46
+2022-09,11,Embutidos,14.66
+2022-09,12,Leche en polvo,43.08
+2022-09,13,Leche líquida,13.10
+2022-09,14,Queso fresco o duro,26.40
+2022-09,15,Crema fresca,10.94
+2022-09,16,Huevos de gallina,15.24
+2022-09,17,Aceites comestibles,19.07
+2022-09,18,Aguacates,10.33
+2022-09,19,Bananos/guineos,2.65
+2022-09,20,Plátanos,2.79
+2022-09,21,Piñas,2.67
+2022-09,22,Sandias,2.22
+2022-09,23,Tomate,5.90
+2022-09,24,Güisquil,2.54
+2022-09,25,Cebolla blanca sin tallo,6.32
+2022-09,26,Papas,4.78
+2022-09,27,Hierbas,4.54
+2022-09,28,Frijol,8.98
+2022-09,29,Azúcar,3.80
+2022-09,30,Preparación nutricional a base de maíz y soya,10.55
+2022-09,31,Sal,0.35
+2022-09,32,Sopas instantáneas en vaso,15.77
+2022-09,33,"Café en grano, molido, instantáneo",45.10
+2022-09,34,Aguas gaseosas,10.87
+2022-10,1,Arroz,6.32
+2022-10,2,Avena de toda clase,14.13
+2022-10,3,Pan tipo francés,9.32
+2022-10,4,Pan dulce corriente o de manteca,8.97
+2022-10,5,Pastas de todos los tipos,5.55
+2022-10,6,Tortilla de maíz,5.01
+2022-10,7,Carne de res sin hueso,30.79
+2022-10,8,Carne de res con hueso,18.74
+2022-10,9,Carne de cerdo sin hueso,22.25
+2022-10,10,Carne de pollo o gallina,14.40
+2022-10,11,Embutidos,14.38
+2022-10,12,Leche en polvo,43.22
+2022-10,13,Leche líquida,13.12
+2022-10,14,Queso fresco o duro,26.53
+2022-10,15,Crema fresca,11.06
+2022-10,16,Huevos de gallina,15.58
+2022-10,17,Aceites comestibles,19.08
+2022-10,18,Aguacates,11.13
+2022-10,19,Bananos/guineos,2.75
+2022-10,20,Plátanos,3.15
+2022-10,21,Piñas,2.70
+2022-10,22,Sandias,2.32
+2022-10,23,Tomate,5.66
+2022-10,24,Güisquil,2.71
+2022-10,25,Cebolla blanca sin tallo,6.71
+2022-10,26,Papas,5.03
+2022-10,27,Hierbas,5.18
+2022-10,28,Frijol,9.10
+2022-10,29,Azúcar,3.81
+2022-10,30,Preparación nutricional a base de maíz y soya,10.72
+2022-10,31,Sal,0.36
+2022-10,32,Sopas instantáneas en vaso,16.26
+2022-10,33,"Café en grano, molido, instantáneo",45.77
+2022-10,34,Aguas gaseosas,10.88
+2022-11,1,Arroz,6.32
+2022-11,2,Avena de toda clase,14.10
+2022-11,3,Pan tipo francés,9.51
+2022-11,4,Pan dulce corriente o de manteca,8.99
+2022-11,5,Pastas de todos los tipos,5.52
+2022-11,6,Tortilla de maíz,4.85
+2022-11,7,Carne de res sin hueso,30.97
+2022-11,8,Carne de res con hueso,19.11
+2022-11,9,Carne de cerdo sin hueso,22.43
+2022-11,10,Carne de pollo o gallina,14.35
+2022-11,11,Embutidos,15.13
+2022-11,12,Leche en polvo,43.02
+2022-11,13,Leche líquida,13.20
+2022-11,14,Queso fresco o duro,27.21
+2022-11,15,Crema fresca,11.04
+2022-11,16,Huevos de gallina,15.93
+2022-11,17,Aceites comestibles,19.33
+2022-11,18,Aguacates,10.92
+2022-11,19,Bananos/guineos,2.63
+2022-11,20,Plátanos,3.11
+2022-11,21,Piñas,2.72
+2022-11,22,Sandias,2.45
+2022-11,23,Tomate,5.53
+2022-11,24,Güisquil,2.61
+2022-11,25,Cebolla blanca sin tallo,5.74
+2022-11,26,Papas,4.85
+2022-11,27,Hierbas,5.33
+2022-11,28,Frijol,9.20
+2022-11,29,Azúcar,3.83
+2022-11,30,Preparación nutricional a base de maíz y soya,10.77
+2022-11,31,Sal,0.37
+2022-11,32,Sopas instantáneas en vaso,16.33
+2022-11,33,"Café en grano, molido, instantáneo",45.41
+2022-11,34,Aguas gaseosas,11.18
+2022-12,1,Arroz,6.33
+2022-12,2,Avena de toda clase,13.79
+2022-12,3,Pan tipo francés,9.43
+2022-12,4,Pan dulce corriente o de manteca,9.05
+2022-12,5,Pastas de todos los tipos,5.51
+2022-12,6,Tortilla de maíz,4.86
+2022-12,7,Carne de res sin hueso,31.25
+2022-12,8,Carne de res con hueso,19.30
+2022-12,9,Carne de cerdo sin hueso,22.75
+2022-12,10,Carne de pollo o gallina,14.35
+2022-12,11,Embutidos,15.07
+2022-12,12,Leche en polvo,43.04
+2022-12,13,Leche líquida,13.35
+2022-12,14,Queso fresco o duro,27.93
+2022-12,15,Crema fresca,11.00
+2022-12,16,Huevos de gallina,16.29
+2022-12,17,Aceites comestibles,19.30
+2022-12,18,Aguacates,10.23
+2022-12,19,Bananos/guineos,2.64
+2022-12,20,Plátanos,3.22
+2022-12,21,Piñas,2.76
+2022-12,22,Sandias,2.54
+2022-12,23,Tomate,5.56
+2022-12,24,Güisquil,2.70
+2022-12,25,Cebolla blanca sin tallo,5.16
+2022-12,26,Papas,5.06
+2022-12,27,Hierbas,5.76
+2022-12,28,Frijol,9.25
+2022-12,29,Azúcar,3.84
+2022-12,30,Preparación nutricional a base de maíz y soya,10.92
+2022-12,31,Sal,0.38
+2022-12,32,Sopas instantáneas en vaso,16.30
+2022-12,33,"Café en grano, molido, instantáneo",45.31
+2022-12,34,Aguas gaseosas,11.17
+2023-01,1,Arroz,6.37
+2023-01,2,Avena de toda clase,13.74
+2023-01,3,Pan tipo francés,9.50
+2023-01,4,Pan dulce corriente o de manteca,8.95
+2023-01,5,Pastas de todos los tipos,5.48
+2023-01,6,Tortilla de maíz,4.82
+2023-01,7,Carne de res sin hueso,31.66
+2023-01,8,Carne de res con hueso,19.47
+2023-01,9,Carne de cerdo sin hueso,23.19
+2023-01,10,Carne de pollo o gallina,14.90
+2023-01,11,Embutidos,14.90
+2023-01,12,Leche en polvo,43.19
+2023-01,13,Leche líquida,13.35
+2023-01,14,Queso fresco o duro,27.40
+2023-01,15,Crema fresca,10.79
+2023-01,16,Huevos de gallina,16.36
+2023-01,17,Aceites comestibles,19.21
+2023-01,18,Aguacates,10.41
+2023-01,19,Bananos/guineos,2.67
+2023-01,20,Plátanos,3.52
+2023-01,21,Piñas,2.70
+2023-01,22,Sandias,2.35
+2023-01,23,Tomate,5.74
+2023-01,24,Güisquil,2.71
+2023-01,25,Cebolla blanca sin tallo,4.74
+2023-01,26,Papas,5.28
+2023-01,27,Hierbas,5.75
+2023-01,28,Frijol,9.05
+2023-01,29,Azúcar,3.87
+2023-01,30,Preparación nutricional a base de maíz y soya,10.98
+2023-01,31,Sal,0.37
+2023-01,32,Sopas instantáneas en vaso,16.32
+2023-01,33,"Café en grano, molido, instantáneo",45.14
+2023-01,34,Aguas gaseosas,10.96
+2023-02,1,Arroz,6.56
+2023-02,2,Avena de toda clase,13.91
+2023-02,3,Pan tipo francés,9.57
+2023-02,4,Pan dulce corriente o de manteca,9.03
+2023-02,5,Pastas de todos los tipos,5.50
+2023-02,6,Tortilla de maíz,4.93
+2023-02,7,Carne de res sin hueso,31.89
+2023-02,8,Carne de res con hueso,19.56
+2023-02,9,Carne de cerdo sin hueso,23.73
+2023-02,10,Carne de pollo o gallina,14.38
+2023-02,11,Embutidos,14.92
+2023-02,12,Leche en polvo,43.21
+2023-02,13,Leche líquida,13.74
+2023-02,14,Queso fresco o duro,28.07
+2023-02,15,Crema fresca,11.00
+2023-02,16,Huevos de gallina,18.34
+2023-02,17,Aceites comestibles,19.42
+2023-02,18,Aguacates,10.18
+2023-02,19,Bananos/guineos,2.69
+2023-02,20,Plátanos,3.70
+2023-02,21,Piñas,2.64
+2023-02,22,Sandias,2.35
+2023-02,23,Tomate,6.02
+2023-02,24,Güisquil,2.85
+2023-02,25,Cebolla blanca sin tallo,4.42
+2023-02,26,Papas,5.63
+2023-02,27,Hierbas,6.05
+2023-02,28,Frijol,9.14
+2023-02,29,Azúcar,3.86
+2023-02,30,Preparación nutricional a base de maíz y soya,11.05
+2023-02,31,Sal,0.38
+2023-02,32,Sopas instantáneas en vaso,16.45
+2023-02,33,"Café en grano, molido, instantáneo",45.23
+2023-02,34,Aguas gaseosas,10.97
+2023-03,1,Arroz,6.69
+2023-03,2,Avena de toda clase,13.91
+2023-03,3,Pan tipo francés,9.70
+2023-03,4,Pan dulce corriente o de manteca,9.09
+2023-03,5,Pastas de todos los tipos,5.51
+2023-03,6,Tortilla de maíz,5.00
+2023-03,7,Carne de res sin hueso,32.14
+2023-03,8,Carne de res con hueso,19.67
+2023-03,9,Carne de cerdo sin hueso,23.72
+2023-03,10,Carne de pollo o gallina,14.44
+2023-03,11,Embutidos,14.88
+2023-03,12,Leche en polvo,43.59
+2023-03,13,Leche líquida,13.90
+2023-03,14,Queso fresco o duro,28.44
+2023-03,15,Crema fresca,11.25
+2023-03,16,Huevos de gallina,16.79
+2023-03,17,Aceites comestibles,19.53
+2023-03,18,Aguacates,9.95
+2023-03,19,Bananos/guineos,2.81
+2023-03,20,Plátanos,4.04
+2023-03,21,Piñas,2.72
+2023-03,22,Sandias,2.39
+2023-03,23,Tomate,6.02
+2023-03,24,Güisquil,3.15
+2023-03,25,Cebolla blanca sin tallo,4.48
+2023-03,26,Papas,5.78
+2023-03,27,Hierbas,5.89
+2023-03,28,Frijol,9.30
+2023-03,29,Azúcar,3.84
+2023-03,30,Preparación nutricional a base de maíz y soya,10.98
+2023-03,31,Sal,0.37
+2023-03,32,Sopas instantáneas en vaso,16.31
+2023-03,33,"Café en grano, molido, instantáneo",45.81
+2023-03,34,Aguas gaseosas,10.99
+2023-04,1,Arroz,6.73
+2023-04,2,Avena de toda clase,13.98
+2023-04,3,Pan tipo francés,9.70
+2023-04,4,Pan dulce corriente o de manteca,9.07
+2023-04,5,Pastas de todos los tipos,5.52
+2023-04,6,Tortilla de maíz,4.97
+2023-04,7,Carne de res sin hueso,32.13
+2023-04,8,Carne de res con hueso,19.68
+2023-04,9,Carne de cerdo sin hueso,23.45
+2023-04,10,Carne de pollo o gallina,14.47
+2023-04,11,Embutidos,15.14
+2023-04,12,Leche en polvo,44.19
+2023-04,13,Leche líquida,14.12
+2023-04,14,Queso fresco o duro,28.39
+2023-04,15,Crema fresca,11.41
+2023-04,16,Huevos de gallina,17.05
+2023-04,17,Aceites comestibles,19.59
+2023-04,18,Aguacates,10.40
+2023-04,19,Bananos/guineos,2.76
+2023-04,20,Plátanos,4.15
+2023-04,21,Piñas,2.88
+2023-04,22,Sandias,2.35
+2023-04,23,Tomate,5.96
+2023-04,24,Güisquil,3.08
+2023-04,25,Cebolla blanca sin tallo,4.31
+2023-04,26,Papas,5.71
+2023-04,27,Hierbas,5.56
+2023-04,28,Frijol,9.14
+2023-04,29,Azúcar,3.85
+2023-04,30,Preparación nutricional a base de maíz y soya,11.11
+2023-04,31,Sal,0.37
+2023-04,32,Sopas instantáneas en vaso,16.40
+2023-04,33,"Café en grano, molido, instantáneo",45.62
+2023-04,34,Aguas gaseosas,10.99
+2023-05,1,Arroz,6.72
+2023-05,2,Avena de toda clase,13.97
+2023-05,3,Pan tipo francés,9.74
+2023-05,4,Pan dulce corriente o de manteca,9.09
+2023-05,5,Pastas de todos los tipos,5.53
+2023-05,6,Tortilla de maíz,5.00
+2023-05,7,Carne de res sin hueso,32.09
+2023-05,8,Carne de res con hueso,19.57
+2023-05,9,Carne de cerdo sin hueso,23.41
+2023-05,10,Carne de pollo o gallina,14.53
+2023-05,11,Embutidos,15.14
+2023-05,12,Leche en polvo,44.52
+2023-05,13,Leche líquida,14.32
+2023-05,14,Queso fresco o duro,29.05
+2023-05,15,Crema fresca,11.39
+2023-05,16,Huevos de gallina,17.15
+2023-05,17,Aceites comestibles,19.64
+2023-05,18,Aguacates,10.46
+2023-05,19,Bananos/guineos,2.75
+2023-05,20,Plátanos,4.25
+2023-05,21,Piñas,2.94
+2023-05,22,Sandias,2.27
+2023-05,23,Tomate,5.82
+2023-05,24,Güisquil,2.99
+2023-05,25,Cebolla blanca sin tallo,4.29
+2023-05,26,Papas,5.62
+2023-05,27,Hierbas,5.47
+2023-05,28,Frijol,9.16
+2023-05,29,Azúcar,3.84
+2023-05,30,Preparación nutricional a base de maíz y soya,11.22
+2023-05,31,Sal,0.36
+2023-05,32,Sopas instantáneas en vaso,16.50
+2023-05,33,"Café en grano, molido, instantáneo",45.84
+2023-05,34,Aguas gaseosas,11.07
+2023-06,1,Arroz,6.74
+2023-06,2,Avena de toda clase,14.00
+2023-06,3,Pan tipo francés,9.84
+2023-06,4,Pan dulce corriente o de manteca,9.07
+2023-06,5,Pastas de todos los tipos,5.54
+2023-06,6,Tortilla de maíz,4.89
+2023-06,7,Carne de res sin hueso,32.00
+2023-06,8,Carne de res con hueso,19.52
+2023-06,9,Carne de cerdo sin hueso,23.34
+2023-06,10,Carne de pollo o gallina,14.56
+2023-06,11,Embutidos,15.07
+2023-06,12,Leche en polvo,44.68
+2023-06,13,Leche líquida,14.37
+2023-06,14,Queso fresco o duro,29.02
+2023-06,15,Crema fresca,11.47
+2023-06,16,Huevos de gallina,17.05
+2023-06,17,Aceites comestibles,19.60
+2023-06,18,Aguacates,10.80
+2023-06,19,Bananos/guineos,2.72
+2023-06,20,Plátanos,4.15
+2023-06,21,Piñas,2.96
+2023-06,22,Sandias,2.50
+2023-06,23,Tomate,6.30
+2023-06,24,Güisquil,3.20
+2023-06,25,Cebolla blanca sin tallo,4.40
+2023-06,26,Papas,5.63
+2023-06,27,Hierbas,5.45
+2023-06,28,Frijol,9.26
+2023-06,29,Azúcar,3.86
+2023-06,30,Preparación nutricional a base de maíz y soya,11.23
+2023-06,31,Sal,0.36
+2023-06,32,Sopas instantáneas en vaso,16.50
+2023-06,33,"Café en grano, molido, instantáneo",45.40
+2023-06,34,Aguas gaseosas,11.13
+2023-07,1,Arroz,6.76
+2023-07,2,Avena de toda clase,14.14
+2023-07,3,Pan tipo francés,9.84
+2023-07,4,Pan dulce corriente o de manteca,9.00
+2023-07,5,Pastas de todos los tipos,5.53
+2023-07,6,Tortilla de maíz,5.04
+2023-07,7,Carne de res sin hueso,32.17
+2023-07,8,Carne de res con hueso,19.64
+2023-07,9,Carne de cerdo sin hueso,23.39
+2023-07,10,Carne de pollo o gallina,14.68
+2023-07,11,Embutidos,15.02
+2023-07,12,Leche en polvo,44.79
+2023-07,13,Leche líquida,14.67
+2023-07,14,Queso fresco o duro,28.24
+2023-07,15,Crema fresca,11.42
+2023-07,16,Huevos de gallina,16.74
+2023-07,17,Aceites comestibles,19.61
+2023-07,18,Aguacates,10.96
+2023-07,19,Bananos/guineos,2.77
+2023-07,20,Plátanos,4.10
+2023-07,21,Piñas,2.89
+2023-07,22,Sandias,2.69
+2023-07,23,Tomate,5.42
+2023-07,24,Güisquil,3.31
+2023-07,25,Cebolla blanca sin tallo,4.89
+2023-07,26,Papas,5.50
+2023-07,27,Hierbas,5.47
+2023-07,28,Frijol,9.54
+2023-07,29,Azúcar,3.88
+2023-07,30,Preparación nutricional a base de maíz y soya,11.23
+2023-07,31,Sal,0.36
+2023-07,32,Sopas instantáneas en vaso,16.57
+2023-07,33,"Café en grano, molido, instantáneo",45.71
+2023-07,34,Aguas gaseosas,11.19
+2023-08,1,Arroz,6.76
+2023-08,2,Avena de toda clase,14.22
+2023-08,3,Pan tipo francés,9.79
+2023-08,4,Pan dulce corriente o de manteca,9.02
+2023-08,5,Pastas de todos los tipos,5.57
+2023-08,6,Tortilla de maíz,5.07
+2023-08,7,Carne de res sin hueso,32.42
+2023-08,8,Carne de res con hueso,19.88
+2023-08,9,Carne de cerdo sin hueso,23.53
+2023-08,10,Carne de pollo o gallina,14.81
+2023-08,11,Embutidos,15.29
+2023-08,12,Leche en polvo,44.91
+2023-08,13,Leche líquida,14.74
+2023-08,14,Queso fresco o duro,27.69
+2023-08,15,Crema fresca,11.39
+2023-08,16,Huevos de gallina,16.42
+2023-08,17,Aceites comestibles,19.67
+2023-08,18,Aguacates,11.47
+2023-08,19,Bananos/guineos,2.83
+2023-08,20,Plátanos,4.20
+2023-08,21,Piñas,2.97
+2023-08,22,Sandias,2.78
+2023-08,23,Tomate,6.18
+2023-08,24,Güisquil,3.28
+2023-08,25,Cebolla blanca sin tallo,5.61
+2023-08,26,Papas,5.28
+2023-08,27,Hierbas,5.63
+2023-08,28,Frijol,9.74
+2023-08,29,Azúcar,4.12
+2023-08,30,Preparación nutricional a base de maíz y soya,11.29
+2023-08,31,Sal,0.37
+2023-08,32,Sopas instantáneas en vaso,16.61
+2023-08,33,"Café en grano, molido, instantáneo",46.15
+2023-08,34,Aguas gaseosas,11.28
+2023-09,1,Arroz,6.83
+2023-09,2,Avena de toda clase,14.44
+2023-09,3,Pan tipo francés,9.84
+2023-09,4,Pan dulce corriente o de manteca,9.10
+2023-09,5,Pastas de todos los tipos,5.58
+2023-09,6,Tortilla de maíz,5.05
+2023-09,7,Carne de res sin hueso,32.48
+2023-09,8,Carne de res con hueso,20.03
+2023-09,9,Carne de cerdo sin hueso,23.61
+2023-09,10,Carne de pollo o gallina,14.88
+2023-09,11,Embutidos,15.21
+2023-09,12,Leche en polvo,45.24
+2023-09,13,Leche líquida,14.88
+2023-09,14,Queso fresco o duro,27.73
+2023-09,15,Crema fresca,11.57
+2023-09,16,Huevos de gallina,16.30
+2023-09,17,Aceites comestibles,19.70
+2023-09,18,Aguacates,11.62
+2023-09,19,Bananos/guineos,2.77
+2023-09,20,Plátanos,4.33
+2023-09,21,Piñas,3.01
+2023-09,22,Sandias,2.67
+2023-09,23,Tomate,6.81
+2023-09,24,Güisquil,3.09
+2023-09,25,Cebolla blanca sin tallo,6.12
+2023-09,26,Papas,5.09
+2023-09,27,Hierbas,5.52
+2023-09,28,Frijol,9.81
+2023-09,29,Azúcar,4.20
+2023-09,30,Preparación nutricional a base de maíz y soya,11.34
+2023-09,31,Sal,0.36
+2023-09,32,Sopas instantáneas en vaso,16.61
+2023-09,33,"Café en grano, molido, instantáneo",46.63
+2023-09,34,Aguas gaseosas,11.36
+2023-10,1,Arroz,6.83
+2023-10,2,Avena de toda clase,14.70
+2023-10,3,Pan tipo francés,9.86
+2023-10,4,Pan dulce corriente o de manteca,9.07
+2023-10,5,Pastas de todos los tipos,5.60
+2023-10,6,Tortilla de maíz,5.23
+2023-10,7,Carne de res sin hueso,32.82
+2023-10,8,Carne de res con hueso,20.36
+2023-10,9,Carne de cerdo sin hueso,23.84
+2023-10,10,Carne de pollo o gallina,15.09
+2023-10,11,Embutidos,15.61
+2023-10,12,Leche en polvo,45.16
+2023-10,13,Leche líquida,14.78
+2023-10,14,Queso fresco o duro,27.91
+2023-10,15,Crema fresca,11.58
+2023-10,16,Huevos de gallina,17.09
+2023-10,17,Aceites comestibles,19.89
+2023-10,18,Aguacates,11.49
+2023-10,19,Bananos/guineos,2.99
+2023-10,20,Plátanos,4.68
+2023-10,21,Piñas,3.17
+2023-10,22,Sandias,2.80
+2023-10,23,Tomate,7.67
+2023-10,24,Güisquil,3.38
+2023-10,25,Cebolla blanca sin tallo,6.85
+2023-10,26,Papas,6.78
+2023-10,27,Hierbas,5.85
+2023-10,28,Frijol,10.17
+2023-10,29,Azúcar,4.27
+2023-10,30,Preparación nutricional a base de maíz y soya,11.34
+2023-10,31,Sal,0.36
+2023-10,32,Sopas instantáneas en vaso,16.68
+2023-10,33,"Café en grano, molido, instantáneo",46.77
+2023-10,34,Aguas gaseosas,11.47

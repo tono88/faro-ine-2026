@@ -29,7 +29,7 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
 ## Qué hace hoy
 
 1. **Solicitud de datos.** El INE declara una vez qué columnas necesita, de qué tipo, cuáles son
-   obligatorias y cuáles sirven para el pareo (`datos/solicitudes/ejemplo-hechos-transito-v1.toml`).
+   obligatorias y cuáles sirven para el pareo (`datos/solicitudes/renap-defunciones-v1.toml`).
 2. **Recepción.** Cada envío se valida contra la solicitud: reconoce columnas aunque vengan con
    otro nombre ("DEPTO.", "Muni"), y reporta fila por fila fechas inválidas, vacíos y valores
    fuera de catálogo.
@@ -115,7 +115,7 @@ cargo test                       # 66 pruebas
 cargo build --release
 
 # Línea de comandos (no necesita base de datos)
-./target/release/faro recibir --solicitud datos/solicitudes/ejemplo-hechos-transito-v1.toml \
+./target/release/faro recibir --solicitud datos/ejemplos/solicitud_hechos_transito.toml \
   --entrada datos/ejemplos/envio_hechos_transito.csv --salida salida
 ./target/release/faro confirmar "El puerto" --codigo 0509 --contexto 05 --institucion Ejemplo --usuario analista
 ./target/release/faro fuentes inventario                       # conjuntos del INE (requiere internet)

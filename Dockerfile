@@ -17,6 +17,7 @@ COPY datos/estandar ./datos/estandar
 COPY datos/referencia ./datos/referencia
 COPY datos/catalogo_precios ./datos/catalogo_precios
 COPY datos/ejemplos ./datos/ejemplos
+COPY scripts ./scripts
 RUN mkdir -p /app/datos/privado && chown -R faro /app/datos
 USER faro
 ENV FARO_PUERTO=8080

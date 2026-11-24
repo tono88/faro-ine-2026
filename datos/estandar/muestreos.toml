@@ -1,0 +1,35 @@
+# Tareas de muestreo automático de precios publicados en tiendas en línea.
+# Cada tarea consulta la búsqueda pública del catálogo de una tienda (sin sesión ni claves), una
+# vez por término y con pausa entre consultas, y guarda cada precio con su dirección y la fecha.
+# Vienen apagadas: se encienden y se les cambia la frecuencia desde la pantalla ("Muestreos").
+# Para agregar una tienda con catálogo VTEX basta otra tarea con su dirección base y sus términos.
+
+[[tarea]]
+id = "construccion-construfacil"
+titulo = "Materiales de construcción en Construfácil"
+rubro = "construccion"
+tipo = "vtex"
+proveedor = "Construfácil"
+base = "https://www.construfacil.com.gt"
+terminos = ["cemento", "varilla", "block", "lamina", "tubo pvc", "pintura latex", "alambre amarre", "thhn", "tablayeso", "pala", "cal", "piso ceramico", "inodoro"]
+cada_horas = 168
+
+[[tarea]]
+id = "construccion-cemaco"
+titulo = "Materiales de construcción en Cemaco"
+rubro = "construccion"
+tipo = "vtex"
+proveedor = "Cemaco"
+base = "https://www.cemaco.com"
+terminos = ["cemento", "varilla", "block", "lamina", "tubo pvc", "pintura latex", "alambre amarre", "thhn", "tablaroca", "pala", "ladrillo", "piso ceramico", "inodoro"]
+cada_horas = 168
+
+[[tarea]]
+id = "alimentos-walmart"
+titulo = "Canasta básica en Walmart Guatemala"
+rubro = "alimentos"
+tipo = "vtex"
+proveedor = "Walmart Guatemala"
+base = "https://www.walmart.com.gt"
+terminos = ["arroz", "avena", "pastas", "frijol", "azucar", "sal", "aceite", "huevos", "leche en polvo", "leche liquida", "queso fresco", "crema", "pollo", "carne de res", "tomate", "cebolla", "papa", "cafe", "sopa instantanea", "gaseosa"]
+cada_horas = 168

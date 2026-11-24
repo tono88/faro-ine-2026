@@ -171,6 +171,14 @@ enum Comando {
         #[arg(long, default_value = "datos/catalogo_precios/precios_referencia_ine.csv")]
         salida: PathBuf,
     },
+    /// Precios promedio de la canasta básica alimentaria publicados por el INE, en una tabla limpia.
+    Canasta {
+        /// CSV "Precios promedio ... CBA" (faro fuentes descargar precios-promedio-canasta-basica-alimentaria).
+        #[arg(long)]
+        entrada: PathBuf,
+        #[arg(long, default_value = "datos/catalogo_precios/cba_precios.csv")]
+        salida: PathBuf,
+    },
     /// Reparte operadores de campo entre puestos con la menor distancia total (línea recta).
     Asignar {
         /// CSV: operador, lugar (código de lugar poblado donde vive) o longitud y latitud.
@@ -265,6 +273,35 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
     let comando = match cli.comando {
         Comando::Fuentes { portal, manifiesto, accion } => return fuentes(&portal, &manifiesto, accion),
         Comando::Referencias { entrada, salida } => return referencias(&entrada, &salida),
+        Comando::Canasta { entrada, salida } => {
+            const MESES: [&str; 12] = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+            // El archivo trae descripciones con comas sin comillas ("Café tostado, molido"): los tres
+            // primeros campos son año, mes y número; el último, el precio; lo del medio, la descripción.
+            let texto = std::fs::read_to_string(&entrada).map_err(|e| format!("{}: {e}", entrada.display()))?;
+            if let Some(d) = salida.parent() {
+                std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+            }
+            let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(&salida).map_err(|e| e.to_string())?;
+            w.write_record(["periodo", "numero", "producto", "precio_promedio"]).map_err(|e| e.to_string())?;
+            let (mut n, mut productos, mut periodos) = (0, std::collections::BTreeSet::new(), std::collections::BTreeSet::new());
+            for (k, linea) in texto.trim_start_matches('\u{feff}').lines().enumerate().skip(1).filter(|(_, l)| !l.trim().is_empty()) {
+                let c: Vec<&str> = linea.split(',').map(str::trim).collect();
+                if c.len() < 5 {
+                    return Err(format!("{} línea {}: se esperaban al menos 5 campos", entrada.display(), k + 1));
+                }
+                let producto = c[3..c.len() - 1].join(", ").replace('"', "");
+                let mes = MESES.iter().position(|m| *m == faro_homologa::normalizar::basico(c[1])).ok_or(format!("línea {}: mes no reconocido: {:?}", k + 1, c[1]))? + 1;
+                let (anio, precio): (i32, f64) = (c[0].parse().map_err(|_| format!("línea {}: año no válido: {:?}", k + 1, c[0]))?, c[c.len() - 1].parse().map_err(|_| format!("línea {}: precio no válido: {:?}", k + 1, c[c.len() - 1]))?);
+                let periodo = format!("{anio}-{mes:02}");
+                w.write_record([periodo.as_str(), c[2], producto.as_str(), format!("{precio:.2}").as_str()]).map_err(|e| e.to_string())?;
+                productos.insert(producto);
+                periodos.insert(periodo);
+                n += 1;
+            }
+            w.flush().map_err(|e| e.to_string())?;
+            println!("{n} precios promedio: {} productos, de {} a {} -> {}", productos.len(), periodos.first().cloned().unwrap_or_default(), periodos.last().cloned().unwrap_or_default(), salida.display());
+            return Ok(ExitCode::SUCCESS);
+        }
         Comando::Construido { mosaicos, municipios, salida } => return construido(&mosaicos, &municipios, &salida),
         Comando::Precios { cotizaciones, cv_parecidos, salida } => {
             use faro_territorio::precios;
@@ -374,7 +411,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::Referencias { .. } => unreachable!("atendidos arriba"),
+        Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
     }
 }
 
@@ -670,6 +707,9 @@ fn construido(dir: &Path, ruta_municipios: &Path, salida: &Path) -> Result<ExitC
     }
     // (municipio, año) -> (m², celdas sumadas)
     let mut total: BTreeMap<(String, i32), (f64, usize)> = BTreeMap::new();
+    // Para la animación: bloques de 1 km (10 × 10 celdas). (municipio, bloque x, bloque y) -> m² por época.
+    let epocas: Vec<i32> = por_anio.keys().copied().filter(|a| *a <= 2020).collect();
+    let mut bloques: BTreeMap<(usize, i64, i64), Vec<f64>> = BTreeMap::new();
     for (anio, rutas) in &por_anio {
         if *anio > 2020 {
             println!("{anio}: es una proyección de GHSL, no una observación; se omite");
@@ -678,8 +718,16 @@ fn construido(dir: &Path, ruta_municipios: &Path, salida: &Path) -> Result<ExitC
         for ruta in rutas {
             let r = leer_mosaico(ruta)?;
             let m = Mosaico { ancho: r.ancho, alto: r.alto, x0: r.x0, y0: r.y0, paso: r.paso, celdas: &r.celdas, sin_dato: r.sin_dato };
-            for (codigo, poligonos) in &municipios {
-                let (suma, n) = construido::sumar(&m, poligonos);
+            let k = epocas.iter().position(|a| a == anio).unwrap_or(0);
+            for (i, (codigo, poligonos)) in municipios.iter().enumerate() {
+                let (mut suma, mut n) = (0.0, 0usize);
+                construido::recorrer(&m, poligonos, &mut |x, y, v| {
+                    suma += v as f64;
+                    n += 1;
+                    if v > 0 {
+                        bloques.entry((i, (x / 1000.0).floor() as i64, (y / 1000.0).floor() as i64)).or_insert_with(|| vec![0.0; epocas.len()])[k] += v as f64;
+                    }
+                });
                 if n > 0 {
                     let e = total.entry((codigo.clone(), *anio)).or_default();
                     e.0 += suma;
@@ -706,6 +754,25 @@ fn construido(dir: &Path, ruta_municipios: &Path, salida: &Path) -> Result<ExitC
     }
     w.flush().map_err(|e| e.to_string())?;
     println!("{} municipios × {} épocas -> {}", municipios.len(), anios.len(), salida.display());
+    // Bloques con al menos media hectárea construida en alguna época (lo demás no se vería).
+    let ruta_b = salida.with_file_name("superficie_construida_bloques.csv");
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(&ruta_b).map_err(|e| e.to_string())?;
+    let mut encabezado = vec!["municipio".to_string(), "longitud".into(), "latitud".into()];
+    encabezado.extend(epocas.iter().map(|a| format!("ha_{a}")));
+    w.write_record(&encabezado).map_err(|e| e.to_string())?;
+    let mut escritos = 0;
+    for ((i, bx, by), m2) in &bloques {
+        if m2.iter().copied().fold(0.0, f64::max) < 5000.0 {
+            continue;
+        }
+        let (lon, lat) = construido::mollweide_inversa((*bx as f64 + 0.5) * 1000.0, (*by as f64 + 0.5) * 1000.0);
+        let mut fila = vec![municipios[*i].0.clone(), format!("{lon:.4}"), format!("{lat:.4}")];
+        fila.extend(m2.iter().map(|v| format!("{:.1}", v / 10_000.0)));
+        w.write_record(&fila).map_err(|e| e.to_string())?;
+        escritos += 1;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    println!("{escritos} bloques de 1 km con construcción -> {}", ruta_b.display());
     Ok(ExitCode::SUCCESS)
 }
 
@@ -809,6 +876,25 @@ fn limites(catalogo: &Catalogo, entrada: &Path, tolerancia: f64, salida: &Path) 
     if let Some(dir) = salida.parent() {
         std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
     }
+    // Departamentos, de la misma fuente, para mapas a menor detalle.
+    let nombre_deptos = zip.file_names().find(|n| n.to_lowercase().contains("admin1") && n.ends_with(".geojson")).map(str::to_string);
+    if let Some(n1) = nombre_deptos {
+        let d1: serde_json::Value = serde_json::from_reader(zip.by_name(&n1).map_err(|e| en(e.to_string()))?).map_err(|e| en(e.to_string()))?;
+        let deptos: Vec<serde_json::Value> = d1["features"].as_array().into_iter().flatten().filter_map(|f| {
+            let codigo = f["properties"]["adm1_pcode"].as_str()?.trim_start_matches("GT").to_string();
+            let l = catalogo.por_codigo(&codigo).filter(|l| l.nivel == Nivel::Departamento)?;
+            let g = &f["geometry"];
+            let poligonos: Vec<Poligono> = match g["type"].as_str()? {
+                "Polygon" => vec![poligono(&g["coordinates"])],
+                _ => g["coordinates"].as_array()?.iter().map(poligono).collect(),
+            };
+            let coords: Vec<Vec<Vec<[f64; 2]>>> = geo::simplificar_poligonos(&poligonos, tolerancia * 2.0).iter().map(|p| p.iter().map(|a| a.iter().map(|(x, y)| [(x * 1e4).round() / 1e4, (y * 1e4).round() / 1e4]).collect()).collect()).collect();
+            Some(serde_json::json!({ "type": "Feature", "properties": { "codigo": codigo, "nombre": l.nombre }, "geometry": { "type": "MultiPolygon", "coordinates": coords } }))
+        }).collect();
+        let ruta_d = salida.with_file_name("departamentos.geojson");
+        println!("{} departamentos -> {}", deptos.len(), ruta_d.display());
+        std::fs::write(&ruta_d, serde_json::to_string(&serde_json::json!({ "type": "FeatureCollection", "features": deptos })).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    }
     let n = figuras.len();
     std::fs::write(salida, serde_json::to_string(&serde_json::json!({ "type": "FeatureCollection", "features": figuras })).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
     println!("{n} municipios, {puntos} puntos -> {} ({} KB)", salida.display(), std::fs::metadata(salida).map(|m| m.len() / 1024).unwrap_or(0));
@@ -862,6 +948,22 @@ fn vial(catalogo: &Catalogo, carreteras: &Path, p: faro_territorio::vial::Parame
         w.write_record([format!("{:.5}", e.desde_longitud), format!("{:.5}", e.desde_latitud), format!("{:.5}", e.hasta_longitud), format!("{:.5}", e.hasta_latitud), format!("{:.3}", e.km), format!("{:.2}", e.tramo_km), e.lugares.join("|")]).map_err(texto)?;
     }
     w.flush().map_err(|e| e.to_string())?;
+    // Caminos ya mapeados alrededor de cada enlace propuesto (1.5 km), para verlos en el mapa:
+    // los de la red principal y los del tramo suelto que el enlace uniría.
+    let radio = 0.015; // grados, ≈ 1.6 km
+    let extremos: Vec<(f64, f64)> = enlaces.iter().flat_map(|e| [(e.desde_longitud, e.desde_latitud), (e.hasta_longitud, e.hasta_latitud)]).collect();
+    let cerca = |p: &(f64, f64)| extremos.iter().any(|q| (p.0 - q.0).abs() <= radio && (p.1 - q.1).abs() <= radio);
+    let mut tramos: Vec<serde_json::Value> = Vec::new();
+    for (partes, tipo) in lineas.iter().zip(&tipos).filter(|(_, t)| sirve(t)) {
+        for parte in partes.iter().filter(|p| p.len() > 1 && p.iter().any(cerca)) {
+            let Some(principal) = red.es_principal(Coordenada { longitud: parte[0].0, latitud: parte[0].1 }) else { continue };
+            let simple = faro_territorio::geo::simplificar(parte, 0.00005);
+            tramos.push(serde_json::json!({ "type": "Feature", "properties": { "red": if principal { "principal" } else { "suelto" }, "tipo": tipo },
+                "geometry": { "type": "LineString", "coordinates": simple.iter().map(|(x, y)| [(x * 1e5).round() / 1e5, (y * 1e5).round() / 1e5]).collect::<Vec<_>>() } }));
+        }
+    }
+    std::fs::write(salida.join("red_vial_contexto.geojson"), serde_json::to_string(&serde_json::json!({ "type": "FeatureCollection", "features": tramos })).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    println!("{} tramos de camino alrededor de los enlaces -> red_vial_contexto.geojson", tramos.len());
     let resumen = serde_json::json!({
         "vias_leidas": tipos.len(), "vias_usadas": usadas, "con_senderos": con_senderos, "km": red.km_total(), "tramos": red.componentes(), "km_red_principal": red.km_principal(),
         "cerca_m": p.cerca_m, "max_enlace_km": p.max_enlace_km, "lugares": lugares.len(), "conectados": cuenta(Conexion::Conectado), "tramo_suelto": cuenta(Conexion::TramoSuelto), "sin_camino": cuenta(Conexion::SinCamino),

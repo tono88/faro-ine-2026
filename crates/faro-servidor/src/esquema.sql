@@ -27,6 +27,30 @@ CREATE TABLE IF NOT EXISTS equivalencias_valor (
     fecha          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Muestreo automático de precios publicados: estado de cada tarea y precios observados.
+CREATE TABLE IF NOT EXISTS muestreos (
+    id         TEXT PRIMARY KEY,
+    activa     BOOLEAN NOT NULL,
+    cada_horas INT NOT NULL,
+    ultima     TIMESTAMPTZ,
+    ultimo_ok  BOOLEAN,
+    detalle    TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE IF NOT EXISTS precios_observados (
+    id        BIGSERIAL PRIMARY KEY,
+    tarea     TEXT NOT NULL,
+    rubro     TEXT NOT NULL,
+    proveedor TEXT NOT NULL,
+    producto  TEXT NOT NULL,
+    marca     TEXT NOT NULL DEFAULT '',
+    precio    DOUBLE PRECISION NOT NULL,
+    unidad    TEXT NOT NULL DEFAULT '',
+    url       TEXT NOT NULL,
+    termino   TEXT NOT NULL DEFAULT '',
+    observado TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS precios_observados_rubro ON precios_observados (rubro, proveedor, producto, observado DESC);
+
 CREATE TABLE IF NOT EXISTS envios (
     id            BIGSERIAL PRIMARY KEY,
     solicitud     TEXT NOT NULL,

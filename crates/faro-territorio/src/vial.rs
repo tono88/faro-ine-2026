@@ -135,6 +135,11 @@ impl Red {
         self.km.get(self.principal as usize).copied().unwrap_or(0.0)
     }
 
+    /// ¿El punto de vía más cercano a `c` (a pocos metros) es de la red principal? `None` si no hay vía ahí.
+    pub fn es_principal(&self, c: Coordenada) -> Option<bool> {
+        self.mas_cercano(c, 0.03, |_| true).map(|(_, _, comp)| comp == self.principal)
+    }
+
     /// Punto de vía más cercano a `c` dentro de `max_km` que cumpla `acepta` (según su componente).
     fn mas_cercano(&self, c: Coordenada, max_km: f64, acepta: impl Fn(u32) -> bool) -> Option<(f64, Coordenada, u32)> {
         let (cx, cy) = celda(c);

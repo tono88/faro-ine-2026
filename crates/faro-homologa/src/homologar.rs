@@ -148,7 +148,11 @@ impl<'a> Homologador<'a> {
                         let c = c.to_string();
                         return self.asignar(r, Estado::Memoria, &c, 1.0);
                     }
-                    r.estado = Estado::CodigoInvalido;
+                    // El número no es un código de aquí. Si leído de otra forma sí es un municipio
+                    // (código completo de otro departamento, o departamento y municipio pegados),
+                    // se propone; nunca se asigna solo.
+                    r.candidatos = self.lecturas_de_codigo(texto, nivel);
+                    r.estado = if r.candidatos.is_empty() { Estado::CodigoInvalido } else { Estado::FueraDeContexto };
                     r
                 }
             };
@@ -219,6 +223,33 @@ impl<'a> Homologador<'a> {
             }
         }
         r
+    }
+
+    /// Otras lecturas de un número que no existe como código: "608" como 0608; "181" como
+    /// departamento 18, municipio 1; "78" como departamento 7, municipio 8.
+    fn lecturas_de_codigo(&self, texto: &str, nivel: Nivel) -> Vec<Candidato> {
+        let t = texto.trim().trim_end_matches(".0");
+        if nivel != Nivel::Municipio || !(2..=4).contains(&t.len()) || !t.chars().all(|c| c.is_ascii_digit()) {
+            return vec![];
+        }
+        let mut lecturas: Vec<(String, String)> = vec![(format!("{t:0>4}"), "código completo".to_string())];
+        for corte in [1usize, 2] {
+            if t.len() > corte {
+                let (d, m) = t.split_at(corte);
+                lecturas.push((format!("{d:0>2}{m:0>2}"), format!("departamento {}, municipio {}", d.trim_start_matches('0'), m.trim_start_matches('0'))));
+            }
+        }
+        let mut vistos = std::collections::BTreeSet::new();
+        lecturas
+            .into_iter()
+            .filter_map(|(codigo, como)| {
+                let l = self.catalogo.por_codigo(&codigo).filter(|l| l.nivel == nivel)?;
+                vistos.insert(codigo.clone()).then(|| {
+                    let padre = self.catalogo.por_codigo(&l.padre).map_or(String::new(), |p| format!(", {}", p.nombre));
+                    Candidato { codigo, nombre: format!("{}{padre} (leído como {como})", l.nombre), puntaje: 0.0 }
+                })
+            })
+            .collect()
     }
 
     fn asignar(&self, mut r: Resultado, estado: Estado, codigo: &str, puntaje: f64) -> Resultado {
@@ -297,6 +328,22 @@ mod pruebas {
         let r = Homologador::new(&c, &m).homologar("37", Nivel::Municipio, Some("05"));
         assert_eq!((r.estado, r.codigo.as_deref()), (Estado::Memoria, Some("0510")));
         assert_eq!(Homologador::new(&c, &m).homologar("37", Nivel::Municipio, Some("17")).estado, Estado::CodigoInvalido, "vale solo en su departamento");
+    }
+
+    #[test]
+    fn un_numero_que_no_es_codigo_de_aqui_se_propone_con_sus_lecturas() {
+        let (c, m) = (catalogo(), Memoria::default());
+        let h = Homologador::new(&c, &m);
+        // "1703" enviado dentro de Escuintla: es el código completo de San Benito, Petén.
+        let r = h.homologar("1703", Nivel::Municipio, Some("05"));
+        assert_eq!((r.estado, r.codigo.clone()), (Estado::FueraDeContexto, None));
+        assert_eq!(r.candidatos[0].codigo, "1703");
+        // "172" como departamento 17, municipio 2; "59" como departamento 5, municipio 9.
+        assert_eq!(h.homologar("172", Nivel::Municipio, Some("05")).candidatos[0].codigo, "1702");
+        let r = h.homologar("59", Nivel::Municipio, Some("17"));
+        assert!(r.candidatos.iter().any(|x| x.codigo == "0509" && x.nombre.contains("departamento 5, municipio 9")), "{:?}", r.candidatos);
+        // Sin ninguna lectura válida sigue siendo un código que no existe.
+        assert_eq!(h.homologar("643", Nivel::Municipio, Some("05")).estado, Estado::CodigoInvalido);
     }
 
     #[test]

@@ -25,6 +25,14 @@ struct Estado {
     dir_ejemplos: PathBuf,
     /// Resultado del análisis de la red vial (`faro vial`), ya con nombres del catálogo.
     vial: Value,
+    /// Tareas de muestreo de precios (datos/estandar/muestreos.toml).
+    tareas: Vec<faro_fuentes::muestreo::Tarea>,
+    /// Canasta básica: (periodo, producto, precio promedio del INE).
+    canasta: Vec<(String, String, f64)>,
+    /// Bloques de 1 km con superficie construida por época, por municipio (para la animación).
+    bloques: HashMap<String, Vec<Vec<f64>>>,
+    epocas: Vec<i32>,
+    dir_scripts: PathBuf,
     /// Precios de referencia publicados por el INE (tabla limpia de `faro referencias`).
     referencias: Vec<HashMap<String, String>>,
     /// Fuentes y citas (datos/estandar/fuentes.json).
@@ -112,12 +120,31 @@ async fn main() -> Result<(), String> {
             }
         }
     }
+    // Bloques construidos: municipio -> filas [longitud, latitud, ha por época...].
+    let (mut bloques, mut epocas): (HashMap<String, Vec<Vec<f64>>>, Vec<i32>) = (HashMap::new(), Vec::new());
+    if let Ok(mut lector) = csv::Reader::from_path(dir_referencia.join("superficie_construida_bloques.csv")) {
+        epocas = lector.headers().map(|h| h.iter().filter_map(|c| c.strip_prefix("ha_")?.parse().ok()).collect()).unwrap_or_default();
+        for f in lector.records().flatten() {
+            let numeros: Vec<f64> = f.iter().skip(1).filter_map(|c| c.parse().ok()).collect();
+            if numeros.len() == epocas.len() + 2 {
+                bloques.entry(f[0].to_string()).or_default().push(numeros);
+            }
+        }
+    }
     let construccion = Construccion::cargar(&dir_referencia, &catalogo);
     let (capas, catalogo_capas) = armar_capas(&dir_referencia, &catalogo, &poblacion, &vial, &construido, &construccion);
     let estado = Arc::new(Estado {
         bd,
         vial,
         referencias: csv::Reader::from_path(var("FARO_REFERENCIAS_INE", "datos/catalogo_precios/precios_referencia_ine.csv")).map(|mut l| l.deserialize().flatten().collect()).unwrap_or_default(),
+        tareas: faro_fuentes::muestreo::cargar_tareas(&PathBuf::from(var("FARO_MUESTREOS", "datos/estandar/muestreos.toml"))).unwrap_or_else(|e| {
+            eprintln!("AVISO: sin tareas de muestreo ({e}).");
+            vec![]
+        }),
+        canasta: csv::Reader::from_path(var("FARO_CANASTA", "datos/catalogo_precios/cba_precios.csv")).map(|mut l| l.deserialize::<HashMap<String, String>>().flatten().filter_map(|f| Some((f.get("periodo")?.clone(), f.get("producto")?.clone(), f.get("precio_promedio")?.parse().ok()?))).collect()).unwrap_or_default(),
+        bloques,
+        epocas,
+        dir_scripts: PathBuf::from(var("FARO_SCRIPTS", "scripts/reproducir")),
         fuentes: std::fs::read_to_string(var("FARO_FUENTES", "datos/estandar/fuentes.json")).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_else(|| json!({ "fuentes": [] })),
         construccion,
         construido,
@@ -134,6 +161,23 @@ async fn main() -> Result<(), String> {
     });
     if estado.token.is_none() {
         eprintln!("AVISO: FARO_TOKEN no está definido; cualquiera con acceso a la red puede enviar y confirmar.");
+    }
+
+    // Muestreos de precios: cada diez minutos se revisa qué tareas activas ya tocan.
+    {
+        let e = estado.clone();
+        tokio::spawn(async move {
+            loop {
+                tokio::time::sleep(std::time::Duration::from_secs(600)).await;
+                for t in e.tareas.clone() {
+                    let toca = e.bd.query_opt("SELECT 1 FROM muestreos WHERE id = $1 AND activa AND (ultima IS NULL OR ultima < now() - make_interval(hours => cada_horas))", &[&t.id]).await;
+                    if matches!(toca, Ok(Some(_))) {
+                        let r = ejecutar_muestreo(&e, &t).await;
+                        eprintln!("muestreo {}: {}", t.id, r.map(|v| v.to_string()).unwrap_or_else(|f| f.1));
+                    }
+                }
+            }
+        });
     }
 
     // Conexión automática con el INE: al arrancar y luego cada FARO_SYNC_HORAS.
@@ -172,6 +216,15 @@ async fn main() -> Result<(), String> {
         .route("/api/proceso", get(api_proceso))
         .route("/api/fuentes", get(|State(e): State<Compartido>| async move { Json(e.fuentes.clone()) }))
         .route("/api/reproducir/poblacion", post(api_reproducir_poblacion))
+        .route("/api/muestreos", get(api_muestreos))
+        .route("/api/muestreos/:id", post(api_muestreo_configurar))
+        .route("/api/muestreos/:id/ejecutar", post(api_muestreo_ejecutar))
+        .route("/api/canasta", get(api_canasta))
+        .route("/api/municipio/:codigo", get(api_municipio))
+        .route("/api/solicitudes/:id/plantilla.csv", get(plantilla))
+        .route("/api/equivalencias/tabla", post(api_tabla_equivalencias))
+        .route("/scripts/:archivo", get(script))
+        .route("/reporte", get(|| async { Html(include_str!("../web/reporte.html")) }))
         .route("/api/vial", get(|State(e): State<Compartido>| async move { Json(e.vial.clone()) }))
         .route("/api/precios", post(api_precios))
         .route("/api/avance", get(api_avance))
@@ -854,6 +907,19 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
             publicar(archivo, "text/csv; charset=utf-8", texto, titulo, detalle, "Levantamiento de FARO en páginas públicas de los negocios, 24-nov-2026.", "Datos públicos de cada negocio; cite la página de origen");
         }
     }
+    for (archivo, tipo, titulo, detalle, fuente, licencia) in [
+        ("departamentos.geojson", GEOJSON, "Departamentos", "22 departamentos con código INE, para mapas a menor detalle.", "CONRED / OCHA (COD-AB Guatemala).", "CC BY-IGO"),
+        ("red_vial_contexto.geojson", GEOJSON, "Caminos mapeados alrededor de los enlaces probables", "Tramos de camino a 1.5 km de cada enlace propuesto; indica si pertenecen a la red principal o a un tramo suelto.", "© colaboradores de OpenStreetMap (HOT/HDX), corte del 3-nov-2026.", "ODbL 1.0"),
+        ("superficie_construida_bloques.csv", "text/csv; charset=utf-8", "Superficie construida en bloques de 1 km, 1975–2020", "Hectáreas construidas por bloque de 1 km y época, con el municipio al que pertenece: la huella edificada del país.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A.", "CC BY 4.0"),
+    ] {
+        if let Ok(texto) = std::fs::read_to_string(dir.join(archivo)) {
+            publicar(archivo, tipo, texto, titulo, detalle, fuente, licencia);
+        }
+    }
+    let puntos: Vec<Value> = catalogo.de_nivel(Nivel::LugarPoblado, None).filter(|l| l.longitud.is_some()).map(|l| json!({ "type": "Feature", "properties": { "codigo": l.codigo, "nombre": l.nombre, "municipio": l.padre }, "geometry": { "type": "Point", "coordinates": [l.longitud, l.latitud] } })).collect();
+    if !puntos.is_empty() {
+        publicar("lugares_poblados.geojson", GEOJSON, json!({ "type": "FeatureCollection", "features": puntos }).to_string(), "Lugares poblados del Censo 2018", "19,723 lugares poblados con código INE y centroide.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018.", "CC BY");
+    }
     if let Ok(texto) = std::fs::read_to_string(dir.join("superficie_construida_municipio.csv")) {
         publicar("superficie_construida_municipio.csv", "text/csv; charset=utf-8", texto, "Superficie construida por municipio, 1975–2020", "Hectáreas construidas vistas por satélite, cada cinco años, por municipio con código INE.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A (100 m).", "CC BY 4.0");
     }
@@ -965,9 +1031,16 @@ async fn api_construccion(State(e): State<Compartido>) -> Res<Json<Value>> {
     use faro_territorio::construccion::{resumir, Observacion};
     let mem = memoria(&e).await?;
     let c = &e.construccion;
+    // Precios del levantamiento inicial más los del muestreo automático (el más reciente de cada
+    // producto y proveedor sustituye al anterior).
+    let observados = e.bd.query("SELECT DISTINCT ON (proveedor, producto) proveedor, producto, precio, unidad, url, to_char(observado, 'YYYY-MM-DD') FROM precios_observados WHERE rubro = 'construccion' ORDER BY proveedor, producto, observado DESC", &[]).await.map_err(interno)?;
+    let nuevos: Vec<HashMap<String, String>> = observados.iter().map(|f| HashMap::from([("proveedor".to_string(), f.get::<_, String>(0)), ("producto".into(), f.get(1)), ("precio".into(), f.get::<_, f64>(2).to_string()), ("unidad_publicada".into(), f.get(3)), ("url".into(), f.get(4)), ("fecha".into(), f.get(5))])).collect();
+    let ya: std::collections::HashSet<(String, String)> = nuevos.iter().map(|f| (f["proveedor"].clone(), f["producto"].clone())).collect();
     let observaciones: Vec<Observacion> = c
         .precios
         .iter()
+        .filter(|f| !ya.contains(&(f.get("proveedor").cloned().unwrap_or_default(), f.get("producto").cloned().unwrap_or_default())))
+        .chain(nuevos.iter())
         .filter_map(|f| {
             let campo = |k: &str| f.get(k).cloned().unwrap_or_default();
             let precio: f64 = campo("precio").parse().ok()?;
@@ -995,7 +1068,7 @@ async fn api_construccion(State(e): State<Compartido>) -> Res<Json<Value>> {
     let nombre_articulo = |codigo: Option<u32>| codigo.and_then(|k| c.articulos.get(&k)).and_then(|a| a.get("articulo")).cloned();
     let por_revisar: Vec<Value> = observaciones.iter().filter(|o| o.estado == "revisar").take(400).map(|o| { let mut v = json!(o); v["articulo"] = json!(nombre_articulo(o.codigo)); v }).collect();
     Ok(Json(json!({
-        "resumen": { "proveedores": c.proveedores.len(), "proveedores_con_precios": por_proveedor.len(), "precios": observaciones.len(), "comparables": cuenta("comparable") + cuenta("memoria"), "aprendidos": cuenta("memoria"),
+        "resumen": { "proveedores": c.proveedores.len(), "proveedores_con_precios": por_proveedor.len(), "precios": observaciones.len(), "del_muestreo": nuevos.len(), "comparables": cuenta("comparable") + cuenta("memoria"), "aprendidos": cuenta("memoria"),
                      "por_revisar": cuenta("revisar"), "distintos": cuenta("distinto"), "descartados": cuenta("descartado"), "articulos_con_regla": con_regla.len(), "articulos": c.articulos.len(),
                      "articulos_con_precio": resumenes.values().filter(|r| r["por_proveedor"].as_array().is_some_and(|a| !a.is_empty())).count() },
         "articulos": articulos, "por_revisar": por_revisar, "proveedores": proveedores,
@@ -1090,4 +1163,215 @@ async fn api_reproducir_poblacion(State(e): State<Compartido>, cabeceras: Header
     .await
     .map_err(interno)?;
     Ok(Json(resultado.map_err(|x| Fallo(StatusCode::BAD_GATEWAY, format!("no se pudo repetir el proceso: {x}")).1).map_err(pedido)?))
+}
+
+// ---------------------------------------------------------------------------------------------
+// Muestreo automático de precios
+// ---------------------------------------------------------------------------------------------
+
+/// Ejecuta una tarea de muestreo, guarda lo observado y deja constancia del resultado.
+async fn ejecutar_muestreo(e: &Compartido, tarea: &faro_fuentes::muestreo::Tarea) -> Res<Value> {
+    let t = tarea.clone();
+    let (ofertas, bitacora) = tokio::task::spawn_blocking(move || faro_fuentes::muestreo::ejecutar(&t)).await.map_err(interno)?;
+    for o in &ofertas {
+        e.bd.execute(
+            "INSERT INTO precios_observados (tarea, rubro, proveedor, producto, marca, precio, unidad, url, termino) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+            &[&tarea.id, &tarea.rubro, &tarea.proveedor, &o.producto, &o.marca, &o.precio, &o.unidad, &o.url, &o.termino],
+        )
+        .await
+        .map_err(interno)?;
+    }
+    let detalle = bitacora.join("; ");
+    e.bd.execute(
+        "INSERT INTO muestreos (id, activa, cada_horas, ultima, ultimo_ok, detalle) VALUES ($1,$2,$3, now(), $4, $5)
+         ON CONFLICT (id) DO UPDATE SET ultima = now(), ultimo_ok = $4, detalle = $5",
+        &[&tarea.id, &tarea.activa, &tarea.cada_horas, &!ofertas.is_empty(), &detalle],
+    )
+    .await
+    .map_err(interno)?;
+    Ok(json!({ "precios": ofertas.len(), "detalle": detalle }))
+}
+
+async fn api_muestreos(State(e): State<Compartido>) -> Res<Json<Value>> {
+    let estados = e.bd.query("SELECT id, activa, cada_horas, to_char(ultima, 'YYYY-MM-DD HH24:MI'), ultimo_ok, detalle FROM muestreos", &[]).await.map_err(interno)?;
+    let conteos = e.bd.query("SELECT tarea, count(*), count(DISTINCT producto), count(DISTINCT observado::date) FROM precios_observados GROUP BY 1", &[]).await.map_err(interno)?;
+    Ok(Json(json!(e.tareas.iter().map(|t| {
+        let est = estados.iter().find(|f| f.get::<_, String>(0) == t.id);
+        let n = conteos.iter().find(|f| f.get::<_, String>(0) == t.id);
+        json!({ "id": t.id, "titulo": t.titulo, "rubro": t.rubro, "proveedor": t.proveedor, "base": t.base, "terminos": t.terminos, "tipo": t.tipo,
+                "activa": est.map_or(t.activa, |f| f.get(1)), "cada_horas": est.map_or(t.cada_horas, |f| f.get(2)),
+                "ultima": est.and_then(|f| f.get::<_, Option<String>>(3)), "ultimo_ok": est.and_then(|f| f.get::<_, Option<bool>>(4)), "detalle": est.map(|f| f.get::<_, String>(5)),
+                "precios": n.map_or(0, |f| f.get::<_, i64>(1)), "productos": n.map_or(0, |f| f.get::<_, i64>(2)), "corridas": n.map_or(0, |f| f.get::<_, i64>(3)) })
+    }).collect::<Vec<_>>())))
+}
+
+#[derive(Deserialize)]
+struct ConfigMuestreo {
+    activa: Option<bool>,
+    cada_horas: Option<i32>,
+}
+
+async fn api_muestreo_configurar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap, Json(c): Json<ConfigMuestreo>) -> Res<Json<Value>> {
+    autorizar(&e, &cabeceras)?;
+    let t = e.tareas.iter().find(|t| t.id == id).ok_or_else(|| pedido(format!("no existe la tarea {id}")))?;
+    if c.cada_horas.is_some_and(|h| !(1..=24 * 90).contains(&h)) {
+        return Err(pedido("la frecuencia debe estar entre 1 hora y 90 días"));
+    }
+    e.bd.execute(
+        "INSERT INTO muestreos (id, activa, cada_horas) VALUES ($1, coalesce($2, $4), coalesce($3, $5))
+         ON CONFLICT (id) DO UPDATE SET activa = coalesce($2, muestreos.activa), cada_horas = coalesce($3, muestreos.cada_horas)",
+        &[&id, &c.activa, &c.cada_horas, &t.activa, &t.cada_horas],
+    )
+    .await
+    .map_err(interno)?;
+    Ok(Json(json!({ "guardado": true })))
+}
+
+async fn api_muestreo_ejecutar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    autorizar(&e, &cabeceras)?;
+    let t = e.tareas.iter().find(|t| t.id == id).ok_or_else(|| pedido(format!("no existe la tarea {id}")))?.clone();
+    Ok(Json(ejecutar_muestreo(&e, &t).await?))
+}
+
+/// Canasta básica: precio promedio del INE por producto (último mes y un año antes) y, al lado,
+/// lo que publican las tiendas muestreadas. No se comparan solos: el INE no publica la unidad.
+async fn api_canasta(State(e): State<Compartido>) -> Res<Json<Value>> {
+    let periodos: std::collections::BTreeSet<&str> = e.canasta.iter().map(|(p, _, _)| p.as_str()).collect();
+    let (Some(ultimo), Some(primero)) = (periodos.last().copied(), periodos.first().copied()) else {
+        return Ok(Json(json!({ "disponible": false, "productos": [] })));
+    };
+    let anio_antes = format!("{}{}", ultimo[..4].parse::<i32>().unwrap_or(0) - 1, &ultimo[4..]);
+    let observados = e.bd.query("SELECT DISTINCT ON (proveedor, producto) termino, proveedor, producto, precio, unidad, url, to_char(observado, 'YYYY-MM-DD') FROM precios_observados WHERE rubro = 'alimentos' ORDER BY proveedor, producto, observado DESC", &[]).await.map_err(interno)?;
+    let mut nombres: Vec<&str> = e.canasta.iter().filter(|(p, _, _)| p == ultimo).map(|(_, n, _)| n.as_str()).collect();
+    nombres.dedup();
+    let productos: Vec<Value> = nombres.iter().map(|nombre| {
+        let precio = |periodo: &str| e.canasta.iter().find(|(p, n, _)| p == periodo && n == nombre).map(|(_, _, x)| *x);
+        let clave = faro_homologa::normalizar::basico(nombre);
+        // Ofertas cuyo término de búsqueda aparece, palabra por palabra, en el nombre del producto del INE.
+        let mut ofertas: Vec<Value> = observados.iter().filter(|f| { let t = faro_homologa::normalizar::basico(&f.get::<_, String>(0)); !t.is_empty() && t.split(' ').all(|w| clave.split(' ').any(|c| c.starts_with(w.trim_end_matches('s')))) })
+            .map(|f| json!({ "proveedor": f.get::<_, String>(1), "producto": f.get::<_, String>(2), "precio": f.get::<_, f64>(3), "unidad": f.get::<_, String>(4), "url": f.get::<_, String>(5), "fecha": f.get::<_, String>(6) })).collect();
+        ofertas.sort_by(|a, b| a["precio"].as_f64().unwrap_or(0.0).total_cmp(&b["precio"].as_f64().unwrap_or(0.0)));
+        let (ahora, antes) = (precio(ultimo), precio(&anio_antes));
+        json!({ "producto": nombre, "precio_ine": ahora, "precio_un_anio_antes": antes, "variacion_pct": ahora.zip(antes).filter(|(_, b)| *b > 0.0).map(|(a, b)| (a / b - 1.0) * 100.0),
+                "serie": e.canasta.iter().filter(|(_, n, _)| n == nombre).map(|(p, _, x)| json!([p, x])).collect::<Vec<_>>(), "publicados": ofertas.len(), "ofertas": ofertas.into_iter().take(12).collect::<Vec<_>>() })
+    }).collect();
+    Ok(Json(json!({ "disponible": true, "periodo": ultimo, "desde": primero, "productos": productos, "observados": observados.len() })))
+}
+
+// ---------------------------------------------------------------------------------------------
+// Ficha de municipio, plantillas, tabla de códigos y procedimientos descargables
+// ---------------------------------------------------------------------------------------------
+
+/// Todo lo que FARO sabe de un municipio, para la ficha del mapa y el reporte.
+async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>) -> Res<Json<Value>> {
+    let l = e.catalogo.por_codigo(&codigo).filter(|l| l.nivel == Nivel::Municipio).ok_or_else(|| pedido(format!("{codigo} no es un municipio")))?;
+    let (desde, hasta) = e.poblacion.anios().unwrap_or((2018, 2030));
+    let poblacion: Vec<Value> = (desde..=hasta).filter_map(|a| e.poblacion.fila(&codigo, a)).map(|p| json!([p.anio, p.total, p.hombres, p.mujeres])).collect();
+    let serie = e.construido.get(&codigo).cloned().unwrap_or_default();
+    let reciente: Vec<faro_territorio::Punto> = serie.iter().copied().filter(|p| p.anio >= 2000).collect();
+    let analisis = faro_territorio::analizar(&codigo, &reciente, 2030);
+    // Puesto entre los 340 municipios (1 = el mayor).
+    let puesto = |valor: &dyn Fn(&str) -> Option<f64>| {
+        let propio = valor(&codigo)?;
+        Some(1 + e.poblacion.municipios().iter().filter(|m| valor(m).is_some_and(|v| v > propio)).count())
+    };
+    let hoy = 2026.clamp(desde, hasta);
+    let sin_conexion: Vec<Value> = e.vial["sin_camino"].as_array().into_iter().flatten().filter(|x| x["codigo"].as_str().is_some_and(|c| c.starts_with(&codigo))).map(|x| json!({ "nombre": x["nombre"], "codigo": x["codigo"], "distancia_m": x["distancia_m"], "conexion": "sin_camino" }))
+        .chain(e.vial["enlaces"].as_array().into_iter().flatten().flat_map(|en| en["lugares"].as_array().into_iter().flatten().filter(|x| x["codigo"].as_str().is_some_and(|c| c.starts_with(&codigo))).map(|x| json!({ "nombre": x["nombre"], "codigo": x["codigo"], "conexion": "tramo_suelto", "hueco_km": en["km"] })).collect::<Vec<_>>()))
+        .collect();
+    let registros = e.bd.query("SELECT solicitud, sum(n)::bigint FROM hechos WHERE municipio = $1 GROUP BY 1 ORDER BY 1", &[&codigo]).await.map_err(interno)?;
+    Ok(Json(json!({
+        "codigo": codigo, "nombre": l.nombre, "departamento": e.catalogo.por_codigo(&l.padre).map(|d| d.nombre.clone()), "anio_actual": hoy,
+        "poblacion": poblacion, "poblacion_cambio": e.poblacion.cambio(&codigo, 2018, hasta),
+        "puesto_poblacion": puesto(&|m| e.poblacion.total(m, hoy).map(|v| v as f64)), "puesto_crecimiento": puesto(&|m| e.poblacion.cambio(m, 2018, hasta).map(|c| c.tasa_anual_pct)),
+        "construido": serie.iter().map(|p| json!([p.anio, (p.edificaciones * 10.0).round() / 10.0])).collect::<Vec<_>>(), "construido_analisis": analisis,
+        "lugares_poblados": e.catalogo.de_nivel(Nivel::LugarPoblado, Some(&codigo)).count(), "sin_conexion": sin_conexion,
+        "proveedores": e.construccion.proveedores.iter().filter(|p| p.get("municipio_codigo").map(String::as_str) == Some(codigo.as_str())).filter_map(|p| p.get("nombre")).collect::<Vec<_>>(),
+        "registros": registros.iter().map(|f| json!({ "solicitud": f.get::<_, String>(0), "total": f.get::<_, i64>(1) })).collect::<Vec<_>>(),
+        "epocas": e.epocas, "bloques": e.bloques.get(&codigo),
+    })))
+}
+
+/// Archivo de ejemplo para una solicitud: el encabezado que se espera y dos filas ficticias.
+async fn plantilla(State(e): State<Compartido>, Ruta(id): Ruta<String>) -> Response {
+    let Some(sol) = solicitudes(&e).ok().and_then(|s| s.into_iter().find(|s| s.id == id)) else {
+        return Fallo(StatusCode::NOT_FOUND, "no existe esa solicitud".into()).into_response();
+    };
+    let ejemplo = |c: &faro_homologa::solicitud::Columna, n: usize| -> String {
+        use faro_homologa::solicitud::Tipo;
+        match (c.homologar.as_deref(), c.sensible.as_deref()) {
+            (Some("departamento"), _) => ["Escuintla", "Sololá"][n].into(),
+            (Some("municipio"), _) => ["Iztapa", "Panajachel"][n].into(),
+            (Some(_), _) => String::new(),
+            (_, Some("seudonimizar")) => ["0000000000101", "0000000000202"][n].into(),
+            (_, Some(_)) => "(no se usa)".into(),
+            _ if !c.valores.is_empty() => c.valores[n % c.valores.len()].clone(),
+            _ => match c.tipo {
+                Tipo::Fecha => ["2026-10-03", "04/10/2026"][n].into(),
+                Tipo::Entero => ["34", "7"][n].into(),
+                Tipo::Decimal => ["1.5", "20.25"][n].into(),
+                Tipo::Texto => String::new(),
+            },
+        }
+    };
+    let mut w = csv::Writer::from_writer(vec![]);
+    let _ = w.write_record(sol.columnas.iter().map(|c| c.nombre.as_str()));
+    for n in 0..2 {
+        let _ = w.write_record(sol.columnas.iter().map(|c| ejemplo(c, n)));
+    }
+    let cuerpo = w.into_inner().unwrap_or_default();
+    ([("content-type", "text/csv; charset=utf-8".to_string()), ("content-disposition", format!("attachment; filename=\"ejemplo_ficticio_{id}.csv\""))], cuerpo).into_response()
+}
+
+/// Carga una tabla de códigos de una institución (CSV: nivel, contexto, valor, codigo,
+/// institucion) como equivalencias confirmadas por quien la sube. Las filas que no cuadran con
+/// el catálogo se rechazan una por una y se devuelven.
+async fn api_tabla_equivalencias(State(e): State<Compartido>, cabeceras: HeaderMap, Query(q): Query<HashMap<String, String>>, cuerpo: String) -> Res<Json<Value>> {
+    autorizar(&e, &cabeceras)?;
+    let usuario = q.get("usuario").map(|u| u.trim()).filter(|u| !u.is_empty()).ok_or_else(|| pedido("indique quién sube la tabla: queda en la bitácora"))?;
+    let mut lector = csv::ReaderBuilder::new().trim(csv::Trim::All).flexible(true).from_reader(cuerpo.trim_start_matches('\u{feff}').as_bytes());
+    let cab: Vec<String> = lector.headers().map_err(pedido)?.iter().map(|c| c.to_lowercase()).collect();
+    let pos = |n: &str| cab.iter().position(|c| c == n).ok_or_else(|| pedido(format!("falta la columna {n}")));
+    let (inivel, ictx, ival, icod) = (pos("nivel")?, pos("contexto")?, pos("valor")?, pos("codigo")?);
+    let iinst = cab.iter().position(|c| c == "institucion");
+    let columnas: Vec<faro_homologa::solicitud::Columna> = solicitudes(&e).map_err(interno)?.into_iter().flat_map(|s| s.columnas).collect();
+    let (mut grabadas, mut rechazadas) = (0, Vec::new());
+    for (n, fila) in lector.records().enumerate() {
+        let f = fila.map_err(pedido)?;
+        let c = |i: usize| f.get(i).unwrap_or("");
+        let (nivel, contexto, valor, codigo, institucion) = (c(inivel), c(ictx), c(ival), c(icod), iinst.map_or("", c));
+        if valor.is_empty() || codigo.is_empty() {
+            rechazadas.push(format!("fila {}: falta el valor o el código", n + 2));
+            continue;
+        }
+        if nivel == "valor" {
+            match columnas.iter().filter(|col| col.dimension() == contexto).find_map(|col| col.canonico(codigo).map(str::to_string)) {
+                Some(canonico) => {
+                    e.bd.execute("INSERT INTO equivalencias_valor (dimension, original, clave, valor, institucion, confirmado_por) VALUES ($1,$2,$3,$4,$5,$6)", &[&contexto, &valor, &faro_homologa::normalizar::basico(valor), &canonico, &institucion, &usuario]).await.map_err(interno)?;
+                    grabadas += 1;
+                }
+                None => rechazadas.push(format!("fila {}: {codigo:?} no es un valor permitido de {contexto}", n + 2)),
+            }
+            continue;
+        }
+        match (nivel.parse::<Nivel>(), e.catalogo.por_codigo(codigo)) {
+            (Ok(niv), Some(l)) if l.nivel == niv => {
+                e.bd.execute("INSERT INTO equivalencias (original, clave, nivel, contexto, codigo, institucion, confirmado_por) VALUES ($1,$2,$3,$4,$5,$6,$7)", &[&valor, &faro_homologa::normalizar::clave(valor), &nivel, &contexto, &codigo, &institucion, &usuario]).await.map_err(interno)?;
+                e.bd.execute("UPDATE pendientes SET resuelto = TRUE WHERE NOT resuelto AND nivel = $1 AND contexto = $2 AND valor = $3", &[&nivel, &contexto, &valor]).await.map_err(interno)?;
+                grabadas += 1;
+            }
+            (Err(_), _) => rechazadas.push(format!("fila {}: nivel {nivel:?} no existe (departamento, municipio, lugar_poblado o valor)", n + 2)),
+            _ => rechazadas.push(format!("fila {}: el código {codigo} no existe en el catálogo como {nivel}", n + 2)),
+        }
+    }
+    Ok(Json(json!({ "grabadas": grabadas, "rechazadas": rechazadas })))
+}
+
+/// Procedimientos para repetir cada etapa fuera del portal (carpeta scripts/reproducir).
+async fn script(State(e): State<Compartido>, Ruta(archivo): Ruta<String>) -> Response {
+    let limpio = archivo.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.')) && !archivo.contains("..") && (archivo.ends_with(".sh") || archivo.ends_with(".ps1"));
+    match (limpio, tokio::fs::read(e.dir_scripts.join(&archivo)).await) {
+        (true, Ok(bytes)) => ([("content-type", "text/plain; charset=utf-8".to_string()), ("content-disposition", format!("attachment; filename=\"{archivo}\""))], bytes).into_response(),
+        _ => Fallo(StatusCode::NOT_FOUND, "no existe ese procedimiento".into()).into_response(),
+    }
 }
