@@ -2,6 +2,37 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.16.0 · 24-nov-2026
+- **Diseñador de tableros** rehecho: lienzo con paleta de visualizaciones y de datos, panel de
+  propiedades, deshacer y rehacer, arrastrar para ordenar, anchos, y dos piezas nuevas (dispersión
+  con su correlación, y texto). **Los filtros se aplican al tablero ya creado**: territorio en
+  cascada y condiciones sobre indicadores, también con palabras («solo Quiché»). Un tablero nace
+  como **borrador** y se **publica**: lo publicado se ve sin cuenta, con su enlace (`/#tablero=N`).
+- **Trabajo de campo**: rol «operador» y grupo «Operadores de campo»; rutas por operador con las
+  paradas ordenadas; registro de visita desde el teléfono con la posición que entrega el
+  dispositivo; enlace a **Microsoft Forms** con lugar, posición y número de visita ya escritos;
+  cruce de cada visita con satélite y censo; visitas en CSV.
+- **Clasificador de fotos** (vivienda, comercio u otro): Places365-ResNet18 corriendo en el
+  servidor, sin nube; la foto no se guarda. Prueba con 16 fotos: 11 aciertos, 0 errores, 5 no
+  concluyentes (`faro fachadas`, `docs/24`).
+- **Censo 2018**: quince indicadores de condiciones de vida por municipio y material del techo por
+  lugar poblado (`faro censo-indicadores`), en el mapa, la ficha y los tableros.
+- **Uso del suelo**: superficie residencial y no residencial por municipio y por kilómetro con el
+  componente NRES del GHSL (`faro uso-suelo`).
+- **Animación del crecimiento urbano** sobre foto satelital (Landsat de NASA y Sentinel-2 de EOX);
+  corre una vez y tiene casilla para repetir. Capa satelital opcional en el mapa.
+- **Proyecciones**: tasa constante junto a la recta para la superficie construida; para la
+  población más allá de 2030, curva exponencial a corto plazo y logística a largo plazo, probadas
+  contra el propio INE (`docs/19`).
+- **Protección estadística**: los conteos menores que `FARO_UMBRAL_CELDA` (3) no se publican a
+  quien no es analista, con supresión complementaria.
+- **Bitácora** de acciones y **análisis de conformidad legal** (`docs/23`).
+- **Antes y ahora**: 23 puntos en el portal y en `docs/22`, de una sola fuente (`faro mejoras`).
+- Pendientes y envíos dicen si se analizaron con reglas anteriores a las vigentes.
+- Correcciones: los menús por grupo no ocultaban bien los botones; 45 comentarios del código
+  describían un comportamiento anterior o eran confusos.
+- README reescrito; `faro citas` regenera el documento de fuentes desde `fuentes.json`.
+
 ## v0.15.2 · 24-nov-2026
 - Historial de envíos con reemplazo real: cada archivo queda en el historial con su fecha; en las
   estadísticas cuenta el más reciente de cada **corte** (mes de registro que declara la solicitud o,

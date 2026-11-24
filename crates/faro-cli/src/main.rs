@@ -157,6 +157,14 @@ enum Comando {
         #[arg(long)]
         salida: Option<PathBuf>,
     },
+    /// Escribe el documento de fuentes y citas a partir de datos/estandar/fuentes.json, la misma
+    /// lista que muestra la pantalla en «Acerca y fuentes».
+    Citas {
+        #[arg(long, default_value = "datos/estandar/fuentes.json")]
+        entrada: PathBuf,
+        #[arg(long, default_value = "docs/11-fuentes-y-citas.md")]
+        salida: PathBuf,
+    },
     /// Escribe el documento «Antes y ahora» a partir de datos/estandar/mejoras.json (la misma fuente
     /// que usa la pantalla), para que el portal y el documento digan siempre lo mismo.
     Mejoras {
@@ -460,6 +468,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         Comando::Construido { mosaicos, municipios, salida } => return construido(&mosaicos, &municipios, &salida),
         Comando::UsoSuelo { total, no_residencial, municipios, salida } => return uso_suelo(&total, &no_residencial, &municipios, &salida),
         Comando::Mejoras { entrada, salida } => return mejoras(&entrada, &salida),
+        Comando::Citas { entrada, salida } => return citas(&entrada, &salida),
         Comando::Fachadas { fotos, modelo, fuentes, salida } => return fachadas(&fotos, &modelo, fuentes.as_deref(), salida.as_deref()),
         Comando::Precios { cotizaciones, cv_parecidos, salida } => {
             use faro_territorio::precios;
@@ -788,7 +797,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Comando::Verificar { .. } | Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::UsoSuelo { .. } | Comando::Mejoras { .. } | Comando::Fachadas { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
+        Comando::Verificar { .. } | Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::UsoSuelo { .. } | Comando::Mejoras { .. } | Comando::Citas { .. } | Comando::Fachadas { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
     }
 }
 
@@ -1279,6 +1288,30 @@ fn fachadas(fotos: &Path, modelo: &Path, fuentes: Option<&Path>, salida: Option<
         w.flush().map_err(|e| e.to_string())?;
         println!("Tabla en {}", ruta.display());
     }
+    Ok(ExitCode::SUCCESS)
+}
+
+/// Documento de fuentes y citas, con los mismos tres grupos que la pantalla.
+fn citas(entrada: &Path, salida: &Path) -> Result<ExitCode, String> {
+    let d: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(entrada).map_err(|e| format!("{}: {e}", entrada.display()))?).map_err(|e| format!("{}: {e}", entrada.display()))?;
+    let fuentes = d["fuentes"].as_array().ok_or("fuentes.json no trae la lista «fuentes»")?;
+    let mut md = String::from("# Fuentes y citas\n\nTodo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, la dirección exacta y la huella SHA-256 de cada archivo descargado están en `datos/crudo/manifiesto.jsonl` (`faro fuentes citar` las lista). Este documento lo escribe `faro citas` a partir de `datos/estandar/fuentes.json`, que es también lo que muestra la pantalla en «Acerca y fuentes». En los conjuntos del portal del INE el año es el de su última actualización en el portal.\n\n**Cómo citar los datos del INE usados aquí:** Fuente: Instituto Nacional de Estadística (INE), Guatemala, con el nombre del conjunto y la fecha de consulta que aparecen abajo.\n");
+    let mut escritas = 0;
+    for (titulo, tipos) in [("Datos", &["conjunto de datos", "sitio web", "archivos no publicados"][..]), ("Documentos del INE, de gobierno y de referencia", &["presentación", "presentaciones", "documento"][..]), ("Métodos y programas", &["artículo", "libro", "ponencia", "programa"][..])] {
+        md += &format!("\n## {titulo}\n\n");
+        for f in fuentes.iter().filter(|f| tipos.contains(&f["tipo"].as_str().unwrap_or(""))) {
+            let licencia = f["licencia"].as_str().filter(|l| !l.is_empty()).map(|l| format!(" Licencia: {l}.")).unwrap_or_default();
+            md += &format!("- {}\n  - Uso en FARO: {}{licencia}\n", f["cita"].as_str().unwrap_or(""), f["uso"].as_str().unwrap_or(""));
+            escritas += 1;
+        }
+    }
+    // Una fuente con un tipo que no está en ningún grupo no saldría: mejor avisar.
+    if escritas != fuentes.len() {
+        return Err(format!("{} fuente(s) tienen un tipo que no pertenece a ningún grupo del documento", fuentes.len() - escritas));
+    }
+    md += "\n## Cómo citar FARO\n\nSandoval, E., Echeverría, A. y Sandoval, A. (2026). FARO: recepción y homologación de registros administrativos, territorio y precios [programa]. Datatón INE 2026, categoría 2. https://github.com/tono88/faro-ine-2026\n";
+    std::fs::write(salida, md).map_err(|e| format!("{}: {e}", salida.display()))?;
+    println!("{escritas} fuentes -> {}", salida.display());
     Ok(ExitCode::SUCCESS)
 }
 

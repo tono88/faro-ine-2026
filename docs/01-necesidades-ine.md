@@ -38,8 +38,23 @@
 | Sistema para estandarizar los procedimientos del IPMC y del ICC | DIEC · IPMC/ICC | Parcial: canasta del IPMC como catálogo, homologación de productos y precios por artículo; el ICC no se abordó |
 | Catálogo digital del Manual de Características para dispositivos móviles | DIEC · IPC | No hecho: el Manual no es público; la pantalla sí funciona en teléfonos y el catálogo del IPMC se consulta desde ella |
 | Calculadora de derivados de la Hoja de Balance de Alimentos | DIEC · HBA | Hecho: sección "Hoja de balance: derivados" con las tasas de Guatemala de la FAO, contrastadas con la HBA 2024 del INE; admite otra tabla |
-| Validación de bases de datos con herramientas de licencia libre; tableros dinámicos | DIEC · DESA | Hecho: validación de cada envío contra su solicitud, resultados y mapa |
+| Validación de bases de datos con herramientas de licencia libre; tableros dinámicos | DIEC · DESA | Hecho: validación de cada envío contra su solicitud, resultados y mapa; diseñador de tableros con filtros y publicación por enlace |
 | Herramienta con datos del censo por municipio y lugar poblado para las delegaciones | DIEC · DCR | Hecho: mapa en tres niveles, buscador, ficha y reporte por municipio, con población, hogares y viviendas del Censo 2018 por lugar poblado |
 | Tablero de avance de recopilación de las 22 delegaciones | DIEC · DCR | Hecho: cobertura por departamento en "Resultados y avance" y registros en el mapa por departamento |
 | Investigación de precios con catálogos en línea; media, mediana y moda; informe técnico | DPIR | Hecho: precio de referencia desde cotizaciones y, ahora, informe imprimible desde precios publicados. Falta Guatecompras (bloqueado desde la nube) |
 | Proyecciones por territorio; cambios entre censos; limpiar códigos especiales; no identificar personas | DCE | Hecho salvo la comparación entre censos: población 2015–2030 por municipio, sexo y edad (pirámides), valores "sin dato", salida sin datos personales. Los censos 2002 y 1994 por municipio no están en formato descargable |
+
+## Pedidos atendidos en la versión 0.16.0 (24-nov-2026)
+
+| Pedido | Estado en FARO |
+|---|---|
+| Que un grupo de usuarios acceda al trabajo de campo y cada operador conozca su ruta | Hecho: rol y grupo «Operadores de campo»; sección «Mi ruta de campo» con las paradas en orden |
+| Encuestas conectadas a Microsoft Forms con la geolocalización automática | Hecho: el teléfono entrega la posición al registrar la visita y Forms se abre con lugar, posición y número de visita. FARO no lee las respuestas: se unen por el número de visita |
+| Foto del lugar y un modelo ligero que confirme que es una vivienda | Hecho, con límites declarados: Places365 corre en el servidor; probado con 16 fotos (11 aciertos, 0 errores, 5 no concluyentes) |
+| Ver la foto satelital durante la animación de la mancha urbana; que corra una sola vez | Hecho: Landsat (NASA) y Sentinel-2 (EOX) de fondo; corre una vez y hay casilla para repetir |
+| Uso del suelo según el tipo de techo, a partir de Landsat | No de esa forma: Landsat no distingue techos (cuadros de 30 m). En su lugar: residencial y no residencial del GHSL, y el techo declarado en el Censo 2018 por lugar poblado. El método con dron queda citado como siguiente paso |
+| Que los filtros se apliquen al tablero ya creado y saber cómo se publican | Hecho: barra de filtros sobre todo el tablero; borrador y publicado, con enlace |
+| Un modelo distinto de la recta para población y crecimiento | Hecho: tasa constante junto a la recta (superficie construida) y, para población después de 2030, exponencial a corto plazo y logística a largo plazo |
+| Análisis de conformidad legal y protección estadística | Hecho: `docs/23`; conteos menores que 3 protegidos |
+| Apartado comparativo de qué se tenía, qué mejora y cómo escala | Hecho: sección «Antes y ahora» (23 puntos) y `docs/22` |
+| Más indicadores | Hecho: quince del Censo 2018 y uno de uso del suelo (26 en total) |

@@ -156,12 +156,45 @@ y cómo repetirlo.
     ([`20-verificacion-interfaz.md`](20-verificacion-interfaz.md)); auditoría sin inyección SQL ni
     fallos de rol, con 16 de 20 hallazgos corregidos ([`21-seguridad.md`](21-seguridad.md)).
 
+10l. **El censo ya dice de qué son los techos, lugar por lugar.** El cuadro C2 del Censo 2018 trae
+    el material del techo de las viviendas de 20,254 lugares poblados: 68.1 % de las viviendas del
+    país tiene techo de lámina. No hace falta estimarlo desde el satélite, que además no puede:
+    Landsat ve cuadros de 30 m. Repetir: `faro censo-indicadores`.
+10m. **Quince indicadores de condiciones de vida por municipio, de cuadros que ya estaban descargados.**
+    Alfabetismo 81.5 %, uso de internet 29.3 %, agua por tubería en la vivienda 58.9 %, drenaje
+    44.9 %, red eléctrica 88.1 %, cocina con leña 54.4 %, piso de tierra 26.5 %, participación
+    económica 50.6 %, educación media o superior 31.7 %, recolección de basura 41.9 %, vivienda
+    propia 80.2 % y, de esas, 25.8 % con propietaria mujer. Los tres cuadros de hogares suman los
+    mismos hogares, y el proceso se detiene si el INE cambia el orden de una columna.
+10n. **Solo 1.6 % de lo construido es no residencial, y está concentrado.** Con el componente no
+    residencial del GHSL: 1,486 de 93,297 hectáreas en 2020. Guatemala (296 ha), Villa Nueva (187),
+    Mixco (73), Amatitlán (66) y Escuintla (56) encabezan; 118 municipios tienen al menos una
+    hectárea. Repetir: `faro uso-suelo`.
+10o. **Las curvas simples reproducen bien las proyecciones del INE a cinco años.** Con lo publicado
+    hasta 2025, la exponencial estima 2030 con un error mediano de 1.05 % y la logística con 0.17 %
+    (en los 302 municipios donde la serie deja ver un techo). Para 2050 se separan: 24.6 millones
+    con la exponencial y 22.7 con la logística. Esa distancia es lo que pesa el supuesto.
+    Detalle: [`19-verificacion-estadistica.md`](19-verificacion-estadistica.md).
+10p. **Un modelo de escenas distingue vivienda de comercio sin equivocarse en lo que afirma.** En 16
+    fotos de fachadas de Guatemala y Honduras: 11 aciertos, ningún error y 5 «no concluyente»
+    (casas coloniales que le parecen iglesias u hostales). Lo dudoso no cuenta en contra de la
+    visita. Detalle y límites: [`24-clasificador-de-fotos.md`](24-clasificador-de-fotos.md).
+10q. **Los pendientes que «sobraban» eran de reglas anteriores.** Como el archivo original no se
+    guarda, un envío analizado antes de un cambio de reglas conserva sus observaciones viejas. El
+    portal ahora lo dice en cada pendiente y en cada envío, y basta volver a subir el archivo.
+
 ## Operadores de campo (necesidad planteada por la Gerencia)
 
 11. **Asignación con la menor distancia total posible**, calculada de forma exacta. Con el ejemplo
    ficticio de Sololá (19 operadores, 7 puestos) el total baja de 305 km a 163 km frente a repartir
    en el orden de las listas. Las cifras del ejemplo no son del INE; el método sí está probado
    contra todos los repartos posibles en tablas pequeñas.
+
+11a. **De la asignación a la visita comprobada.** Cada operador ve su ruta con las paradas en
+   orden (vecino más cercano y mejora 2-opt), registra la visita con la posición que entrega su
+   teléfono y abre la encuesta de Microsoft Forms con el lugar ya escrito. En la prueba, una
+   visita a 247 m del punto salió «coherente» y otra a 22 km, «conviene revisar», con la razón.
+   Nada se rechaza solo: el supervisor decide.
 
 ## Lo que ya no hay que hacer a mano
 

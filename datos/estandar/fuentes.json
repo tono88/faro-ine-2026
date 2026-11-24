@@ -11,7 +11,7 @@
    "url": "https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados",
    "licencia": "CC BY",
    "consultado": "23 de noviembre de 2026",
-   "uso": "Catálogo oficial de departamentos, municipios y 20,036 lugares poblados con coordenadas; población, hogares y viviendas por lugar poblado (cuadros A1, B8 y C1).",
+   "uso": "Catálogo oficial de departamentos, municipios y 20,036 lugares poblados con coordenadas; población, hogares y viviendas por lugar poblado (cuadros A1, B8 y C1); quince indicadores de condiciones de vida por municipio (cuadros A5, A9, A11, A12, A13, B1, B2, B3, B4, B6, C2 y C3) y material del techo por lugar poblado (cuadro C2).",
    "cita": "Instituto Nacional de Estadística (INE). (2025). XII Censo Nacional de Población y VII de Vivienda 2018: Listado de lugares poblados [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados Consultado el 23 de noviembre de 2026."
   },
   {
@@ -191,9 +191,9 @@
    "tipo": "conjunto de datos",
    "editor": "Comisión Europea, Centro Común de Investigación (JRC)",
    "url": "https://doi.org/10.2905/9F06F36F-4B11-47EC-ABB0-4F8B7B1D72EA",
-   "licencia": "datos abiertos de la Comisión Europea, con atribución (CC BY 4.0)",
+   "licencia": "CC BY 4.0",
    "consultado": "24 de noviembre de 2026",
-   "uso": "Superficie construida por municipio, 1975–2020.",
+   "uso": "Superficie construida por municipio y por bloque de 1 km, 1975–2020 (capa total), y su parte no residencial en 2000 y 2020 (componente NRES). FARO suma las celdas dentro de cada municipio; no modifica los valores.",
    "cita": "Pesaresi, M. y Politis, P.. (2023). GHS-BUILT-S R2023A: GHS built-up surface grid, derived from Sentinel-2 composite and Landsat, multitemporal (1975–2030) [conjunto de datos]. Comisión Europea, Centro Común de Investigación (JRC). https://doi.org/10.2905/9F06F36F-4B11-47EC-ABB0-4F8B7B1D72EA Consultado el 24 de noviembre de 2026."
   },
   {
@@ -221,6 +221,32 @@
    "consultado": "24 de noviembre de 2026",
    "uso": "Comparación de precios publicados contra el IPMC. Cada precio lleva la dirección de su página en `datos/referencia/precios_construccion.csv`.",
    "cita": "FARO (levantamiento propio). (2026). Perfiles y precios publicados por 116 negocios de materiales de construcción de Guatemala [conjunto de datos]. páginas públicas de cada negocio y directorio Páginas Amarillas. Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "nasa-gibs",
+   "autor": "NASA, Earth Science Data and Information System (ESDIS), Global Imagery Browse Services (GIBS)",
+   "anio": "2026",
+   "titulo": "Landsat WELD Corrected Reflectance (True Color), Global Annual: mosaicos de 1985, 1990, 1998 y 2000",
+   "tipo": "conjunto de datos",
+   "editor": "NASA GIBS",
+   "url": "https://nasa-gibs.github.io/gibs-api-docs/",
+   "licencia": "uso libre; se pide reconocer a NASA GIBS/ESDIS",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Foto de fondo de la animación del crecimiento urbano en las épocas de 1975 a 2005. Es una referencia visual: FARO no mide sobre ella. La carga el navegador de quien mira, no el servidor.",
+   "cita": "NASA, Earth Science Data and Information System (ESDIS), Global Imagery Browse Services (GIBS). (2026). Landsat WELD Corrected Reflectance (True Color), Global Annual: mosaicos de 1985, 1990, 1998 y 2000 [conjunto de datos]. NASA GIBS. https://nasa-gibs.github.io/gibs-api-docs/ Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "eox-s2",
+   "autor": "EOX IT Services GmbH",
+   "anio": "2017",
+   "titulo": "Sentinel-2 cloudless 2016: mosaico sin nubes (contiene datos Copernicus Sentinel modificados de 2016)",
+   "tipo": "conjunto de datos",
+   "editor": "EOX IT Services GmbH",
+   "url": "https://cloudless.eox.at",
+   "licencia": "CC BY 4.0",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Foto de fondo de la animación desde 2010 y capa satelital opcional del mapa. Referencia visual; la carga el navegador de quien mira.",
+   "cita": "EOX IT Services GmbH. (2017). Sentinel-2 cloudless 2016: mosaico sin nubes (contiene datos Copernicus Sentinel modificados de 2016) [conjunto de datos]. EOX IT Services GmbH. https://cloudless.eox.at Consultado el 24 de noviembre de 2026."
   },
   {
    "id": "dpir",
@@ -275,6 +301,45 @@
    "cita": "Comisión Económica para América Latina y el Caribe (CEPAL). (2023). Documento sobre registros administrativos con fines estadísticos, citado por el INE en su presentación (título no verificado por el equipo) [documento]. CEPAL. Consultado el 23 de noviembre de 2026."
   },
   {
+   "id": "drivendata-techos",
+   "autor": "DrivenData, Banco Mundial (GPRH) y WeRobotics",
+   "anio": "2019",
+   "titulo": "Open AI Caribbean Challenge: Mapping Disaster Risk from Aerial Imagery (clasificación del material del techo con imágenes de dron; incluye dos zonas de Mixco, Guatemala)",
+   "tipo": "documento",
+   "editor": "DrivenData",
+   "url": "https://www.drivendata.org/competitions/58/disaster-response-roof-type/",
+   "licencia": "",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Referencia: clasificar techos exige imagen de unos centímetros por píxel (dron), no Landsat. Es el camino propuesto para una siguiente etapa.",
+   "cita": "DrivenData, Banco Mundial (GPRH) y WeRobotics. (2019). Open AI Caribbean Challenge: Mapping Disaster Risk from Aerial Imagery (clasificación del material del techo con imágenes de dron; incluye dos zonas de Mixco, Guatemala) [documento]. DrivenData. https://www.drivendata.org/competitions/58/disaster-response-roof-type/ Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "nasa-develop-gt",
+   "autor": "NASA DEVELOP National Program",
+   "anio": "2022",
+   "titulo": "Guatemala and Panama Urban Development: extensión urbana con Landsat y materiales de techo con imágenes WorldView",
+   "tipo": "documento",
+   "editor": "NASA Technical Reports Server",
+   "url": "https://ntrs.nasa.gov/citations/20220018398",
+   "licencia": "",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Referencia: en Guatemala la extensión urbana se midió con Landsat, pero los techos se clasificaron con imagen submétrica.",
+   "cita": "NASA DEVELOP National Program. (2022). Guatemala and Panama Urban Development: extensión urbana con Landsat y materiales de techo con imágenes WorldView [documento]. NASA Technical Reports Server. https://ntrs.nasa.gov/citations/20220018398 Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "leyes",
+   "autor": "Congreso de la República de Guatemala y Jefatura de Estado",
+   "anio": "1985–2021",
+   "titulo": "Normas consultadas para el análisis de conformidad: Decreto Ley 3-85 (Ley Orgánica del INE) y su reglamento, Decreto 57-2008, Decreto 90-2005, Decreto 57-92, Decreto 47-2008, Decreto 5-2021, Decreto 33-98 y Decreto 17-73",
+   "tipo": "documento",
+   "editor": "Varias ediciones; la lista con el enlace de cada una está en docs/23-conformidad-legal.md",
+   "url": "https://www.ine.gob.gt/ine/wp-content/uploads/2022/01/Ley_Reglamento_INE_dic21.pdf",
+   "licencia": "",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Análisis de conformidad legal y de protección estadística (docs/23).",
+   "cita": "Congreso de la República de Guatemala y Jefatura de Estado. (1985–2021). Normas consultadas para el análisis de conformidad: Decreto Ley 3-85 (Ley Orgánica del INE) y su reglamento, Decreto 57-2008, Decreto 90-2005, Decreto 57-92, Decreto 47-2008, Decreto 5-2021, Decreto 33-98 y Decreto 17-73 [documento]. Varias ediciones; la lista con el enlace de cada una está en docs/23-conformidad-legal.md. https://www.ine.gob.gt/ine/wp-content/uploads/2022/01/Ley_Reglamento_INE_dic21.pdf Consultado el 24 de noviembre de 2026."
+  },
+  {
    "id": "kuhn",
    "autor": "Kuhn, H. W.",
    "anio": "1955",
@@ -325,6 +390,45 @@
    "consultado": "",
    "uso": "Similitud Jaro-Winkler para proponer candidatos de nombres de lugar.",
    "cita": "Winkler, W. E.. (1990). String comparator metrics and enhanced decision rules in the Fellegi-Sunter model of record linkage [ponencia]. Proceedings of the Section on Survey Research Methods, American Statistical Association, 354–359."
+  },
+  {
+   "id": "places365",
+   "autor": "Zhou, B., Lapedriza, A., Khosla, A., Oliva, A. y Torralba, A.",
+   "anio": "2017",
+   "titulo": "Places: A 10 million Image Database for Scene Recognition (modelo Places365-ResNet18)",
+   "tipo": "artículo",
+   "editor": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+   "url": "http://places2.csail.mit.edu",
+   "licencia": "pesos preentrenados con licencia CC BY; código MIT",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Modelo que dice si la foto de una visita de campo parece una vivienda o un comercio. Corre dentro del servidor; FARO no lo entrenó. Procedencia en datos/modelos/PROCEDENCIA.md.",
+   "cita": "Zhou, B., Lapedriza, A., Khosla, A., Oliva, A. y Torralba, A.. (2017). Places: A 10 million Image Database for Scene Recognition (modelo Places365-ResNet18) [artículo]. IEEE Transactions on Pattern Analysis and Machine Intelligence. http://places2.csail.mit.edu Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "verhulst",
+   "autor": "Verhulst, P.-F.",
+   "anio": "1838",
+   "titulo": "Notice sur la loi que la population suit dans son accroissement",
+   "tipo": "artículo",
+   "editor": "Correspondance mathématique et physique, 10, 113–121",
+   "url": "",
+   "licencia": "",
+   "consultado": "",
+   "uso": "Curva logística para mirar la población más allá de 2030 (largo plazo).",
+   "cita": "Verhulst, P.-F.. (1838). Notice sur la loi que la population suit dans son accroissement [artículo]. Correspondance mathématique et physique, 10, 113–121."
+  },
+  {
+   "id": "croes",
+   "autor": "Croes, G. A.",
+   "anio": "1958",
+   "titulo": "A method for solving traveling-salesman problems",
+   "tipo": "artículo",
+   "editor": "Operations Research, 6(6), 791–812",
+   "url": "https://doi.org/10.1287/opre.6.6.791",
+   "licencia": "",
+   "consultado": "",
+   "uso": "Mejora 2-opt para ordenar las paradas de una ruta de campo.",
+   "cita": "Croes, G. A.. (1958). A method for solving traveling-salesman problems [artículo]. Operations Research, 6(6), 791–812. https://doi.org/10.1287/opre.6.6.791"
   },
   {
    "id": "leaflet",

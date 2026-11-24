@@ -15,9 +15,15 @@ seguridad, no dejará hacer cambios hasta que lo haga. Después cree a las perso
 | Administrador | Todo, incluido manejar usuarios y grupos |
 | Analista | Recibir envíos, decidir pendientes, manejar precios, muestreos y tableros |
 | Consulta | Ver |
+| Operador de campo | Ver su ruta y registrar sus visitas; nada más |
 
 Los **grupos** limitan a qué secciones entra cada quien (por ejemplo, «Precios e índices» no ve la
-recepción de registros). El menú de cada persona muestra solo lo suyo.
+recepción de registros, y «Operadores de campo» ve solo el mapa y su ruta). El menú de cada persona
+muestra solo lo suyo.
+
+**Lo que ve quien no tiene cuenta:** el mapa, los tableros publicados, las cifras agregadas y las
+fuentes. Los conteos menores que 3 aparecen como «protegido». Lo que llegó de las instituciones
+(envíos y pendientes) pide sesión.
 
 ## Lo que resuelve, sección por sección
 
@@ -31,12 +37,20 @@ recepción de registros). El menú de cada persona muestra solo lo suyo.
 3. **Equivalencias.** La memoria institucional: todo lo aprendido, y la carga de tablas de códigos propias.
 4. **Resultados y avance.** Qué se pidió, qué llegó, con qué calidad y cómo va cada departamento.
 
+Si un pendiente o un envío lleva la marca **«reglas anteriores»**, se analizó antes de un cambio en
+la solicitud: vuelva a subir ese archivo y sus observaciones se actualizan.
+
 ### Territorio: el país hasta el lugar poblado
 - **Mapa** en tres niveles con buscador, ficha, vista aislada y reporte imprimible. La ficha de un
   municipio trae población, Censo 2018 por lugar poblado, pirámide de edades y crecimiento construido.
-- **Población y crecimiento**, con el cálculo repetible paso a paso y márgenes comprobados contra lo ocurrido.
+- **Población y crecimiento**, con el cálculo repetible paso a paso y márgenes comprobados contra lo
+  ocurrido. Al tocar un municipio se ve la animación de su mancha urbana sobre la foto satelital
+  (corre una vez; la casilla «Repetir sin parar» la deja en bucle). Para mirar la población después
+  de 2030 escriba un año: verá la curva exponencial (corto plazo) y la logística (largo plazo),
+  rotuladas como no oficiales.
+- **Condiciones de vida** del Censo 2018 en el mapa y en la ficha: quince indicadores por municipio.
 - **Red vial**: lugares sin conexión y enlaces que probablemente faltan en el mapa.
-- **Operadores de campo**: reparto con la menor distancia total.
+- **Operadores de campo**: reparto con la menor distancia total, y armado de rutas (ver abajo).
 - **Seguridad alimentaria**: datos de SESAN por departamento y municipio.
 
 ### Precios: evidencia para cada precio
@@ -47,16 +61,48 @@ recepción de registros). El menú de cada persona muestra solo lo suyo.
   cotizaciones; **canasta básica** con su histórico; **hoja de balance** con tasas oficiales.
 - **Muestreos automáticos**: el portal vuelve a leer las tiendas solo, cuando usted decida.
 
-### Tableros a pedido
-Escriba lo que necesita —«mapa y tabla de desnutrición y población en Sololá, los 5 más altos»— y
-el portal arma el tablero y le dice qué entendió. Edítelo pieza por pieza, guárdelo, imprímalo.
+### Trabajo de campo: de la ruta a la visita comprobada
+
+**Quien coordina** (en «Operadores de campo»):
+1. Cree a cada encuestador en «Usuarios» con el rol *Operador de campo* y póngalo en el grupo
+   «Operadores de campo».
+2. En «Rutas de campo y visitas» escriba el nombre de la ruta, elija el operador y el municipio, y
+   marque los lugares poblados. El portal ordena las paradas.
+3. Si la encuesta está en Microsoft Forms, pegue su dirección rellenada previamente y cambie los
+   valores de muestra por los marcadores `{lugar}`, `{latitud}`, `{longitud}`, `{visita}` (la
+   pantalla lo explica paso a paso).
+4. Revise las visitas: cada una dice a qué distancia del punto se hizo, qué mostró la foto y si
+   conviene revisarla. «Descargar visitas» da la tabla para unirla con las respuestas de Forms.
+
+**El operador** (en «Mi ruta de campo», desde su teléfono):
+1. Ve sus paradas en orden, en la lista y en el mapa. «Cómo llegar» abre la ruta.
+2. Al llegar toca **Registrar visita**. El teléfono entrega la posición (pide permiso la primera vez).
+3. Toma una foto de la fachada, sin personas. Se reduce en el teléfono, se clasifica y se descarta.
+4. Toca **Abrir la encuesta**: Forms se abre con el lugar, la posición y el número de visita ya escritos.
+
+El portal debe estar publicado con HTTPS: los teléfonos no entregan la posición a páginas sin
+conexión segura.
+
+### Tableros: de una frase a un tablero publicado
+1. **Escriba lo que necesita** —«mapa y tabla de desnutrición y población en Sololá, los 5 más
+   altos»— y el portal arma el tablero y le dice qué entendió.
+2. **Edítelo en el lienzo.** A la izquierda, las visualizaciones (tarjeta, barras, tabla, mapa,
+   dispersión, pirámide, serie, texto) y los datos; a la derecha, las propiedades de la pieza
+   elegida. Arrastre una pieza sobre otra para moverla. Hay deshacer y rehacer.
+3. **Filtre.** La barra de filtros actúa sobre todo el tablero: departamento, municipio y
+   condiciones («población de 50,000 o más»). También puede pedirlo con palabras: «solo Quiché».
+4. **Guarde y publique.** «Guardar» deja un borrador que solo ven usted y los administradores.
+   «Publicar» lo pone a la vista de cualquier visitante, con un enlace para compartir. Quien lo
+   abre puede mover los filtros sin cambiar lo publicado.
 
 ### Datos y transparencia
-**Portal del INE** (conjuntos vigilados), **capas publicadas** para cualquier SIG, **proceso** (qué
-hace cada etapa y quién) y **acerca y fuentes** (cada dato con su cita).
+**Antes y ahora** (qué se tenía, qué hace FARO y cómo escala, punto por punto), **portal del INE**
+(conjuntos vigilados), **capas publicadas** para cualquier SIG, **proceso** (qué hace cada etapa y
+quién) y **acerca y fuentes** (cada dato con su cita, y el resumen de protección estadística).
 
-## Tres garantías
+## Cuatro garantías
 
 - **No adivina.** Asigna un código solo con coincidencia exacta y única, o con una decisión humana registrada.
 - **No inventa.** Todo dato es real, con fuente, fecha y licencia; lo calculado se puede repetir con un comando.
 - **Se revisa a sí mismo.** Verificación estadística, de interfaz y de seguridad, con sus informes en `docs/19` a `docs/21`.
+- **Protege a las personas.** Solo agregados, conteos pequeños ocultos, fotos que no se guardan y una bitácora de quién hizo qué (`docs/23`).

@@ -40,3 +40,61 @@ No se encontró un estudio de la Universidad Rafael Landívar sobre techos por m
 cercano: análisis multitemporal de palma africana 2010–2020 (IARNA), mapa de cambio de uso de la
 tierra 2001–2010 (MAGA, URL, USAC y otros) y un estudio de la mancha urbana de las capitales
 centroamericanas 1975–2014 con Landsat.
+
+## Cómo se usó Landsat, exactamente
+
+**FARO no procesa imágenes Landsat crudas.** Las usa de dos maneras, las dos indirectas:
+
+1. **Como insumo del GHSL.** La capa GHS-BUILT-S, de donde salen todas las cifras de superficie
+   construida, la produce la Comisión Europea a partir de mosaicos Landsat (épocas de 1975 a 2014)
+   y de Sentinel-2 (2018). FARO descarga esa capa ya clasificada y suma sus celdas por municipio.
+   Las cifras de crecimiento urbano del portal vienen, entonces, de Landsat y Sentinel-2 a través del GHSL.
+2. **Como foto de fondo de la animación.** Al tocar un municipio en «Población y crecimiento», la
+   animación de la mancha urbana se dibuja sobre una foto satelital: mosaicos anuales Landsat de
+   1985, 1990, 1998 y 2000 (NASA GIBS) para las épocas hasta 2005, y el mosaico Sentinel-2 sin
+   nubes de 2016 (EOX) desde 2010. Cada cuadro dice qué foto lleva. No hay mosaico Landsat libre
+   anterior a 1985, así que 1975 y 1980 se muestran sobre la foto de 1985. **La foto es una
+   referencia visual: sobre ella no se mide nada.**
+
+La animación corre una vez, de 1975 a 2020, y se detiene; la casilla «Repetir sin parar» la deja en
+bucle. Se puede quitar la foto o quitar los bloques para ver solo el terreno. El mapa principal
+tiene además una capa opcional con el mosaico Sentinel-2 de 2016.
+
+| Foto | Servicio | Detalle | Licencia |
+|---|---|---|---|
+| Landsat, mosaico anual | NASA GIBS, capa `Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual` | 30 m; hasta el nivel 12 de acercamiento | Uso libre; se reconoce a NASA GIBS/ESDIS |
+| Sentinel-2, mosaico 2016 | EOX, capa `s2cloudless_3857` | 10 m; hasta el nivel 13 o 14 | CC BY 4.0 |
+
+Se descartaron: la imagen de Esri (su licencia exige programas o suscripción de Esri), los
+mosaicos de EOX de 2018 en adelante (licencia no comercial) y los de la USGS (piden iniciar sesión).
+
+## Uso del suelo y tipo de techo: qué se puede y qué no
+
+**Con Landsat no se distinguen techos.** Cada celda mide 30 m por lado, 900 m²: en ella caben
+varias casas. Los proyectos que sí clasifican techos usan imagen de centímetros o de menos de un metro:
+
+- **Open AI Caribbean Challenge** (DrivenData, Banco Mundial y WeRobotics, 2019): material del
+  techo con imágenes de dron de unos 4 cm; incluye dos zonas de **Mixco**. Cinco clases: concreto,
+  lámina en buen estado, lámina irregular, incompleto y otro. Las soluciones ganadoras son de
+  código abierto. <https://www.drivendata.org/competitions/58/disaster-response-roof-type/>
+- **NASA DEVELOP, «Guatemala and Panama Urban Development»** (2022): midió la extensión urbana
+  con Landsat, pero los techos (teja, metal) con imágenes WorldView.
+  <https://ntrs.nasa.gov/citations/20220018398>
+- **Dymaxion Labs y TECHO** (2020): detección de asentamientos en Ciudad de Guatemala con imagen
+  submétrica y la encuesta de TECHO. <https://arxiv.org/abs/2006.14490>
+
+**Lo que FARO sí hace, con datos abiertos y oficiales:**
+
+| Pregunta | Fuente | Resultado |
+|---|---|---|
+| ¿Cuánto de lo construido es residencial? | GHSL, componente no residencial (NRES), 100 m | `faro uso-suelo`: por municipio (2000 y 2020) y por bloque de 1 km. En 2020, 1,486 de 93,297 ha son no residenciales (1.6 %); las mayores superficies están en Guatemala (296 ha), Villa Nueva (187), Mixco (73), Amatitlán (66) y Escuintla (56) |
+| ¿De qué son los techos? | Censo 2018, cuadro C2: lo declaró cada hogar | Por municipio (68.1 % de las viviendas del país tiene techo de lámina) y por lugar poblado (20,254 lugares) |
+
+Las dos cosas se cruzan con cada visita de campo: el portal dice cuánto hay construido en el
+kilómetro donde está el encuestador, qué parte es residencial y cuál es el techo más frecuente en
+ese lugar poblado ([`24-clasificador-de-fotos.md`](24-clasificador-de-fotos.md) explica la parte de la foto).
+
+**Siguiente paso posible.** El mismo proyecto GHSL publica GHS-BUILT-C a 10 m (2018), con altura y
+tipo de edificio (residencial o no, en cinco tramos de altura). Para Guatemala son tres mosaicos de
+6 a 79 MB. Y con imagen de dron del INE o de municipalidades se puede seguir el método del reto de
+DrivenData, que ya incluye a Mixco.

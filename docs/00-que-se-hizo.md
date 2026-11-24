@@ -63,13 +63,37 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 - Inseguridad alimentaria aguda por departamento (CIF) y desnutrición crónica en escolares por
   municipio (Censo de Talla 2024), ambas de SESAN, verificadas y citadas.
-- Se entra con usuario y contraseña; tres roles; la bitácora registra a quien decidió.
+- Se entra con usuario y contraseña; cuatro roles (administrador, analista, consulta y operador de
+  campo); una bitácora registra quién hizo qué y cuándo.
 
 ## 8. Tableros, grupos y verificación
 
-- Tableros a pedido: de una frase a un tablero editable, sin modelos externos.
+- Tableros: de una frase a un tablero que se edita en un lienzo, se filtra por territorio y
+  condiciones, y se publica con un enlace que abre cualquier visitante.
 - Grupos de usuarios: cada quien entra solo a las secciones de su grupo.
 - Tres verificaciones con informe: estadística, de interfaz (laptop, tableta, celular) y de seguridad.
+
+## 8a. Trabajo de campo
+
+- Rutas por operador con las paradas ordenadas; cada operador ve la suya en su teléfono.
+- Registro de visita con la posición que entrega el teléfono y enlace a la encuesta de Microsoft
+  Forms con el lugar, la posición y el número de visita ya escritos.
+- Cruce de cada visita con cuatro evidencias: posición, foto (¿vivienda o comercio?), superficie
+  construida del kilómetro y techo más frecuente del lugar según el censo.
+- La foto se clasifica con un modelo de escenas que corre en el servidor y no se guarda.
+
+## 8b. Más datos del censo y del satélite
+
+- Quince indicadores de condiciones de vida por municipio y material del techo por lugar poblado.
+- Superficie residencial y no residencial por municipio y por kilómetro.
+- Animación de la mancha urbana sobre la foto satelital (Landsat y Sentinel-2).
+- Población después de 2030 con dos curvas no oficiales: exponencial y logística.
+
+## 8c. Cumplimiento
+
+- Protección estadística: los conteos menores que 3 no se publican a quien no es analista.
+- Análisis de conformidad legal, norma por norma ([`23`](23-conformidad-legal.md)).
+- Comparativo «antes y ahora» de 23 puntos ([`22`](22-antes-y-ahora.md)).
 
 ## 9. Trazabilidad
 
@@ -81,11 +105,12 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 | | |
 |---|---|
-| Pruebas automáticas | 82 |
-| Comandos de `faro` | 24 |
-| Secciones de la pantalla | 22 |
+| Pruebas automáticas | 92 |
+| Comandos de `faro` | 29 |
+| Secciones de la pantalla | 24 |
+| Indicadores por municipio | 26 |
 | Tareas de muestreo de precios | 26 |
 | Precios publicados en el levantamiento | 85,907 (18 tiendas, 6 rubros) |
-| Capas publicadas | 15 |
-| Fuentes citadas | 24 |
-| Hallazgos documentados | [20](09-logros.md) |
+| Capas publicadas | 19 |
+| Fuentes citadas | 34 |
+| Hallazgos documentados | [33](09-logros.md) |

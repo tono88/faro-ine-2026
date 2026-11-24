@@ -44,6 +44,30 @@ Cada corrección tiene una prueba automática en `.faro/pruebas/tableros_grupos_
 | 19 | Informativa | Claves de `crear_env.ps1` con un generador no criptográfico | **Corregido** (sin probar en Windows) | Usa el generador criptográfico del sistema |
 | 20 | Informativa | La tipografía se pide a Google Fonts | **Pendiente** | Servirla desde el propio portal evita esa petición a un tercero |
 
+## Cambios de la versión 0.16.0
+
+La versión 0.16.0 agregó superficie nueva (trabajo de campo, tableros publicados, fotos). Esto es lo
+que se revisó y cómo quedó:
+
+| # | Tema | Riesgo | Qué se hizo |
+|---|---|---|---|
+| 21 | Ingreso | Si el usuario no existía no se calculaba Argon2 y la respuesta salía antes: el tiempo delataba qué usuarios existen. Lo halló la revisión de comentarios, que contradecía a este informe | **Corregido**: se verifica siempre, contra una huella de relleno si el usuario no existe |
+| 22 | Posición y cámara | El portal bloqueaba la geolocalización para todos; el trabajo de campo la necesita | Se permite **solo al propio portal** (`Permissions-Policy: geolocation=(self), camera=(self)`); ningún contenido de terceros puede pedirla |
+| 23 | Visitas de campo | La posición de una visita es la de un hogar | Solo las leen el operador que las hizo y quien coordina; no entran al mapa ni a las capas. La foto se clasifica en memoria y se descarta; tope de 4 MB y de 8,000 px al decodificar |
+| 24 | Formulario de la encuesta | Una dirección cualquiera llevaría a los operadores a un sitio ajeno | Solo `https` y solo servicios de una lista (`FARO_FORMULARIOS`); se rechazan direcciones con usuario, puerto o dominios parecidos |
+| 25 | Rol «operador» | Un encuestador no debe poder cambiar nada más | Su rol solo permite leer su ruta y registrar sus visitas; todo lo demás responde 403 (probado) |
+| 26 | Tableros publicados | Lo publicado se lee sin sesión | Un borrador solo lo leen su autor y los administradores; publicar y retirar exige sesión y ser el autor; la definición se valida en el servidor (tipos, indicadores, tamaños) y todo texto se escapa al pintarlo |
+| 27 | Conteos pequeños | Un conteo de 1 o 2 puede señalar a una persona | No se publican a quien no es analista, con supresión complementaria (`docs/23`) |
+| 28 | Constancia | No había un registro general de acciones | Bitácora: envíos, equivalencias, cuentas, tableros, rutas y visitas, con quién y cuándo. Solo la leen los administradores |
+| 29 | Fotos satelitales | El navegador pide imágenes a NASA y EOX | Son opcionales y solo imágenes (`img-src`); el servidor no las pide ni envía datos a esos servicios |
+
+Pruebas: `trabajo_de_campo.js` (permisos del operador, visitas, formulario), `disenador_tableros.js`
+(borradores y publicados) y `tableros_grupos_seguridad.js`.
+
+Siguen pendientes los puntos 3, 10, 15, 18 y 20 de la tabla anterior, y dos nuevos: publicar el
+portal con HTTPS es **obligatorio** para el trabajo de campo (sin HTTPS el teléfono no entrega la
+posición), y la protección de conteos no compara tablas entre sí.
+
 ## Lo que debe hacer quien lo instale
 
 1. Entrar con `admin` / `admin` y **cambiar la contraseña**: hasta entonces no podrá hacer cambios.

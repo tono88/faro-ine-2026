@@ -2191,11 +2191,18 @@ async fn api_ingresar(State(e): State<Compartido>, Json(i): Json<Ingreso>) -> Re
         return Err(Fallo(StatusCode::TOO_MANY_REQUESTS, format!("demasiados intentos fallidos: espere {} segundos", espera.as_secs() + 1)));
     }
     let (clave, guardada) = (i.clave.clone(), f.as_ref().map(|f| f.get::<_, String>(5)));
-    // Si el usuario no existe no se calcula Argon2 y la respuesta sale antes; la pausa tras un fallo
-    // solo lo disimula en parte. Como máximo tres verificaciones a la vez, para que una ráfaga de
-    // intentos no agote la memoria.
+    // Si el usuario no existe, la contraseña se verifica igual contra una huella de relleno: así la
+    // respuesta tarda lo mismo y el tiempo no delata qué usuarios existen. Como máximo tres
+    // verificaciones a la vez, para que una ráfaga de intentos no agote la memoria.
+    static RELLENO: std::sync::OnceLock<String> = std::sync::OnceLock::new();
     let _turno = ARGON.acquire().await.map_err(interno)?;
-    let bien = tokio::task::spawn_blocking(move || guardada.is_some_and(|g| clave_correcta(&clave, &g))).await.map_err(interno)?;
+    let bien = tokio::task::spawn_blocking(move || {
+        let existe = guardada.is_some();
+        let huella = guardada.unwrap_or_else(|| RELLENO.get_or_init(|| huella_de_clave("relleno-sin-uso").unwrap_or_default()).clone());
+        clave_correcta(&clave, &huella) && existe
+    })
+    .await
+    .map_err(interno)?;
     drop(_turno);
     let Some(f) = f.filter(|_| bien) else {
         {
