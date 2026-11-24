@@ -173,8 +173,8 @@
       "antes": "Se pidió una calculadora de derivados para la Hoja de Balance de Alimentos.",
       "origen": "DIEC · Hoja de Balance de Alimentos (HBA)",
       "ahora": "Calculadora con las tasas de extracción de la FAO para Guatemala, contrastadas con las cuentas de la HBA 2024 del INE.",
-      "cifra": "6 de 7",
-      "cifra_de": "tasas contrastadas coinciden con lo que publica el INE (harina de trigo: 72.0 % y 72 %)",
+      "cifra": "13 de 18",
+      "cifra_de": "tasas contrastadas coinciden a menos de un punto con las cuentas del INE (harina de trigo: 72.0 % y 72 %)",
       "ver": "balance",
       "escala": "Admite otra tabla de tasas: cuando el INE tenga las suyas, se cargan y la calculadora las usa."
     },

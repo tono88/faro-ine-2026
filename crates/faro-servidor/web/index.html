@@ -336,7 +336,9 @@
         <li><b>Suma por municipio.</b> El límite municipal se lleva a la proyección del mosaico (Mollweide) y se suman las celdas cuyo centro cae dentro. 1 hectárea = 10,000 m².</li>
         <li><b>Crecimiento anual.</b> Tasa compuesta = (final ÷ inicial)<sup>1 ÷ años</sup> − 1, entre 2000 y 2020.</li>
         <li><b>Tendencia.</b> Recta de mínimos cuadrados sobre las épocas desde 2000: hectáreas = a + b × año. <i>b</i> son las hectáreas nuevas por año.</li>
-        <li><b>Proyección.</b> Valor de la recta en el año pedido. Margen = ± 2 × error estándar del ajuste × √(1 + 1/n + (año − año medio)² ÷ Σ(año − año medio)²): se abre cuanto más lejos del periodo observado.</li>
+        <li><b>Proyección.</b> Valor de la recta en el año pedido. El margen no sale de una fórmula sino de una prueba: se proyectó diez años hacia adelante con datos anteriores, en los 340 municipios y tres décadas (1,020 casos), y se midió cuánto se apartó lo que de verdad ocurrió. En 8 de cada 10 casos el error fue de 20 % de lo proyectado o menos; en 95 de cada 100, de 47 % o menos.</li>
+        <li><b>Por qué una recta y no una tasa constante.</b> Lo que crece en proporción a su tamaño suele seguir una tasa constante (curva exponencial), y eso se probó con la misma prueba: para la superficie construida la recta acertó más (error mediano de 8.9 % frente a 14.2 %). Por eso la recta es la cifra principal y la tasa constante se muestra al lado, como contraste: si las dos se parecen, la proyección depende poco del supuesto; si se separan, conviene leerla con cautela.</li>
+        <li><b>La población no se proyecta aquí.</b> Las cifras de población son las proyecciones oficiales del INE, hechas por componentes demográficos (nacimientos, defunciones y migración por edad), que es el método adecuado para personas. FARO solo resume su crecimiento con la tasa compuesta.</li>
         <li><b>Confianza.</b> Alta si R² ≥ 0.90 con al menos 6 épocas; media si R² ≥ 0.70; baja en otro caso. R² es la parte de la variación que la recta explica.</li></ol></details>
       <p class="proc" data-proc="construido"></p>
     </div>
@@ -776,7 +778,7 @@ async function construido() {
   tabla('#tcons', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:'1975–2020', f:f => chispa(f.serie)},
     {t:String(r.desde), num:1, f:f => `${num(f.edificaciones_inicial)} ha`}, {t:'2020', num:1, f:f => `${num(f.edificaciones_final)} ha`}, {t:'Nuevas hectáreas', num:1, f:f => `+${num(f.cambio_absoluto)}`},
     {t:'Construido, anual', num:1, f:f => `${num(f.tasa_anual_pct)} %`}, {t:'Población, anual', num:1, f:f => f.poblacion_tasa_anual_pct == null ? '' : `${num(f.poblacion_tasa_anual_pct)} %`},
-    {t:'Proyección', num:1, f:f => `${num(f.proyeccion)} ± ${num(f.proyeccion_margen)} ha <small>(${f.anio_proyectado})</small>`}, {t:'Confianza', f:f => `<span class="etq clic ${f.confianza === 'alta' ? 'ok' : f.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(f.codigo)}" title="Ver los estadísticos">${esc(f.confianza)}</span>`}], r.municipios, 'Sin datos.');
+    {t:'Proyección (recta)', num:1, f:f => `${num(f.proyeccion)} ± ${num(f.proyeccion_margen)} ha <small>(${f.anio_proyectado})</small>`}, {t:'Con tasa constante', num:1, f:f => f.proyeccion_tasa_constante == null ? '' : `${num(f.proyeccion_tasa_constante)} ha`}, {t:'Confianza', f:f => `<span class="etq clic ${f.confianza === 'alta' ? 'ok' : f.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(f.codigo)}" title="Ver los estadísticos">${esc(f.confianza)}</span>`}], r.municipios, 'Sin datos.');
   $('#tcons').querySelectorAll('tbody tr').forEach((tr, i) => { if (r.municipios[i]) { tr.classList.add('clic'); tr.dataset.det = r.municipios[i].codigo; tr.title = 'Ver la animación del crecimiento'; } });
 }
 $('#tcons').onclick = e => { const t = e.target.closest('[data-det]'); if (t) detalle(t.dataset.det).catch(x => aviso(x.message, true)); };
@@ -1086,7 +1088,8 @@ async function detalle(codigo) {
       <tr><td>Crecimiento anual compuesto</td><td class="num">${Number(a.tasa_anual_pct).toFixed(2)} %</td></tr>
       <tr><td>Tendencia (pendiente de la recta)</td><td class="num">${num(a.tendencia_por_anio)} ha por año</td></tr>
       <tr><td>Ajuste de la recta (R²)</td><td class="num"><b>${Number(a.r2).toFixed(3)}</b></td></tr>
-      <tr><td>Proyección a ${a.anio_proyectado}</td><td class="num">${num(a.proyeccion)} ha</td></tr>
+      <tr><td>Proyección a ${a.anio_proyectado} (recta)</td><td class="num">${num(a.proyeccion)} ha</td></tr>
+      ${a.proyeccion_tasa_constante != null ? `<tr><td>Proyección a ${a.anio_proyectado} con tasa constante (contraste; su margen de 8 de cada 10 casos es ± ${num(a.margen_tasa_constante_80)} ha)</td><td class="num">${num(a.proyeccion_tasa_constante)} ha</td></tr>` : ''}
       <tr><td>Margen de la proyección al 95 % (error observado al proyectar diez años en 340 municipios y tres décadas; ver la verificación estadística)</td><td class="num">± ${num(a.proyeccion_margen)} ha (${num(100 * a.proyeccion_margen / (a.proyeccion || 1))} %)</td></tr>
     </tbody></table></div>
     <p class="nota">Regla: confianza <b>alta</b> si R² ≥ 0.90 con al menos 6 épocas; <b>media</b> si R² ≥ 0.70; <b>baja</b> en otro caso. Aquí R² = ${Number(a.r2).toFixed(3)} con ${d.construido.filter(x => x[0] >= 2000).length} épocas${a.r2 >= 0.9 && d.construido.filter(x => x[0] >= 2000).length < 6 ? ': el ajuste es bueno, pero con menos de 6 épocas la regla no permite decir "alta"' : ''}. R² es la parte de la variación que explica la recta; el margen dice cuánto puede apartarse el valor real de la proyección.</p>` : '<p class="nota">No hay serie suficiente para calcular la tendencia.</p>'}`;
