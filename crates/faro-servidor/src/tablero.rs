@@ -31,6 +31,11 @@ pub const INDICADORES: &[(&str, &str, &str, &[&str])] = &[
     ("censo_techo_concreto_pct", "Viviendas con techo de concreto (Censo 2018)", "%", &["techo de concreto", "terraza", "losa"]),
     ("censo_piso_tierra_pct", "Viviendas con piso de tierra (Censo 2018)", "%", &["piso de tierra", "piso", "vivienda precaria"]),
     ("censo_maya_pct", "Población que se identifica como maya (Censo 2018)", "%", &["maya", "pueblo maya", "pueblos indigenas", "indigena"]),
+    ("censo_pea_pct", "Participación económica, 15 años o más (Censo 2018)", "%", &["participacion economica", "economicamente activa", "pea", "empleo", "trabajo", "ocupacion"]),
+    ("censo_educ_media_pct", "Población con educación media o superior (Censo 2018)", "%", &["educacion media", "educacion superior", "nivel educativo", "escolaridad", "diversificado", "universidad"]),
+    ("censo_basura_recolectada_pct", "Hogares con recolección de basura (Censo 2018)", "%", &["basura", "recoleccion de basura", "desechos", "tren de aseo"]),
+    ("censo_vivienda_propia_pct", "Hogares con vivienda propia (Censo 2018)", "%", &["vivienda propia", "tenencia", "tenencia de la vivienda", "casa propia"]),
+    ("censo_propietaria_mujer_pct", "Viviendas propias cuya propietaria es una mujer (Censo 2018)", "%", &["propietaria", "propietarias", "mujeres propietarias", "genero"]),
 ];
 
 pub const TIPOS: &[&str] = &["tarjeta", "barras", "tabla", "mapa", "dispersion", "piramide", "serie", "texto"];

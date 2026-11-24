@@ -40,7 +40,7 @@ pub fn reparar_codificacion(texto: &str) -> std::borrow::Cow<'_, str> {
     std::borrow::Cow::Owned(t)
 }
 
-/// Minúsculas, sin tildes ni signos, espacios colapsados. Conserva la ñ como "n".
+/// Pasa a minúsculas, quita tildes y signos y deja un solo espacio entre palabras. La ñ queda como "n".
 pub fn basico(texto: &str) -> String {
     let sin_tildes: String = reparar_codificacion(texto)
         .nfd()
@@ -74,7 +74,7 @@ pub fn clave(texto: &str) -> String {
         .filter(|f| !f.is_empty() && !VACIAS.contains(f))
         .collect();
     if fichas.is_empty() {
-        base // "La Libertad" no debe quedar vacía si todo fueran palabras vacías
+        base // un nombre hecho solo de palabras vacías ("El", "La") conserva su texto en vez de quedar vacío
     } else {
         fichas.join(" ")
     }

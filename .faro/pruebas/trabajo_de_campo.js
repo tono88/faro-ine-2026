@@ -2,10 +2,11 @@
 // registra visitas con la posición que entrega el dispositivo y una foto, y recibe el enlace a la encuesta.
 // Uso: NO_PROXY=localhost node .faro/pruebas/trabajo_de_campo.js http://localhost:8095 <carpeta>
 // La posición se simula con la geolocalización del navegador de pruebas (no hay GPS en el contenedor).
+// Opcional: dos fotos reales (una vivienda y un comercio) como 4.º y 5.º argumento, para probar el clasificador.
 const { chromium } = require('playwright');
 const { entrar } = require('./_sesion.js');
 (async () => {
-  const base = process.argv[2] || 'http://localhost:8082', dir = process.argv[3] || '.';
+  const base = process.argv[2] || 'http://localhost:8082', dir = process.argv[3] || '.', fotoVivienda = process.argv[4], fotoComercio = process.argv[5];
   const nav = await chromium.launch(); const ctx = await nav.newContext({ viewport: { width: 1536, height: 864 } }); const p = await ctx.newPage();
   const errores = []; p.on('pageerror', e => errores.push('coord: ' + e.message));
   let fallas = 0; const ok = (t, c, extra = '') => { console.log((c ? '  ok  ' : ' FALLA ') + t + (extra ? ' — ' + extra : '')); if (!c) fallas++; };
@@ -36,11 +37,17 @@ const { entrar } = require('./_sesion.js');
   // Visita 1: en el lugar, con foto.
   await o.locator('#campoparadas button[data-visitar]').first().click(); await o.waitForFunction(() => /del punto/.test(document.querySelector('#cvpos').textContent));
   ok('el dispositivo entrega la posición sola', /± 14 m/.test(await o.textContent('#cvpos')), (await o.textContent('#cvpos')).trim());
-  const foto = await o.locator('#campomapa').screenshot(); await o.setInputFiles('#cvfoto', { name: 'fachada.png', mimeType: 'image/png', buffer: foto }); await o.waitForSelector('#cvvista img');
+  if (fotoVivienda) await o.setInputFiles('#cvfoto', fotoVivienda); else await o.setInputFiles('#cvfoto', { name: 'fachada.png', mimeType: 'image/png', buffer: await o.locator('#campomapa').screenshot() });
+  await o.waitForSelector('#cvvista img');
   await o.fill('#cvnotas', 'Vivienda de un nivel.'); await o.click('#cvregistrar'); await o.waitForSelector('#cvresultado .veredicto');
   const v1 = (await o.textContent('#cvresultado')).replace(/\s+/g, ' ').trim(); ok('la visita se registra y se cruza', /Visita n\.º \d+/.test(v1) && /posición a \d+ m del punto/.test(v1), v1.slice(0, 260));
   const enlace = await o.getAttribute('#cvabrir', 'href'); ok('el enlace a la encuesta lleva el lugar, la posición y el número de visita', new RegExp(`lugar=${par[0].lugar}&lat=\\d+\\.\\d{6}&lon=-\\d+\\.\\d{6}&v=\\d+&op=${u}$`).test(enlace), enlace);
+  if (fotoVivienda) ok('la foto de una vivienda cuenta a favor', /la foto parece una vivienda/.test(v1) && /ya se descartó/.test(v1));
   await o.screenshot({ path: `${dir}/102-campo-visita-movil.png` }); await o.click('#campovisita .cerrar');
+  // Con una foto de comercio en el lugar correcto, la visita se marca para revisar.
+  if (fotoComercio) { await o.locator('#campoparadas button[data-visitar]').first().click(); await o.waitForFunction(() => /del punto/.test(document.querySelector('#cvpos').textContent)); await o.setInputFiles('#cvfoto', fotoComercio); await o.waitForSelector('#cvvista img');
+    await o.click('#cvregistrar'); await o.waitForSelector('#cvresultado .veredicto'); const vc = (await o.textContent('#cvresultado')).replace(/\s+/g, ' ');
+    ok('la foto de un comercio marca la visita para revisar', /Conviene revisar/.test(vc) && /parece un comercio/.test(vc), vc.slice(0, 230)); await o.screenshot({ path: `${dir}/102b-campo-foto-comercio.png` }); await o.click('#campovisita .cerrar'); }
   // Visita 2: lejos del punto asignado.
   await ctxOp.setGeolocation({ latitude: par[1].latitud + 0.2, longitude: par[1].longitud, accuracy: 30 });
   await o.locator('#campoparadas button[data-visitar]').nth(1).click(); await o.waitForFunction(() => /del punto/.test(document.querySelector('#cvpos').textContent)); await o.click('#cvregistrar'); await o.waitForSelector('#cvresultado .veredicto.revisar');

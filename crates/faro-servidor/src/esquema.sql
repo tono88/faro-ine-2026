@@ -1,6 +1,7 @@
 -- Esquema de FARO. Se aplica al arrancar (todas las sentencias son idempotentes).
--- La base guarda equivalencias, bitácora y AGREGADOS. Los registros fila por fila quedan
--- en archivos del volumen privado, ya sin nombres ni identificadores directos.
+-- De los envíos de instituciones la base guarda solo equivalencias, pendientes y AGREGADOS; los
+-- registros fila por fila quedan en archivos del volumen privado, ya sin nombres ni identificadores
+-- directos. Además guarda cuentas y sesiones, precios publicados, tableros, bitácora y trabajo de campo.
 
 CREATE TABLE IF NOT EXISTS equivalencias (
     id             BIGSERIAL PRIMARY KEY,
@@ -27,7 +28,7 @@ CREATE TABLE IF NOT EXISTS equivalencias_valor (
     fecha          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Cuentas: usuarios con rol (admin, analista, consulta) y sus sesiones. Las contraseñas se
+-- Cuentas: usuarios con rol (admin, analista, consulta, operador) y sus sesiones. Las contraseñas se
 -- guardan como huella Argon2; de cada sesión solo se guarda la huella de su llave.
 CREATE TABLE IF NOT EXISTS usuarios (
     id             BIGSERIAL PRIMARY KEY,
@@ -193,9 +194,9 @@ ALTER TABLE tableros ALTER COLUMN publico SET DEFAULT FALSE;
 ALTER TABLE hechos ADD COLUMN IF NOT EXISTS corte TEXT NOT NULL DEFAULT '';
 UPDATE hechos SET corte = periodo WHERE corte = '' AND periodo <> '';
 CREATE INDEX IF NOT EXISTS hechos_corte ON hechos (solicitud, corte, envio_id);
--- Envíos vigentes: el más reciente de cada solicitud y corte (AAAA-MM). Un envío
--- cuyos periodos fueron todos enviados de nuevo queda reemplazado: se conserva en el historial,
--- pero ya no cuenta en las estadísticas ni muestra pendientes. Un envío sin conteos por periodo
+-- Envíos vigentes: el más reciente de cada solicitud y corte (AAAA-MM). Un envío cuyos cortes
+-- llegaron todos de nuevo en envíos posteriores queda reemplazado: se conserva en el historial,
+-- pero ya no cuenta en las estadísticas ni muestra pendientes. Un envío sin filas en `hechos`
 -- es vigente solo si es el último de su solicitud.
 CREATE OR REPLACE VIEW envios_vigentes AS
 SELECT e.id FROM envios e
@@ -206,9 +207,10 @@ WHERE e.id IN (SELECT max(envio_id) FROM hechos GROUP BY solicitud, corte)
 -- el envío queda marcado como «analizado con reglas anteriores»: hay que volver a subirlo.
 ALTER TABLE envios ADD COLUMN IF NOT EXISTS reglas TEXT;
 
--- Bitácora de acciones: quién hizo qué y cuándo (publicar un tablero, recibir o borrar un envío,
--- confirmar una equivalencia, cambiar una cuenta, registrar una visita de campo). No guarda datos
--- de los archivos recibidos: solo el nombre de quien actúa, la acción y a qué se aplicó.
+-- Bitácora de acciones: quién hizo qué y cuándo. Se anotan: recibir o borrar un envío, confirmar
+-- una equivalencia de lugar, crear o cambiar una cuenta, publicar o retirar un tablero, crear o
+-- borrar una ruta de campo y registrar una visita. No guarda datos de los archivos recibidos:
+-- solo el nombre de quien actúa, la acción y a qué se aplicó.
 CREATE TABLE IF NOT EXISTS bitacora (
     id      BIGSERIAL PRIMARY KEY,
     cuando  TIMESTAMPTZ NOT NULL DEFAULT now(),

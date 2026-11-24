@@ -37,6 +37,9 @@ struct PuntoIndice {
     nodo: u32,
 }
 
+/// La red vial como grafo. Cada punto de vía es un nodo; `padre` guarda, para cada nodo, el nodo
+/// que identifica a su componente (los nodos unidos entre sí comparten el mismo). `principal` es
+/// el componente con más kilómetros de vía.
 pub struct Red {
     nodos: Vec<Coordenada>,
     padre: Vec<u32>,
@@ -44,6 +47,8 @@ pub struct Red {
     km: Vec<f64>,
     indice: HashMap<(i32, i32), Vec<PuntoIndice>>,
     principal: u32,
+    /// Líneas leídas con dos puntos o más (vías de OpenStreetMap). No es lo mismo que «tramo suelto»,
+    /// que en este módulo es un componente del grafo no unido a la red principal.
     pub tramos: usize,
 }
 
@@ -240,14 +245,15 @@ pub fn clasificar(red: &Red, lugares: &[(String, Coordenada)], p: &Parametros) -
 /// lugar sin camino) y la red principal.
 #[derive(Debug, Clone, Serialize)]
 pub struct Enlace {
-    /// "tramo_suelto" (une un tramo con la red) o "sin_camino" (une un lugar con la vía más cercana).
+    /// Siempre "tramo_suelto": une un tramo desconectado con la red principal. Los lugares sin camino
+    /// no generan enlace; su distancia y su punto de vía más cercano van en `LugarVial`.
     pub tipo: &'static str,
     pub desde_longitud: f64,
     pub desde_latitud: f64,
     pub hasta_longitud: f64,
     pub hasta_latitud: f64,
     pub km: f64,
-    /// Kilómetros de vía que quedarían unidos a la red (0 para un lugar sin camino).
+    /// Kilómetros de vía que quedarían unidos a la red.
     pub tramo_km: f64,
     /// Lugares poblados que dependen de este enlace.
     pub lugares: Vec<String>,

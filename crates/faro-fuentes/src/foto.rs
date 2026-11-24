@@ -10,7 +10,7 @@
 //!
 //! Dos fotos se consideran iguales solo si la forma **y** el color están cerca. Los umbrales se
 //! calibran con pares de productos que tienen el mismo código de barras en dos tiendas
-//! (`faro fotos calibrar`). Es una ayuda para quien revisa: no sustituye al código de barras.
+//! (`faro fotos --pares 300`). Es una ayuda para quien revisa: no sustituye al código de barras.
 use image::{imageops::FilterType, DynamicImage, RgbImage};
 
 /// Huella de una foto: forma (64 bits) y color (cuadrícula 4×4 × RGB).

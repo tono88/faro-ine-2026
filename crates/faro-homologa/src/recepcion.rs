@@ -85,12 +85,15 @@ pub fn seudonimo(sal: &str, valor: &str) -> String {
     h.finalize().iter().take(12).map(|b| format!("{b:02x}")).collect()
 }
 
+/// Recibe un envío: valida la tabla contra la solicitud, homologa las columnas geográficas, lleva
+/// los valores de catálogo cerrado a su forma canónica y arma la salida estándar. Elimina o
+/// seudonimiza las columnas sensibles y junta lo que queda pendiente de decisión.
 /// `sal`: secreto del INE para las llaves; obligatorio si la solicitud seudonimiza columnas.
 pub fn recibir(sol: &Solicitud, tabla: &Tabla, h: &Homologador, sal: Option<&str>) -> Result<Recepcion, String> {
     let (mapa, _) = sol.mapear(&tabla.encabezados);
     let aprendido = |c: &Columna, v: &str| h.memoria.buscar_valor(c.dimension(), v).is_some_and(|d| c.canonico(d).is_some());
     let mut rec = Recepcion { reporte: sol.validar_con(&tabla.encabezados, tabla.filas.iter().cloned(), &aprendido), ..Default::default() };
-    // Columnas de respaldo: índice en el archivo de la primera que exista.
+    // Columnas de país y de respaldo: de cada lista, el índice en el archivo de la primera que exista.
     let normal: Vec<String> = tabla.encabezados.iter().map(|e| crate::normalizar::basico(e)).collect();
     let pais_de = |c: &Columna| c.pais.iter().find_map(|r| normal.iter().position(|e| *e == crate::normalizar::basico(r)));
     let respaldo_de = |c: &Columna| c.respaldo.iter().find_map(|r| normal.iter().position(|e| *e == crate::normalizar::basico(r)));

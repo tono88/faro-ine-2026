@@ -11,10 +11,11 @@ use serde::Serialize;
 pub const CERCA_M: f64 = 1_000.0;
 /// Más allá de esta distancia la visita se marca para revisar.
 pub const LEJOS_M: f64 = 3_000.0;
-/// Confianza mínima para tomar en cuenta lo que dice el clasificador de la foto.
-pub const CONFIANZA_MINIMA: f32 = 0.5;
+/// Confianza mínima para tomar en cuenta lo que dice el clasificador de la foto (la misma que usa
+/// el clasificador para llamar «concluyente» a su resultado).
+pub const CONFIANZA_MINIMA: f32 = faro_fuentes::fachada::PARTE_MINIMA;
 
-/// Distancia en metros entre dos puntos (longitud, latitud) sobre la esfera (fórmula del haversine).
+/// Distancia en metros entre dos puntos (longitud, latitud) sobre la esfera (fórmula del semiverseno).
 pub fn distancia_m(a: (f64, f64), b: (f64, f64)) -> f64 {
     let (lat1, lat2) = (a.1.to_radians(), b.1.to_radians());
     let (dlat, dlon) = (lat2 - lat1, (b.0 - a.0).to_radians());
@@ -147,7 +148,9 @@ pub fn cruzar(e: &Evidencia) -> Cruce {
         Some((clase, confianza)) => match clase.as_str() {
             "vivienda" => a_favor.push(format!("la foto parece una vivienda ({:.0} %)", confianza * 100.0)),
             "comercio" => dudas.push(format!("la foto parece un comercio o un local, no una vivienda ({:.0} %)", confianza * 100.0)),
-            _ => dudas.push(format!("la foto no muestra una vivienda ({:.0} % de otra cosa)", confianza * 100.0)),
+            // Ni vivienda ni comercio: suele ser una calle, un paisaje o una fachada que el modelo no
+            // conoce (una casa colonial le parece una iglesia). No es motivo para dudar de la visita.
+            _ => notas.push("la foto no permite decir si es una vivienda o un comercio".to_string()),
         },
     }
     if e.distancia_m.is_some() && e.hay_satelite {
@@ -212,6 +215,9 @@ mod tests {
         let c = cruzar(&Evidencia { distancia_m: Some(8_400.0), precision_m: Some(20.0), foto: Some(("comercio".into(), 0.71)), construido_ha: Some(30.0), no_residencial_ha: Some(22.0), hay_satelite: true, techo: None });
         assert_eq!((c.coherencia, c.dudas.len()), ("revisar", 3));
         assert!(c.dudas[0].contains("8.4 km"));
+        // Una foto que no es ni vivienda ni comercio no pone en duda la visita.
+        let c = cruzar(&Evidencia { distancia_m: Some(300.0), precision_m: Some(10.0), foto: Some(("otro".into(), 0.91)), construido_ha: Some(4.0), no_residencial_ha: Some(0.0), hay_satelite: true, techo: None });
+        assert_eq!((c.coherencia, c.dudas.len(), c.notas.len()), ("coherente", 0, 1));
         // Una foto dudosa no acusa a nadie: queda como nota.
         let c = cruzar(&Evidencia { distancia_m: Some(1_800.0), precision_m: None, foto: Some(("comercio".into(), 0.31)), construido_ha: Some(1.0), no_residencial_ha: None, hay_satelite: true, techo: None });
         assert_eq!((c.coherencia, c.dudas.len(), c.notas.len()), ("coherente", 0, 2));

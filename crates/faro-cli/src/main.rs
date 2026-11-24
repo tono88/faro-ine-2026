@@ -141,6 +141,22 @@ enum Comando {
         #[arg(long, default_value = "datos/referencia/superficie_construida_municipio.csv")]
         salida: PathBuf,
     },
+    /// Clasifica fotos de fachadas (vivienda, comercio u otro) con el modelo instalado y, si las fotos
+    /// están en subcarpetas `vivienda/` y `comercio/`, cuenta los aciertos. Es la prueba del clasificador.
+    Fachadas {
+        /// Carpeta con las fotos (o con subcarpetas `vivienda/` y `comercio/`).
+        #[arg(long)]
+        fotos: PathBuf,
+        /// Carpeta del modelo (places365_resnet18.onnx y categories_places365.txt).
+        #[arg(long, default_value = "datos/modelos")]
+        modelo: PathBuf,
+        /// Tabla con la fuente de cada foto (columnas archivo, pagina_commons, autor, licencia), para citarla en la salida.
+        #[arg(long)]
+        fuentes: Option<PathBuf>,
+        /// Dónde escribir la tabla de resultados.
+        #[arg(long)]
+        salida: Option<PathBuf>,
+    },
     /// Escribe el documento «Antes y ahora» a partir de datos/estandar/mejoras.json (la misma fuente
     /// que usa la pantalla), para que el portal y el documento digan siempre lo mismo.
     Mejoras {
@@ -444,6 +460,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         Comando::Construido { mosaicos, municipios, salida } => return construido(&mosaicos, &municipios, &salida),
         Comando::UsoSuelo { total, no_residencial, municipios, salida } => return uso_suelo(&total, &no_residencial, &municipios, &salida),
         Comando::Mejoras { entrada, salida } => return mejoras(&entrada, &salida),
+        Comando::Fachadas { fotos, modelo, fuentes, salida } => return fachadas(&fotos, &modelo, fuentes.as_deref(), salida.as_deref()),
         Comando::Precios { cotizaciones, cv_parecidos, salida } => {
             use faro_territorio::precios;
             let p = precios::Parametros { cv_parecidos_pct: cv_parecidos, ..Default::default() };
@@ -615,7 +632,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             // De cada cuadro: hoja municipal, columnas que se toman (nombre de salida, posición, palabra
             // que debe traer su encabezado). Si el INE cambia el orden de un cuadro, el proceso se detiene.
             type Columna = (&'static str, usize, &'static str);
-            let cuadros_usados: [(&str, &str, &[Columna]); 8] = [
+            let cuadros_usados: [(&str, &str, &[Columna]); 12] = [
                 ("cuadro-a11-", "A11_2", &[("poblacion_7_o_mas", 4, "poblacion de 7"), ("alfabetas_hombres", 7, "hombres"), ("alfabetas_mujeres", 8, "mujeres"), ("asiste_a_estudiar", 9, "asiste")]),
                 ("cuadro-a12-", "A12_2", &[("usa_celular", 5, "usa"), ("usa_computadora", 8, "usa"), ("usa_internet", 11, "usa")]),
                 ("cuadro-a5-", "A5_2", &[("poblacion_censada", 4, "poblacion total"), ("pueblo_maya", 5, "maya"), ("pueblo_garifuna", 6, "garifuna"), ("pueblo_xinka", 7, "xinka"), ("pueblo_ladino", 9, "ladina")]),
@@ -624,6 +641,10 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
                 ("cuadro-b4-", "B4_2", &[("alumbrado_red_electrica", 5, "red de energia"), ("cocina_con_lena", 11, "lena")]),
                 ("cuadro-c2-", "C2_2", &[("viviendas_particulares", 4, "total de viviendas"), ("pared_block", 6, "block"), ("pared_adobe", 8, "adobe"), ("techo_concreto", 16, "concreto"), ("techo_lamina", 17, "lamina"), ("techo_asbesto_cemento", 18, "asbesto"), ("techo_teja", 19, "teja"), ("techo_paja_palma", 20, "paja"), ("techo_desecho", 21, "desecho")]),
                 ("cuadro-c3-", "C3_2", &[("viviendas_con_piso_declarado", 4, "total de viviendas"), ("piso_tierra", 11, "tierra")]),
+                ("cuadro-a13-", "A13_2", &[("poblacion_15_o_mas", 4, "15 anos"), ("pea", 5, "economicamente activa"), ("pea_ocupada", 6, "ocupada")]),
+                ("cuadro-a9-", "A9_2", &[("poblacion_4_o_mas", 4, "4 anos"), ("educ_ninguno", 5, "ninguno"), ("educ_basico", 10, "basico"), ("educ_diversificado", 11, "diversificado"), ("educ_licenciatura", 12, "licenciatura"), ("educ_posgrado", 13, "maestria")]),
+                ("cuadro-b6-", "B6_2", &[("hogares_basura", 4, "total de hogares"), ("basura_servicio_municipal", 5, "servicio municipal"), ("basura_servicio_privado", 6, "servicio privado"), ("basura_la_queman", 7, "queman")]),
+                ("cuadro-b1-", "B1_2", &[("hogares_tenencia", 4, "total de hogares"), ("vivienda_propia", 5, "propia"), ("vivienda_alquilada", 6, "alquilada"), ("propietario_hombre", 10, "hombre"), ("propietaria_mujer", 11, "mujer"), ("propietarios_ambos", 12, "ambos")]),
             ];
             let archivo = |trozo: &str| -> Result<PathBuf, String> {
                 std::fs::read_dir(&cuadros).map_err(|e| format!("{}: {e}", cuadros.display()))?.flatten().map(|x| x.path()).find(|p| p.file_name().and_then(|n| n.to_str()).is_some_and(|n| n.contains(trozo))).ok_or(format!("falta el cuadro {trozo} en {}", cuadros.display()))
@@ -671,6 +692,13 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
                 100.0 * (total("alfabetas_hombres") + total("alfabetas_mujeres")) as f64 / total("poblacion_7_o_mas") as f64, 100.0 * total("usa_internet") as f64 / total("poblacion_7_o_mas") as f64,
                 100.0 * total("agua_tuberia_en_vivienda") as f64 / total("hogares") as f64, 100.0 * total("sanitario_con_drenaje") as f64 / total("hogares") as f64, 100.0 * total("alumbrado_red_electrica") as f64 / total("hogares") as f64,
                 100.0 * total("cocina_con_lena") as f64 / total("hogares") as f64, 100.0 * total("techo_lamina") as f64 / total("viviendas_particulares") as f64, 100.0 * total("piso_tierra") as f64 / total("viviendas_con_piso_declarado") as f64, 100.0 * total("pueblo_maya") as f64 / total("poblacion_censada") as f64);
+            println!("País: participación económica {:.1} % · educación media o superior {:.1} % · basura recolectada {:.1} % · vivienda propia {:.1} % · propietaria mujer {:.1} % de las viviendas propias",
+                100.0 * total("pea") as f64 / total("poblacion_15_o_mas") as f64, 100.0 * (total("educ_basico") + total("educ_diversificado") + total("educ_licenciatura") + total("educ_posgrado")) as f64 / total("poblacion_4_o_mas") as f64,
+                100.0 * (total("basura_servicio_municipal") + total("basura_servicio_privado")) as f64 / total("hogares_basura") as f64, 100.0 * total("vivienda_propia") as f64 / total("hogares_tenencia") as f64, 100.0 * total("propietaria_mujer") as f64 / total("vivienda_propia") as f64);
+            // Los cuadros de hogares deben contar los mismos hogares: si no, se mezclaron versiones del censo.
+            if total("hogares") != total("hogares_basura") || total("hogares") != total("hogares_tenencia") {
+                return Err(format!("los cuadros B1, B2 y B6 no suman los mismos hogares ({}, {}, {})", total("hogares_tenencia"), total("hogares"), total("hogares_basura")));
+            }
             // Material del techo por lugar poblado (misma estructura, hoja de lugares).
             let columnas_techo: &[Columna] = &[("viviendas_particulares", 6, "total de viviendas"), ("techo_concreto", 18, "concreto"), ("techo_lamina", 19, "lamina"), ("techo_asbesto_cemento", 20, "asbesto"), ("techo_teja", 21, "teja"), ("techo_paja_palma", 22, "paja"), ("techo_desecho", 23, "desecho")];
             let lugares = leer("cuadro-c2-", "C2_3", columnas_techo, 7)?;
@@ -760,7 +788,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Comando::Verificar { .. } | Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::UsoSuelo { .. } | Comando::Mejoras { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
+        Comando::Verificar { .. } | Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::UsoSuelo { .. } | Comando::Mejoras { .. } | Comando::Fachadas { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
     }
 }
 
@@ -1195,6 +1223,65 @@ fn construido(dir: &Path, ruta_municipios: &Path, salida: &Path) -> Result<ExitC
     Ok(ExitCode::SUCCESS)
 }
 
+/// Prueba del clasificador de fachadas sobre una carpeta de fotos. Con subcarpetas `vivienda/` y
+/// `comercio/` se sabe qué se esperaba de cada una y se cuentan aciertos, errores y no concluyentes.
+fn fachadas(fotos: &Path, modelo: &Path, fuentes: Option<&Path>, salida: Option<&Path>) -> Result<ExitCode, String> {
+    use faro_fuentes::fachada::{Clasificador, PARTE_MINIMA};
+    let clasificador = Clasificador::cargar(modelo)?;
+    // Fuente de cada foto, si se dio la tabla: nombre de archivo -> (página, autor, licencia).
+    let mut cita: std::collections::HashMap<String, (String, String, String)> = std::collections::HashMap::new();
+    if let Some(ruta) = fuentes {
+        for f in csv::Reader::from_path(ruta).map_err(|e| format!("{}: {e}", ruta.display()))?.deserialize::<std::collections::HashMap<String, String>>().flatten() {
+            let nombre = f.get("archivo").map(|a| a.rsplit('/').next().unwrap_or(a).to_string()).unwrap_or_default();
+            cita.insert(nombre, (f.get("pagina_commons").cloned().unwrap_or_default(), f.get("autor").cloned().unwrap_or_default(), f.get("licencia").cloned().unwrap_or_default()));
+        }
+    }
+    let es_foto = |p: &Path| p.extension().and_then(|e| e.to_str()).is_some_and(|e| matches!(e.to_lowercase().as_str(), "jpg" | "jpeg" | "png" | "webp"));
+    let listar = |dir: &Path| -> Vec<PathBuf> { let mut v: Vec<PathBuf> = std::fs::read_dir(dir).into_iter().flatten().flatten().map(|e| e.path()).filter(|p| es_foto(p)).collect(); v.sort(); v };
+    let mut grupos: Vec<(&str, Vec<PathBuf>)> = [("vivienda", fotos.join("vivienda")), ("comercio", fotos.join("comercio"))].into_iter().map(|(g, d)| (g, listar(&d))).filter(|(_, v)| !v.is_empty()).collect();
+    if grupos.is_empty() {
+        grupos.push(("", listar(fotos)));
+    }
+    if grupos.iter().all(|(_, v)| v.is_empty()) {
+        return Err(format!("{}: no hay fotos (jpg, png o webp)", fotos.display()));
+    }
+    let mut filas: Vec<Vec<String>> = Vec::new();
+    let (mut aciertos, mut errores, mut dudosas, mut ms_total) = (0, 0, 0, 0.0);
+    println!("{:<10} {:<44} {:<10} {:>6}  escenas más probables", "esperado", "foto", "resultado", "conf.");
+    for (esperado, rutas) in &grupos {
+        for ruta in rutas {
+            let bytes = std::fs::read(ruta).map_err(|e| format!("{}: {e}", ruta.display()))?;
+            let inicio = std::time::Instant::now();
+            let r = clasificador.clasificar(&bytes).map_err(|e| format!("{}: {e}", ruta.display()))?;
+            ms_total += inicio.elapsed().as_secs_f64() * 1000.0;
+            // Concluyente: dice vivienda o comercio con la parte mínima de la probabilidad.
+            let concluyente = r.clase != "otro" && r.confianza >= PARTE_MINIMA;
+            let veredicto = if !concluyente { "no concluyente" } else if esperado.is_empty() { "" } else if r.clase == *esperado { "acierto" } else { "error" };
+            match veredicto { "acierto" => aciertos += 1, "error" => errores += 1, "no concluyente" => dudosas += 1, _ => {} }
+            let nombre = ruta.file_name().and_then(|n| n.to_str()).unwrap_or("").to_string();
+            let escenas = r.escenas.iter().map(|(n, p)| format!("{n} {:.0} %", p * 100.0)).collect::<Vec<_>>().join("; ");
+            println!("{:<10} {:<44} {:<10} {:>5.0}%  {escenas}  {veredicto}", esperado, nombre.chars().take(44).collect::<String>(), r.clase, r.confianza * 100.0);
+            let (pagina, autor, licencia) = cita.get(&nombre).cloned().unwrap_or_default();
+            filas.push(vec![esperado.to_string(), nombre, r.clase.clone(), format!("{:.3}", r.confianza), format!("{:.4}", r.p_vivienda), format!("{:.4}", r.p_comercio), escenas, veredicto.to_string(), pagina, autor, licencia]);
+        }
+    }
+    let n = filas.len();
+    println!("\n{n} fotos · {:.0} ms por foto en esta máquina", ms_total / n as f64);
+    if grupos[0].0 != "" {
+        println!("Aciertos {aciertos} · errores {errores} · no concluyentes {dudosas} (una foto no concluyente no pone en duda la visita)");
+    }
+    if let Some(ruta) = salida {
+        let mut w = csv::Writer::from_path(ruta).map_err(|e| format!("{}: {e}", ruta.display()))?;
+        w.write_record(["esperado", "foto", "clase", "confianza", "p_vivienda", "p_comercio", "escenas", "veredicto", "pagina_de_la_foto", "autor", "licencia_de_la_foto"]).map_err(|e| e.to_string())?;
+        for f in &filas {
+            w.write_record(f).map_err(|e| e.to_string())?;
+        }
+        w.flush().map_err(|e| e.to_string())?;
+        println!("Tabla en {}", ruta.display());
+    }
+    Ok(ExitCode::SUCCESS)
+}
+
 /// Documento «Antes y ahora»: una tabla por área con lo que se tenía, lo que hace FARO y cómo escala.
 fn mejoras(entrada: &Path, salida: &Path) -> Result<ExitCode, String> {
     let d: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(entrada).map_err(|e| format!("{}: {e}", entrada.display()))?).map_err(|e| format!("{}: {e}", entrada.display()))?;
@@ -1481,9 +1568,9 @@ fn vial(catalogo: &Catalogo, carreteras: &Path, p: faro_territorio::vial::Parame
         w.write_record([format!("{:.5}", e.desde_longitud), format!("{:.5}", e.desde_latitud), format!("{:.5}", e.hasta_longitud), format!("{:.5}", e.hasta_latitud), format!("{:.3}", e.km), format!("{:.2}", e.tramo_km), e.lugares.join("|")]).map_err(texto)?;
     }
     w.flush().map_err(|e| e.to_string())?;
-    // Caminos ya mapeados alrededor de cada enlace propuesto (1.5 km), para verlos en el mapa:
+    // Caminos ya mapeados alrededor de cada enlace propuesto (0.015°, unos 1.6 km), para verlos en el mapa:
     // los de la red principal y los del tramo suelto que el enlace uniría.
-    let radio = 0.015; // grados, ≈ 1.6 km
+    let radio = 0.015; // grados
     let extremos: Vec<(f64, f64)> = enlaces.iter().flat_map(|e| [(e.desde_longitud, e.desde_latitud), (e.hasta_longitud, e.hasta_latitud)]).collect();
     let cerca = |p: &(f64, f64)| extremos.iter().any(|q| (p.0 - q.0).abs() <= radio && (p.1 - q.1).abs() <= radio);
     let mut tramos: Vec<serde_json::Value> = Vec::new();
@@ -1719,7 +1806,8 @@ fn verificar(dir: &std::path::Path, salida: &std::path::Path) -> Result<bool, St
             }
             d80 += usize::from(error <= c.proyeccion_margen_80);
             d95 += usize::from(error <= c.proyeccion_margen);
-            // Lo que cubría el margen anterior (solo el error del ajuste, con factor 2).
+            // Para comparar: cuántas veces lo observado cae dentro de un margen calculado solo con el error
+    // del ajuste × 2, sin el piso del error observado que usa `crecimiento::analizar`.
             let ajuste = { let m: f64 = base.len() as f64; let mx = base.iter().map(|p| p.anio as f64).sum::<f64>() / m; let my = base.iter().map(|p| p.edificaciones).sum::<f64>() / m; let sxx: f64 = base.iter().map(|p| (p.anio as f64 - mx).powi(2)).sum(); let b = base.iter().map(|p| (p.anio as f64 - mx) * (p.edificaciones - my)).sum::<f64>() / sxx; let res: f64 = base.iter().map(|p| (p.edificaciones - (my + b * (p.anio as f64 - mx))).powi(2)).sum(); 2.0 * (res / (m - 2.0)).sqrt() * (1.0 + 1.0 / m + (objetivo as f64 - mx).powi(2) / sxx).sqrt() };
             dentro_ajuste += usize::from(error <= ajuste);
         }

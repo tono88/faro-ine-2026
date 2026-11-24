@@ -1,6 +1,7 @@
 //! FARO · fuentes: descubrir y descargar datos abiertos dejando constancia de dónde,
 //! cuándo y con qué huella se obtuvo cada archivo (lineamiento: citar fuente y fecha de descarga).
 pub mod ckan;
+pub mod fachada;
 pub mod foto;
 pub mod muestreo;
 pub mod procedencia;

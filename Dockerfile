@@ -17,6 +17,8 @@ COPY datos/estandar ./datos/estandar
 COPY datos/referencia ./datos/referencia
 COPY datos/catalogo_precios ./datos/catalogo_precios
 COPY datos/ejemplos ./datos/ejemplos
+# Modelo del clasificador de fotos de fachada (45 MB; procedencia en datos/modelos/PROCEDENCIA.md).
+COPY datos/modelos ./datos/modelos
 COPY scripts ./scripts
 RUN mkdir -p /app/datos/privado && chown -R faro /app/datos
 USER faro

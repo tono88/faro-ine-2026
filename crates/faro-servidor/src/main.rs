@@ -355,9 +355,9 @@ async fn seguridad(pedido: axum::extract::Request, siguiente: axum::middleware::
     respuesta
 }
 
-/// Las operaciones que cambian datos exigen el token cuando está configurado.
-/// Quién hace la operación. Las operaciones que cambian datos exigen una sesión de analista o
-/// administrador; la clave de servicio (FARO_TOKEN) queda para procesos automáticos.
+/// Devuelve quién hace la operación. Las operaciones que cambian datos exigen una sesión de
+/// analista o administrador que ya cambió su contraseña inicial. La clave de servicio
+/// (FARO_TOKEN, cabecera `x-faro-token`) queda para procesos automáticos y actúa como analista.
 async fn autorizar(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
     if let Some(s) = sesion_de(e, cabeceras).await? {
         if s.debe_cambiar {
@@ -496,7 +496,7 @@ async fn api_envio_borrar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabe
     if n == 0 {
         return Err(pedido("no existe ese envío"));
     }
-    eprintln!("envío {id} eliminado por {}", quien.nombre);
+    bitacora(&e, &quien.nombre, "envio_borrado", &format!("envío n.º {id}")).await;
     Ok(Json(json!({ "borrado": true })))
 }
 
@@ -523,7 +523,7 @@ fn agregar(rec: &Recepcion, corte: &[String]) -> BTreeMap<(String, String, Strin
 }
 
 async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap, mut partes: Multipart) -> Res<Json<Value>> {
-    autorizar_en(&e, &cabeceras, "recibir").await?;
+    let quien = autorizar_en(&e, &cabeceras, "recibir").await?;
     let sol = solicitudes(&e).map_err(interno)?.into_iter().find(|s| s.id == id).ok_or_else(|| pedido(format!("no existe la solicitud {id}")))?;
     let mut archivo = None;
     while let Some(parte) = partes.next_field().await.map_err(pedido)? {
@@ -616,6 +616,8 @@ async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabecer
     .await
     .map_err(interno)?
     .map_err(interno)?;
+    // En la bitácora va el nombre del archivo y el número de filas; nunca su contenido.
+    bitacora(&e, &quien.nombre, "envio_recibido", &format!("envío n.º {envio} de {}: {nombre}", sol.id)).await;
     Ok(Json(json!({ "envio": envio, "solicitud": sol.id, "archivo": nombre, "porcentaje_resuelto": rec.porcentaje_resuelto(), "recepcion": rec })))
 }
 
@@ -662,7 +664,8 @@ struct Confirmacion {
 }
 
 async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c): Json<Confirmacion>) -> Res<Json<Value>> {
-    // En la bitácora queda quien inició sesión, no un nombre escrito a mano.
+    // La equivalencia se guarda a nombre de quien inició sesión (columna `confirmado_por`), no del
+    // nombre que venga en el pedido. Solo la clave de servicio puede indicar otro nombre.
     let quien = autorizar_en(&e, &cabeceras, "pendientes").await?;
     let mut c = c;
     if quien.id != 0 || c.usuario.trim().is_empty() {
@@ -711,6 +714,7 @@ async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c
     .await
     .map_err(interno)?;
     let n = e.bd.execute("UPDATE pendientes SET resuelto = TRUE WHERE NOT resuelto AND nivel = $1 AND contexto = $2 AND valor = $3", &[&nivel, &c.contexto, &c.valor]).await.map_err(interno)?;
+    bitacora(&e, &c.usuario, "equivalencia_confirmada", &format!("{nivel} -> {} ({n} pendientes resueltos)", lugar.codigo)).await;
     Ok(Json(json!({ "grabado": true, "codigo": lugar.codigo, "nombre": lugar.nombre, "pendientes_resueltos": n })))
 }
 
@@ -739,7 +743,7 @@ async fn api_hechos(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Js
     let (exacto, umbral) = (ve_conteos_exactos(&e, &cabeceras).await, umbral_de_celda());
     // Una celda de 1 a (umbral − 1) no se publica; tampoco su complemento, que la delataría por resta.
     let chica = |n: Option<i64>| !exacto && n.is_some_and(|n| n > 0 && n < umbral);
-    // Solo el envío más reciente de cada solicitud y periodo, para no contar dos veces un reenvío.
+    // Solo el envío más reciente de cada solicitud y corte (mes de registro), para no contar dos veces un reenvío.
     let filas = e
         .bd
         .query(
@@ -1033,15 +1037,12 @@ fn cargar_vial(dir: &std::path::Path, catalogo: &Catalogo) -> Result<Value, Stri
     }))
 }
 
-/// Prepara las capas geográficas: municipios con sus indicadores, enlaces viales probables y
-/// lugares sin conexión. Si falta un insumo, esa capa simplemente no se publica.
-/// Censo 2018 por lugar poblado (`faro censo-lugares`): código -> cifras, en el orden de las columnas.
+/// Censo 2018 por lugar poblado (`faro censo-lugares`): código -> cifras, en el orden de las columnas del CSV.
 fn leer_censo_lugar(dir: &std::path::Path) -> HashMap<String, Vec<i64>> {
     let Ok(mut lector) = csv::Reader::from_path(dir.join("censo2018_lugar_poblado.csv")) else { return HashMap::new() };
     lector.records().flatten().filter_map(|f| Some((f.get(0)?.to_string(), f.iter().skip(1).map(|c| c.parse().unwrap_or(0)).collect()))).collect()
 }
 
-/// Indicadores del Censo 2018 por municipio (`faro censo-indicadores`): código -> cifra -> valor.
 /// Techo más frecuente en cada lugar poblado (Censo 2018, cuadro C2): código -> (material, % de las viviendas).
 fn leer_techo_lugar(dir: &std::path::Path) -> HashMap<String, (String, f64)> {
     const MATERIALES: [(&str, &str); 6] = [("techo_concreto", "concreto"), ("techo_lamina", "lámina metálica"), ("techo_asbesto_cemento", "asbesto cemento"), ("techo_teja", "teja"), ("techo_paja_palma", "paja o palma"), ("techo_desecho", "material de desecho")];
@@ -1054,11 +1055,15 @@ fn leer_techo_lugar(dir: &std::path::Path) -> HashMap<String, (String, f64)> {
     }).collect()
 }
 
+/// Indicadores del Censo 2018 por municipio (`faro censo-indicadores`): código -> cifra -> valor.
 fn leer_censo_indicadores(dir: &std::path::Path) -> HashMap<String, HashMap<String, f64>> {
     let Ok(mut lector) = csv::Reader::from_path(dir.join("censo2018_indicadores_municipio.csv")) else { return HashMap::new() };
     lector.deserialize::<HashMap<String, String>>().flatten().filter_map(|f| Some((f.get("municipio")?.clone(), f.iter().filter_map(|(k, v)| Some((k.clone(), v.parse().ok()?))).collect()))).collect()
 }
 
+/// Prepara lo que se publica en `/capas`: municipios con sus indicadores, enlaces viales probables,
+/// lugares sin conexión, lugares poblados y las tablas CSV de referencia. Si falta un archivo de
+/// entrada, esa capa no se publica. Devuelve las capas y su catálogo (título, fuente, licencia).
 fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion, vial: &Value, construido: &BTreeMap<String, Vec<faro_territorio::Punto>>, construccion: &Construccion, cif: &[HashMap<String, String>], talla: &HashMap<String, HashMap<String, String>>) -> (HashMap<String, (&'static str, String)>, Vec<Value>) {
     const GEOJSON: &str = "application/geo+json; charset=utf-8";
     let mut capas = HashMap::new();
@@ -1137,6 +1142,12 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
                 p["censo_techo_concreto_pct"] = json!(pct(v("techo_concreto"), v("viviendas_particulares")));
                 p["censo_piso_tierra_pct"] = json!(pct(v("piso_tierra"), v("viviendas_con_piso_declarado")));
                 p["censo_maya_pct"] = json!(pct(v("pueblo_maya"), v("poblacion_censada")));
+                p["censo_pea_pct"] = json!(pct(v("pea"), v("poblacion_15_o_mas")));
+                p["censo_educ_media_pct"] = json!(pct(v("educ_basico") + v("educ_diversificado") + v("educ_licenciatura") + v("educ_posgrado"), v("poblacion_4_o_mas")));
+                p["censo_basura_recolectada_pct"] = json!(pct(v("basura_servicio_municipal") + v("basura_servicio_privado"), v("hogares")));
+                p["censo_vivienda_propia_pct"] = json!(pct(v("vivienda_propia"), v("hogares")));
+                p["censo_propietaria_mujer_pct"] = json!(pct(v("propietaria_mujer"), v("vivienda_propia")));
+                (p["censo_pob15"], p["censo_pob4"], p["censo_viviendas_propias"]) = (json!(v("poblacion_15_o_mas")), json!(v("poblacion_4_o_mas")), json!(v("vivienda_propia")));
                 (p["censo_pob7"], p["censo_hogares"], p["censo_viviendas"], p["censo_viviendas_piso"], p["censo_poblacion"]) = (json!(v("poblacion_7_o_mas")), json!(v("hogares")), json!(v("viviendas_particulares")), json!(v("viviendas_con_piso_declarado")), json!(v("poblacion_censada")));
             }
             p["proveedores_construccion"] = json!(construccion.proveedores.iter().filter(|x| x.get("municipio_codigo").map(String::as_str) == Some(codigo.as_str())).count());
@@ -1183,7 +1194,7 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
         ("cif_departamentos.csv", "text/csv; charset=utf-8", "Inseguridad alimentaria aguda por departamento (CIF), octubre 2026 – febrero 2027", "Personas en cada fase de la CIF, fase del área y Fase 3 o superior, con código INE del departamento.", "SESAN y Grupo Técnico de la CIF Guatemala, actualización publicada el 19-nov-2026 y corregida el 20-nov-2026.", "publicación oficial; cite la fuente"),
         ("departamentos.geojson", GEOJSON, "Departamentos", "22 departamentos con código INE, para mapas a menor detalle.", "CONRED / OCHA (COD-AB Guatemala).", "CC BY-IGO"),
         ("red_vial_contexto.geojson", GEOJSON, "Caminos mapeados alrededor de los enlaces probables", "Tramos de camino a 1.5 km de cada enlace propuesto; indica si pertenecen a la red principal o a un tramo suelto.", "© colaboradores de OpenStreetMap (HOT/HDX), corte del 3-nov-2026.", "ODbL 1.0"),
-        ("censo2018_indicadores_municipio.csv", "text/csv; charset=utf-8", "Condiciones de vida por municipio, Censo 2018", "Alfabetismo, uso de celular, computadora e internet, pueblo de pertenencia, agua, servicio sanitario, alumbrado, combustible para cocinar y materiales de pared, techo y piso: conteos con su denominador, por municipio.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadros A5, A11, A12, B2, B3, B4, C2 y C3).", "datos abiertos del INE; cite la fuente"),
+        ("censo2018_indicadores_municipio.csv", "text/csv; charset=utf-8", "Condiciones de vida por municipio, Censo 2018", "Alfabetismo, nivel educativo, actividad económica, uso de celular, computadora e internet, pueblo de pertenencia, agua, servicio sanitario, alumbrado, combustible para cocinar, eliminación de la basura, tenencia de la vivienda y materiales de pared, techo y piso: conteos con su denominador, por municipio.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadros A5, A9, A11, A12, A13, B1, B2, B3, B4, B6, C2 y C3).", "datos abiertos del INE; cite la fuente"),
         ("censo2018_techos_lugar_poblado.csv", "text/csv; charset=utf-8", "Material del techo por lugar poblado, Censo 2018", "Viviendas particulares por material predominante del techo (concreto, lámina, asbesto cemento, teja, paja o palma, desecho) en cada lugar poblado.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadro C2).", "datos abiertos del INE; cite la fuente"),
         ("uso_construido_municipio.csv", "text/csv; charset=utf-8", "Superficie construida residencial y no residencial por municipio, 2000 y 2020", "Hectáreas construidas, no residenciales y residenciales, y porcentaje no residencial, con código INE del municipio.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A (capa total y componente NRES).", "CC BY 4.0"),
         ("uso_construido_bloques.csv", "text/csv; charset=utf-8", "Uso del suelo construido en bloques de 1 km, 2020", "Hectáreas construidas y hectáreas no residenciales por bloque de 1 km, con el municipio al que pertenece.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A (capa total y componente NRES).", "CC BY 4.0"),
@@ -1477,15 +1488,16 @@ async fn api_reproducir_poblacion(State(e): State<Compartido>, cabeceras: Header
 /// Nombre con que se guardan los precios del levantamiento que viene con el sistema.
 const LEVANTAMIENTO: &str = "levantamiento-inicial";
 
-/// Carga una sola vez el levantamiento de precios publicados que viene con el sistema
+/// Carga el levantamiento de precios publicados que viene con el sistema
 /// (`datos/referencia/precios_publicados.csv`), con la fecha en que se consultó cada precio.
+/// Si la base ya tiene tantas filas como el CSV, no hace nada; si no, borra lo cargado y lo carga de nuevo.
 async fn sembrar_precios(bd: &Client, ruta: &std::path::Path) -> Result<usize, String> {
     if !ruta.exists() {
         return Ok(0);
     }
     let filas: Vec<HashMap<String, String>> = csv::Reader::from_path(ruta).map_err(|e| e.to_string())?.deserialize().collect::<Result<_, _>>().map_err(|e| e.to_string())?;
     let filas: Vec<&HashMap<String, String>> = filas.iter().filter(|f| f.get("precio_q").is_some_and(|p| p.parse::<f64>().is_ok_and(|x| x > 0.0)) && f.get("fecha_consulta").is_some_and(|d| d.len() == 10)).collect();
-    // Si la tabla del sistema cambió (una versión nueva trae un levantamiento más amplio), se reemplaza.
+    // El cambio se detecta solo por el número de filas: un CSV corregido con las mismas filas no se recarga.
     let cargadas: i64 = bd.query_one("SELECT count(*) FROM precios_observados WHERE tarea = $1", &[&LEVANTAMIENTO]).await.map_err(|e| e.to_string())?.get(0);
     if cargadas == filas.len() as i64 {
         return Ok(0);
@@ -1710,7 +1722,7 @@ async fn api_informe_precio(State(e): State<Compartido>, cabeceras: HeaderMap, Q
     if palabras.is_empty() {
         return Err(pedido("escriba el producto: el informe se hace sobre una búsqueda concreta"));
     }
-    // Productos que la persona apartó por no ser comparables (direcciones separadas por coma).
+    // Productos que la persona apartó por no ser comparables (parámetro `sin`: direcciones separadas por «|»).
     let excluidos: Vec<String> = q.get("sin").map(|t| t.split('|').filter(|u| !u.is_empty()).map(String::from).collect()).unwrap_or_default();
     let filas = e.bd.query(
         "SELECT proveedor, producto, marca, precio, ean, url, to_char(observado, 'YYYY-MM-DD'), imagen FROM
@@ -1942,8 +1954,7 @@ async fn api_canasta(State(e): State<Compartido>) -> Res<Json<Value>> {
 // Ficha de municipio, plantillas, tabla de códigos y procedimientos descargables
 // ---------------------------------------------------------------------------------------------
 
-/// Todo lo que FARO sabe de un municipio, para la ficha del mapa y el reporte.
-/// Censo 2018 de un municipio, sumando sus lugares poblados, y sus lugares más grandes.
+/// Censo 2018 de un municipio: suma de sus lugares poblados y sus lugares más grandes.
 fn censo_del_municipio(e: &Estado, codigo: &str) -> Option<Value> {
     let lugares: Vec<(&faro_homologa::catalogo::Lugar, &Vec<i64>)> = e.catalogo.de_nivel(Nivel::LugarPoblado, Some(codigo)).filter_map(|l| Some((l, e.censo_lugar.get(&l.codigo)?))).collect();
     if lugares.is_empty() {
@@ -1956,6 +1967,7 @@ fn censo_del_municipio(e: &Estado, codigo: &str) -> Option<Value> {
         "mayores": mayores.iter().take(8).map(|(l, c)| json!({ "codigo": l.codigo, "nombre": l.nombre, "poblacion": c[0], "hogares": c[8], "viviendas": c[9] })).collect::<Vec<_>>() }))
 }
 
+/// Todo lo que FARO sabe de un municipio, para la ficha del mapa y el reporte.
 async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     let (exacto, umbral) = (ve_conteos_exactos(&e, &cabeceras).await, umbral_de_celda());
     let l = e.catalogo.por_codigo(&codigo).filter(|l| l.nivel == Nivel::Municipio).ok_or_else(|| pedido(format!("{codigo} no es un municipio")))?;
@@ -2087,7 +2099,7 @@ struct Sesion {
     nombre: String,
     rol: String,
     debe_cambiar: bool,
-    /// Secciones del portal que su grupo puede usar; vacío = todas las que su rol permite.
+    /// Secciones del portal que su grupo puede usar. `None` (usuario sin grupo) = todas las que su rol permite.
     secciones: Option<Vec<String>>,
 }
 
@@ -2169,8 +2181,9 @@ async fn api_ingresar(State(e): State<Compartido>, Json(i): Json<Ingreso>) -> Re
         return Err(Fallo(StatusCode::TOO_MANY_REQUESTS, format!("demasiados intentos fallidos: espere {} segundos", espera.as_secs() + 1)));
     }
     let (clave, guardada) = (i.clave.clone(), f.as_ref().map(|f| f.get::<_, String>(5)));
-    // Verificar cuesta lo mismo exista o no el usuario; solo tres verificaciones a la vez para que
-    // una ráfaga de intentos no agote la memoria.
+    // Si el usuario no existe no se calcula Argon2 y la respuesta sale antes; la pausa tras un fallo
+    // solo lo disimula en parte. Como máximo tres verificaciones a la vez, para que una ráfaga de
+    // intentos no agote la memoria.
     let _turno = ARGON.acquire().await.map_err(interno)?;
     let bien = tokio::task::spawn_blocking(move || guardada.is_some_and(|g| clave_correcta(&clave, &g))).await.map_err(interno)?;
     drop(_turno);
@@ -2273,7 +2286,7 @@ struct UsuarioNuevo {
 }
 
 async fn api_usuario_crear(State(e): State<Compartido>, cabeceras: HeaderMap, Json(u): Json<UsuarioNuevo>) -> Res<Json<Value>> {
-    solo_admin(&e, &cabeceras).await?;
+    let admin = solo_admin(&e, &cabeceras).await?;
     let usuario = u.usuario.trim().to_lowercase();
     if usuario.len() < 3 || !usuario.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-')) {
         return Err(pedido("el usuario debe tener al menos 3 caracteres: letras sin tilde, números, punto, guion o guion bajo"));
@@ -2288,6 +2301,7 @@ async fn api_usuario_crear(State(e): State<Compartido>, cabeceras: HeaderMap, Js
     if n == 0 {
         return Err(pedido(format!("ya existe el usuario {usuario}")));
     }
+    bitacora(&e, &admin.nombre, "cuenta_creada", &format!("{usuario} ({})", u.rol)).await;
     Ok(Json(json!({ "creado": usuario })))
 }
 
@@ -2305,7 +2319,7 @@ async fn api_usuario_cambiar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, c
     let admin = solo_admin(&e, &cabeceras).await?;
     let actual = e.bd.query_opt("SELECT rol, activo FROM usuarios WHERE id = $1", &[&id]).await.map_err(interno)?.ok_or_else(|| pedido("no existe ese usuario"))?;
     if c.rol.as_deref().is_some_and(|r| !ROLES.contains(&r)) {
-        return Err(pedido("rol no válido: admin, analista o consulta"));
+        return Err(pedido("rol no válido: admin, analista, consulta u operador"));
     }
     // Nunca se queda el sistema sin un administrador activo.
     let deja_de_ser_admin = actual.get::<_, String>(0) == "admin" && actual.get::<_, bool>(1) && (c.rol.as_deref().is_some_and(|r| r != "admin") || c.activo == Some(false));
@@ -2341,6 +2355,7 @@ async fn api_usuario_cambiar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, c
         e.bd.execute("UPDATE usuarios SET clave = $1, debe_cambiar = TRUE WHERE id = $2", &[&huella, &id]).await.map_err(interno)?;
         e.bd.execute("DELETE FROM sesiones WHERE usuario_id = $1", &[&id]).await.map_err(interno)?;
     }
+    bitacora(&e, &admin.nombre, "cuenta_cambiada", &format!("usuario n.º {id}")).await;
     Ok(Json(json!({ "guardado": true })))
 }
 
@@ -2421,8 +2436,9 @@ async fn api_tablero_interpretar(State(e): State<Compartido>, Json(s): Json<Soli
 
 // ---- Trabajo de campo ----
 
-/// Quien registra visitas: cualquier usuario con sesión cuyo grupo incluya «campo» (los operadores),
-/// además de coordinadores y administradores. La contraseña inicial bloquea también aquí.
+/// Quién puede registrar visitas: cualquier usuario con sesión que no sea de consulta y que, si
+/// pertenece a un grupo, tenga en él la sección «campo» u «operadores». Los administradores siempre
+/// pueden. Quien no ha cambiado su contraseña inicial no puede.
 async fn operador_de_campo(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
     let s = con_sesion(e, cabeceras).await?;
     if s.debe_cambiar {
@@ -2434,8 +2450,8 @@ async fn operador_de_campo(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
     Ok(s)
 }
 
-/// ¿Coordina el trabajo de campo? (crea rutas y ve las visitas de todos): administradores y
-/// analistas cuyo grupo incluye la sección «operadores».
+/// ¿Coordina el trabajo de campo? (crea rutas y ve las visitas de todos). Sí: los administradores,
+/// y los analistas sin grupo o cuyo grupo incluye la sección «operadores».
 fn coordina_campo(s: &Sesion) -> bool {
     s.rol == "admin" || (s.rol == "analista" && s.secciones.as_ref().is_none_or(|v| v.iter().any(|x| x == "operadores")))
 }
@@ -2568,6 +2584,8 @@ async fn api_campo_visita(State(e): State<Compartido>, cabeceras: HeaderMap, Jso
         match clasificador_de_fotos() {
             Some(c) => {
                 // La clasificación ocupa procesador: se hace fuera del hilo que atiende las demás consultas.
+                // `PESADAS` limita cuántas tareas de este tipo corren a la vez.
+                let _turno = PESADAS.acquire().await.map_err(interno)?;
                 let r = tokio::task::spawn_blocking(move || c.clasificar(&bytes)).await.map_err(interno)?.map_err(pedido)?;
                 foto = Some((r.clase.clone(), r.confianza));
                 foto_detalle = json!(r);
@@ -2628,28 +2646,19 @@ fn de_base64(texto: &str) -> Option<Vec<u8>> {
     Some(salida)
 }
 
-/// Clasificador de fotos de fachada, si el modelo está instalado. Se carga una sola vez.
-fn clasificador_de_fotos() -> Option<&'static Clasificador> {
-    static UNICO: std::sync::OnceLock<Option<Clasificador>> = std::sync::OnceLock::new();
-    UNICO.get_or_init(Clasificador::cargar).as_ref()
-}
-
-/// Resultado de clasificar una foto.
-#[derive(Debug, Clone, serde::Serialize)]
-struct FotoClasificada {
-    /// "vivienda", "comercio" u "otro".
-    clase: String,
-    confianza: f32,
-    /// Las escenas más probables según el modelo, con su probabilidad.
-    escenas: Vec<(String, f32)>,
-}
-
-/// Todavía sin modelo instalado: `cargar` devuelve `None` y las visitas se registran sin evaluar la foto.
-struct Clasificador;
-impl Clasificador {
-    fn cargar() -> Option<Self> { None }
-    fn descripcion(&self) -> String { String::new() }
-    fn clasificar(&self, _foto: &[u8]) -> Result<FotoClasificada, String> { Err("sin modelo".into()) }
+/// Clasificador de fotos de fachada, si el modelo está instalado (carpeta `FARO_MODELOS`).
+/// Se carga una sola vez, la primera vez que hace falta.
+fn clasificador_de_fotos() -> Option<&'static faro_fuentes::fachada::Clasificador> {
+    static UNICO: std::sync::OnceLock<Option<faro_fuentes::fachada::Clasificador>> = std::sync::OnceLock::new();
+    UNICO
+        .get_or_init(|| match faro_fuentes::fachada::Clasificador::cargar(&PathBuf::from(var("FARO_MODELOS", "datos/modelos"))) {
+            Ok(c) => Some(c),
+            Err(x) => {
+                eprintln!("clasificador de fotos no disponible: {x}");
+                None
+            }
+        })
+        .as_ref()
 }
 
 /// Deja constancia de una acción en la bitácora. Si la escritura falla no se interrumpe la acción:

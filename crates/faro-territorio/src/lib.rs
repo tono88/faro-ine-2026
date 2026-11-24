@@ -1,12 +1,13 @@
-//! FARO · territorio: crecimiento urbano medido con edificaciones observadas por satélite,
-//! calidad del aire y asignación de operadores de campo ([`asignacion`]).
+//! FARO · territorio: cálculos sobre el territorio y sobre precios.
 //!
-//! Entrada: una serie anual de edificaciones por territorio (ver `scripts/open_buildings_por_municipio.js`,
-//! que la obtiene de Google Open Buildings 2.5D Temporal, 2016–2023).
-//! Salida: cuánto creció cada territorio, a qué ritmo y cuánto tendría en un año futuro.
+//! - [`crecimiento`], [`construido`], [`geotiff`]: superficie construida vista por satélite y su proyección.
+//! - [`poblacion`]: proyecciones del INE por municipio y año.
+//! - [`vial`], [`shp`], [`geo`]: red vial como grafo, lectura de Shapefile y geometría.
+//! - [`precios`], [`construccion`], [`balance`]: precio de referencia, comparación contra el IPMC y hoja de balance.
+//! - [`asignacion`], [`aire`], [`estadistica`]: operadores de campo, calidad del aire e intervalos de confianza.
 //!
-//! Cuidado de interpretación: se cuentan edificaciones, no viviendas ni personas. Sirve para
-//! priorizar actualización cartográfica, no para sustituir un conteo.
+//! Cuidado de interpretación: se cuenta superficie construida, no viviendas ni personas. Sirve para
+//! priorizar la actualización cartográfica, no para sustituir un conteo.
 pub mod aire;
 pub mod asignacion;
 pub mod balance;

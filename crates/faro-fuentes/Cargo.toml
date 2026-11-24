@@ -12,4 +12,6 @@ sha2 = "0.10"
 toml = "0.8"
 regex = "1"
 image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp", "gif"] }
+# Inferencia de redes neuronales en Rust puro (lee el modelo ONNX del clasificador de fachadas).
+tract-onnx = "0.23"
 chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }

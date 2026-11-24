@@ -84,7 +84,7 @@
       "tema": "El censo al alcance de cada delegación",
       "antes": "Se pidió una herramienta con datos del censo por municipio y lugar poblado.",
       "origen": "DIEC · Coordinación Regional (DCR)",
-      "ahora": "Mapa en tres niveles con ficha por municipio: población, hogares y viviendas por lugar poblado, pirámide de edades y diez indicadores de condiciones de vida.",
+      "ahora": "Mapa en tres niveles con ficha por municipio: población, hogares y viviendas por lugar poblado, pirámide de edades y quince indicadores de condiciones de vida.",
       "cifra": "20,036",
       "cifra_de": "lugares poblados del Censo 2018, que cuadran uno a uno con el catálogo",
       "ver": "mapa",
@@ -184,7 +184,7 @@
       "antes": "Se pidieron tableros dinámicos con herramientas de licencia libre.",
       "origen": "DIEC · DESA",
       "ahora": "Se escribe qué se quiere ver y el portal arma el tablero. Se edita en un lienzo, se filtra por territorio y condiciones, y se publica con un enlace que abre cualquiera.",
-      "cifra": "21",
+      "cifra": "26",
       "cifra_de": "indicadores y 8 tipos de pieza, sin programa de pago",
       "ver": "tableros",
       "escala": "Todo indicador que entra al mapa queda disponible en los tableros."

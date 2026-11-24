@@ -2,7 +2,7 @@
 //! mosaicos de 100 m en proyección Mollweide donde cada celda trae los metros cuadrados construidos.
 //!
 //! Aquí está lo geométrico: llevar los límites municipales a Mollweide y sumar las celdas cuyo
-//! centro cae dentro de cada municipio. Leer el GeoTIFF queda fuera (lo hace el ejecutable).
+//! centro cae dentro de cada municipio. El GeoTIFF se lee en [`crate::geotiff`]; abrir los zip de GHSL lo hace `faro construido`.
 //!
 //! Cuidado de interpretación: es superficie construida vista por satélite (cualquier edificación),
 //! no viviendas ni personas. Las épocas anteriores a 2015 vienen de imágenes Landsat y son menos

@@ -11,7 +11,7 @@ pub enum Tipo {
     Texto,
     Entero,
     Decimal,
-    /// AAAA-MM-DD o DD/MM/AAAA.
+    /// AAAA-MM-DD, DD/MM/AAAA o DD-MM-AAAA.
     Fecha,
 }
 
@@ -240,7 +240,7 @@ fn tipo_valido(tipo: Tipo, valor: &str) -> bool {
     }
 }
 
-/// Lleva una fecha a AAAA-MM-DD. Acepta AAAA-MM-DD, DD/MM/AAAA y fecha con hora.
+/// Lleva una fecha a AAAA-MM-DD. Acepta AAAA-MM-DD, DD/MM/AAAA y DD-MM-AAAA; si trae hora, la descarta.
 pub fn fecha_iso(valor: &str) -> Option<String> {
     let solo_fecha = valor.trim().split([' ', 'T']).next().unwrap_or("");
     ["%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"]

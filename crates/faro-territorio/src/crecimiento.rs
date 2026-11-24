@@ -24,7 +24,9 @@ pub struct Crecimiento {
     pub r2: f64,
     pub anio_proyectado: i32,
     pub proyeccion: f64,
-    /// Margen de la proyección al 95 %: cuantil de la t de Student × error estándar del ajuste, ampliado por la distancia al periodo observado.
+    /// Margen de la proyección al 95 %. Es el mayor de dos valores: (a) cuantil de la t de Student ×
+    /// error estándar del ajuste, ampliado por la distancia al periodo observado; (b) el error observado
+    /// en la prueba hacia atrás: proyección × `ERROR_OBSERVADO_P95` × años proyectados ÷ 10.
     pub proyeccion_margen: f64,
     /// Margen en el que cayó lo observado 8 de cada 10 veces en la prueba hacia atrás.
     pub proyeccion_margen_80: f64,
@@ -56,7 +58,6 @@ pub fn leer_series(ruta: &Path) -> Result<BTreeMap<String, Vec<Punto>>, String> 
     Ok(series)
 }
 
-/// Analiza una serie. Devuelve `None` si hay menos de 3 años o valores no positivos al inicio.
 /// Error relativo (respecto de lo proyectado) que se observó al proyectar diez años con la recta de
 /// cinco épocas, en 340 municipios y tres décadas (1,020 casos; `faro verificar` lo recalcula y
 /// avisa si cambia): 8 de cada 10 veces el error fue de 20 % o menos; 95 de cada 100, de 47 % o menos.
@@ -67,6 +68,8 @@ pub const ERROR_OBSERVADO_P95: f64 = 0.47;
 /// 9 %), por eso la recta es la cifra principal y esta es la de contraste.
 pub const ERROR_TASA_CONSTANTE_P80: f64 = 0.24;
 
+/// Analiza una serie: cambio, tasa anual, recta de tendencia y proyección al año pedido con sus
+/// márgenes. Devuelve `None` si hay menos de 3 años distintos o si el primer valor no es positivo.
 pub fn analizar(codigo: &str, serie: &[Punto], anio_proyectado: i32) -> Option<Crecimiento> {
     let mut s: Vec<Punto> = serie.iter().copied().filter(|p| p.edificaciones.is_finite()).collect();
     s.sort_by_key(|p| p.anio);
@@ -90,8 +93,9 @@ pub fn analizar(codigo: &str, serie: &[Punto], anio_proyectado: i32) -> Option<C
     let r2 = if syy > 0.0 { 1.0 - residuos / syy } else { 1.0 };
     let error = (residuos / (n - 2.0)).sqrt();
     let x = anio_proyectado as f64;
-    // Error de predicción de una regresión simple: crece al alejarse del periodo observado.
-    // Con pocas épocas el factor correcto no es 2 sino el cuantil de la t de Student (3.18 con cinco puntos).
+    // Error de predicción de una regresión simple: crece al alejarse del periodo observado. Se
+    // multiplica por el cuantil 97.5 % de la t de Student con n − 2 grados de libertad (3.18 con
+    // cinco puntos); el factor 2 solo sirve para series largas.
     let margen = crate::estadistica::t_975(s.len() - 2) * error * (1.0 + 1.0 / n + (x - mx).powi(2) / sxx).sqrt();
     // El error del ajuste subestima la incertidumbre cuando la serie es suave pero no lineal: en la
     // prueba hacia atrás solo contenía lo observado 1 de cada 4 veces. Por eso el margen nunca es

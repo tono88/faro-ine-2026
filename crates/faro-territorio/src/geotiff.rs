@@ -3,6 +3,7 @@
 //! productores usan para zonas sin dato y que otros lectores rechazan.
 use std::collections::HashMap;
 
+/// Una imagen leída: celdas por filas desde la esquina superior izquierda.
 pub struct Raster {
     pub ancho: usize,
     pub alto: usize,
@@ -88,6 +89,9 @@ impl<'a> Archivo<'a> {
     }
 }
 
+/// Lee un GeoTIFF completo ya cargado en memoria: una banda de enteros de 16 bits, en teselas, con
+/// LZW o sin compresión. Las teselas vacías quedan con el valor «sin dato». Devuelve error si el
+/// archivo usa otra variante del formato.
 pub fn leer(bytes: &[u8]) -> Result<Raster, String> {
     let a = Archivo::abrir(bytes)?;
     let (ancho, alto) = (a.uno(256, "el ancho")?, a.uno(257, "el alto")?);

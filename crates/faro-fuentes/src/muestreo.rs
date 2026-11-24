@@ -1,8 +1,10 @@
-//! Muestreo de precios publicados en tiendas en línea, a través de sus búsquedas públicas.
+//! Muestreo de precios publicados en tiendas en línea: búsquedas públicas, catálogos por categoría,
+//! mapas del sitio y listados de productos.
 //!
-//! Solo se usan direcciones abiertas, sin sesión ni claves, con pocas consultas y una pausa entre
-//! ellas. Cada precio se guarda con el texto del producto tal como lo publica la tienda, su
-//! dirección y el momento de la consulta: es un precio publicado, no una cotización.
+//! Solo se usan direcciones abiertas, sin sesión ni claves. Cada tarea tiene un tope de consultas
+//! por corrida y espera 0.6 s entre una y otra. Cada precio se guarda con el texto del producto
+//! tal como lo publica la tienda, su dirección y el momento de la consulta: es un precio
+//! publicado, no una cotización.
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::path::Path;
@@ -19,6 +21,8 @@ pub struct Tarea {
     /// - `vtex-catalogo`: recorre el catálogo por categorías (`categorias` filtra las de primer nivel).
     /// - `sitemap`: lee el mapa del sitio (`sitemap`) y los datos estructurados de cada página de producto.
     /// - `magento`: recorre el listado paginado de productos (`listado`).
+/// - `shopify`: recorre el catálogo público `/products.json`.
+/// - `woocommerce`: recorre la API pública de tienda `/wp-json/wc/store/v1/products`.
     pub tipo: String,
     pub proveedor: String,
     /// Dirección base de la tienda, sin barra final.
@@ -43,7 +47,9 @@ pub struct Tarea {
     /// Cada cuántas horas se repite cuando está activa.
     #[serde(default = "semanal")]
     pub cada_horas: i32,
-    /// Resultados por término (máximo 50).
+    /// Tope de productos por corrida. En `vtex` es por término (máximo 50). En `vtex-catalogo` se
+    /// reparte entre las categorías (mínimo 50 por categoría). En `sitemap` es cuántas páginas de
+    /// producto se visitan. En `magento`, `shopify` y `woocommerce` fija cuántas páginas del listado se piden.
     #[serde(default = "treinta")]
     pub max_resultados: usize,
     /// Las tareas vienen apagadas: las enciende una persona.
@@ -91,6 +97,8 @@ pub fn cargar_tareas(ruta: &Path) -> Result<Vec<Tarea>, String> {
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq)]
+/// Un producto con su precio tal como lo publica una tienda en el momento de la consulta.
+/// No significa rebaja: si hay precio rebajado, el precio regular va en `precio_lista`.
 pub struct Oferta {
     pub producto: String,
     pub marca: String,
@@ -301,8 +309,9 @@ pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
                 // Las tiendas escriben la misma categoría con y sin tildes o mayúsculas.
                 let plano = |t: &str| t.to_lowercase().chars().map(|c| match c { 'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' | 'ü' => 'u', o => o }).collect::<String>();
                 let quiere = |nombre: &str| tarea.categorias.is_empty() || tarea.categorias.iter().any(|c| plano(nombre).contains(&plano(c)));
-                // Cada categoría de primer nivel se recorre por sus subcategorías: la tienda no entrega
-                // más allá del producto 2,500 de una misma consulta, y así no se pierde nada.
+                // Cada categoría de primer nivel se recorre por sus subcategorías, porque la tienda no entrega
+                // más allá del producto 2,500 de una misma consulta. Una subcategoría con más de 2,500
+                // productos queda cortada ahí, y el tope `por_categoria` puede cortar antes.
                 let categorias: Vec<(String, Vec<String>)> = arbol.as_array().into_iter().flatten().filter_map(|c| {
                     let (id, nombre) = (c["id"].as_i64()?, c["name"].as_str()?.to_string());
                     let hijas: Vec<String> = c["children"].as_array().into_iter().flatten().filter_map(|h| Some(format!("{id}/{}", h["id"].as_i64()?))).collect();
@@ -422,7 +431,8 @@ pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
         }
         otro => bitacora.push(format!("tipo {otro:?} no admitido")),
     }
-    // Algunas tiendas publican 9,999,999 como precio de relleno de un producto no disponible: no es un precio.
+    // Algunas tiendas publican un número de relleno (por ejemplo 9,999,999) en un producto no disponible.
+// Se descarta todo precio de 999,999 o más (`PRECIO_DE_RELLENO`).
     let antes = ofertas.len();
     ofertas.retain(|o| o.precio < PRECIO_DE_RELLENO);
     if ofertas.len() < antes {

@@ -1,6 +1,6 @@
 //! Decide a qué lugar oficial corresponde un texto libre.
 //!
-//! Regla de oro: el sistema solo asigna solo cuando no hay duda (coincidencia exacta y única,
+//! Regla de oro: el sistema asigna un código por su cuenta únicamente cuando no hay duda (coincidencia exacta y única,
 //! o equivalencia ya confirmada). Todo lo demás se propone y lo decide una persona; su
 //! decisión queda en la memoria y no se vuelve a preguntar.
 use crate::catalogo::{Catalogo, Nivel};
@@ -31,6 +31,8 @@ pub enum Estado {
     SinCoincidencia,
     /// El nombre no existe donde se buscó, pero sí (exacto) en otro departamento o municipio:
     /// probablemente el nivel superior viene mal. Decide una persona.
+    /// También se usa cuando llega un número que no es código en este contexto pero, leído de otra
+    /// forma (código completo de otro departamento, o departamento y municipio pegados), sí es un municipio.
     FueraDeContexto,
     /// Llegó un número que no corresponde a ningún código del catálogo.
     CodigoInvalido,
@@ -104,7 +106,8 @@ pub struct Resultado {
     pub codigo: Option<String>,
     pub nombre_oficial: Option<String>,
     pub puntaje: f64,
-    /// Hasta 3 candidatos, del más al menos parecido.
+    /// Candidatos, del más al menos parecido: hasta 3 en general; todos los empatados si el estado es
+    /// ambiguo; hasta 5 si es fuera de contexto (primero los hallados en otro departamento o municipio).
     pub candidatos: Vec<Candidato>,
 }
 
@@ -134,8 +137,8 @@ impl<'a> Homologador<'a> {
             return r;
         }
 
-        // Si viene un código, se interpreta: "8" + contexto "08" no aplica a departamento;
-        // municipio "1" con contexto "08" es 0801; municipio "101" es 0101.
+        // Si el texto es un número, se lee como código: departamento "8" es 08; municipio "1" dentro del
+        // departamento 08 es 0801; municipio "101" (tres o cuatro dígitos) es el código completo 0101.
         if let Some(codigo) = codigo_numerico(texto, nivel, contexto) {
             return match self.catalogo.por_codigo(&codigo) {
                 Some(l) if l.nivel == nivel && contexto.map_or(true, |c| l.padre == c) => {
