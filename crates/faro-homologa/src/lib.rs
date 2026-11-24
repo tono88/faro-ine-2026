@@ -16,4 +16,4 @@ pub mod solicitud;
 
 pub use catalogo::{Catalogo, Lugar, Nivel};
 pub use homologar::{Candidato, Estado, Homologador, Resultado};
-pub use memoria::{Equivalencia, Memoria};
+pub use memoria::{Equivalencia, EquivalenciaValor, Memoria};

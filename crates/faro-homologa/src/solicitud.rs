@@ -39,6 +39,19 @@ pub struct Columna {
     /// Otras formas de escribir un valor permitido: `{ "m" = "hombre", "masculino" = "hombre" }`.
     #[serde(default)]
     pub equivalencias: HashMap<String, String>,
+    /// Variable común a la que pertenece el catálogo (sexo, pueblo...). Las equivalencias que una
+    /// persona confirma se guardan por dimensión y valen para todas las solicitudes que la usan.
+    /// Si no se indica, es el nombre de la columna.
+    #[serde(default)]
+    pub dimension: Option<String>,
+    /// Columnas del archivo que traen el mismo lugar escrito de otra forma (ej. el nombre, cuando
+    /// la columna principal trae un código propio de la institución). Se usan solo si la
+    /// principal no se pudo resolver.
+    #[serde(default)]
+    pub respaldo: Vec<String>,
+    /// Valores que en origen significan "sin dato" (ej. "98", "99", "999"). Salen vacíos.
+    #[serde(default)]
+    pub sin_dato: Vec<String>,
     #[serde(default)]
     pub descripcion: String,
     /// Dato personal: "eliminar" (no sale del envío) o "seudonimizar" (se sustituye por una
@@ -48,6 +61,17 @@ pub struct Columna {
 }
 
 impl Columna {
+    /// Dimensión del catálogo cerrado de esta columna.
+    pub fn dimension(&self) -> &str {
+        self.dimension.as_deref().unwrap_or(&self.nombre)
+    }
+
+    /// ¿El valor es uno de los que la institución usa para decir "sin dato"?
+    pub fn es_sin_dato(&self, valor: &str) -> bool {
+        let v = basico(valor);
+        !self.sin_dato.is_empty() && self.sin_dato.iter().any(|s| basico(s) == v)
+    }
+
     /// Valor canónico de un catálogo cerrado: "M", "masculino" y "Hombre" -> "hombre".
     /// `None` si la columna no tiene catálogo o el valor no pertenece a él.
     pub fn canonico(&self, valor: &str) -> Option<&str> {
@@ -133,6 +157,12 @@ impl Solicitud {
 
     /// Valida estructura y contenido de un envío.
     pub fn validar(&self, encabezados: &[String], filas: impl Iterator<Item = Vec<String>>) -> Reporte {
+        self.validar_con(encabezados, filas, &|_, _| false)
+    }
+
+    /// Igual que [`Solicitud::validar`]; `aprendido` dice si un valor fuera de catálogo ya tiene
+    /// una equivalencia confirmada por una persona (entonces no es un problema).
+    pub fn validar_con(&self, encabezados: &[String], filas: impl Iterator<Item = Vec<String>>, aprendido: &dyn Fn(&Columna, &str) -> bool) -> Reporte {
         let (mapa, sobrantes) = self.mapear(encabezados);
         let mut rep = Reporte { columnas_sobrantes: sobrantes, ..Default::default() };
         let anotar = |rep: &mut Reporte, fila: usize, columna: &str, detalle: String| {
@@ -156,7 +186,7 @@ impl Solicitud {
             for c in &self.columnas {
                 let Some(&i) = mapa.get(&c.nombre) else { continue };
                 let valor = fila.get(i).map(|v| v.trim()).unwrap_or("");
-                if valor.is_empty() || crate::homologar::es_ignorado(valor) {
+                if valor.is_empty() || crate::homologar::es_ignorado(valor) || c.es_sin_dato(valor) {
                     if c.requerida && valor.is_empty() {
                         anotar(&mut rep, n + 1, &c.nombre, "valor vacío en columna requerida".into());
                     }
@@ -167,7 +197,7 @@ impl Solicitud {
                 }
                 if !tipo_valido(c.tipo, valor) {
                     anotar(&mut rep, n + 1, &c.nombre, format!("{valor:?} no es {:?}", c.tipo).to_lowercase());
-                } else if !c.valores.is_empty() && c.canonico(valor).is_none() {
+                } else if !c.valores.is_empty() && c.canonico(valor).is_none() && !aprendido(c, valor) {
                     anotar(&mut rep, n + 1, &c.nombre, format!("{valor:?} no está en los valores permitidos"));
                 }
             }

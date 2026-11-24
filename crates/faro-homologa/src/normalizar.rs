@@ -20,9 +20,29 @@ const ABREVIATURAS: &[(&str, &str)] = &[
     ("xela", "quetzaltenango"),
 ];
 
+/// Letras dañadas por un cambio de codificación entre sistemas ("Vi±as" por "Viñas",
+/// "DueÃ±as" por "Dueñas"). Solo se reparan signos que no existen en nombres en español, de modo
+/// que no hay otra lectura posible.
+const DANADAS: &[(&str, &str)] = &[
+    ("Ã±", "ñ"), ("Ã‘", "Ñ"), ("Ã¡", "á"), ("Ã©", "é"), ("Ã\u{ad}", "í"), ("Ã³", "ó"), ("Ãº", "ú"), ("Ã¼", "ü"),
+    ("±", "ñ"), ("Ð", "Ñ"), ("ß", "á"), ("¾", "ó"), ("Ý", "í"),
+];
+
+/// Devuelve el texto con las letras dañadas reparadas (igual si no había ninguna).
+pub fn reparar_codificacion(texto: &str) -> std::borrow::Cow<'_, str> {
+    if !texto.contains(|c| matches!(c, 'Ã' | '±' | 'Ð' | 'ß' | '¾' | 'Ý')) {
+        return std::borrow::Cow::Borrowed(texto);
+    }
+    let mut t = texto.to_string();
+    for (mala, buena) in DANADAS {
+        t = t.replace(mala, buena);
+    }
+    std::borrow::Cow::Owned(t)
+}
+
 /// Minúsculas, sin tildes ni signos, espacios colapsados. Conserva la ñ como "n".
 pub fn basico(texto: &str) -> String {
-    let sin_tildes: String = texto
+    let sin_tildes: String = reparar_codificacion(texto)
         .nfd()
         .filter(|c| !('\u{0300}'..='\u{036f}').contains(c))
         .collect();
@@ -103,6 +123,15 @@ mod pruebas {
         for v in ["Puerto de San José", "PTO. SAN JOSE", "puerto san josé", "  Puerto   San  José "] {
             assert_eq!(clave(v), "puerto san jose", "falló con {v:?}");
         }
+    }
+
+    #[test]
+    fn repara_letras_danadas_por_la_codificacion() {
+        assert_eq!(clave("San Miguel Due±as"), clave("San Miguel Dueñas"));
+        assert_eq!(clave("Santa Cruz Naranjo, Vi±as"), clave("Santa Cruz Naranjo, Viñas"));
+        assert_eq!(clave("PATZ┌N").len(), clave("PATZ N").len(), "lo que no se puede reparar no se inventa");
+        assert_eq!(basico("QuichÃ©"), "quiche");
+        assert_eq!(basico("TUCURÚ"), "tucuru", "una Ú legítima no se toca");
     }
 
     #[test]

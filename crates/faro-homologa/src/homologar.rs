@@ -29,6 +29,9 @@ pub enum Estado {
     /// Hay candidatos parecidos pero ninguno claro.
     Revisar,
     SinCoincidencia,
+    /// El nombre no existe donde se buscó, pero sí (exacto) en otro departamento o municipio:
+    /// probablemente el nivel superior viene mal. Decide una persona.
+    FueraDeContexto,
     /// Llegó un número que no corresponde a ningún código del catálogo.
     CodigoInvalido,
     /// Vacío o marcado como ignorado en origen ("IGNORADO", "-1", "N.D.").
@@ -74,6 +77,7 @@ impl Estado {
             Estado::Ambiguo => "ambiguo",
             Estado::Revisar => "revisar",
             Estado::SinCoincidencia => "sin_coincidencia",
+            Estado::FueraDeContexto => "fuera_de_contexto",
             Estado::CodigoInvalido => "codigo_invalido",
             Estado::Vacio => "vacio",
         }
@@ -139,6 +143,11 @@ impl<'a> Homologador<'a> {
                     self.asignar(r, Estado::Exacto, &codigo, 1.0)
                 }
                 _ => {
+                    // Un código propio de la institución que una persona ya tradujo.
+                    if let Some(c) = self.memoria.buscar(nivel, contexto, &k).filter(|c| self.catalogo.por_codigo(c).is_some()) {
+                        let c = c.to_string();
+                        return self.asignar(r, Estado::Memoria, &c, 1.0);
+                    }
                     r.estado = Estado::CodigoInvalido;
                     r
                 }
@@ -188,6 +197,27 @@ impl<'a> Homologador<'a> {
         let limite = if r.estado == Estado::Ambiguo { exactos.len() } else { 3 };
         puntuados.truncate(limite);
         r.candidatos = puntuados;
+
+        // "Camotán" buscado en El Progreso no existe, pero sí en Chiquimula: se muestra para que
+        // una persona decida si el departamento vino mal. Nunca se asigna solo.
+        if contexto.is_some() && r.candidatos.iter().all(|c| c.puntaje < UMBRAL_SUGERIDO) {
+            let mut fuera: Vec<Candidato> = self
+                .catalogo
+                .de_nivel(nivel, None)
+                .filter(|l| l.claves.iter().any(|c| *c == k))
+                .map(|l| {
+                    let padre = self.catalogo.por_codigo(&l.padre).map_or(String::new(), |p| format!(" ({})", p.nombre));
+                    Candidato { codigo: l.codigo.clone(), nombre: format!("{}{padre}", l.nombre), puntaje: 1.0 }
+                })
+                .collect();
+            if !fuera.is_empty() {
+                fuera.truncate(5);
+                fuera.extend(r.candidatos.drain(..));
+                fuera.truncate(5);
+                r.candidatos = fuera;
+                r.estado = Estado::FueraDeContexto;
+            }
+        }
         r
     }
 
@@ -240,6 +270,33 @@ mod pruebas {
         assert!(r.codigo.is_none(), "nunca se asigna un código ambiguo");
         let r = h.homologar("San José", Nivel::Municipio, Some("17"));
         assert_eq!((r.estado, r.codigo.as_deref()), (Estado::Exacto, Some("1702")));
+    }
+
+    #[test]
+    fn nombre_que_existe_en_otro_departamento_se_propone_sin_asignar() {
+        let (c, m) = (catalogo(), Memoria::default());
+        let r = Homologador::new(&c, &m).homologar("San Benito", Nivel::Municipio, Some("05"));
+        assert_eq!(r.estado, Estado::FueraDeContexto);
+        assert!(r.codigo.is_none());
+        assert_eq!((r.candidatos[0].codigo.as_str(), r.candidatos[0].nombre.as_str()), ("1703", "San Benito (Petén)"));
+    }
+
+    #[test]
+    fn letras_danadas_no_impiden_reconocer_el_lugar() {
+        let (c, m) = (catalogo(), Memoria::default());
+        let r = Homologador::new(&c, &m).homologar("Santa LucÝa Cotzumalguapa", Nivel::Municipio, Some("05"));
+        assert_eq!((r.estado, r.codigo.as_deref()), (Estado::Exacto, Some("0502")));
+    }
+
+    #[test]
+    fn un_codigo_propio_de_la_institucion_se_aprende_una_vez() {
+        let c = catalogo();
+        let mut m = Memoria::default();
+        assert_eq!(Homologador::new(&c, &m).homologar("37", Nivel::Municipio, Some("05")).estado, Estado::CodigoInvalido);
+        m.confirmar("37", Nivel::Municipio, Some("05"), "0510", "RENAP", "analista").unwrap();
+        let r = Homologador::new(&c, &m).homologar("37", Nivel::Municipio, Some("05"));
+        assert_eq!((r.estado, r.codigo.as_deref()), (Estado::Memoria, Some("0510")));
+        assert_eq!(Homologador::new(&c, &m).homologar("37", Nivel::Municipio, Some("17")).estado, Estado::CodigoInvalido, "vale solo en su departamento");
     }
 
     #[test]

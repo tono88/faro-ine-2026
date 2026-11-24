@@ -22,6 +22,17 @@ pub struct Pendiente {
     pub resultado: Resultado,
 }
 
+/// Un valor de catálogo cerrado (sexo, pueblo...) que no se reconoció y espera decisión.
+#[derive(Debug, Clone, Serialize)]
+pub struct PendienteValor {
+    pub columna: String,
+    pub dimension: String,
+    pub valor: String,
+    pub veces: usize,
+    /// Valores permitidos entre los que elige la persona.
+    pub opciones: Vec<String>,
+}
+
 #[derive(Debug, Default, Serialize)]
 pub struct Recepcion {
     pub reporte: Reporte,
@@ -30,6 +41,12 @@ pub struct Recepcion {
     #[serde(skip)]
     pub filas: Vec<Vec<String>>,
     pub pendientes: Vec<Pendiente>,
+    /// Valores de catálogos cerrados por decidir, del más al menos frecuente.
+    pub pendientes_valor: Vec<PendienteValor>,
+    /// Valores resueltos con una equivalencia confirmada antes: columna -> filas.
+    pub valores_por_memoria: BTreeMap<String, usize>,
+    /// Lugares resueltos con la columna de respaldo (ej. el nombre cuando el código no existe): columna -> filas.
+    pub resueltos_por_respaldo: BTreeMap<String, usize>,
     /// columna -> estado -> filas.
     pub homologacion: BTreeMap<String, BTreeMap<&'static str, usize>>,
     /// Columnas con catálogo cerrado: columna -> valores que no se reconocieron -> veces.
@@ -69,7 +86,11 @@ pub fn seudonimo(sal: &str, valor: &str) -> String {
 /// `sal`: secreto del INE para las llaves; obligatorio si la solicitud seudonimiza columnas.
 pub fn recibir(sol: &Solicitud, tabla: &Tabla, h: &Homologador, sal: Option<&str>) -> Result<Recepcion, String> {
     let (mapa, _) = sol.mapear(&tabla.encabezados);
-    let mut rec = Recepcion { reporte: sol.validar(&tabla.encabezados, tabla.filas.iter().cloned()), ..Default::default() };
+    let aprendido = |c: &Columna, v: &str| h.memoria.buscar_valor(c.dimension(), v).is_some_and(|d| c.canonico(d).is_some());
+    let mut rec = Recepcion { reporte: sol.validar_con(&tabla.encabezados, tabla.filas.iter().cloned(), &aprendido), ..Default::default() };
+    // Columnas de respaldo: índice en el archivo de la primera que exista.
+    let normal: Vec<String> = tabla.encabezados.iter().map(|e| crate::normalizar::basico(e)).collect();
+    let respaldo_de = |c: &Columna| c.respaldo.iter().find_map(|r| normal.iter().position(|e| *e == crate::normalizar::basico(r)));
 
     let presentes: Vec<(&Columna, usize)> = sol.columnas.iter().filter_map(|c| mapa.get(&c.nombre).map(|&i| (c, i))).collect();
     for (c, _) in &presentes {
@@ -102,16 +123,31 @@ pub fn recibir(sol: &Solicitud, tabla: &Tabla, h: &Homologador, sal: Option<&str
 
     let mut cache: HashMap<(usize, String, String), Resultado> = HashMap::new();
     let mut pendientes: BTreeMap<(String, String, String), Pendiente> = BTreeMap::new();
+    let mut pendientes_valor: BTreeMap<(String, String), PendienteValor> = BTreeMap::new();
 
     for fila in &tabla.filas {
         let mut codigos: HashMap<&str, Option<String>> = HashMap::new();
         let mut resultados: HashMap<usize, Resultado> = HashMap::new();
         for &k in &geo {
             let (c, i) = salen[k];
-            let valor = fila.get(i).cloned().unwrap_or_default();
+            let mut valor = fila.get(i).cloned().unwrap_or_default();
+            if c.es_sin_dato(&valor) {
+                valor.clear();
+            }
             let ctx = c.contexto.as_deref().and_then(|x| codigos.get(x).cloned().flatten());
             let llave = (k, ctx.clone().unwrap_or_default(), valor.clone());
-            let r = cache.entry(llave).or_insert_with(|| h.homologar(&valor, niveles[&k], ctx.as_deref())).clone();
+            let mut r = cache.entry(llave).or_insert_with(|| h.homologar(&valor, niveles[&k], ctx.as_deref())).clone();
+            // Si la columna principal no se resolvió, se prueba la de respaldo (mismo criterio: exacto o memoria).
+            if !r.estado.resuelto() && r.estado != Estado::Vacio {
+                if let Some(otro) = respaldo_de(c).and_then(|j| fila.get(j)).filter(|v| !v.trim().is_empty()) {
+                    let llave = (k, ctx.clone().unwrap_or_default(), format!("\u{1}{otro}"));
+                    let r2 = cache.entry(llave).or_insert_with(|| h.homologar(otro, niveles[&k], ctx.as_deref())).clone();
+                    if r2.estado.resuelto() {
+                        *rec.resueltos_por_respaldo.entry(c.nombre.clone()).or_default() += 1;
+                        r = r2;
+                    }
+                }
+            }
             *rec.homologacion.entry(c.nombre.clone()).or_default().entry(r.estado.texto()).or_default() += 1;
             if !r.estado.resuelto() && r.estado != Estado::Vacio {
                 pendientes
@@ -126,18 +162,29 @@ pub fn recibir(sol: &Solicitud, tabla: &Tabla, h: &Homologador, sal: Option<&str
         let mut salida = Vec::with_capacity(rec.encabezados.len());
         for (k, (c, i)) in salen.iter().enumerate() {
             let crudo = fila.get(*i).map(|v| v.trim()).unwrap_or("");
-            let vacio = es_ignorado(crudo);
+            let vacio = es_ignorado(crudo) || c.es_sin_dato(crudo);
             let valor = if c.sensible.as_deref() == Some("seudonimizar") {
                 if vacio { String::new() } else { seudonimo(sal.unwrap_or(""), crudo) }
             } else if !c.valores.is_empty() {
+                // Catálogo de la solicitud; si no, lo que una persona confirmó antes para esta dimensión.
+                let por_memoria = || h.memoria.buscar_valor(c.dimension(), crudo).and_then(|d| c.canonico(d));
                 match c.canonico(crudo) {
                     Some(v) => v.to_string(),
-                    None => {
-                        if !crudo.is_empty() {
-                            *rec.valores_no_reconocidos.entry(c.nombre.clone()).or_default().entry(crudo.to_string()).or_default() += 1;
+                    None if vacio => String::new(),
+                    None => match por_memoria() {
+                        Some(v) => {
+                            *rec.valores_por_memoria.entry(c.nombre.clone()).or_default() += 1;
+                            v.to_string()
                         }
-                        String::new()
-                    }
+                        None => {
+                            *rec.valores_no_reconocidos.entry(c.nombre.clone()).or_default().entry(crudo.to_string()).or_default() += 1;
+                            pendientes_valor
+                                .entry((c.nombre.clone(), crate::normalizar::basico(crudo)))
+                                .or_insert_with(|| PendienteValor { columna: c.nombre.clone(), dimension: c.dimension().to_string(), valor: crudo.to_string(), veces: 0, opciones: c.valores.clone() })
+                                .veces += 1;
+                            String::new()
+                        }
+                    },
                 }
             } else if vacio {
                 String::new()
@@ -156,6 +203,8 @@ pub fn recibir(sol: &Solicitud, tabla: &Tabla, h: &Homologador, sal: Option<&str
     }
     rec.pendientes = pendientes.into_values().collect();
     rec.pendientes.sort_by(|a, b| b.veces.cmp(&a.veces));
+    rec.pendientes_valor = pendientes_valor.into_values().collect();
+    rec.pendientes_valor.sort_by(|a, b| b.veces.cmp(&a.veces));
     Ok(rec)
 }
 
@@ -231,7 +280,62 @@ mod pruebas {
         assert!(!todo.contains("1234567890801") && !todo.contains("Ficticia") && !todo.contains("calle x"));
         assert_eq!(r.filas[1][4], "codigo_invalido");
         assert_eq!(r.valores_no_reconocidos["sexo"]["INDETERMINADO"], 1);
+        assert_eq!((r.pendientes_valor[0].dimension.as_str(), r.pendientes_valor[0].valor.as_str(), r.pendientes_valor[0].veces), ("sexo", "INDETERMINADO", 1));
+
+        // Una persona confirma el valor y el código propio de la institución: el reenvío sale limpio.
+        let mut m = Memoria::default();
+        m.confirmar_valor("sexo", "Indeterminado", "ignorado", "p", "analista").unwrap();
+        m.confirmar("171", Nivel::Municipio, None, "0801", "p", "analista").unwrap();
+        let r2 = recibir(&sol, &tabla, &Homologador::new(&cat, &m), Some("secreto-de-prueba")).unwrap();
+        assert_eq!(r2.filas[1][8], "ignorado");
+        assert_eq!((r2.valores_por_memoria["sexo"], r2.pendientes_valor.len()), (1, 0));
+        assert_eq!(&r2.filas[1][6..8], &s(&["0801", "memoria"])[..]);
+        assert!(r2.reporte.problemas.iter().all(|p| p.columna != "sexo"), "lo aprendido ya no es un problema");
         assert_eq!(r.columnas_eliminadas, vec!["nombre"]);
         assert!((r.porcentaje_resuelto() - 50.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn el_nombre_respalda_al_codigo_y_98_99_son_sin_dato() {
+        let mut cat = Catalogo::default();
+        for (codigo, nombre, nivel, padre) in [("05", "Escuintla", Nivel::Departamento, ""), ("0510", "Iztapa", Nivel::Municipio, "05")] {
+            cat.agregar(Lugar { codigo: codigo.into(), nombre: nombre.into(), nivel, padre: padre.into(), ..Default::default() });
+        }
+        let sol: Solicitud = toml::from_str(
+            r#"
+            id = "p"
+            titulo = "p"
+            institucion = "p"
+            [[columna]]
+            nombre = "departamento"
+            tipo = "texto"
+            homologar = "departamento"
+            sin_dato = ["99"]
+            [[columna]]
+            nombre = "municipio"
+            tipo = "texto"
+            homologar = "municipio"
+            contexto = "departamento"
+            respaldo = ["NOMBRE_MUNICIPIO"]
+            [[columna]]
+            nombre = "edad"
+            tipo = "entero"
+            sin_dato = ["98", "99", "999"]
+            "#,
+        )
+        .unwrap();
+        let tabla = Tabla {
+            encabezados: s(&["departamento", "municipio", "Nombre_Municipio", "edad"]),
+            filas: vec![s(&["5", "37", "IZTAPA", "99"]), s(&["5", "37", "Otro lugar", "34"]), s(&["99", "", "", "999"])],
+            ..Default::default()
+        };
+        let m = Memoria::default();
+        let r = recibir(&sol, &tabla, &Homologador::new(&cat, &m), None).unwrap();
+        let col = |n: &str| r.encabezados.iter().position(|e| e == n).unwrap();
+        assert_eq!((r.filas[0][col("municipio_codigo")].as_str(), r.filas[0][col("edad")].as_str()), ("0510", ""), "el nombre resolvió el código 37 y 99 años es sin dato");
+        assert_eq!(r.resueltos_por_respaldo["municipio"], 1);
+        assert_eq!(r.filas[1][col("municipio_estado")], "codigo_invalido", "si el respaldo tampoco resuelve, queda pendiente");
+        assert_eq!((r.filas[2][col("departamento_estado")].as_str(), r.filas[2][col("edad")].as_str()), ("vacio", ""));
+        assert_eq!(r.pendientes.len(), 1);
     }
 }

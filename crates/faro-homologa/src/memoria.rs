@@ -28,11 +28,42 @@ pub struct Equivalencia {
     pub fecha: String,
 }
 
+/// Equivalencia de un valor de catálogo cerrado: "MASC." en la dimensión `sexo` es "hombre".
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EquivalenciaValor {
+    /// Variable a la que pertenece (sexo, pueblo, estado_civil...). Vale para toda institución.
+    pub dimension: String,
+    pub original: String,
+    pub clave: String,
+    /// Valor del catálogo al que equivale.
+    pub valor: String,
+    #[serde(default)]
+    pub institucion: String,
+    #[serde(default)]
+    pub confirmado_por: String,
+    pub fecha: String,
+}
+
 #[derive(Debug, Default)]
 pub struct Memoria {
     ruta: Option<PathBuf>,
     indice: HashMap<(Nivel, String, String), String>,
+    /// (dimensión, clave del texto) -> valor del catálogo.
+    valores: HashMap<(String, String), String>,
     total: usize,
+}
+
+/// Archivo de valores junto al de lugares: `equivalencias.jsonl` -> `equivalencias.valores.jsonl`.
+fn ruta_valores(ruta: &Path) -> PathBuf {
+    ruta.with_extension("valores.jsonl")
+}
+
+fn agregar_linea(ruta: &Path, linea: &str) -> Result<(), String> {
+    if let Some(dir) = ruta.parent() {
+        std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    }
+    let mut f = std::fs::OpenOptions::new().create(true).append(true).open(ruta).map_err(|e| format!("{}: {e}", ruta.display()))?;
+    writeln!(f, "{linea}").map_err(|e| e.to_string())
 }
 
 impl Memoria {
@@ -50,6 +81,14 @@ impl Memoria {
                 m.indexar(&e);
             }
         }
+        let rv = ruta_valores(ruta);
+        if rv.exists() {
+            let texto = std::fs::read_to_string(&rv).map_err(|e| format!("{}: {e}", rv.display()))?;
+            for (n, linea) in texto.lines().enumerate().filter(|(_, l)| !l.trim().is_empty()) {
+                let e: EquivalenciaValor = serde_json::from_str(linea).map_err(|e| format!("{} línea {}: {e}", rv.display(), n + 1))?;
+                m.indexar_valor(&e);
+            }
+        }
         Ok(m)
     }
 
@@ -60,6 +99,42 @@ impl Memoria {
             m.indexar(&e);
         }
         m
+    }
+
+    /// Agrega equivalencias de valores que viven en otro lado (ej. la base de datos).
+    pub fn con_valores(mut self, valores: impl IntoIterator<Item = EquivalenciaValor>) -> Self {
+        for e in valores {
+            self.indexar_valor(&e);
+        }
+        self
+    }
+
+    fn indexar_valor(&mut self, e: &EquivalenciaValor) {
+        self.valores.insert((e.dimension.clone(), e.clave.clone()), e.valor.clone());
+        self.total += 1;
+    }
+
+    /// Valor de catálogo que una persona confirmó para este texto en esta dimensión.
+    pub fn buscar_valor(&self, dimension: &str, texto: &str) -> Option<&str> {
+        self.valores.get(&(dimension.to_string(), crate::normalizar::basico(texto))).map(String::as_str)
+    }
+
+    /// Graba que `original` equivale a `valor` en la dimensión dada.
+    pub fn confirmar_valor(&mut self, dimension: &str, original: &str, valor: &str, institucion: &str, confirmado_por: &str) -> Result<EquivalenciaValor, String> {
+        let e = EquivalenciaValor {
+            dimension: dimension.to_string(),
+            original: original.to_string(),
+            clave: crate::normalizar::basico(original),
+            valor: valor.to_string(),
+            institucion: institucion.to_string(),
+            confirmado_por: confirmado_por.to_string(),
+            fecha: chrono::Utc::now().format("%Y-%m-%dT%H:%M:%SZ").to_string(),
+        };
+        if let Some(ruta) = &self.ruta {
+            agregar_linea(&ruta_valores(ruta), &serde_json::to_string(&e).map_err(|e| e.to_string())?)?;
+        }
+        self.indexar_valor(&e);
+        Ok(e)
     }
 
     fn indexar(&mut self, e: &Equivalencia) {
