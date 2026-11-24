@@ -1,0 +1,226 @@
+{
+  "nota": "Única fuente del apartado «Antes y ahora» del portal y de docs/22-antes-y-ahora.md (se regenera con `faro mejoras`). Cada punto dice qué se tenía y quién lo planteó, qué hace FARO con una cifra comprobable, dónde verlo y cómo crece. Al ganar algo nuevo: agregar un punto aquí.",
+  "areas": ["Registros administrativos", "Territorio", "Trabajo de campo", "Precios e índices", "Datos y publicación", "Seguridad y cumplimiento"],
+  "puntos": [
+    {
+      "area": "Registros administrativos",
+      "tema": "Un estándar para pedir y recibir datos",
+      "antes": "Cada institución comparte sus registros con su propio formato. No hay un estándar de envío y X-Road no está pensado para datos estadísticos.",
+      "origen": "Gerencia del INE, lanzamiento del 23-nov-2026",
+      "ahora": "El INE escribe una vez qué pide (columnas, catálogos, qué es dato personal) y cada envío se valida contra esa solicitud al recibirlo.",
+      "cifra": "51,719",
+      "cifra_de": "filas reales de 4 instituciones validadas en menos de 3 segundos",
+      "ver": "recibir",
+      "escala": "Una institución nueva es un archivo de solicitud más, sin programar. La plantilla para llenar se descarga del portal."
+    },
+    {
+      "area": "Registros administrativos",
+      "tema": "Lugares escritos de mil maneras",
+      "antes": "El mismo municipio llega con nombres distintos o con códigos propios de cada institución, y se corrige a mano en cada entrega.",
+      "origen": "Gerencia del INE; comprobado en los archivos de RENAP, PNC y SE-CONRED",
+      "ahora": "FARO pone código oficial solo si la coincidencia es exacta y única, o si una persona ya lo confirmó. Lo demás lo propone, y lo que se decide una vez no se vuelve a preguntar.",
+      "cifra": "100 %",
+      "cifra_de": "de los lugares de RENAP y PNC con código oficial; 99.9 % en SE-CONRED",
+      "ver": "pendientes",
+      "escala": "La memoria de equivalencias crece con cada envío: el segundo archivo de una institución casi no pregunta. También se carga en bloque con una tabla."
+    },
+    {
+      "area": "Registros administrativos",
+      "tema": "Datos personales que no deben viajar",
+      "antes": "Los archivos llegan con CUI, nombres y direcciones de personas.",
+      "origen": "Hallado en los archivos compartidos por el INE",
+      "ahora": "El nombre se elimina, el CUI se cambia por una llave que no se puede revertir y las direcciones nunca pasan. El archivo original no se guarda.",
+      "cifra": "82 → 14",
+      "cifra_de": "columnas en el archivo de defunciones de RENAP: salen 14, ninguna con datos personales",
+      "ver": "recibir",
+      "escala": "La regla vive en la solicitud (campo «sensible»): vale igual para cualquier institución que se sume."
+    },
+    {
+      "area": "Registros administrativos",
+      "tema": "Reenvíos sin duplicar ni pisar datos",
+      "antes": "Un archivo mensual no trae solo ese mes: el de nacimientos de junio de 2026 trae hechos desde 1914 (inscripciones tardías). Reemplazar por mes del hecho borraría datos de otros meses.",
+      "origen": "Hallado en los archivos de RENAP",
+      "ahora": "Cada envío se guarda con su mes de registro. Un reenvío reemplaza solo su propio corte, el mismo archivo no se cuenta dos veces y queda el historial.",
+      "cifra": "1914–2026",
+      "cifra_de": "años de ocurrencia dentro de un solo archivo mensual, bien repartidos",
+      "ver": "recibir",
+      "escala": "Sirve para cualquier registro continuo: nacimientos, defunciones, hechos delictivos, incidentes."
+    },
+    {
+      "area": "Registros administrativos",
+      "tema": "Saber qué falta de cada institución",
+      "antes": "Se pidió un tablero de avance de la recopilación de las 22 delegaciones.",
+      "origen": "DIEC · Coordinación Regional (DCR)",
+      "ahora": "«Resultados y avance» muestra por institución y por departamento qué llegó, de qué periodo y cuánto quedó con código oficial.",
+      "cifra": "22",
+      "cifra_de": "departamentos con cobertura a la vista, por institución",
+      "ver": "resultados",
+      "escala": "Cada envío actualiza el avance solo; no hay que alimentar el tablero aparte."
+    },
+    {
+      "area": "Territorio",
+      "tema": "Crecimiento urbano desde el satélite",
+      "antes": "Se pidió detectar el crecimiento urbano a partir de imágenes.",
+      "origen": "Gerencia del INE, lanzamiento del 23-nov-2026",
+      "ahora": "Serie de superficie construida para los 340 municipios cada cinco años (GHSL, que se obtiene de Landsat y Sentinel-2), con animación sobre la foto satelital y proyección con margen medido.",
+      "cifra": "30,722 → 93,297 ha",
+      "cifra_de": "construidas en el país, de 1975 a 2020",
+      "ver": "crecimiento",
+      "escala": "Una versión nueva de la capa se procesa con un comando en menos de un minuto. Ya separa lo residencial de lo no residencial."
+    },
+    {
+      "area": "Territorio",
+      "tema": "Caminos que faltan en el mapa",
+      "antes": "Hay carreteras sin mapear; se propuso usar teoría de grafos para completarlas.",
+      "origen": "Gerencia del INE, lanzamiento del 23-nov-2026",
+      "ahora": "FARO arma el grafo de 144,866 km de caminos, encuentra los lugares poblados que no quedan conectados y propone el enlace más corto que probablemente falta.",
+      "cifra": "707",
+      "cifra_de": "lugares poblados sin conexión y 83 enlaces probables (51 km) para verificar",
+      "ver": "vial",
+      "escala": "Se repite con cada corte de OpenStreetMap. Lo que se confirme en campo vuelve al mapa y mejora la siguiente pasada."
+    },
+    {
+      "area": "Territorio",
+      "tema": "El censo al alcance de cada delegación",
+      "antes": "Se pidió una herramienta con datos del censo por municipio y lugar poblado.",
+      "origen": "DIEC · Coordinación Regional (DCR)",
+      "ahora": "Mapa en tres niveles con ficha por municipio: población, hogares y viviendas por lugar poblado, pirámide de edades y diez indicadores de condiciones de vida.",
+      "cifra": "20,036",
+      "cifra_de": "lugares poblados del Censo 2018, que cuadran uno a uno con el catálogo",
+      "ver": "mapa",
+      "escala": "Los 28 cuadros del censo ya están descargados con procedencia: un indicador nuevo es una columna más."
+    },
+    {
+      "area": "Territorio",
+      "tema": "Errores en fuentes oficiales, detectados solos",
+      "antes": "El libro de proyecciones trae 16 municipios con un código que no existe, y la capa de límites trae intercambiados Sanarate y Sansare. Quien cruza por código pierde o confunde esos municipios.",
+      "origen": "Hallado por FARO al cruzar con el catálogo",
+      "ahora": "Cada fuente se comprueba contra el catálogo al cargarla. Lo que no cuadra se corrige con su constancia y queda escrito.",
+      "cifra": "16 + 2",
+      "cifra_de": "códigos de municipio corregidos, con la razón documentada",
+      "ver": "proceso",
+      "escala": "Las comprobaciones se repiten con `faro verificar` cada vez que una fuente se actualiza."
+    },
+    {
+      "area": "Trabajo de campo",
+      "tema": "Operadores cerca de su puesto",
+      "antes": "Los operadores quedan asignados lejos de donde viven; la asignación no optimiza distancias.",
+      "origen": "Gerencia del INE, lanzamiento del 23-nov-2026",
+      "ahora": "Reparto exacto que hace mínima la suma de distancias entre casa y puesto (método húngaro).",
+      "cifra": "305 → 163 km",
+      "cifra_de": "en el archivo de muestra (datos ficticios, 19 operadores y 7 puestos)",
+      "ver": "operadores",
+      "escala": "Con la red vial, la distancia pasa de línea recta a recorrido por carretera sin cambiar el método."
+    },
+    {
+      "area": "Trabajo de campo",
+      "tema": "Ruta, posición y encuesta en el teléfono",
+      "antes": "Se pidió que cada encuestador conozca su ruta, llene la encuesta en Microsoft Forms y que la posición quede registrada sola, con una foto del lugar.",
+      "origen": "Pedido del equipo para esta versión",
+      "ahora": "Cada operador entra con su usuario, ve sus paradas en orden y registra la visita: el teléfono entrega la posición y se abre Forms con el lugar, la posición y el número de visita ya escritos.",
+      "cifra": "4",
+      "cifra_de": "evidencias independientes por visita: posición, foto, satélite y censo",
+      "ver": "campo",
+      "escala": "Funciona en cualquier teléfono con navegador, sin instalar nada. Las respuestas se unen con las visitas por su número; otros formularios se admiten por configuración."
+    },
+    {
+      "area": "Precios e índices",
+      "tema": "Informantes, productos y precios",
+      "antes": "Se pidió un sistema para registrar informantes, productos y precios, con alertas de variaciones atípicas.",
+      "origen": "DIEC · Índice de Precios al Productor (IPP)",
+      "ahora": "El portal lee por su cuenta las páginas públicas de las tiendas, guarda cada precio con su dirección y su fecha, y avisa de cambios de 15 % o más.",
+      "cifra": "85,907",
+      "cifra_de": "precios publicados por 18 tiendas en seis rubros",
+      "ver": "rubros",
+      "escala": "Una tienda nueva es una tarea más en un archivo. Seis formas de lectura cubren las plataformas de comercio más usadas."
+    },
+    {
+      "area": "Precios e índices",
+      "tema": "El mismo producto entre tiendas",
+      "antes": "Comparar un producto entre proveedores obliga a interpretar descripciones distintas.",
+      "origen": "Dirección de Precios e Índices de Referencia (DPIR)",
+      "ahora": "FARO compara por código de barras, sin interpretar nombres, y explica las diferencias grandes: oferta, valor atípico o por confirmar.",
+      "cifra": "16,291",
+      "cifra_de": "productos con el mismo código en dos o más supermercados",
+      "ver": "rubros",
+      "escala": "Cada tienda que publica el código de barras se suma a la comparación sin trabajo adicional."
+    },
+    {
+      "area": "Precios e índices",
+      "tema": "Precio de referencia con su respaldo",
+      "antes": "La investigación de mercado se arma con cotizaciones y catálogos, y se resume con media, mediana y moda en un informe técnico.",
+      "origen": "Dirección de Precios e Índices de Referencia (DPIR)",
+      "ahora": "Informe imprimible con media, mediana, moda e intervalo de confianza de la mediana, a partir de cotizaciones o de precios publicados, con la fuente de cada precio.",
+      "cifra": "95 %",
+      "cifra_de": "de confianza en el intervalo de la mediana que acompaña a cada precio",
+      "ver": "precios",
+      "escala": "Los históricos de Guatecompras entran por el mismo camino cuando se consulten desde la red del INE."
+    },
+    {
+      "area": "Precios e índices",
+      "tema": "Materiales de construcción (IPMC)",
+      "antes": "Se pidió estandarizar los procedimientos del IPMC.",
+      "origen": "DIEC · IPMC",
+      "ahora": "La canasta de 89 artículos es el catálogo. FARO declara comparable un precio solo si coinciden palabras, medidas y presentación; lo dudoso lo decide una persona.",
+      "cifra": "116",
+      "cifra_de": "proveedores perfilados y 2,332 precios contrastados con la canasta",
+      "ver": "construccion",
+      "escala": "Hay reglas para 42 de los 89 artículos; cada regla nueva amplía la cobertura sin tocar el programa."
+    },
+    {
+      "area": "Precios e índices",
+      "tema": "Derivados de la Hoja de Balance",
+      "antes": "Se pidió una calculadora de derivados para la Hoja de Balance de Alimentos.",
+      "origen": "DIEC · Hoja de Balance de Alimentos (HBA)",
+      "ahora": "Calculadora con las tasas de extracción de la FAO para Guatemala, contrastadas con las cuentas de la HBA 2024 del INE.",
+      "cifra": "6 de 7",
+      "cifra_de": "tasas contrastadas coinciden con lo que publica el INE (harina de trigo: 72.0 % y 72 %)",
+      "ver": "balance",
+      "escala": "Admite otra tabla de tasas: cuando el INE tenga las suyas, se cargan y la calculadora las usa."
+    },
+    {
+      "area": "Datos y publicación",
+      "tema": "Tableros sin licencias",
+      "antes": "Se pidieron tableros dinámicos con herramientas de licencia libre.",
+      "origen": "DIEC · DESA",
+      "ahora": "Se escribe qué se quiere ver y el portal arma el tablero. Se edita en un lienzo, se filtra por territorio y condiciones, y se publica con un enlace que abre cualquiera.",
+      "cifra": "21",
+      "cifra_de": "indicadores y 8 tipos de pieza, sin programa de pago",
+      "ver": "tableros",
+      "escala": "Todo indicador que entra al mapa queda disponible en los tableros."
+    },
+    {
+      "area": "Datos y publicación",
+      "tema": "Resultados que otros pueden usar y repetir",
+      "antes": "El evento exige un prototipo funcional y reproducible, con fuentes citadas.",
+      "origen": "Lineamientos del Datatón INE 2026",
+      "ahora": "Cada descarga deja su procedencia (dirección, fecha, licencia y huella), cada etapa tiene su guion y los resultados salen como capas con dirección estable para un SIG o un portal.",
+      "cifra": "19",
+      "cifra_de": "capas publicadas en GeoJSON y CSV, cada una con su fuente y licencia",
+      "ver": "capas",
+      "escala": "Las capas se pueden registrar tal cual en el portal de datos abiertos del INE (CKAN)."
+    },
+    {
+      "area": "Seguridad y cumplimiento",
+      "tema": "Secreto estadístico",
+      "antes": "Los datos que recibe el INE solo pueden usarse con fines estadísticos y publicarse sin identificar a nadie.",
+      "origen": "Decreto Ley 3-85, artículo 25; Censos y Encuestas (DCE)",
+      "ahora": "Salida sin datos personales, conteos pequeños ocultos para quien no es analista (con supresión complementaria), cuentas por rol y grupo, y bitácora de quién hizo qué.",
+      "cifra": "< 3",
+      "cifra_de": "es el conteo que no se publica; el umbral lo fija el INE",
+      "ver": "acerca",
+      "escala": "El umbral y los grupos se ajustan sin programar. El análisis de conformidad legal está en docs/23."
+    },
+    {
+      "area": "Seguridad y cumplimiento",
+      "tema": "Sin depender de terceros",
+      "antes": "Se pidieron herramientas de licencia libre; los datos no deben salir del INE.",
+      "origen": "DIEC · DESA; lineamientos del evento",
+      "ahora": "Todo corre en un servidor propio: Rust y PostgreSQL, un solo contenedor, sin servicios de pago ni modelos externos que decidan.",
+      "cifra": "Q 0",
+      "cifra_de": "en licencias: todo el software es libre",
+      "ver": "acerca",
+      "escala": "Se instala con un comando en un servidor del INE o en una computadora de una delegación."
+    }
+  ]
+}

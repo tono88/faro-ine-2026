@@ -77,7 +77,7 @@
   .ficha-flotante .cerrar, dialog .cerrar { position:absolute; top:8px; right:8px; border:0; background:var(--cielo); color:var(--azul-oscuro); border-radius:50%; width:28px; height:28px; font-size:16px; cursor:pointer; }
   .ficha-flotante .graficas { display:grid; grid-template-columns:1fr 1fr; gap:10px; } .ficha-flotante .mini { grid-template-columns:repeat(4, 1fr); } .ficha-flotante .mini b { font-size:15px; } .ficha-flotante .mini small { font-size:11px; }
   @media (max-width: 1250px) { .ficha-flotante .graficas { grid-template-columns:1fr; } .ficha-flotante .mini { grid-template-columns:1fr 1fr; } }
-  .acceso .quien { display:flex; gap:8px; align-items:center; } .acceso .quien b { color:var(--azul-oscuro); } .solo-admin[hidden], .con-sesion[hidden] { display:none !important; }
+  .acceso .quien { display:flex; gap:8px; align-items:center; } .acceso .quien b { color:var(--azul-oscuro); } [hidden] { display:none !important; }
   #aviso-clave { background:#fff7e6; border:1px solid #f3d9a4; border-radius:8px; padding:8px 12px; margin-bottom:14px; }
   .mini { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0; } .mini div { background:var(--cielo); border-radius:8px; padding:7px 9px; } .mini b { display:block; font-size:17px; color:var(--azul-oscuro); font-variant-numeric:tabular-nums; } .mini small { color:var(--gris); font-size:12px; line-height:1.3; display:block; }
   .ficha-flotante h3, dialog h3 { font-size:13px; margin:12px 0 4px; color:var(--azul-oscuro); } .ficha-flotante svg { width:100%; height:auto; display:block; }
@@ -103,6 +103,15 @@
   .marca-parada { background:#07306b; color:#fff; border:2px solid #fff; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font:700 12px "Noto Sans", sans-serif; box-shadow:0 1px 4px rgba(0,0,0,.4); } .marca-parada.coherente { background:#1a7f4b; } .marca-parada.revisar { background:#c77700; } .marca-parada.sin_datos { background:#4d9ae1; }
   .veredicto { border-radius:8px; padding:10px 12px; margin:10px 0; font-size:14px; } .veredicto.coherente { background:#e8f6ee; border:1px solid #b5e0c7; } .veredicto.revisar { background:#fff7e6; border:1px solid #f3d9a4; } .veredicto.sin_datos { background:var(--cielo); border:1px solid #cfe1f7; } .veredicto ul { margin:4px 0 0; padding-left:18px; } .veredicto b.t { font-size:15px; }
   #campovisita { max-width:560px; width:calc(100% - 24px); } #cvvista img { max-width:100%; max-height:200px; border-radius:8px; margin-top:8px; display:block; }
+  .mej-areas button { border-style:solid; } .mej-areas button[aria-pressed=true] { background:var(--azul); border-color:var(--azul); color:#fff; } .mej-areas button small { opacity:.8; margin-left:4px; }
+  .mejora { margin:0 0 14px; break-inside:avoid; } .mej-cab { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 6px; } .mejora h3 { margin:0; font-size:16px; color:var(--azul-oscuro); }
+  .mej-fila { display:grid; grid-template-columns:minmax(0, 1fr) 26px minmax(0, 1.25fr) 26px minmax(0, 1fr); align-items:stretch; }
+  .mej-fila > i { align-self:center; justify-self:center; width:0; height:0; border-top:9px solid transparent; border-bottom:9px solid transparent; border-left:12px solid var(--celeste); }
+  .mej { border-radius:var(--radio); padding:12px 14px; font-size:14px; display:flex; flex-direction:column; gap:4px; } .mej > b { font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; } .mej p { margin:0; } .mej small { color:var(--gris); margin-top:auto; padding-top:6px; }
+  .mej.antes { background:#eef0f3; border:1px solid #d9dfe6; } .mej.antes > b { color:var(--gris); }
+  .mej.ahora { background:#fff; border:1px solid var(--borde); border-top:4px solid var(--azul); box-shadow:0 2px 8px rgba(0,81,179,.08); } .mej.ahora > b { color:var(--azul); } .mej.ahora strong { font-size:30px; line-height:1.1; color:var(--azul-oscuro); font-variant-numeric:tabular-nums; } .mej.ahora span { font-size:13px; color:var(--gris); margin-bottom:4px; } .mej.ahora a { margin-top:auto; padding-top:6px; font-weight:600; }
+  .mej.escala { background:#e8f6ee; border:1px solid #b5e0c7; } .mej.escala > b { color:var(--ok); }
+  @media (max-width: 900px) { .mej-fila { grid-template-columns:minmax(0, 1fr); } .mej-fila > i { border-left:9px solid transparent; border-right:9px solid transparent; border-top:12px solid var(--celeste); border-bottom:0; margin:5px 0; } }
   .galeria { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:12px; }
   .tarj-tab { border:1px solid var(--borde); border-top:3px solid var(--celeste); border-radius:var(--radio); background:#fff; padding:12px 14px; display:flex; flex-direction:column; gap:6px; } .tarj-tab.borrador { border-top-color:#c2c9d2; }
   .tarj-tab h3 { margin:0; font-size:15px; color:var(--azul-oscuro); } .tarj-tab small { color:var(--gris); } .tarj-tab p { margin:0; font-size:13px; } .tarj-tab .acc { margin-top:auto; padding-top:6px; display:flex; flex-wrap:wrap; gap:6px; } .tarj-tab .acc button { margin:0; }
@@ -191,6 +200,7 @@
 <nav aria-label="Secciones">
   <h3>Panorama</h3>
   <button data-s="mapa" aria-selected="true">Mapa</button>
+  <button data-s="mejoras">Antes y ahora</button>
   <button data-s="proceso">Proceso</button>
   <button data-s="tableros">Tableros</button>
   <h3>Registros administrativos</h3>
@@ -438,6 +448,12 @@
       <button class="accion" id="pclave">Cambiar contraseña</button></div>
   </section>
 
+  <section id="mejoras">
+    <div class="titulo"><h2>Antes y ahora: qué se tenía, qué hace FARO y cómo crece</h2><p>Cada fila es un punto: a la izquierda lo que se tenía y quién lo planteó; al centro lo que hace FARO, con una cifra que se puede comprobar en la sección enlazada; a la derecha cómo se extiende sin rehacer el sistema. Las cifras salen de los datos reales procesados durante el evento.</p></div>
+    <div class="ejemplos mej-areas" id="mejareas" role="group" aria-label="Filtrar por área"></div>
+    <p style="margin:10px 0 14px"><button class="accion chico suave" id="mejimprimir" style="margin:0">Imprimir esta página</button></p>
+    <div id="mejlista"></div>
+  </section>
   <section id="tableros">
     <div class="titulo"><h2>Tableros</h2><p>Arme un tablero escribiendo qué quiere ver o colocando piezas en el lienzo, fíltrelo por territorio y por condiciones, y publíquelo: los tableros publicados los ve cualquier visitante del portal, sin cuenta, con su propio enlace. No interviene ningún modelo: la frase se interpreta con reglas a la vista y el portal dice qué entendió.</p></div>
     <div id="tabgaleria">
@@ -1573,6 +1589,19 @@ $('#crcrear').onclick = async () => { if (!crMarcados.size) return aviso('Marque
 $('#trutas').onclick = async e => { const v = e.target.closest('button[data-verruta]'), b = e.target.closest('button[data-borrarruta]');
   try { if (v) { document.querySelector('nav button[data-s=campo]').click(); await campo(); $('#camporuta').value = v.dataset.verruta; pintarRuta(); }
     if (b && confirm('¿Borrar esta ruta? Se borran también sus visitas registradas.')) { await api('/api/campo/rutas/' + b.dataset.borrarruta, {method:'DELETE'}); aviso('Ruta borrada.'); campoCoordinar(); } } catch (x) { aviso(x.message, true); } };
+// ---- Antes y ahora ----
+// El contenido viene de datos/estandar/mejoras.json (la misma fuente del documento docs/22).
+let mejorasDatos = null, mejorasArea = '';
+const conCodigo = t => esc(t).replace(/`([^`]+)`/g, '<code>$1</code>');
+async function mejoras() { mejorasDatos = mejorasDatos || await api('/api/mejoras'); pintarMejoras(); }
+function pintarMejoras() { const d = mejorasDatos, ps = d.puntos.filter(p => !mejorasArea || p.area === mejorasArea);
+  $('#mejareas').innerHTML = [['', 'Todo'], ...d.areas.map(a => [a, a])].map(([v, n]) => `<button type="button" data-area="${esc(v)}" aria-pressed="${v === mejorasArea}">${esc(n)} <small>${v ? d.puntos.filter(p => p.area === v).length : d.puntos.length}</small></button>`).join('');
+  $('#mejlista').innerHTML = ps.map(p => `<article class="mejora"><div class="mej-cab"><span class="etq">${esc(p.area)}</span><h3>${esc(p.tema)}</h3></div>
+    <div class="mej-fila"><div class="mej antes"><b>Antes</b><p>${conCodigo(p.antes)}</p><small>${esc(p.origen)}</small></div><i aria-hidden="true"></i>
+      <div class="mej ahora"><b>Con FARO</b><strong>${esc(p.cifra)}</strong><span>${esc(p.cifra_de)}</span><p>${conCodigo(p.ahora)}</p>${p.ver ? `<a href="#${esc(p.ver)}">Verlo en «${esc(NOMBRE_SECCION[p.ver] || p.ver)}» →</a>` : ''}</div><i aria-hidden="true"></i>
+      <div class="mej escala"><b>Cómo escala</b><p>${conCodigo(p.escala)}</p></div></div></article>`).join(''); }
+$('#mejareas').onclick = e => { const b = e.target.closest('button[data-area]'); if (b) { mejorasArea = b.dataset.area; pintarMejoras(); } };
+$('#mejimprimir').onclick = () => window.print();
 // ---- Hoja de balance: derivados ----
 let hbaTexto = '', hbaPrimarios = [];
 function hbaPedir(producto, cantidad) { const p = new URLSearchParams(producto ? {producto, cantidad: cantidad ?? ''} : {});
@@ -1734,7 +1763,7 @@ async function perfil() { if (!yo) return; $('#perfilinfo').textContent = `Usuar
 $('#pguardar').onclick = async () => { try { await api('/api/perfil', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({nombre: $('#pnombre').value})}); await verSesion(); aviso('Nombre guardado.'); } catch (x) { aviso(x.message, true); } };
 $('#pclave').onclick = async () => { if ($('#pnueva').value !== $('#pnueva2').value) return aviso('Las dos contraseñas nuevas no coinciden.', true);
   try { await api('/api/perfil', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({clave_actual: $('#pactual').value, clave_nueva: $('#pnueva').value})}); ['#pactual', '#pnueva', '#pnueva2'].forEach(c => $(c).value = ''); await verSesion(); aviso('Contraseña cambiada.'); } catch (x) { aviso(x.message, true); } };
-const NOMBRE_SECCION = {mapa:'Mapa', proceso:'Proceso', tableros:'Tableros', campo:'Mi ruta de campo', recibir:'Recibir envío', pendientes:'Revisar pendientes', memoria:'Equivalencias', resultados:'Resultados y avance', crecimiento:'Población y crecimiento', vial:'Red vial', operadores:'Operadores de campo', alimentaria:'Seguridad alimentaria', construccion:'Materiales de construcción', precios:'Precios de referencia', canasta:'Canasta básica', rubros:'Precios por rubro', balance:'Hoja de balance', muestreos:'Muestreos automáticos', ine:'Portal del INE', capas:'Capas publicadas', acerca:'Acerca y fuentes', perfil:'Mi perfil'};
+const NOMBRE_SECCION = {mapa:'Mapa', mejoras:'Antes y ahora', proceso:'Proceso', tableros:'Tableros', campo:'Mi ruta de campo', recibir:'Recibir envío', pendientes:'Revisar pendientes', memoria:'Equivalencias', resultados:'Resultados y avance', crecimiento:'Población y crecimiento', vial:'Red vial', operadores:'Operadores de campo', alimentaria:'Seguridad alimentaria', construccion:'Materiales de construcción', precios:'Precios de referencia', canasta:'Canasta básica', rubros:'Precios por rubro', balance:'Hoja de balance', muestreos:'Muestreos automáticos', ine:'Portal del INE', capas:'Capas publicadas', acerca:'Acerca y fuentes', perfil:'Mi perfil'};
 let grupos = [], grupoEditado = null, seccionesPosibles = [];
 function formGrupo(g) { grupoEditado = g ? g.id : null; $('#grupoform').hidden = false; $('#gnombre').value = g ? g.nombre : ''; $('#gdesc').value = g ? g.descripcion : '';
   $('#gsecciones').innerHTML = seccionesPosibles.filter(x => x !== 'usuarios' && x !== 'perfil').map(x => `<label><input type="checkbox" value="${x}" ${!g || g.secciones.includes(x) ? 'checked' : ''}> ${esc(NOMBRE_SECCION[x] || x)}</label>`).join(''); $('#gnombre').focus(); }
@@ -1773,7 +1802,7 @@ async function alimentaria() {
     {t:'Con retardo en talla (%)', num:1, f:f => `<div class="barra" style="min-width:70px"><i style="width:${f.retardo_en_talla_pct}%;background:var(--mal)"></i></div><b>${esc(f.retardo_en_talla_pct)} %</b>`},
     {t:'Vulnerabilidad nutricional', f:f => `<span class="etq ${/alta/.test(f.vulnerabilidad) ? 'mal' : f.vulnerabilidad === 'moderada' ? 'alerta' : 'ok'}">${esc(f.vulnerabilidad)}</span>`}], r.talla || [], 'Este servidor no tiene cargado el censo de talla (se genera con "faro talla").');
 }
-const cargar = {tableros, balance: hbaIniciar, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: campoCoordinar, campo};
+const cargar = {mejoras, tableros, balance: hbaIniciar, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: campoCoordinar, campo};
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 // Enlaces internos del tipo <a href="#seccion"> llevan a esa sección del menú.
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const b = a && document.querySelector(`nav button[data-s="${a.getAttribute('href').slice(1)}"]`); if (b) { e.preventDefault(); b.click(); } });

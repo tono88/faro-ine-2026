@@ -141,6 +141,14 @@ enum Comando {
         #[arg(long, default_value = "datos/referencia/superficie_construida_municipio.csv")]
         salida: PathBuf,
     },
+    /// Escribe el documento «Antes y ahora» a partir de datos/estandar/mejoras.json (la misma fuente
+    /// que usa la pantalla), para que el portal y el documento digan siempre lo mismo.
+    Mejoras {
+        #[arg(long, default_value = "datos/estandar/mejoras.json")]
+        entrada: PathBuf,
+        #[arg(long, default_value = "docs/22-antes-y-ahora.md")]
+        salida: PathBuf,
+    },
     /// Uso del suelo construido: superficie residencial y no residencial por municipio y por bloque
     /// de 1 km, con las dos capas de GHSL (total y componente no residencial, NRES).
     UsoSuelo {
@@ -435,6 +443,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         }
         Comando::Construido { mosaicos, municipios, salida } => return construido(&mosaicos, &municipios, &salida),
         Comando::UsoSuelo { total, no_residencial, municipios, salida } => return uso_suelo(&total, &no_residencial, &municipios, &salida),
+        Comando::Mejoras { entrada, salida } => return mejoras(&entrada, &salida),
         Comando::Precios { cotizaciones, cv_parecidos, salida } => {
             use faro_territorio::precios;
             let p = precios::Parametros { cv_parecidos_pct: cv_parecidos, ..Default::default() };
@@ -751,7 +760,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Comando::Verificar { .. } | Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::UsoSuelo { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
+        Comando::Verificar { .. } | Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::UsoSuelo { .. } | Comando::Mejoras { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
     }
 }
 
@@ -1183,6 +1192,40 @@ fn construido(dir: &Path, ruta_municipios: &Path, salida: &Path) -> Result<ExitC
     }
     w.flush().map_err(|e| e.to_string())?;
     println!("{escritos} bloques de 1 km con construcción -> {}", ruta_b.display());
+    Ok(ExitCode::SUCCESS)
+}
+
+/// Documento «Antes y ahora»: una tabla por área con lo que se tenía, lo que hace FARO y cómo escala.
+fn mejoras(entrada: &Path, salida: &Path) -> Result<ExitCode, String> {
+    let d: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(entrada).map_err(|e| format!("{}: {e}", entrada.display()))?).map_err(|e| format!("{}: {e}", entrada.display()))?;
+    let puntos = d["puntos"].as_array().ok_or("mejoras.json no trae la lista «puntos»")?;
+    let t = |p: &serde_json::Value, k: &str| p[k].as_str().unwrap_or("").replace('|', "/");
+    // Nombre de cada sección del portal tal como aparece en su menú.
+    let seccion = |id: &str| match id {
+        "recibir" => "Recibir envío", "pendientes" => "Revisar pendientes", "resultados" => "Resultados y avance", "crecimiento" => "Población y crecimiento", "vial" => "Red vial", "mapa" => "Mapa", "proceso" => "Proceso",
+        "operadores" => "Operadores de campo", "campo" => "Mi ruta de campo", "rubros" => "Precios por rubro", "precios" => "Precios de referencia", "construccion" => "Materiales de construcción", "balance" => "Hoja de balance: derivados",
+        "tableros" => "Tableros", "capas" => "Capas publicadas", "acerca" => "Acerca y fuentes", otro => otro,
+    }.to_string();
+    let mut md = String::from("# Antes y ahora: qué se tenía, qué hace FARO y cómo escala\n\n");
+    md += "Este documento se genera con `faro mejoras` a partir de [`datos/estandar/mejoras.json`](../datos/estandar/mejoras.json),\nla misma fuente de la sección «Antes y ahora» del portal. Para agregar un punto se edita ese archivo.\n\n";
+    md += &format!("Son {} puntos. Cada uno dice quién planteó la necesidad o cómo se halló el problema, qué hace FARO con una\ncifra comprobable en el portal y cómo crece sin rehacer el sistema.\n", puntos.len());
+    for area in d["areas"].as_array().into_iter().flatten().filter_map(|a| a.as_str()) {
+        let suyos: Vec<&serde_json::Value> = puntos.iter().filter(|p| p["area"] == area).collect();
+        if suyos.is_empty() {
+            continue;
+        }
+        md += &format!("\n## {area}\n\n| Tema | Antes | Con FARO | Cómo escala |\n|---|---|---|---|\n");
+        for p in suyos {
+            md += &format!("| **{}** | {} *({})* | **{}** {}. {} Se ve en «{}». | {} |\n", t(p, "tema"), t(p, "antes"), t(p, "origen"), t(p, "cifra"), t(p, "cifra_de"), t(p, "ahora"), seccion(&t(p, "ver")), t(p, "escala"));
+        }
+    }
+    // Un punto con un área que no está en la lista no saldría en ninguna tabla: mejor avisar.
+    let sin_area = puntos.iter().filter(|p| !d["areas"].as_array().is_some_and(|a| a.contains(&p["area"]))).count();
+    if sin_area > 0 {
+        return Err(format!("{sin_area} punto(s) tienen un área que no está en la lista «areas»"));
+    }
+    std::fs::write(salida, md).map_err(|e| format!("{}: {e}", salida.display()))?;
+    println!("{} puntos -> {}", puntos.len(), salida.display());
     Ok(ExitCode::SUCCESS)
 }
 

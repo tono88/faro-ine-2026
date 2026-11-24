@@ -48,6 +48,8 @@ struct Estado {
     referencias: Vec<HashMap<String, String>>,
     /// Fuentes y citas (datos/estandar/fuentes.json).
     fuentes: Value,
+    /// Comparativo «antes · con FARO · cómo escala» (datos/estandar/mejoras.json).
+    mejoras: Value,
     /// Materiales de construcción: reglas del IPMC, artículos, precios publicados y proveedores.
     construccion: Construccion,
     /// Superficie construida (hectáreas) por municipio y época, de GHSL: código -> [(año, ha)].
@@ -191,6 +193,7 @@ async fn main() -> Result<(), String> {
         bloques,
         epocas,
         dir_scripts: PathBuf::from(var("FARO_SCRIPTS", "scripts/reproducir")),
+        mejoras: std::fs::read_to_string(var("FARO_MEJORAS", "datos/estandar/mejoras.json")).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_else(|| json!({ "areas": [], "puntos": [] })),
         fuentes: std::fs::read_to_string(var("FARO_FUENTES", "datos/estandar/fuentes.json")).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_else(|| json!({ "fuentes": [] })),
         construccion,
         construido,
@@ -262,6 +265,7 @@ async fn main() -> Result<(), String> {
         .route("/api/referencias", get(api_referencias))
         .route("/api/proceso", get(api_proceso))
         .route("/api/fuentes", get(|State(e): State<Compartido>| async move { Json(e.fuentes.clone()) }))
+        .route("/api/mejoras", get(|State(e): State<Compartido>| async move { Json(e.mejoras.clone()) }))
         .route("/api/reproducir/poblacion", post(api_reproducir_poblacion))
         .route("/api/sesion", get(api_sesion).post(api_ingresar).delete(api_salir))
         .route("/api/perfil", post(api_perfil))
@@ -2345,7 +2349,7 @@ async fn api_usuario_cambiar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, c
 // ---------------------------------------------------------------------------------------------
 
 /// Secciones del portal que un grupo puede tener.
-const SECCIONES: [&str; 23] = ["mapa", "proceso", "tableros", "recibir", "pendientes", "memoria", "resultados", "crecimiento", "vial", "operadores", "campo", "alimentaria", "construccion", "precios", "canasta", "rubros", "balance", "muestreos", "ine", "capas", "acerca", "perfil", "usuarios"];
+const SECCIONES: [&str; 24] = ["mapa", "mejoras", "proceso", "tableros", "recibir", "pendientes", "memoria", "resultados", "crecimiento", "vial", "operadores", "campo", "alimentaria", "construccion", "precios", "canasta", "rubros", "balance", "muestreos", "ine", "capas", "acerca", "perfil", "usuarios"];
 
 async fn api_grupos(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     solo_admin(&e, &cabeceras).await?;
