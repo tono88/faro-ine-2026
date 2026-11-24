@@ -107,3 +107,13 @@ como lo publica la tienda, la unidad, la dirección exacta de la página y la fe
 - Son precios publicados, no cotizaciones: para la Dirección de Precios son fuentes secundarias.
 
 La comparación contra el IPMC (`faro construccion`) usa las reglas de `datos/estandar/ipmc_reglas.toml`.
+
+## Capas agregadas
+
+- `departamentos.geojson`: 22 departamentos, de la misma fuente que los municipios (`faro limites`).
+- `red_vial_contexto.geojson`: 2,384 tramos de camino a 1.5 km de cada enlace propuesto, con la
+  marca de si pertenecen a la red principal o a un tramo suelto (`faro vial`; © colaboradores de
+  OpenStreetMap, ODbL).
+- `superficie_construida_bloques.csv`: 26,669 bloques de 1 km con al menos media hectárea
+  construida en alguna época, con su centro, su municipio y las hectáreas por época
+  (`faro construido`; GHSL). Es la huella edificada que anima el mapa.

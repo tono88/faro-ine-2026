@@ -54,6 +54,32 @@
    "cita": "Instituto Nacional de Estadística (INE). (2023). Precios de referencia (al 2 de octubre de 2023) [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/precios-de-referencia Consultado el 24 de noviembre de 2026."
   },
   {
+   "id": "cba",
+   "autor": "Instituto Nacional de Estadística (INE)",
+   "anio": "2023",
+   "titulo": "Precios promedio de la canasta básica alimentaria, diciembre 2020 a octubre 2023",
+   "tipo": "conjunto de datos",
+   "editor": "Portal de datos abiertos del INE",
+   "url": "https://datos.ine.gob.gt/es/dataset/precios-promedio-canasta-basica-alimentaria",
+   "licencia": "CC BY",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Precio promedio mensual de 34 productos de la canasta básica.",
+   "cita": "Instituto Nacional de Estadística (INE). (2023). Precios promedio de la canasta básica alimentaria, diciembre 2020 a octubre 2023 [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/precios-promedio-canasta-basica-alimentaria Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "muestreo",
+   "autor": "FARO (muestreo automático)",
+   "anio": "2026",
+   "titulo": "Precios publicados en tiendas en línea de Guatemala (búsquedas públicas de sus catálogos)",
+   "tipo": "conjunto de datos",
+   "editor": "páginas públicas de cada tienda",
+   "url": "",
+   "licencia": "información comercial pública; cada precio guarda la dirección de su página",
+   "consultado": "la fecha de cada muestreo",
+   "uso": "Precios de construcción y de alimentos que el portal recoge con tareas configurables.",
+   "cita": "FARO (muestreo automático). (2026). Precios publicados en tiendas en línea de Guatemala (búsquedas públicas de sus catálogos) [conjunto de datos]. páginas públicas de cada tienda. Consultado el la fecha de cada muestreo."
+  },
+  {
    "id": "portal-ine",
    "autor": "Instituto Nacional de Estadística (INE)",
    "anio": "2026",

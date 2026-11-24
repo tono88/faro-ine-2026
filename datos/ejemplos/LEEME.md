@@ -12,3 +12,7 @@ del INE ni de ninguna institución y no describen a personas reales.
   cálculo del precio de referencia.
 - `puestos_ficticios.csv`: 7 puestos de trabajo en lugares poblados reales de Sololá y cuántos
   operadores necesita cada uno (inventado).
+- `tabla_codigos_ficticia.csv`: ejemplo de tabla de códigos de una institución para cargar en
+  "Equivalencias".
+- `solicitud_hechos_transito.toml`: solicitud de ejemplo para probar `faro recibir` con
+  `envio_hechos_transito.csv`. No aparece en la pantalla.

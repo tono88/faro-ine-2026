@@ -14,6 +14,10 @@ Todo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, 
   - Uso en FARO: Catálogo oficial de 89 artículos de construcción, con índice y variación interanual. Licencia: CC BY.
 - Instituto Nacional de Estadística (INE). (2023). Precios de referencia (al 2 de octubre de 2023) [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/precios-de-referencia Consultado el 24 de noviembre de 2026.
   - Uso en FARO: 4,990 precios de referencia emitidos por el INE, consultables desde la pantalla. Licencia: CC BY.
+- Instituto Nacional de Estadística (INE). (2023). Precios promedio de la canasta básica alimentaria, diciembre 2020 a octubre 2023 [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/precios-promedio-canasta-basica-alimentaria Consultado el 24 de noviembre de 2026.
+  - Uso en FARO: Precio promedio mensual de 34 productos de la canasta básica. Licencia: CC BY.
+- FARO (muestreo automático). (2026). Precios publicados en tiendas en línea de Guatemala (búsquedas públicas de sus catálogos) [conjunto de datos]. páginas públicas de cada tienda. Consultado el la fecha de cada muestreo.
+  - Uso en FARO: Precios de construcción y de alimentos que el portal recoge con tareas configurables. Licencia: información comercial pública; cada precio guarda la dirección de su página.
 - Instituto Nacional de Estadística (INE). (2026). Portal de datos abiertos del INE: catálogo de conjuntos (API CKAN) [sitio web]. INE. https://datos.ine.gob.gt Consultado el 23 de noviembre de 2026.
   - Uso en FARO: Inventario y vigilancia automática de los 105 conjuntos publicados. Licencia: la de cada conjunto.
 - Instituto Nacional de Estadística (INE), Coordinación del Sistema Estadístico Nacional. (2026). Archivos de ejemplo de registros administrativos de RENAP, PNC, SE-CONRED e INSIVUMEH compartidos para el Datatón [archivos no publicados]. INE. Consultado el 23 de noviembre de 2026.

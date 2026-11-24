@@ -2,6 +2,19 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.8.0 · 24-nov-2026
+- Muestreos automáticos configurables de precios publicados (tiendas con catálogo VTEX); los de
+  construcción entran a la comparación contra el IPMC.
+- Rubro de alimentos: canasta básica del INE (34 productos) junto a precios publicados.
+- Ficha flotante de municipio con mini tablero, animación del crecimiento construido y
+  estadísticos de la confianza; reporte municipal para imprimir.
+- Capas nuevas: caminos alrededor de cada enlace, huella construida en bloques de 1 km,
+  departamentos y lugares poblados.
+- Códigos numéricos que no existen: se proponen sus lecturas posibles; carga de la tabla de
+  códigos de una institución.
+- Archivo de ejemplo en cada carga, unidades en las tablas, algoritmo visible y procedimiento
+  descargable (Bash y PowerShell) en cada etapa. Se retira la institución de ejemplo.
+
 ## v0.7.0 · 24-nov-2026
 - El cálculo de población se puede repetir desde la pantalla, paso a paso, contra el portal del INE.
 - Flujo de proceso por etapas y responsables, con cifras en vivo.

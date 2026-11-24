@@ -28,7 +28,7 @@ Leer primero `README.md` y `docs/` (necesidades del INE, arquitectura, plan, hal
 Hecho y probado en contenedor + Chromium: núcleo de homologación con memoria (lugares y valores de
 catálogo por dimensión), lectura de Excel/CSV reales, salida estándar sin datos personales,
 solicitudes RENAP/PNC/SE-CONRED, cliente CKAN con procedencia, servidor axum + PostgreSQL + pantalla
-(14 secciones), catálogo Censo 2018 verificado (20,036 lugares poblados con coordenadas), asignación
+(16 secciones), catálogo Censo 2018 verificado (20,036 lugares poblados con coordenadas), asignación
 de operadores (método húngaro), población INE 2015–2030 por municipio (`datos/referencia/`), tasas
 por 100 mil habitantes, avance de recepción por institución, precios de referencia a partir de
 cotizaciones (`faro precios`), crecimiento de edificaciones, aire.
@@ -78,6 +78,16 @@ temporal); sección "Proceso" (`/api/proceso`, `docs/12-proceso.md`); `faro refe
 (única fuente para la pantalla; `docs/11-fuentes-y-citas.md` se regenera a mano con ese contenido);
 `docs/00-que-se-hizo.md`. Al agregar una fuente nueva: manifiesto + `fuentes.json` + doc de citas.
 
+Agregado después (v0.8.0): muestreos (`crates/faro-fuentes/src/muestreo.rs`, `datos/estandar/muestreos.toml`,
+tablas `muestreos` y `precios_observados`, sección "Muestreos automáticos"); canasta básica
+(`faro canasta`, `/api/canasta`); ficha flotante y `/api/municipio/:codigo`; modal de detalle con
+animación (bloques de `superficie_construida_bloques.csv`); `/reporte?municipio=`; plantillas
+`/api/solicitudes/:id/plantilla.csv`; `POST /api/equivalencias/tabla`; `scripts/reproducir/*.sh|ps1`
+servidos en `/scripts/`; `homologar::lecturas_de_codigo` (códigos numéricos de otro departamento).
+La solicitud de ejemplo está en `datos/ejemplos/` (no se muestra en la pantalla, por decisión del equipo).
+El portal no usa modelos externos en ejecución: todo es código determinista (está dicho en "Acerca").
+Los `.ps1` no se han probado en Windows.
+
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar
    `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del municipio,
@@ -86,6 +96,6 @@ temporal); sección "Proceso" (`/api/proceso`, `docs/12-proceso.md`); `faro refe
    de Cloudflare a clientes automáticos desde la nube; probar desde la máquina del equipo.
 3. Ampliar las reglas del IPMC a más artículos y sumar proveedores con precios (ferreterías del
    interior: sus precios no están en línea; haría falta cotización directa).
-4. Publicar releases v0.1.0–v0.7.0 (la sesión en la nube no tiene permiso; ver `docs/08-versiones.md`).
+4. Publicar releases v0.1.0–v0.8.0 (la sesión en la nube no tiene permiso; ver `docs/08-versiones.md`).
 5. Entregables: PDF, video (2–3 min), README final con las secciones mínimas de la Nota
    Conceptual. Invitar al jurado al repositorio. Fusionar la rama de trabajo en `main`.

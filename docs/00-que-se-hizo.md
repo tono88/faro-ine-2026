@@ -43,10 +43,15 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 - Materiales de construcción: la canasta oficial del IPMC (89 artículos) como estándar; 116
   proveedores perfilados y 2,332 precios publicados, homologados contra ella.
 - Búsqueda en los 4,990 precios de referencia que el INE ya emitió y publica en su portal.
+- Canasta básica: precio promedio del INE de 34 productos, junto a precios publicados.
+- Muestreos automáticos configurables: el portal recoge solo los precios publicados por tiendas
+  en línea, con su dirección y fecha.
 
 ## 6. Mapa, capas y proceso
 
-- Un mapa por municipio con todos los indicadores.
+- Un mapa por municipio con todos los indicadores; al tocar uno, su ficha con gráficas, la
+  animación de su crecimiento y un reporte para imprimir.
+- Junto a cada resultado, el procedimiento descargable que lo reproduce fuera del portal.
 - Capas en GeoJSON y CSV con dirección estable para un portal o un SIG.
 - El flujo de trabajo por etapas y responsables, con cifras en vivo ([proceso](12-proceso.md)).
 
@@ -60,9 +65,9 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 | | |
 |---|---|
-| Pruebas automáticas | 66 |
-| Comandos de `faro` | 16 |
-| Secciones de la pantalla | 14 |
-| Capas publicadas | 7 |
-| Fuentes citadas | 19 |
+| Pruebas automáticas | 69 |
+| Comandos de `faro` | 17 |
+| Secciones de la pantalla | 16 |
+| Capas publicadas | 11 |
+| Fuentes citadas | 21 |
 | Hallazgos documentados | [12](09-logros.md) |

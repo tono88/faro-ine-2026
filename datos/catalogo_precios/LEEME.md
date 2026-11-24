@@ -16,3 +16,8 @@ características se recortan a 300 caracteres. Las 222 categorías se conservan 
 
 Los nombres y unidades se copian del INE sin cambios. Este catálogo es el estándar contra el que
 se homologan los productos de los proveedores.
+
+`cba_precios.csv`: precio promedio mensual de los 34 productos de la canasta básica alimentaria,
+de diciembre de 2020 a octubre de 2023. Fuente: INE, conjunto
+`precios-promedio-canasta-basica-alimentaria` de <https://datos.ine.gob.gt>, descargado el
+24-nov-2026 (UTC). Se genera con `faro canasta`. El conjunto no indica la unidad de cada producto.

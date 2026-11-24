@@ -1218,8 +1218,8 @@ async fn api_muestreo_configurar(State(e): State<Compartido>, Ruta(id): Ruta<Str
         return Err(pedido("la frecuencia debe estar entre 1 hora y 90 días"));
     }
     e.bd.execute(
-        "INSERT INTO muestreos (id, activa, cada_horas) VALUES ($1, coalesce($2, $4), coalesce($3, $5))
-         ON CONFLICT (id) DO UPDATE SET activa = coalesce($2, muestreos.activa), cada_horas = coalesce($3, muestreos.cada_horas)",
+        "INSERT INTO muestreos (id, activa, cada_horas) VALUES ($1, coalesce($2::bool, $4::bool), coalesce($3::int4, $5::int4))
+         ON CONFLICT (id) DO UPDATE SET activa = coalesce($2::bool, muestreos.activa), cada_horas = coalesce($3::int4, muestreos.cada_horas)",
         &[&id, &c.activa, &c.cada_horas, &t.activa, &t.cada_horas],
     )
     .await

@@ -62,6 +62,17 @@
   .leyenda { display:grid; gap:3px; font-size:13px; } .leyenda span { display:flex; gap:8px; align-items:center; } .leyenda i { width:22px; height:12px; border-radius:2px; border:1px solid rgba(0,0,0,.15); }
   .ficha dl { display:grid; grid-template-columns:1fr auto; gap:4px 12px; margin:8px 0 0; font-size:14px; } .ficha dt { color:var(--gris); } .ficha dd { margin:0; font-weight:600; text-align:right; font-variant-numeric:tabular-nums; }
   .leaflet-container { font:inherit; }
+  .mapa-marco { position:relative; }
+  .ficha-flotante { position:absolute; top:10px; right:10px; width:340px; max-width:calc(100% - 20px); max-height:calc(100% - 20px); overflow:auto; z-index:900; background:#fff; border:1px solid var(--borde); border-radius:var(--radio); box-shadow:0 8px 28px rgba(7,48,107,.22); padding:14px; }
+  .ficha-flotante .cerrar, dialog .cerrar { position:absolute; top:8px; right:8px; border:0; background:var(--cielo); color:var(--azul-oscuro); border-radius:50%; width:28px; height:28px; font-size:16px; cursor:pointer; }
+  .mini { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0; } .mini div { background:var(--cielo); border-radius:8px; padding:7px 9px; } .mini b { display:block; font-size:17px; color:var(--azul-oscuro); font-variant-numeric:tabular-nums; } .mini small { color:var(--gris); font-size:12px; line-height:1.3; display:block; }
+  .ficha-flotante h3, dialog h3 { font-size:13px; margin:12px 0 4px; color:var(--azul-oscuro); } .ficha-flotante svg { width:100%; height:auto; display:block; }
+  dialog { border:0; border-radius:14px; padding:22px; width:min(760px, 94vw); max-height:92vh; box-shadow:0 20px 60px rgba(0,0,0,.35); color:var(--tinta); } dialog::backdrop { background:rgba(7,48,107,.45); }
+  #animlienzo { width:100%; height:auto; background:#f4f8fc; border:1px solid var(--borde); border-radius:8px; }
+  .rampa { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--gris); } .rampa i { display:block; height:10px; flex:1; border-radius:3px; background:linear-gradient(90deg,#fff3c4,#f9b24a,#e0561b,#8f1d0c); }
+  tr.clic { cursor:pointer; } .etq.clic { cursor:pointer; text-decoration:underline dotted; }
+  details.como { margin-top:12px; border:1px solid var(--borde); border-radius:8px; padding:8px 12px; background:#fbfcfe; } details.como summary { cursor:pointer; font-weight:600; color:var(--azul-oscuro); } details.como li { margin:4px 0; }
+  .proc { font-size:13px; }
   /* Flujo de proceso: carriles (quién) y etapas (qué) */
   .flujo { display:grid; gap:0; overflow-x:auto; border:1px solid var(--borde); border-radius:var(--radio); background:#fff; }
   .flujo .carril { display:contents; }
@@ -107,6 +118,8 @@
   <h3>Precios</h3>
   <button data-s="construccion">Materiales de construcción</button>
   <button data-s="precios">Precios de referencia</button>
+  <button data-s="canasta">Canasta básica</button>
+  <button data-s="muestreos">Muestreos automáticos</button>
   <h3>Datos</h3>
   <button data-s="ine">Portal del INE</button>
   <button data-s="capas">Capas publicadas</button>
@@ -116,7 +129,8 @@
   <section id="mapa" class="activa">
     <div class="titulo"><h2>Guatemala por municipio</h2><p>Lo que FARO sabe de cada municipio, en un solo mapa: población del INE, conexión vial de sus lugares poblados y los registros que han enviado las instituciones. Elija qué ver; toque un municipio para su ficha.</p></div>
     <div class="mapa-zona">
-      <div id="lienzo" role="application" aria-label="Mapa de municipios de Guatemala"></div>
+      <div class="mapa-marco"><div id="lienzo" role="application" aria-label="Mapa de municipios de Guatemala"></div>
+        <aside id="ficha" class="ficha-flotante" hidden aria-live="polite"></aside></div>
       <div class="mapa-lado">
         <div class="panel">
           <h2>Qué colorear</h2>
@@ -126,11 +140,14 @@
         </div>
         <div class="panel">
           <h2>Capas</h2>
-          <label class="opcion"><input type="checkbox" id="capaenlaces"> Enlaces viales que probablemente faltan</label>
+          <label class="opcion"><input type="checkbox" id="capaenlaces"> Enlaces viales que probablemente faltan, con los caminos ya mapeados a su alrededor</label>
           <label class="opcion"><input type="checkbox" id="capalugares"> Lugares poblados sin conexión vial</label>
+          <label class="opcion"><input type="checkbox" id="capahuella"> Huella construida, bloques de 1 km (satélite)</label>
+          <div id="huellactl" hidden style="margin:2px 0 8px 24px"><input type="range" id="huellaanio" min="0" max="9" value="9" style="width:100%" aria-label="Época de la huella construida"><div style="display:flex;justify-content:space-between;align-items:center"><b id="huellaetq">2020</b><button class="accion chico suave" id="huellaplay" style="margin:0">▶ Animar</button></div><div class="rampa"><span>poco</span><i></i><span>100 ha por km²</span></div></div>
+          <label class="opcion"><input type="checkbox" id="capapoblados"> Lugares poblados del censo (19,723)</label>
           <label class="opcion"><input type="checkbox" id="capabase"> Mapa base de OpenStreetMap (requiere internet)</label>
         </div>
-        <div class="panel ficha" id="ficha"><h2>Ficha</h2><p class="nota" style="margin:0">Toque un municipio.</p></div>
+        <div class="panel"><h2>Ficha del municipio</h2><p class="nota" style="margin:0">Toque un municipio: su ficha se abre sobre el mapa, con sus cifras, dos gráficas, la animación de su crecimiento y un reporte para imprimir.</p><p class="proc" data-proc="limites" style="margin:8px 0 0"></p></div>
       </div>
     </div>
   </section>
@@ -141,13 +158,14 @@
     <div class="panel">
       <h2>Recibir un envío</h2>
       <p class="nota">Elija qué registro envía la institución y suba el archivo tal como llega (CSV o Excel). Solo pasan las columnas pedidas; nombres y documentos de identidad se eliminan o se sustituyen por una llave.</p>
-      <p class="nota">Para probar: elija "Institución de ejemplo" y suba este <a href="/ejemplos/envio_hechos_transito.csv">envío de ejemplo (ficticio)</a>.</p>
       <label for="sol">Solicitud de datos</label><select id="sol"></select>
       <div id="solinfo" class="nota"></div>
+      <p class="nota" id="solejemplo"></p>
       <label for="archivo">Archivo</label><input type="file" id="archivo" accept=".csv,.txt,.xlsx,.xls,.xlsm,.ods">
       <button class="accion" id="enviar">Validar y homologar</button>
     </div>
     <div class="panel" id="resultado" hidden></div>
+    <div class="panel"><p class="proc" data-proc="registros" style="margin:0"></p></div>
     <div class="panel"><h2>Envíos recibidos</h2><div class="tabla"><table id="envios"></table></div></div>
   </section>
 
@@ -160,7 +178,12 @@
     </div>
   </section>
 
-  <section id="memoria"><div class="panel"><h2>Equivalencias confirmadas</h2><p class="nota">Bitácora de decisiones: qué texto equivale a qué lugar oficial, quién lo confirmó y cuándo.</p><div class="tabla"><table id="tmem"></table></div></div></section>
+  <section id="memoria"><div class="panel"><h2>Cargar la tabla de códigos de una institución</h2>
+    <p class="nota">Si una institución usa sus propios códigos (por ejemplo, números de municipio que no son los del INE) y tiene la tabla que los traduce, súbala una vez: cada fila queda como equivalencia confirmada a su nombre y los envíos se resuelven solos. Cómo debe ser el archivo: CSV con las columnas <code>nivel</code> (departamento, municipio, lugar_poblado o valor), <code>contexto</code> (código del nivel superior donde vale, o la variable si es un valor; puede ir vacío), <code>valor</code> (lo que manda la institución), <code>codigo</code> (el código INE o el valor permitido) e <code>institucion</code>. <a href="/ejemplos/tabla_codigos_ficticia.csv">Archivo de ejemplo (ficticio)</a>. Las filas que no cuadran con el catálogo se rechazan y se listan.</p>
+    <label for="tablausuario">Su nombre (queda en la bitácora)</label><input type="text" id="tablausuario" style="max-width:320px">
+    <label for="csvtabla">Tabla de códigos (CSV)</label><input type="file" id="csvtabla" accept=".csv">
+    <button class="accion" id="subirtabla">Cargar tabla</button><p class="nota" id="tablares" style="white-space:pre-line"></p></div>
+  <div class="panel"><h2>Equivalencias confirmadas</h2><p class="nota">Bitácora de decisiones: qué texto equivale a qué lugar oficial, quién lo confirmó y cuándo.</p><div class="tabla"><table id="tmem"></table></div></div></section>
 
   <section id="resultados">
     <div class="panel"><h2>Avance de la recepción</h2><p class="nota">Qué pidió el INE a cada institución, qué ha llegado y con qué calidad.</p><div class="tabla"><table id="tavance"></table></div></div>
@@ -176,6 +199,15 @@
       <label for="pobdesde">Comparar del año</label><input type="number" id="pobdesde" value="2018" min="2015" max="2029" style="max-width:120px">
       <label for="pobhasta">al año</label><input type="number" id="pobhasta" value="2030" min="2016" max="2030" style="max-width:120px">
       <div class="tabla" style="margin-top:12px"><table id="tpob"></table></div>
+      <details class="como"><summary>Cómo se calcula (algoritmo)</summary><ol>
+        <li><b>Entrada.</b> El libro del INE trae una fila por municipio, sexo y edad simple, y una columna por año (2015–2030).</li>
+        <li><b>Suma.</b> Para cada municipio y año se suman las edades: total, hombres y mujeres. Se comprueba que hombres + mujeres = total publicado; si no, el proceso se detiene.</li>
+        <li><b>Códigos.</b> Cada código de municipio se busca en el catálogo oficial. Si no existe, se toma el nombre que le da el diccionario del propio libro y se ubica solo con coincidencia exacta y única dentro de su departamento.</li>
+        <li><b>Cambio.</b> Cambio = población final − población inicial; en el periodo (%) = cambio ÷ inicial × 100.</li>
+        <li><b>Crecimiento anual.</b> Tasa compuesta = (final ÷ inicial)<sup>1 ÷ años</sup> − 1. Es el ritmo constante que lleva de la cifra inicial a la final.</li>
+        <li><b>Tasas por 100 mil.</b> Registros recibidos ÷ población del territorio en el año del registro × 100,000.</li></ol>
+        <p class="nota">Son las proyecciones oficiales del INE: FARO no estima población, solo la resume y la cruza. Todo el cálculo es código del portal; no interviene ningún modelo externo.</p></details>
+      <p class="proc" data-proc="poblacion"></p>
       <h2 style="margin-top:18px">Repetir el cálculo desde el portal del INE</h2>
       <p class="nota">Vuelve a hacer, ahora mismo y a la vista, todo el proceso que produjo esta tabla: consulta el conjunto en el portal de datos abiertos, descarga el libro y su diccionario, suma las edades, cruza los códigos con el catálogo y compara el resultado con la tabla en uso. Requiere internet y la clave. Por línea de comandos: <code>faro poblacion --entrada &lt;libro&gt; --diccionario &lt;diccionario&gt;</code>.</p>
       <button class="accion" id="reproducir">Repetir el proceso ahora</button>
@@ -185,7 +217,16 @@
       <h2>Crecimiento urbano: superficie construida vista por satélite</h2>
       <p class="nota">Hectáreas construidas por municipio cada cinco años, de 1975 a 2020, según la capa abierta GHSL de la Comisión Europea (100 m). No hace falta cargar nada. Es superficie edificada, no viviendas ni personas; las épocas anteriores a 2015 vienen de imágenes Landsat y son menos precisas. La tendencia y la proyección usan las épocas desde 2000. <span id="conspais"></span></p>
       <label for="consanio">Proyectar al año</label><input type="number" id="consanio" value="2030" min="2021" max="2050" style="max-width:120px">
+      <p class="nota">Toque un municipio para ver la animación de su crecimiento; toque la etiqueta de confianza para ver los estadísticos que la sustentan.</p>
       <div class="tabla" style="margin-top:12px"><table id="tcons"></table></div>
+      <details class="como"><summary>Cómo se calcula (algoritmo)</summary><ol>
+        <li><b>Entrada.</b> Mosaicos de GHSL: cada celda de 100 m trae los metros cuadrados construidos, por época.</li>
+        <li><b>Suma por municipio.</b> El límite municipal se lleva a la proyección del mosaico (Mollweide) y se suman las celdas cuyo centro cae dentro. 1 hectárea = 10,000 m².</li>
+        <li><b>Crecimiento anual.</b> Tasa compuesta = (final ÷ inicial)<sup>1 ÷ años</sup> − 1, entre 2000 y 2020.</li>
+        <li><b>Tendencia.</b> Recta de mínimos cuadrados sobre las épocas desde 2000: hectáreas = a + b × año. <i>b</i> son las hectáreas nuevas por año.</li>
+        <li><b>Proyección.</b> Valor de la recta en el año pedido. Margen = ± 2 × error estándar del ajuste × √(1 + 1/n + (año − año medio)² ÷ Σ(año − año medio)²): se abre cuanto más lejos del periodo observado.</li>
+        <li><b>Confianza.</b> Alta si R² ≥ 0.90 con al menos 6 épocas; media si R² ≥ 0.70; baja en otro caso. R² es la parte de la variación que la recta explica.</li></ol></details>
+      <p class="proc" data-proc="construido"></p>
     </div>
     <div class="panel">
       <h2>Crecimiento de edificaciones por municipio (serie propia)</h2>
@@ -211,6 +252,7 @@
       <p class="nota" id="asignota"></p>
       <button class="accion chico" id="asigcsv">Descargar CSV</button>
       <div class="tabla" style="margin-top:12px"><table id="tasig"></table></div>
+      <p class="proc" data-proc="operadores"></p>
     </div>
   </section>
 
@@ -222,7 +264,7 @@
       <div class="tabla"><table id="tvialdep"></table></div>
     </div>
     <div class="panel"><h2>Enlaces que probablemente faltan en el mapa</h2><p class="nota">Para cada tramo suelto con lugares poblados, el hueco más corto hasta la red principal. Primero los que más lugares conectan por kilómetro.</p><div class="tabla"><table id="tvialenl"></table></div></div>
-    <div class="panel"><h2>Lugares sin camino mapeado cerca</h2><p class="nota">Lugares del censo sin ninguna vía para vehículos a la distancia indicada de su centroide. Primero los más lejanos.</p><div class="tabla"><table id="tvialsin"></table></div></div>
+    <div class="panel"><h2>Lugares sin camino mapeado cerca</h2><p class="nota">Lugares del censo sin ninguna vía para vehículos a la distancia indicada de su centroide. Primero los más lejanos.</p><div class="tabla"><table id="tvialsin"></table></div><p class="proc" data-proc="red_vial"></p></div>
   </section>
 
   <section id="construccion">
@@ -234,7 +276,18 @@
       <div class="tabla" style="margin-top:12px"><table id="tconsrev"></table></div></div>
     <div class="panel"><h2>Directorio de proveedores</h2><p class="nota">Perfil público de cada negocio: qué es, dónde está, por qué canales vende y si publica precios. Solo negocios; ningún dato de personas.</p>
       <label for="consbuscar">Buscar por nombre, lugar o rubro</label><input type="text" id="consbuscar" placeholder="por ejemplo: block, Quetzaltenango, fabricante">
-      <div class="tabla" style="margin-top:12px"><table id="tconsprov"></table></div></div>
+      <div class="tabla" style="margin-top:12px"><table id="tconsprov"></table></div><p class="proc" data-proc="construccion"></p></div>
+  </section>
+
+  <section id="canasta">
+    <div class="titulo"><h2>Canasta básica alimentaria: precio del INE y precios publicados</h2><p>El precio promedio que el INE publica para cada uno de los 34 productos de la canasta básica y, al lado, lo que publican las tiendas incluidas en los muestreos automáticos. No se comparan solos: el conjunto del INE no indica la unidad de cada producto, así que decide una persona qué presentación corresponde.</p></div>
+    <div class="panel"><p class="nota" id="canastainfo"></p><div class="tabla"><table id="tcanasta"></table></div><p class="proc" data-proc="precios_ine"></p></div>
+  </section>
+
+  <section id="muestreos">
+    <div class="titulo"><h2>Muestreos automáticos</h2><p>Tareas que el propio portal repite sin intervención: consultan la búsqueda pública de una tienda en línea (sin sesión ni claves, una consulta por término y con pausa), y guardan cada precio con su dirección y la fecha. Usted decide cuáles corren y cada cuánto. La vigilancia del portal de datos abiertos del INE funciona igual y está en "Portal del INE".</p></div>
+    <div class="panel"><div class="tabla"><table id="tmuestreos"></table></div>
+    <p class="nota">Cómo se agrega una tienda o un rubro: una tarea más en <code>datos/estandar/muestreos.toml</code> con la dirección base de la tienda, el rubro y los términos de búsqueda. Hoy se admiten catálogos con tecnología VTEX. Los precios de construcción entran solos a la comparación contra el IPMC; los de alimentos aparecen en "Canasta básica".</p></div>
   </section>
 
   <section id="precios">
@@ -245,7 +298,7 @@
       <p class="nota"><code>tipo_fuente</code>: <code>primaria</code> (cotización directa de un proveedor) o <code>secundaria</code> (históricos de Guatecompras, catálogos en línea).</p>
       <button class="accion" id="calcprecios">Calcular precios de referencia</button>
     </div>
-    <div class="panel" id="preciosres" hidden><p class="nota" id="preciosnota"></p><div class="tabla"><table id="tprecios"></table></div></div>
+    <div class="panel" id="preciosres" hidden><p class="nota" id="preciosnota"></p><div class="tabla"><table id="tprecios"></table></div><p class="proc" data-proc="precios"></p></div>
     <div class="panel">
       <h2>Precios de referencia ya emitidos por el INE</h2>
       <p class="nota">Busca en la base que el INE publica en su portal de datos abiertos (precios emitidos de 2016 a 2023, con el evento de Guatecompras al que respondieron). Sirve como antecedente antes de investigar un producto. <span id="refinfo"></span></p>
@@ -266,6 +319,8 @@
     <div class="titulo"><h2>Acerca de FARO y sus fuentes</h2><p>Qué es, qué hace hoy y de dónde sale cada dato.</p></div>
     <div class="panel"><h2>Qué es</h2>
       <p>FARO es una herramienta para que el INE <b>pida, reciba y homologue</b> registros administrativos de otras instituciones, y para aprovechar junto a ellos los datos abiertos del propio INE y del territorio. Parte de una regla: <b>el sistema no adivina</b>. Asigna un código solo cuando no hay duda; lo demás lo propone, lo decide una persona y queda aprendido.</p>
+      <h2 style="margin-top:14px">De dónde salen las conclusiones</h2>
+      <p>Todo lo que muestra el portal lo calcula el propio portal con reglas fijas y a la vista: no usa modelos de inteligencia artificial ni servicios externos para decidir, y el mismo dato de entrada da siempre el mismo resultado. Al llegar datos nuevos, las cifras se recalculan solas: los envíos, pendientes, equivalencias, tasas, avance y mapa de registros salen de la base de datos en cada consulta; los precios se actualizan con los muestreos; y las tablas derivadas de fuentes abiertas (población, red vial, superficie construida, límites) se regeneran con un comando cada una, descargable junto a cada resultado.</p>
       <h2 style="margin-top:14px">Qué se ha hecho</h2>
       <ul id="hecho"></ul>
       <p class="nota" style="margin-bottom:0">Prototipo del Datatón INE 2026, categoría 2. Equipo: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval. No es un producto oficial del INE.</p></div>
@@ -278,6 +333,7 @@
     <p class="nota" style="margin-bottom:0">Para usarlas en QGIS: Capa → Añadir capa → Vectorial → Protocolo HTTP, y pegar la dirección. Las capas admiten lectura desde otros sitios web (CORS).</p></div>
   </section>
 </div></main>
+<dialog id="detalle" aria-labelledby="dettitulo"><button class="cerrar" aria-label="Cerrar" onclick="this.closest('dialog').close()">×</button><div id="detcuerpo"></div></dialog>
 <div id="aviso" role="status"></div>
 <script src="/vendor/leaflet.js"></script>
 <script>
@@ -312,12 +368,13 @@ async function cargarSolicitudes() {
 function infoSolicitud() {
   const s = solicitudes.find(x => x.id === $('#sol').value); if (!s) return;
   const c = s.columna;
+  $('#solejemplo').innerHTML = `Cómo debe ser el archivo: una fila por registro, con encabezado; las columnas pueden venir con otro nombre o en otro orden, y las que no se piden se ignoran. <a href="/api/solicitudes/${encodeURIComponent(s.id)}/plantilla.csv">Descargar archivo de ejemplo (ficticio) para esta solicitud</a>.`;
   $('#solinfo').textContent = `Pide ${c.length} columnas (${c.filter(x => x.requerida).length} obligatorias, ${c.filter(x => x.pareo).length} para pareo, ${c.filter(x => x.sensible).length} con dato personal protegido): ` + c.map(x => x.nombre).join(', ') + '.';
 }
 async function envios() {
   tabla('#envios', [
     {t:'#', f:f => f.id}, {t:'Recibido', f:f => esc(f.recibido)}, {t:'Institución', f:f => esc(f.institucion)}, {t:'Solicitud', f:f => esc(f.solicitud)},
-    {t:'Archivo', f:f => esc(f.archivo)}, {t:'Filas', num:1, f:f => num(f.filas)}, {t:'Problemas', num:1, f:f => num(f.problemas)},
+    {t:'Archivo', f:f => esc(f.archivo)}, {t:'Filas (registros)', num:1, f:f => num(f.filas)}, {t:'Problemas (celdas)', num:1, f:f => num(f.problemas)},
     {t:'Lugares resueltos', f:f => `<div class="barra" title="${num(f.pct_resuelto)} %"><i style="width:${f.pct_resuelto}%"></i></div>${num(f.pct_resuelto)} %`},
   ], await api('/api/envios'), 'Todavía no hay envíos.');
 }
@@ -346,7 +403,7 @@ async function pendientes() {
   tabla('#tpend', [
     {t:'Texto recibido', f:f => `<b>${esc(f.valor)}</b><br><small>${esc(f.columna)}</small>`},
     {t:'En', f:f => f.nivel === 'valor' ? `variable <b>${esc(f.contexto)}</b>` : esc(f.contexto_nombre || (f.contexto ? 'código ' + f.contexto : '(sin nivel superior)'))},
-    {t:'Veces', num:1, f:f => num(f.veces)}, {t:'Institución', f:f => esc(f.instituciones)}, {t:'Estado', f:f => etq(f.estado)},
+    {t:'Veces (filas)', num:1, f:f => num(f.veces)}, {t:'Institución', f:f => esc(f.instituciones)}, {t:'Estado', f:f => etq(f.estado)},
     {t:'¿A qué corresponde?', f:f => f.candidatos.map(c => `<button class="accion chico" ${datos(f)} data-c="${esc(c.codigo)}">${f.nivel === 'valor' ? esc(c.nombre) : esc(c.codigo) + ' ' + esc(c.nombre)}</button>`).join('') + otro(f)},
   ], filas, 'No hay nada por revisar.');
 }
@@ -371,27 +428,27 @@ async function memoria() {
     {t:'Institución', f:f => esc(f.institucion)}, {t:'Confirmó', f:f => esc(f.confirmado_por)}, {t:'Fecha', f:f => esc(f.fecha)}], await api('/api/equivalencias'), 'Aún no hay equivalencias confirmadas.');
 }
 async function hechos() {
-  tabla('#tavance', [{t:'Institución', f:f => esc(f.institucion)}, {t:'Solicitud', f:f => esc(f.solicitud)}, {t:'Envíos', num:1, f:f => num(f.envios)}, {t:'Filas', num:1, f:f => num(f.filas)},
+  tabla('#tavance', [{t:'Institución', f:f => esc(f.institucion)}, {t:'Solicitud', f:f => esc(f.solicitud)}, {t:'Envíos (archivos)', num:1, f:f => num(f.envios)}, {t:'Filas (registros)', num:1, f:f => num(f.filas)},
     {t:'Último envío', f:f => f.ultimo ? esc(f.ultimo) : '<span class="etq mal">sin envíos</span>'},
     {t:'Lugares resueltos', f:f => f.pct_resuelto == null ? '' : `<div class="barra" title="${num(f.pct_resuelto)} %"><i style="width:${f.pct_resuelto}%"></i></div>${num(f.pct_resuelto)} %`},
-    {t:'Por revisar', num:1, f:f => num(f.pendientes)}], await api('/api/avance'), 'No hay solicitudes.');
-  tabla('#thechos', [{t:'Solicitud', f:f => esc(f.solicitud)}, {t:'Departamento', f:f => `${esc(f.departamento)} ${esc(f.nombre)}`}, {t:'Total', num:1, f:f => num(f.total)},
+    {t:'Por revisar (valores distintos)', num:1, f:f => num(f.pendientes)}], (await api('/api/avance')), 'No hay solicitudes.');
+  tabla('#thechos', [{t:'Solicitud', f:f => esc(f.solicitud)}, {t:'Departamento', f:f => `${esc(f.departamento)} ${esc(f.nombre)}`}, {t:'Total (registros)', num:1, f:f => num(f.total)},
     {t:'Hombres', num:1, f:f => f.hombres == null ? '' : num(f.hombres)}, {t:'Mujeres', num:1, f:f => f.mujeres == null ? '' : num(f.mujeres)},
-    {t:'Población (INE)', num:1, f:f => f.poblacion == null ? '' : `${num(f.poblacion)} <small>(${f.anio})</small>`},
+    {t:'Población (habitantes, INE)', num:1, f:f => f.poblacion == null ? '' : `${num(f.poblacion)} <small>(${f.anio})</small>`},
     {t:'Por 100 mil hab.', num:1, f:f => f.por_100_mil == null ? '' : `${Number(f.por_100_mil).toLocaleString('es-GT', {maximumFractionDigits: 2})} <small>(${f.meses} mes${f.meses === 1 ? '' : 'es'})</small>`}], await api('/api/hechos'), 'Sin envíos todavía.');
 }
 async function ine() {
   const r = await api('/api/ine'), u = r.ultima;
   $('#ineinfo').textContent = u ? (u.ok ? `Última sincronización: ${u.cuando}. ${u.conjuntos} conjuntos, ${u.nuevos} nuevos y ${u.cambiados} con cambios.` : `Última sincronización (${u.cuando}) falló: ${u.detalle}`) : 'Todavía no se ha sincronizado.';
-  tabla('#tine', [{t:'Conjunto', f:f => `<b>${esc(f.titulo)}</b><br><small>${esc(f.nombre)}</small>`}, {t:'Modificado', f:f => esc(f.modificado)}, {t:'Recursos', num:1, f:f => f.recursos},
+  tabla('#tine', [{t:'Conjunto', f:f => `<b>${esc(f.titulo)}</b><br><small>${esc(f.nombre)}</small>`}, {t:'Modificado', f:f => esc(f.modificado)}, {t:'Recursos (archivos)', num:1, f:f => f.recursos},
     {t:'Formatos', f:f => esc(f.formatos)}, {t:'Licencia', f:f => esc(f.licencia)}], r.conjuntos, 'Sin datos: pulse "Sincronizar ahora".');
 }
 async function poblacion() {
   const r = await api(`/api/poblacion?desde=${encodeURIComponent($('#pobdesde').value)}&hasta=${encodeURIComponent($('#pobhasta').value)}`);
   if (!r.disponible) { $('#pobpais').textContent = 'Este servidor no tiene cargada la tabla de población.'; return; }
   const p = r.pais; $('#pobpais').textContent = p ? `País: ${num(p.poblacion_inicial)} habitantes en ${r.desde} y ${num(p.poblacion_final)} en ${r.hasta} (${num(p.tasa_anual_pct)} % anual).` : '';
-  tabla('#tpob', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:String(r.desde), num:1, f:f => num(f.poblacion_inicial)}, {t:String(r.hasta), num:1, f:f => num(f.poblacion_final)},
-    {t:'Cambio', num:1, f:f => `${f.cambio > 0 ? '+' : ''}${num(f.cambio)}`}, {t:'En el periodo', num:1, f:f => `${num(f.cambio_pct)} %`}, {t:'Crecimiento anual', num:1, f:f => `${num(f.tasa_anual_pct)} %`}], r.municipios, 'Sin datos.');
+  tabla('#tpob', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:`${r.desde} (hab.)`, num:1, f:f => num(f.poblacion_inicial)}, {t:`${r.hasta} (hab.)`, num:1, f:f => num(f.poblacion_final)},
+    {t:'Cambio (hab.)', num:1, f:f => `${f.cambio > 0 ? '+' : ''}${num(f.cambio)}`}, {t:'En el periodo', num:1, f:f => `${num(f.cambio_pct)} %`}, {t:'Crecimiento anual', num:1, f:f => `${num(f.tasa_anual_pct)} %`}], r.municipios, 'Sin datos.');
 }
 // Minigráfica de la serie: una barra por época, altura relativa al máximo.
 const chispa = serie => { const max = Math.max(...serie.map(p => p[1]), 1); return `<span style="display:inline-flex;gap:2px;align-items:flex-end;height:26px" title="${serie.map(p => p[0] + ': ' + num(p[1]) + ' ha').join(' · ')}">` + serie.map(p => `<i style="width:6px;height:${Math.max(2, Math.round(26 * p[1] / max))}px;background:var(--celeste);display:block"></i>`).join('') + '</span>'; };
@@ -402,8 +459,10 @@ async function construido() {
   tabla('#tcons', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:'1975–2020', f:f => chispa(f.serie)},
     {t:String(r.desde), num:1, f:f => `${num(f.edificaciones_inicial)} ha`}, {t:'2020', num:1, f:f => `${num(f.edificaciones_final)} ha`}, {t:'Nuevas hectáreas', num:1, f:f => `+${num(f.cambio_absoluto)}`},
     {t:'Construido, anual', num:1, f:f => `${num(f.tasa_anual_pct)} %`}, {t:'Población, anual', num:1, f:f => f.poblacion_tasa_anual_pct == null ? '' : `${num(f.poblacion_tasa_anual_pct)} %`},
-    {t:'Proyección', num:1, f:f => `${num(f.proyeccion)} ± ${num(f.proyeccion_margen)} ha <small>(${f.anio_proyectado})</small>`}, {t:'Confianza', f:f => `<span class="etq ${f.confianza === 'alta' ? 'ok' : f.confianza === 'media' ? 'alerta' : 'mal'}">${esc(f.confianza)}</span>`}], r.municipios, 'Sin datos.');
+    {t:'Proyección', num:1, f:f => `${num(f.proyeccion)} ± ${num(f.proyeccion_margen)} ha <small>(${f.anio_proyectado})</small>`}, {t:'Confianza', f:f => `<span class="etq clic ${f.confianza === 'alta' ? 'ok' : f.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(f.codigo)}" title="Ver los estadísticos">${esc(f.confianza)}</span>`}], r.municipios, 'Sin datos.');
+  $('#tcons').querySelectorAll('tbody tr').forEach((tr, i) => { if (r.municipios[i]) { tr.classList.add('clic'); tr.dataset.det = r.municipios[i].codigo; tr.title = 'Ver la animación del crecimiento'; } });
 }
+$('#tcons').onclick = e => { const t = e.target.closest('[data-det]'); if (t) detalle(t.dataset.det).catch(x => aviso(x.message, true)); };
 async function crecimiento() {
   poblacion().catch(e => aviso(e.message, true));
   construido().catch(e => aviso(e.message, true));
@@ -432,7 +491,7 @@ function mostrarPrecios(r) {
   tabla('#tprecios', [{t:'Producto', f:f => `<b>${esc(f.producto)}</b><br><small>${f.cotizaciones} cotizaciones${f.unidad ? ' · por ' + esc(f.unidad) : ''}</small>`},
     {t:'Precio de referencia', num:1, f:f => f.precio_referencia == null ? '<span class="etq mal">sin precio</span>' : `<b>${q(f.precio_referencia)}</b><br><span class="etq ok">${esc(f.medida)}</span>`},
     {t:'Media', num:1, f:f => q(f.media)}, {t:'Mediana', num:1, f:f => q(f.mediana)}, {t:'Moda', num:1, f:f => q(f.moda)}, {t:'Rango', num:1, f:f => `${q(f.minimo)} – ${q(f.maximo)}`},
-    {t:'Directas', num:1, f:f => `${num(f.fuentes_primarias_pct)} %`},
+    {t:'Cotizaciones directas', num:1, f:f => `${num(f.fuentes_primarias_pct)} %`},
     {t:'Notas', f:f => f.notas.map(esc).join('<br>') + (f.extremos.length ? '<br><small>Extremos: ' + f.extremos.map(([fu, x]) => `${esc(fu)} ${q(x)}`).join('; ') + '</small>' : '')}], r.productos, 'El archivo no trae cotizaciones.');
 }
 const enMapa = (lon, lat, texto) => `<a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}" target="_blank" rel="noopener">${texto}</a>`;
@@ -443,10 +502,10 @@ async function redVial() {
   $('#vialinfo').textContent = `Vías ${x.con_senderos ? 'incluyendo senderos' : 'para vehículos'}; un lugar "tiene camino" si hay una vía a ${num(x.cerca_m)} m o menos; se proponen enlaces de hasta ${num(x.max_enlace_km)} km.`;
   $('#vialtarjetas').innerHTML = [[num(x.km) + ' km', 'de vías en el mapa'], [num(100 * x.km_red_principal / x.km) + ' %', 'en la red principal'], [num(x.tramos), 'tramos no unidos entre sí'], [num(x.tramo_suelto), 'lugares en un tramo suelto'], [num(x.sin_camino), 'lugares sin camino mapeado'], [num(x.enlaces), 'enlaces probables (' + num(x.enlaces_km) + ' km)']]
     .map(([v, t]) => `<div class="tarjeta"><b>${esc(v)}</b><small>${esc(t)}</small></div>`).join('');
-  tabla('#tvialdep', [{t:'Departamento', f:f => `${esc(f.codigo)} ${esc(f.nombre)}`}, {t:'Lugares poblados', num:1, f:f => num(f.lugares)}, {t:'En tramo suelto', num:1, f:f => num(f.tramo_suelto)}, {t:'Sin camino mapeado', num:1, f:f => num(f.sin_camino)},
+  tabla('#tvialdep', [{t:'Departamento', f:f => `${esc(f.codigo)} ${esc(f.nombre)}`}, {t:'Lugares poblados (cantidad)', num:1, f:f => num(f.lugares)}, {t:'En tramo suelto (lugares)', num:1, f:f => num(f.tramo_suelto)}, {t:'Sin camino mapeado (lugares)', num:1, f:f => num(f.sin_camino)},
     {t:'Por revisar', num:1, f:f => f.lugares ? `${num(100 * (f.tramo_suelto + f.sin_camino) / f.lugares)} %` : ''}], r.departamentos.slice().sort((a, b) => (b.tramo_suelto + b.sin_camino) - (a.tramo_suelto + a.sin_camino)), 'Sin datos.');
   tabla('#tvialenl', [{t:'Dónde', f:f => `${esc(f.lugares[0]?.municipio)}, ${esc(f.lugares[0]?.departamento)}`}, {t:'Hueco', num:1, f:f => enMapa(f.desde[0], f.desde[1], f.km < 1 ? num(f.km * 1000) + ' m' : num(f.km) + ' km')},
-    {t:'Vías que se unirían', num:1, f:f => `${num(f.tramo_km)} km`}, {t:'Lugares', num:1, f:f => f.lugares.length},
+    {t:'Vías que se unirían', num:1, f:f => `${num(f.tramo_km)} km`}, {t:'Lugares (cantidad)', num:1, f:f => f.lugares.length}, {t:'', f:f => `<button class="accion chico suave" data-ver="${f.desde[0]},${f.desde[1]}">Ver en el mapa</button>`},
     {t:'Cuáles', f:f => f.lugares.slice(0, 6).map(l => esc(l.nombre)).join(', ') + (f.lugares.length > 6 ? ` y ${f.lugares.length - 6} más` : '')}], r.enlaces, 'No hay tramos sueltos con lugares poblados.');
   tabla('#tvialsin', [{t:'Lugar poblado', f:f => `<b>${enMapa(f.longitud, f.latitud, esc(f.nombre))}</b> <small>${esc(f.codigo)}</small>`}, {t:'Municipio', f:f => `${esc(f.municipio)}, ${esc(f.departamento)}`},
     {t:'Vía más cercana', num:1, f:f => f.distancia_m == null ? `más de ${num(x.max_enlace_km)} km` : (f.distancia_m < 1000 ? num(f.distancia_m) + ' m' : num(f.distancia_m / 1000) + ' km')}], r.sin_camino, 'Todos los lugares tienen una vía cerca.');
@@ -485,31 +544,115 @@ function pintarMapa() {
   $('#leyenda').innerHTML = rangos.map((t, i) => `<span><i style="background:${tonos[i] || '#f1f3f5'}"></i>${esc(t)} ${esc(ind.u)}</span>`).join('') + '<span><i style="background:#f1f3f5"></i>sin dato</span>';
   $('#indnota').textContent = ind.nota(geoMuni.features[0].properties);
 }
-function ficha(p) {
-  const fila = (t, v) => v == null || v === '' ? '' : `<dt>${esc(t)}</dt><dd>${v}</dd>`;
-  const reg = Object.entries(registros).map(([sol, d]) => d[p.codigo] ? fila(sol, `${num(d[p.codigo].total)}${d[p.codigo].por_100_mil != null ? ' <small>(' + num(d[p.codigo].por_100_mil) + ' por 100 mil)</small>' : ''}`) : '').join('');
-  $('#ficha').innerHTML = `<h2>${esc(p.nombre)}</h2><p class="nota" style="margin:0">${esc(p.departamento)} · código INE ${esc(p.codigo)}</p><dl>
-    ${fila('Población 2018', num(p.poblacion_2018))}${fila('Población ' + p.anio_actual, num(p.poblacion_actual))}${fila('Población 2030', num(p.poblacion_2030))}${fila('Crecimiento anual', p.crecimiento_anual_pct == null ? null : num(p.crecimiento_anual_pct) + ' %')}
-    ${fila('Construido 2000', p.construido_ha_2000 == null ? null : num(p.construido_ha_2000) + ' ha')}${fila('Construido 2020', p.construido_ha_2020 == null ? null : num(p.construido_ha_2020) + ' ha')}${fila('Construido, anual', p.construido_crecimiento_anual_pct == null ? null : num(p.construido_crecimiento_anual_pct) + ' %')}${fila('m² construidos por hab.', p.construido_m2_por_habitante_2020 == null ? null : num(p.construido_m2_por_habitante_2020))}
-    ${fila('Lugares poblados (censo)', num(p.lugares_poblados))}${fila('En tramo vial suelto', num(p.lugares_en_tramo_suelto))}${fila('Sin camino mapeado', num(p.lugares_sin_camino))}
-    ${fila('Lugares dentro de su límite', p.lugares_dentro_de_su_limite_pct == null ? null : num(p.lugares_dentro_de_su_limite_pct) + ' %')}${reg}</dl>`;
+// Minigráfica SVG de una serie [[x, y], ...]: línea o barras; rotula primero y último.
+function mini(serie, {barras = false, desde = null, unidad = ''} = {}) {
+  if (!serie || !serie.length) return '<p class="nota">Sin datos.</p>';
+  const W = 300, H = 92, mi = 6, mb = 16, ys = serie.map(p => p[1]), max = Math.max(...ys) * 1.05 || 1, min = barras ? 0 : Math.min(...ys) * .97;
+  const X = i => mi + (W - 2 * mi) * (serie.length === 1 ? .5 : i / (serie.length - 1)), Y = y => H - mb - (H - mb - 6) * ((y - min) / (max - min || 1)), an = Math.max(5, (W - 2 * mi) / serie.length * .62);
+  const cuerpo = barras ? serie.map((p, i) => `<rect x="${X(i) - an / 2}" y="${Y(p[1])}" width="${an}" height="${Math.max(1, H - mb - Y(p[1]))}" fill="${desde != null && p[0] >= desde ? '#0051b3' : '#9cc3ef'}"><title>${p[0]}: ${num(p[1])} ${unidad}</title></rect>`).join('')
+    : `<polyline fill="none" stroke="#0051b3" stroke-width="2" points="${serie.map((p, i) => X(i) + ',' + Y(p[1])).join(' ')}"/>` + serie.map((p, i) => `<circle cx="${X(i)}" cy="${Y(p[1])}" r="5" fill="transparent"><title>${p[0]}: ${num(p[1])} ${unidad}</title></circle>`).join('');
+  const u = serie[serie.length - 1];
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Serie de ${serie[0][0]} a ${u[0]} en ${unidad}">${cuerpo}<text x="${mi}" y="${H - 3}" font-size="10" fill="#5b6672">${serie[0][0]}: ${num(serie[0][1])}</text><text x="${W - mi}" y="${H - 3}" font-size="10" fill="#5b6672" text-anchor="end">${u[0]}: ${num(u[1])} ${unidad}</text></svg>`;
 }
+const fichas = {};
+async function datosMunicipio(codigo) { return fichas[codigo] || (fichas[codigo] = await api('/api/municipio/' + encodeURIComponent(codigo))); }
+async function ficha(p) {
+  const caja = $('#ficha'); caja.hidden = false; caja.innerHTML = `<button class="cerrar" aria-label="Cerrar la ficha">×</button><h2 style="margin-right:30px">${esc(p.nombre)}</h2><p class="nota" style="margin:0">Cargando…</p>`;
+  const d = await datosMunicipio(p.codigo), hoy = d.poblacion.find(x => x[0] === d.anio_actual), c = d.poblacion_cambio, a = d.construido_analisis, ult = d.construido[d.construido.length - 1];
+  const reg = Object.entries(registros).map(([sol, m]) => m[p.codigo] ? `<li>${esc(sol)}: <b>${num(m[p.codigo].total)}</b> registros${m[p.codigo].por_100_mil != null ? ` (${num(m[p.codigo].por_100_mil)} por 100 mil hab.)` : ''}</li>` : '').join('');
+  caja.innerHTML = `<button class="cerrar" aria-label="Cerrar la ficha">×</button><h2 style="margin-right:30px">${esc(d.nombre)}</h2><p class="nota" style="margin:0">${esc(d.departamento)} · código INE ${esc(d.codigo)}</p>
+    <div class="mini">
+      <div><b>${num(hoy && hoy[1])}</b><small>habitantes en ${d.anio_actual} · puesto ${num(d.puesto_poblacion)} de 340</small></div>
+      <div><b>${c ? num(c.tasa_anual_pct) + ' %' : '—'}</b><small>crece la población al año · puesto ${num(d.puesto_crecimiento)}</small></div>
+      <div><b>${ult ? num(ult[1]) + ' ha' : '—'}</b><small>construidas en ${ult ? ult[0] : ''}${a ? ` · ${num(a.tasa_anual_pct)} % al año` : ''}</small></div>
+      <div><b>${num(d.sin_conexion.length)} <small style="display:inline">de ${num(d.lugares_poblados)}</small></b><small>lugares poblados sin conexión vial en el mapa</small></div>
+    </div>
+    <h3>Población, 2015–2030 (habitantes)</h3>${mini(d.poblacion.map(x => [x[0], x[1]]), {unidad:'hab.'})}
+    <h3>Superficie construida, 1975–2020 (hectáreas)</h3>${mini(d.construido, {barras:true, desde:2000, unidad:'ha'})}
+    ${a ? `<p class="nota" style="margin:4px 0">Proyección a ${a.anio_proyectado}: ${num(a.proyeccion)} ± ${num(a.proyeccion_margen)} ha · confianza <span class="etq clic ${a.confianza === 'alta' ? 'ok' : a.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(d.codigo)}">${esc(a.confianza)}</span></p>` : ''}
+    ${reg ? `<h3>Registros recibidos</h3><ul style="margin:0;padding-left:18px;font-size:13px">${reg}</ul>` : ''}
+    ${d.proveedores.length ? `<h3>Proveedores de construcción</h3><p class="nota" style="margin:0">${d.proveedores.slice(0, 6).map(esc).join(' · ')}${d.proveedores.length > 6 ? ` y ${d.proveedores.length - 6} más` : ''}</p>` : ''}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="accion chico" data-det="${esc(d.codigo)}" style="margin:0">▶ Ver crecimiento</button><a class="accion chico suave" style="margin:0;text-decoration:none;display:inline-block;border-radius:7px;padding:4px 10px" href="/reporte?municipio=${esc(d.codigo)}" target="_blank" rel="noopener">Exportar reporte</a></div>`;
+}
+$('#ficha').onclick = e => { if (e.target.closest('.cerrar')) $('#ficha').hidden = true; const b = e.target.closest('[data-det]'); if (b) detalle(b.dataset.det).catch(x => aviso(x.message, true)); };
+
+// ---- Detalle: animación del crecimiento construido y estadísticos de la confianza ----
+let animacion = null;
+const tono = ha => { const t = Math.min(1, ha / 100), paradas = [[255,243,196],[249,178,74],[224,86,27],[143,29,12]], k = Math.min(2, Math.floor(t * 3)), u = t * 3 - k; return 'rgb(' + paradas[k].map((v, i) => Math.round(v + (paradas[k + 1][i] - v) * u)).join(',') + ')'; };
+async function detalle(codigo) {
+  const d = await datosMunicipio(codigo), a = d.construido_analisis, g = geoMuni || (geoMuni = await (await fetch('/capas/municipios.geojson')).json());
+  const figura = g.features.find(x => x.properties.codigo === codigo), ep = d.epocas, bloques = d.bloques || [];
+  $('#detcuerpo').innerHTML = `<h2 id="dettitulo" style="margin-right:30px">${esc(d.nombre)}, ${esc(d.departamento)}: crecimiento de la superficie construida</h2>
+    <canvas id="animlienzo" width="700" height="430" role="img" aria-label="Animación de la superficie construida por época"></canvas>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="accion chico" id="animplay" style="margin:0">❚❚ Pausa</button><input type="range" id="animanio" min="0" max="${ep.length - 1}" value="0" style="flex:1" aria-label="Época"><b id="animetq" style="min-width:150px;text-align:right"></b></div>
+    <div class="rampa" style="margin-top:6px"><span>Cada cuadro es 1 km²: poco construido</span><i></i><span>100 ha (todo el cuadro)</span></div>
+    <p class="nota">Bloques de 1 km con al menos media hectárea construida en alguna época. Fuente: GHSL, Comisión Europea (100 m). ${bloques.length ? '' : 'Este municipio no tiene bloques que mostrar.'}</p>
+    <h3>Por qué la confianza es ${a ? esc(a.confianza) : 'desconocida'}</h3>
+    ${a ? `<div class="tabla"><table><tbody>
+      <tr><td>Épocas usadas para la tendencia</td><td class="num">${d.construido.filter(x => x[0] >= 2000).length} (de ${a.anio_inicial} a ${a.anio_final})</td></tr>
+      <tr><td>Superficie construida al inicio y al final</td><td class="num">${num(a.edificaciones_inicial)} ha → ${num(a.edificaciones_final)} ha (${a.cambio_absoluto >= 0 ? '+' : ''}${num(a.cambio_absoluto)} ha)</td></tr>
+      <tr><td>Crecimiento anual compuesto</td><td class="num">${Number(a.tasa_anual_pct).toFixed(2)} %</td></tr>
+      <tr><td>Tendencia (pendiente de la recta)</td><td class="num">${num(a.tendencia_por_anio)} ha por año</td></tr>
+      <tr><td>Ajuste de la recta (R²)</td><td class="num"><b>${Number(a.r2).toFixed(3)}</b></td></tr>
+      <tr><td>Proyección a ${a.anio_proyectado}</td><td class="num">${num(a.proyeccion)} ha</td></tr>
+      <tr><td>Margen de la proyección (± 2 errores estándar, ampliado por la distancia)</td><td class="num">± ${num(a.proyeccion_margen)} ha (${num(100 * a.proyeccion_margen / (a.proyeccion || 1))} %)</td></tr>
+    </tbody></table></div>
+    <p class="nota">Regla: confianza <b>alta</b> si R² ≥ 0.90 con al menos 6 épocas; <b>media</b> si R² ≥ 0.70; <b>baja</b> en otro caso. Aquí R² = ${Number(a.r2).toFixed(3)} con ${d.construido.filter(x => x[0] >= 2000).length} épocas${a.r2 >= 0.9 && d.construido.filter(x => x[0] >= 2000).length < 6 ? ': el ajuste es bueno, pero con menos de 6 épocas la regla no permite decir "alta"' : ''}. R² es la parte de la variación que explica la recta; el margen dice cuánto puede apartarse el valor real de la proyección.</p>` : '<p class="nota">No hay serie suficiente para calcular la tendencia.</p>'}`;
+  const lienzo = $('#animlienzo'), x = lienzo.getContext('2d'), anillos = figura ? figura.geometry.coordinates.flatMap(pol => pol) : [];
+  const pts = anillos.flat(), lons = pts.map(p => p[0]), lats = pts.map(p => p[1]), [lo0, lo1, la0, la1] = [Math.min(...lons), Math.max(...lons), Math.min(...lats), Math.max(...lats)];
+  const kx = Math.cos((la0 + la1) / 2 * Math.PI / 180), esc_ = Math.min((lienzo.width - 30) / ((lo1 - lo0) * kx || 1), (lienzo.height - 30) / ((la1 - la0) || 1));
+  const ox = (lienzo.width - (lo1 - lo0) * kx * esc_) / 2, oy = (lienzo.height - (la1 - la0) * esc_) / 2, P = (lon, lat) => [ox + (lon - lo0) * kx * esc_, lienzo.height - oy - (lat - la0) * esc_], lado = Math.max(2, esc_ / 111.2);
+  const dibujar = k => {
+    x.clearRect(0, 0, lienzo.width, lienzo.height); x.fillStyle = '#fff'; x.strokeStyle = '#07306b'; x.lineWidth = 1.4;
+    x.beginPath(); anillos.forEach(an => an.forEach((p, i) => { const [a_, b_] = P(p[0], p[1]); i ? x.lineTo(a_, b_) : x.moveTo(a_, b_); })); x.fill('evenodd');
+    bloques.forEach(b => { const ha = b[2 + k]; if (ha >= 0.5) { const [a_, b_] = P(b[0], b[1]); x.fillStyle = tono(ha); x.fillRect(a_ - lado / 2, b_ - lado / 2, lado, lado); } });
+    x.beginPath(); anillos.forEach(an => an.forEach((p, i) => { const [a_, b_] = P(p[0], p[1]); i ? x.lineTo(a_, b_) : x.moveTo(a_, b_); })); x.stroke();
+    const total = d.construido.find(v => v[0] === ep[k]); x.fillStyle = '#07306b'; x.font = '700 30px "Noto Sans", sans-serif'; x.fillText(ep[k], 14, 36);
+    $('#animetq').textContent = total ? `${ep[k]}: ${num(total[1])} ha` : ep[k]; $('#animanio').value = k;
+  };
+  let k = 0, corriendo = true; clearInterval(animacion); dibujar(0);
+  animacion = setInterval(() => { if (corriendo && $('#detalle').open) { k = (k + 1) % ep.length; dibujar(k); } }, 850);
+  $('#animplay').onclick = () => { corriendo = !corriendo; $('#animplay').textContent = corriendo ? '❚❚ Pausa' : '▶ Animar'; };
+  $('#animanio').oninput = e => { corriendo = false; $('#animplay').textContent = '▶ Animar'; k = +e.target.value; dibujar(k); };
+  if (!$('#detalle').open) $('#detalle').showModal();
+}
+$('#detalle').addEventListener('close', () => clearInterval(animacion));
 async function iniciarMapa() {
   if (mapa) { mapa.invalidateSize(); return; }
   mapa = L.map('lienzo', {zoomSnap:.25, attributionControl:true}).setView([15.7, -90.3], 7.25);
   mapa.attributionControl.setPrefix('').addAttribution('Límites: CONRED/OCHA · Población y lugares: INE · Caminos: © colaboradores de OpenStreetMap');
   const [g, r] = await Promise.all([fetch('/capas/municipios.geojson').then(x => x.ok ? x.json() : null), api('/api/registros_municipio').catch(() => ({}))]);
-  if (!g) { $('#ficha').innerHTML = '<h2>Ficha</h2><p class="nota">Este servidor no tiene la capa de municipios (se genera con "faro limites").</p>'; return; }
+  if (!g) { aviso('Este servidor no tiene la capa de municipios (se genera con "faro limites").', true); return; }
   geoMuni = g; registros = r;
   $('#indicador').innerHTML = INDICADORES.map(i => `<option value="${i.id}">${esc(i.t)}</option>`).join('') +
     Object.keys(registros).map(s => `<option value="reg:${esc(s)}">Registros recibidos: ${esc(s)}</option><option value="reg:${esc(s)}:tasa">Registros por 100 mil hab.: ${esc(s)}</option>`).join('');
   capaMuni = L.geoJSON(g, {onEachFeature: (f, capa) => { capa.bindTooltip(`${f.properties.nombre}, ${f.properties.departamento}`, {sticky:true});
-    capa.on({click: () => ficha(f.properties), mouseover: () => capa.setStyle({weight:2.2, color:'#07306b'}), mouseout: () => capa.setStyle({weight:.6, color:'#fff'})}); }}).addTo(mapa);
+    capa.on({click: () => ficha(f.properties).catch(x => aviso(x.message, true)), mouseover: () => capa.setStyle({weight:2.2, color:'#07306b'}), mouseout: () => capa.setStyle({weight:.6, color:'#fff'})}); }}).addTo(mapa);
   mapa.fitBounds(capaMuni.getBounds()); pintarMapa();
 }
 async function capaOpcional(marcada, actual, crear) { if (!mapa) return actual; if (!marcada) { if (actual) mapa.removeLayer(actual); return actual; } if (!actual) actual = await crear(); actual.addTo(mapa); return actual; }
 $('#indicador').onchange = pintarMapa;
-$('#capaenlaces').onchange = async e => { capaEnlaces = await capaOpcional(e.target.checked, capaEnlaces, async () => L.geoJSON(await (await fetch('/capas/red_vial_enlaces.geojson')).json(), {style:{color:'#d1242f', weight:4}, onEachFeature:(f, c) => c.bindPopup(`<b>Enlace probable</b><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>Hueco de ${f.properties.km < 1 ? num(f.properties.km * 1000) + ' m' : num(f.properties.km) + ' km'} · uniría ${num(f.properties.tramo_km)} km de vías y ${f.properties.lugares} lugar(es)<br><small>${esc(f.properties.nombres)}</small>`)})); };
+$('#capaenlaces').onchange = async e => { capaEnlaces = await capaOpcional(e.target.checked, capaEnlaces, async () => {
+  const [enl, ctx] = await Promise.all([fetch('/capas/red_vial_enlaces.geojson').then(x => x.json()), fetch('/capas/red_vial_contexto.geojson').then(x => x.ok ? x.json() : {type:'FeatureCollection', features:[]})]);
+  // Primero los caminos ya mapeados (gris oscuro: red principal; morado: tramo suelto); encima, el enlace propuesto.
+  return L.layerGroup([L.geoJSON(ctx, {style: f => ({color: f.properties.red === 'principal' ? '#2f3b47' : '#7a3fb5', weight: f.properties.red === 'principal' ? 2.2 : 3, opacity:.9}), interactive:false}),
+    L.geoJSON(enl, {style:{color:'#d1242f', weight:4, dashArray:'6 6'}, onEachFeature:(f, c) => c.bindPopup(`<b>Enlace probable</b><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>Hueco de ${f.properties.km < 1 ? num(f.properties.km * 1000) + ' m' : num(f.properties.km) + ' km'} · uniría ${num(f.properties.tramo_km)} km de vías y ${f.properties.lugares} lugar(es)<br><small>${esc(f.properties.nombres)}</small><br><small>Gris: red principal · morado: tramo suelto · rojo punteado: enlace propuesto</small>`)})]);
+}); };
+let capaHuella, capaPoblados, bloquesPais, huellaTimer;
+function pintarHuella() { if (!capaHuella) return; const k = +$('#huellaanio').value; $('#huellaetq').textContent = bloquesPais.epocas[k]; capaHuella.eachLayer(c => { const ha = c.datos[2 + k]; c.setStyle({fillOpacity: ha >= 0.5 ? .9 : 0, fillColor: tono(ha)}); }); }
+$('#capahuella').onchange = async e => { $('#huellactl').hidden = !e.target.checked; clearInterval(huellaTimer);
+  capaHuella = await capaOpcional(e.target.checked, capaHuella, async () => {
+    const lineas = (await (await fetch('/capas/superficie_construida_bloques.csv')).text()).trim().split(/\r?\n/), cab = lineas[0].split(',');
+    bloquesPais = {epocas: cab.slice(3).map(c => c.replace('ha_', ''))}; $('#huellaanio').max = bloquesPais.epocas.length - 1; $('#huellaanio').value = bloquesPais.epocas.length - 1;
+    const lienzoCapa = L.canvas({padding:.3}), grupo = L.layerGroup(), dlat = 0.0045;
+    lineas.slice(1).forEach(l => { const v = l.split(',').slice(1).map(Number), dlon = dlat / Math.cos(v[1] * Math.PI / 180); const c = L.rectangle([[v[1] - dlat, v[0] - dlon], [v[1] + dlat, v[0] + dlon]], {renderer: lienzoCapa, stroke:false, interactive:false}); c.datos = v; grupo.addLayer(c); });
+    return grupo; });
+  if (e.target.checked) pintarHuella(); };
+$('#huellaanio').oninput = () => { clearInterval(huellaTimer); $('#huellaplay').textContent = '▶ Animar'; pintarHuella(); };
+$('#huellaplay').onclick = () => { if (huellaTimer) { clearInterval(huellaTimer); huellaTimer = null; $('#huellaplay').textContent = '▶ Animar'; return; }
+  $('#huellaplay').textContent = '❚❚ Pausa'; huellaTimer = setInterval(() => { const m = +$('#huellaanio').max; $('#huellaanio').value = (+$('#huellaanio').value + 1) % (m + 1); pintarHuella(); }, 900); };
+$('#capapoblados').onchange = async e => { capaPoblados = await capaOpcional(e.target.checked, capaPoblados, async () => { const lienzoCapa = L.canvas({padding:.3});
+  return L.geoJSON(await (await fetch('/capas/lugares_poblados.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {renderer: lienzoCapa, radius:2, stroke:false, fillColor:'#07306b', fillOpacity:.55}), onEachFeature:(f, c) => c.bindTooltip(`${f.properties.nombre} · ${f.properties.codigo}`)}); }); };
 $('#capalugares').onchange = async e => { capaLugares = await capaOpcional(e.target.checked, capaLugares, async () => L.geoJSON(await (await fetch('/capas/lugares_sin_conexion.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {radius:4, weight:1, color:'#fff', fillOpacity:.9, fillColor: f.properties.conexion === 'sin_camino' ? '#b85c00' : '#7a3fb5'}), onEachFeature:(f, c) => c.bindPopup(`<b>${esc(f.properties.nombre)}</b> <small>${esc(f.properties.codigo)}</small><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>${f.properties.conexion === 'sin_camino' ? 'Sin camino mapeado cerca' + (f.properties.distancia_m ? ' (vía más cercana a ' + num(f.properties.distancia_m) + ' m)' : '') : 'En un tramo que no se une a la red principal'}`)})); };
 $('#capabase').onchange = async e => { capaBase = await capaOpcional(e.target.checked, capaBase, async () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:17, attribution:'© OpenStreetMap'})); if (capaBase && e.target.checked) capaBase.bringToBack(); pintarMapa(); };
 async function capasPublicadas() {
@@ -523,7 +666,7 @@ function directorio() {
   const filas = datosConstruccion.proveedores.filter(p => !q || [p.nombre, p.tipo, p.municipio, p.departamento, p.rubros, p.cobertura].join(' ').toLowerCase().includes(q)).sort((a, b) => b.precios - a.precios || a.nombre.localeCompare(b.nombre));
   tabla('#tconsprov', [{t:'Proveedor', f:f => (f.sitio ? `<a href="${esc(f.sitio)}" target="_blank" rel="noopener"><b>${esc(f.nombre)}</b></a>` : `<b>${esc(f.nombre)}</b>`) + `<br><small>${esc(f.tipo)}</small>`},
     {t:'Ubicación', f:f => esc([f.municipio, f.departamento].filter(Boolean).join(', ') || f.cobertura || '')}, {t:'Canales', f:f => esc((f.canales || '').split('|').join(', '))},
-    {t:'Precios', num:1, f:f => f.precios ? `<span class="etq ok">${num(f.precios)}</span>` : (f.publica_precios === 'si' ? '<span class="etq alerta">publica</span>' : '<span class="etq">no publica</span>')},
+    {t:'Precios (cantidad)', num:1, f:f => f.precios ? `<span class="etq ok">${num(f.precios)}</span>` : (f.publica_precios === 'si' ? '<span class="etq alerta">publica</span>' : '<span class="etq">no publica</span>')},
     {t:'Rubros', f:f => `<small>${esc((f.rubros || '').split('|').slice(0, 8).join(', '))}</small>`}], filas, 'Ningún proveedor coincide.');
 }
 async function construccion() {
@@ -532,11 +675,11 @@ async function construccion() {
     .map(([v, t]) => `<div class="tarjeta"><b>${esc(v)}</b><small>${esc(t)}</small></div>`).join('');
   const conDatos = r.articulos.filter(a => a.comparacion && a.comparacion.por_proveedor.length);
   tabla('#tconsart', [{t:'Artículo del IPMC', f:f => `<b>${esc(f.articulo)}</b><br><small>código ${f.codigo} · por ${esc(f.unidad)}</small>`},
-    {t:'Proveedores', f:f => f.comparacion.por_proveedor.map(p => `${esc(p.proveedor)} <b>${q(p.precio)}</b>`).join('<br>')},
+    {t:'Proveedores (Q por unidad oficial)', f:f => f.comparacion.por_proveedor.map(p => `${esc(p.proveedor)} <b>${q(p.precio)}</b>`).join('<br>')},
     {t:'Precio de referencia', num:1, f:f => f.comparacion.referencia.precio_referencia == null ? `<span class="etq alerta">faltan proveedores</span>` : `<b>${q(f.comparacion.referencia.precio_referencia)}</b><br><span class="etq ok">${esc(f.comparacion.referencia.medida)}</span>`},
     {t:'Entre el más barato y el más caro', num:1, f:f => f.comparacion.dispersion_pct == null ? '' : `${num(f.comparacion.dispersion_pct)} %`},
-    {t:'Por revisar', num:1, f:f => num(f.comparacion.por_revisar)},
-    {t:'Índice INE', num:1, f:f => f.indice == null ? '' : `${num(f.indice)}<br><small>${f.variacion_interanual_pct == null ? '' : (f.variacion_interanual_pct > 0 ? '+' : '') + num(f.variacion_interanual_pct) + ' % en un año'}</small>`}], conDatos, 'Todavía no hay productos comparables.');
+    {t:'Por revisar (productos)', num:1, f:f => num(f.comparacion.por_revisar)},
+    {t:'Índice INE (base = 100)', num:1, f:f => f.indice == null ? '' : `${num(f.indice)}<br><small>${f.variacion_interanual_pct == null ? '' : (f.variacion_interanual_pct > 0 ? '+' : '') + num(f.variacion_interanual_pct) + ' % en un año'}</small>`}], conDatos, 'Todavía no hay productos comparables.');
   tabla('#tconsrev', [{t:'Producto publicado', f:f => `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.producto)}</a><br><small>${esc(f.proveedor)} · ${q(f.precio)} · ${esc(f.unidad)}</small>`},
     {t:'¿Es este artículo?', f:f => `<b>${f.codigo}</b> ${esc(f.articulo)}<br><small>${esc(f.motivo)}</small>`},
     {t:'Decisión', f:f => `<button class="accion chico" data-p="${esc(f.producto)}" data-c="${f.codigo}">Sí, es comparable</button><button class="accion chico suave" data-p="${esc(f.producto)}" data-c="ninguno">No corresponde</button>`}], r.por_revisar, 'No hay productos por revisar.');
@@ -609,7 +752,42 @@ async function buscarReferencias() {
   tabla('#trefs', [{t:'Producto', f:f => `<b>${esc(f.producto)}</b><br><small>${esc(f.caracteristicas)}</small>`}, {t:'Presentación', f:f => esc(f.presentacion)}, {t:'Precio de referencia', num:1, f:f => `<b>${q(f.precio)}</b>`}, {t:'Fecha', f:f => esc(f.fecha)},
     {t:'Evento', f:f => `${esc(f.modalidad)}<br><small>NOG ${esc(f.nog)} · ${esc(f.categoria)}</small>`}], r.filas, $('#refq').value.trim() ? 'Sin coincidencias.' : 'Escriba un producto para buscar.');
 }
-const cargar = {proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
+// ---- Procedimientos descargables ----
+document.querySelectorAll('.proc[data-proc]').forEach(p => { const n = p.dataset.proc; p.innerHTML = `Para repetir esta etapa por su cuenta, con los mismos datos y el mismo resultado: descargar el procedimiento <a href="/scripts/${n}.sh">para Bash</a> o <a href="/scripts/${n}.ps1">para PowerShell</a>.`; });
+// ---- Muestreos ----
+async function muestreos() {
+  const t = await api('/api/muestreos');
+  tabla('#tmuestreos', [{t:'Tarea', f:f => `<b>${esc(f.titulo)}</b><br><small>${esc(f.base)} · rubro ${esc(f.rubro)} · ${f.terminos.length} términos: ${esc(f.terminos.slice(0, 6).join(', '))}${f.terminos.length > 6 ? '…' : ''}</small>`},
+    {t:'Activa', f:f => `<label class="opcion" style="margin:0"><input type="checkbox" data-m="${esc(f.id)}" ${f.activa ? 'checked' : ''}> ${f.activa ? 'sí' : 'no'}</label>`},
+    {t:'Cada (horas)', f:f => `<input type="number" min="1" max="2160" value="${f.cada_horas}" data-h="${esc(f.id)}" style="max-width:90px;padding:4px" aria-label="Frecuencia en horas de ${esc(f.titulo)}">`},
+    {t:'Última corrida', f:f => f.ultima ? `${esc(f.ultima)}<br><span class="etq ${f.ultimo_ok ? 'ok' : 'mal'}">${f.ultimo_ok ? 'con precios' : 'sin precios'}</span>` : '<span class="etq">nunca</span>'},
+    {t:'Precios guardados (cantidad)', num:1, f:f => `${num(f.precios)}<br><small>${num(f.productos)} productos · ${num(f.corridas)} día(s)</small>`},
+    {t:'', f:f => `<button class="accion chico" data-e="${esc(f.id)}">Ejecutar ahora</button>${f.detalle ? `<br><small>${esc(f.detalle.slice(0, 160))}</small>` : ''}`}], t, 'No hay tareas definidas.');
+}
+$('#tmuestreos').onchange = async e => { const c = e.target, id = c.dataset.m || c.dataset.h; if (!id) return;
+  try { await api('/api/muestreos/' + encodeURIComponent(id), {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(c.dataset.m ? {activa: c.checked} : {cada_horas: +c.value})}); aviso('Guardado.'); muestreos(); } catch (x) { aviso(x.message, true); muestreos(); } };
+$('#tmuestreos').onclick = async e => { const b = e.target.closest('button[data-e]'); if (!b) return; b.disabled = true; b.textContent = 'Consultando…';
+  try { const r = await api('/api/muestreos/' + encodeURIComponent(b.dataset.e) + '/ejecutar', {method:'POST'}); aviso(`${num(r.precios)} precios guardados.`); } catch (x) { aviso(x.message, true); } muestreos(); };
+// ---- Canasta básica ----
+async function canasta() {
+  const r = await api('/api/canasta');
+  if (!r.disponible) { $('#canastainfo').textContent = 'Este servidor no tiene cargada la canasta básica (se genera con "faro canasta").'; return; }
+  $('#canastainfo').textContent = `Precio promedio del INE a ${r.periodo} (serie desde ${r.desde}). Precios publicados por tiendas: ${num(r.observados)}${r.observados ? '' : ' — active el muestreo de alimentos en "Muestreos automáticos" para llenarlos'}.`;
+  tabla('#tcanasta', [{t:'Producto de la canasta', f:f => `<b>${esc(f.producto)}</b>`}, {t:`Precio promedio INE (Q, ${r.periodo})`, num:1, f:f => `<b>${q(f.precio_ine)}</b>`},
+    {t:'En un año', num:1, f:f => f.variacion_pct == null ? '' : `${f.variacion_pct > 0 ? '+' : ''}${num(f.variacion_pct)} %`}, {t:`Serie ${r.desde} a ${r.periodo} (Q)`, f:f => mini(f.serie.map(p => [p[0], p[1]]), {unidad:'Q'}).replace('<svg ', '<svg style="width:170px" ')},
+    {t:'Publicados por tiendas (Q, presentación de la tienda)', f:f => f.ofertas.length ? f.ofertas.slice(0, 4).map(o => `<a href="${esc(o.url)}" target="_blank" rel="noopener">${esc(o.producto)}</a> <b>${q(o.precio)}</b> <small>${esc(o.proveedor)} · ${esc(o.fecha)}</small>`).join('<br>') + (f.publicados > 4 ? `<br><small>y ${f.publicados - 4} más</small>` : '') : '<small>sin muestreo todavía</small>'}], r.productos, 'Sin datos.');
+}
+// ---- Tabla de códigos ----
+$('#subirtabla').onclick = async () => {
+  const a = $('#csvtabla').files[0]; if (!a) return aviso('Elija el archivo con la tabla de códigos.', true);
+  try { const r = await api('/api/equivalencias/tabla?usuario=' + encodeURIComponent($('#tablausuario').value), {method:'POST', headers:{'content-type':'text/csv'}, body: await a.text()});
+    $('#tablares').textContent = `${num(r.grabadas)} equivalencia(s) grabada(s).` + (r.rechazadas.length ? `\n${r.rechazadas.length} fila(s) rechazada(s):\n` + r.rechazadas.slice(0, 15).join('\n') : ''); memoria(); estado(); }
+  catch (x) { aviso(x.message, true); } };
+// ---- Enlace vial: verlo en el mapa ----
+$('#tvialenl').onclick = async e => { const b = e.target.closest('button[data-ver]'); if (!b) return; const [lon, lat] = b.dataset.ver.split(',').map(Number);
+  document.querySelector('nav button[data-s=mapa]').click(); await iniciarMapa(); if (!$('#capaenlaces').checked) { $('#capaenlaces').checked = true; await $('#capaenlaces').onchange({target: $('#capaenlaces')}); }
+  setTimeout(() => { mapa.invalidateSize(); mapa.setView([lat, lon], 14); }, 150); };
+const cargar = {muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   document.querySelector('nav').classList.remove('abierto');

@@ -79,11 +79,20 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
     emitió y publica en su portal (`faro referencias` y la pantalla).
 18. **Todo se puede repetir y auditar.** El cálculo de población se rehace desde la pantalla contra
     el portal del INE, mostrando cada paso; la sección "Proceso" enseña qué hace cada etapa y quién.
-19. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
+19. **Muestreos automáticos.** Tareas configurables que el portal repite solo: consultan la
+    búsqueda pública de tiendas en línea y guardan cada precio con su dirección y fecha. Se
+    encienden y se les cambia la frecuencia desde la pantalla (`datos/estandar/muestreos.toml`).
+20. **Canasta básica.** Precio promedio del INE de 34 productos, con su serie, junto a los
+    precios publicados que recoge el muestreo (`faro canasta`).
+21. **Ficha y reporte por municipio.** Al tocar un municipio: cifras, gráficas, animación del
+    crecimiento construido, estadísticos de la confianza y un reporte para imprimir (`/reporte`).
+22. **Cada etapa se puede repetir fuera del portal.** Junto a cada resultado se descarga el
+    procedimiento (Bash o PowerShell) que lo reproduce con los mismos datos (`scripts/reproducir/`).
+23. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
     y elige como lo explica la Dirección de Precios e Índices de Referencia (mediana si hay
     precios extremos, media si son parecidos); avisa si faltan cotizaciones directas o se mezclan
     unidades (`faro precios` y la pantalla).
-20. **Crecimiento urbano real.** Superficie construida por municipio de 1975 a 2020 con la capa
+24. **Crecimiento urbano real.** Superficie construida por municipio de 1975 a 2020 con la capa
     satelital abierta GHSL de la Comisión Europea, sin Earth Engine; ritmo de crecimiento y
     proyección con su margen (`faro construido`, `faro crecimiento`).
 
@@ -97,7 +106,7 @@ docker compose up --build     # base de datos PostgreSQL + FARO
 Abra <http://localhost:8082>. Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
-La pantalla abre en un mapa por municipio y tiene catorce secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
+La pantalla abre en un mapa por municipio y tiene dieciséis secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
 confirmadas, resultados y avance por institución, conjuntos del portal del INE (se sincroniza
 sola al arrancar y cada 24 horas), crecimiento poblacional y urbano, asignación de operadores de
 campo, red vial, materiales de construcción, precios de referencia y capas publicadas. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.
@@ -111,7 +120,7 @@ sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecu
 Requiere [Rust](https://rustup.rs) estable (probado con 1.97) y, para el servidor, PostgreSQL 16.
 
 ```bash
-cargo test                       # 66 pruebas
+cargo test                       # 69 pruebas
 cargo build --release
 
 # Línea de comandos (no necesita base de datos)
@@ -213,6 +222,8 @@ docs/                   necesidades del INE, investigación, arquitectura y plan
 - **La red vial mide el mapa.** Un hueco puede ser un camino sin dibujar o un paso en lancha.
 - **Crecimiento urbano a 100 m y cada cinco años.** GHSL mide superficie construida, no
   viviendas; para detalle de edificios haría falta Open Buildings (140 GB por año).
+- **Muestreo de precios solo en catálogos VTEX.** Otras tecnologías de tienda necesitan su propio
+  lector. La canasta básica del INE no indica unidades, así que no se compara sola.
 - **Precios de construcción: pocas fuentes y solo en línea.** 16 proveedores con precios, casi
   todos cadenas de la capital; las reglas del IPMC cubren 42 de 89 artículos y son un borrador.
 - **Límites municipales operativos.** La capa de mapas no sirve para definir linderos.
