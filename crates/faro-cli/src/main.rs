@@ -78,6 +78,18 @@ enum Comando {
         #[arg(long, default_value = "salida/crecimiento.csv")]
         salida: PathBuf,
     },
+    /// Resume las proyecciones de población del INE (municipio × sexo × edad) a municipio y año.
+    Poblacion {
+        /// Excel "Estimaciones y proyecciones ... por municipio" (faro fuentes descargar proyecciones-de-poblacion-2015-2030).
+        #[arg(long)]
+        entrada: PathBuf,
+        /// Diccionario de variables que acompaña al libro. Si el libro trae códigos de municipio
+        /// que no existen, se usan sus nombres para ubicar el código oficial.
+        #[arg(long)]
+        diccionario: Option<PathBuf>,
+        #[arg(long, default_value = "datos/referencia/poblacion_municipio.csv")]
+        salida: PathBuf,
+    },
     /// Reparte operadores de campo entre puestos con la menor distancia total (línea recta).
     Asignar {
         /// CSV: operador, lugar (código de lugar poblado donde vive) o longitud y latitud.
@@ -214,6 +226,50 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         Comando::Recibir { solicitud, entrada, salida } => recibir(&catalogo, &memoria, &solicitud, &entrada, &salida),
         Comando::Catalogo { accion } => catalogo_censo(&catalogo, &cli.catalogo, accion),
         Comando::Asignar { operadores, puestos, salida } => asignar(&catalogo, &operadores, &puestos, &salida),
+        Comando::Poblacion { entrada, diccionario, salida } => {
+            let mut filas = faro_territorio::poblacion::resumir(&faro_homologa::lectura::leer_crudo(&entrada)?)?;
+            // Cada municipio del libro debe existir en el catálogo: si no, el cruce por código no vale.
+            let es_municipio = |m: &str| catalogo.por_codigo(m).is_some_and(|l| l.nivel == Nivel::Municipio);
+            let ajenos: std::collections::BTreeSet<String> = filas.iter().map(|p| p.municipio.clone()).filter(|m| !es_municipio(m)).collect();
+            if !ajenos.is_empty() {
+                let ruta = diccionario.ok_or(format!("el libro trae {} códigos de municipio que no existen ({}...): indique --diccionario para ubicarlos por nombre", ajenos.len(), ajenos.iter().next().cloned().unwrap_or_default()))?;
+                let nombres = faro_territorio::poblacion::diccionario_municipios(&faro_homologa::lectura::leer_crudo(&ruta)?);
+                let h = Homologador::new(&catalogo, &memoria);
+                let presentes: std::collections::BTreeSet<String> = filas.iter().map(|p| p.municipio.clone()).collect();
+                let mut equivalencias = std::collections::BTreeMap::new();
+                println!("{} códigos de municipio del libro no existen en el catálogo; se ubican por el nombre que les da su diccionario:", ajenos.len());
+                for codigo in &ajenos {
+                    let nombre = nombres.get(codigo).ok_or(format!("{codigo}: el diccionario no lo nombra"))?;
+                    // Solo coincidencia exacta y única dentro del mismo departamento, y sin pisar otro código del libro.
+                    let r = h.homologar(nombre, Nivel::Municipio, Some(&codigo[..2]));
+                    let oficial = r.codigo.filter(|_| r.estado.resuelto()).ok_or(format!("{codigo} ({nombre}): no coincide con un único municipio del departamento {}", &codigo[..2]))?;
+                    if presentes.contains(&oficial) || equivalencias.values().any(|v| *v == oficial) {
+                        return Err(format!("{codigo} ({nombre}) correspondería a {oficial}, que ya tiene datos propios en el libro"));
+                    }
+                    println!("  {codigo} {nombre} -> {oficial}");
+                    equivalencias.insert(codigo.clone(), oficial);
+                }
+                faro_territorio::poblacion::recodificar(&mut filas, &equivalencias);
+                filas.sort_by(|a, b| (&a.municipio, a.anio).cmp(&(&b.municipio, b.anio)));
+            }
+            if let Some(dir) = salida.parent() {
+                std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+            }
+            let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(&salida).map_err(|e| e.to_string())?;
+            for p in &filas {
+                w.serialize(p).map_err(|e| e.to_string())?;
+            }
+            w.flush().map_err(|e| e.to_string())?;
+            let p = faro_territorio::poblacion::Poblacion::new(filas);
+            let (desde, hasta) = p.anios().ok_or("el libro no tiene datos")?;
+            println!("{} municipios, {desde}–{hasta} -> {}", p.municipios().len(), salida.display());
+            for anio in [desde, 2018, hasta] {
+                if let Some(n) = p.total("", anio) {
+                    println!("  población del país en {anio}: {n}");
+                }
+            }
+            Ok(ExitCode::SUCCESS)
+        }
         Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } => unreachable!("atendidos arriba"),
     }
 }
