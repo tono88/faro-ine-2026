@@ -25,6 +25,10 @@ struct Estado {
     dir_ejemplos: PathBuf,
     /// Resultado del análisis de la red vial (`faro vial`), ya con nombres del catálogo.
     vial: Value,
+    /// Materiales de construcción: reglas del IPMC, artículos, precios publicados y proveedores.
+    construccion: Construccion,
+    /// Superficie construida (hectáreas) por municipio y época, de GHSL: código -> [(año, ha)].
+    construido: BTreeMap<String, Vec<faro_territorio::Punto>>,
     /// Capas geográficas listas para publicar: nombre de archivo -> (tipo de contenido, texto).
     capas: HashMap<String, (&'static str, String)>,
     /// Descripción de cada capa (título, fuente, licencia) para el catálogo.
@@ -95,10 +99,22 @@ async fn main() -> Result<(), String> {
         eprintln!("AVISO: sin análisis de red vial ({e}).");
         json!({ "disponible": false })
     });
-    let (capas, catalogo_capas) = armar_capas(&PathBuf::from(var("FARO_REFERENCIA", "datos/referencia")), &catalogo, &poblacion, &vial);
+    let dir_referencia = PathBuf::from(var("FARO_REFERENCIA", "datos/referencia"));
+    let mut construido: BTreeMap<String, Vec<faro_territorio::Punto>> = BTreeMap::new();
+    if let Ok(mut lector) = csv::Reader::from_path(dir_referencia.join("superficie_construida_municipio.csv")) {
+        for f in lector.deserialize::<HashMap<String, String>>().flatten() {
+            if let (Some(m), Some(Ok(anio)), Some(Ok(ha))) = (f.get("municipio"), f.get("anio").map(|a| a.parse::<i32>()), f.get("construido_ha").map(|h| h.parse::<f64>())) {
+                construido.entry(m.clone()).or_default().push(faro_territorio::Punto { anio, edificaciones: ha });
+            }
+        }
+    }
+    let construccion = Construccion::cargar(&dir_referencia, &catalogo);
+    let (capas, catalogo_capas) = armar_capas(&dir_referencia, &catalogo, &poblacion, &vial, &construido, &construccion);
     let estado = Arc::new(Estado {
         bd,
         vial,
+        construccion,
+        construido,
         capas,
         catalogo_capas,
         poblacion,
@@ -144,6 +160,8 @@ async fn main() -> Result<(), String> {
         .route("/api/crecimiento", get(api_crecimiento))
         .route("/api/asignar", post(api_asignar))
         .route("/api/poblacion", get(api_poblacion))
+        .route("/api/construido", get(api_construido))
+        .route("/api/construccion", get(api_construccion))
         .route("/api/vial", get(|State(e): State<Compartido>| async move { Json(e.vial.clone()) }))
         .route("/api/precios", post(api_precios))
         .route("/api/avance", get(api_avance))
@@ -381,6 +399,19 @@ async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c
     autorizar(&e, &cabeceras)?;
     if c.usuario.trim().is_empty() {
         return Err(pedido("indique quién confirma: queda en la bitácora"));
+    }
+    if c.nivel == "valor" && c.contexto == faro_homologa::productos::DIMENSION {
+        // Decisión de producto → artículo del IPMC ("ninguno" = no corresponde a ningún artículo).
+        if c.codigo != "ninguno" && !c.codigo.parse::<u32>().is_ok_and(|n| e.construccion.reglas.articulos.iter().any(|r| r.codigo == n)) {
+            return Err(pedido(format!("{:?} no es un artículo del IPMC con regla", c.codigo)));
+        }
+        e.bd.execute(
+            "INSERT INTO equivalencias_valor (dimension, original, clave, valor, institucion, confirmado_por) VALUES ($1,$2,$3,$4,$5,$6)",
+            &[&c.contexto, &c.valor, &faro_homologa::normalizar::basico(&c.valor), &c.codigo, &c.institucion, &c.usuario],
+        )
+        .await
+        .map_err(interno)?;
+        return Ok(Json(json!({ "grabado": true, "codigo": c.codigo, "nombre": "(IPMC)", "pendientes_resueltos": 0 })));
     }
     if c.nivel == "valor" {
         // El valor elegido debe pertenecer al catálogo de esa dimensión en alguna solicitud.
@@ -726,7 +757,7 @@ fn cargar_vial(dir: &std::path::Path, catalogo: &Catalogo) -> Result<Value, Stri
 
 /// Prepara las capas geográficas: municipios con sus indicadores, enlaces viales probables y
 /// lugares sin conexión. Si falta un insumo, esa capa simplemente no se publica.
-fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion, vial: &Value) -> (HashMap<String, (&'static str, String)>, Vec<Value>) {
+fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion, vial: &Value, construido: &BTreeMap<String, Vec<faro_territorio::Punto>>, construccion: &Construccion) -> (HashMap<String, (&'static str, String)>, Vec<Value>) {
     const GEOJSON: &str = "application/geo+json; charset=utf-8";
     let mut capas = HashMap::new();
     let mut descripcion = Vec::new();
@@ -768,6 +799,13 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
             p["anio_actual"] = json!(hoy);
             p["poblacion_2030"] = json!(poblacion.total(&codigo, hasta));
             p["crecimiento_anual_pct"] = json!(poblacion.cambio(&codigo, 2018, hasta).map(|c| (c.tasa_anual_pct * 100.0).round() / 100.0));
+            // Superficie construida vista por satélite (GHSL): 2000 y 2020, ritmo anual y metros por habitante.
+            let ha = |anio: i32| construido.get(&codigo).and_then(|s| s.iter().find(|x| x.anio == anio)).map(|x| x.edificaciones);
+            p["construido_ha_2000"] = json!(ha(2000).map(|v| v.round()));
+            p["construido_ha_2020"] = json!(ha(2020).map(|v| v.round()));
+            p["construido_crecimiento_anual_pct"] = json!(ha(2000).zip(ha(2020)).filter(|(a, _)| *a > 0.0).map(|(a, b)| (((b / a).powf(1.0 / 20.0) - 1.0) * 10000.0).round() / 100.0));
+            p["construido_m2_por_habitante_2020"] = json!(ha(2020).zip(poblacion.total(&codigo, 2020)).filter(|(_, n)| *n > 0).map(|(h, n)| (h * 10_000.0 / n as f64).round()));
+            p["proveedores_construccion"] = json!(construccion.proveedores.iter().filter(|x| x.get("municipio_codigo").map(String::as_str) == Some(codigo.as_str())).count());
             p["lugares_poblados"] = json!(lugares_de.get(&codigo).copied().unwrap_or(0));
             let (suelto, sin) = sin_conexion.get(&codigo).copied().unwrap_or((0, 0));
             p["lugares_en_tramo_suelto"] = json!(suelto);
@@ -776,7 +814,7 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
         }
         publicar("municipios.geojson", GEOJSON, g.to_string(), "Municipios con indicadores",
             "340 municipios con código INE: población 2018, actual y 2030 (proyecciones INE), crecimiento anual, lugares poblados y cuántos no están conectados a la red vial.",
-            "Límites: CONRED / OCHA (COD-AB Guatemala). Población: INE, proyecciones 2015–2030. Lugares: INE, Censo 2018. Caminos: © colaboradores de OpenStreetMap.", "CC BY-IGO (límites) · ODC-BY (población) · CC BY (censo) · ODbL (caminos)");
+            "Límites: CONRED / OCHA (COD-AB Guatemala). Población: INE, proyecciones 2015–2030. Lugares: INE, Censo 2018. Caminos: © colaboradores de OpenStreetMap. Superficie construida: Comisión Europea, JRC, GHSL GHS-BUILT-S R2023A.", "CC BY-IGO (límites) · ODC-BY (población) · CC BY (censo) · ODbL (caminos) · CC BY 4.0 (GHSL)");
     }
     if vial["disponible"] == json!(true) {
         let enlaces: Vec<Value> = vial["enlaces"].as_array().into_iter().flatten().map(|e| json!({ "type": "Feature",
@@ -799,6 +837,15 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
         }
         publicar("lugares_sin_conexion.geojson", GEOJSON, json!({ "type": "FeatureCollection", "features": puntos }).to_string(), "Lugares poblados sin conexión a la red vial",
             "Lugares del Censo 2018 sin camino para vehículos a 500 m, o en un tramo que no se une a la red principal.", "FARO, a partir de INE, Censo 2018 y © colaboradores de OpenStreetMap (HOT/HDX).", "ODbL 1.0");
+    }
+    for (archivo, titulo, detalle) in [("proveedores_construccion.csv", "Proveedores de materiales de construcción", "Perfil público de 116 negocios: tipo, ubicación, canales y si publican precios. Sin datos de personas."),
+                                       ("precios_construccion.csv", "Precios publicados de materiales de construcción", "Precios tal como los publican las tiendas en línea, con la dirección de la página y la fecha de consulta.")] {
+        if let Ok(texto) = std::fs::read_to_string(dir.join(archivo)) {
+            publicar(archivo, "text/csv; charset=utf-8", texto, titulo, detalle, "Levantamiento de FARO en páginas públicas de los negocios, 24-nov-2026.", "Datos públicos de cada negocio; cite la página de origen");
+        }
+    }
+    if let Ok(texto) = std::fs::read_to_string(dir.join("superficie_construida_municipio.csv")) {
+        publicar("superficie_construida_municipio.csv", "text/csv; charset=utf-8", texto, "Superficie construida por municipio, 1975–2020", "Hectáreas construidas vistas por satélite, cada cinco años, por municipio con código INE.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A (100 m).", "CC BY 4.0");
     }
     if let Ok(texto) = std::fs::read_to_string(dir.join("poblacion_municipio.csv")) {
         publicar("poblacion_municipio.csv", "text/csv; charset=utf-8", texto, "Población por municipio y año, 2015–2030", "Total, hombres y mujeres por municipio y año, con el código INE ya corregido.", "INE, Estimaciones y proyecciones de población 2015–2030.", "ODC-BY");
@@ -837,4 +884,110 @@ async fn api_registros_municipio(State(e): State<Compartido>) -> Res<Json<Value>
         salida.entry(f.get(0)).or_default().insert(municipio, json!({ "total": total, "por_100_mil": poblacion.filter(|p| *p > 0).map(|p| (total as f64 * 1_000_000.0 / p as f64).round() / 10.0) }));
     }
     Ok(Json(json!(salida)))
+}
+
+/// Crecimiento de la superficie construida por municipio (GHSL) y su proyección. La tendencia se
+/// calcula con las épocas desde `desde` (por defecto 2000), que provienen de imágenes más precisas.
+async fn api_construido(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
+    let anio: i32 = q.get("anio").and_then(|a| a.parse().ok()).unwrap_or(2030);
+    let desde: i32 = q.get("desde").and_then(|a| a.parse().ok()).unwrap_or(2000);
+    if !(2021..=2050).contains(&anio) {
+        return Err(pedido("el año de proyección debe estar entre 2021 y 2050"));
+    }
+    let mut salida: Vec<Value> = e
+        .construido
+        .iter()
+        .filter_map(|(codigo, serie)| {
+            let reciente: Vec<faro_territorio::Punto> = serie.iter().copied().filter(|p| p.anio >= desde).collect();
+            let c = faro_territorio::analizar(codigo, &reciente, anio)?;
+            let l = e.catalogo.por_codigo(codigo);
+            let mut v = serde_json::to_value(&c).ok()?;
+            v["municipio"] = json!(l.map(|l| l.nombre.clone()));
+            v["departamento"] = json!(l.and_then(|l| e.catalogo.por_codigo(&l.padre)).map(|d| d.nombre.clone()));
+            v["serie"] = json!(serie.iter().map(|p| json!([p.anio, p.edificaciones.round()])).collect::<Vec<_>>());
+            let poblacion = e.poblacion.cambio(codigo, 2018, 2030);
+            v["poblacion_tasa_anual_pct"] = json!(poblacion.map(|p| p.tasa_anual_pct));
+            Some(v)
+        })
+        .collect();
+    salida.sort_by(|a, b| b["cambio_absoluto"].as_f64().unwrap_or(0.0).total_cmp(&a["cambio_absoluto"].as_f64().unwrap_or(0.0)));
+    let pais = |a: i32| e.construido.values().filter_map(|s| s.iter().find(|p| p.anio == a)).map(|p| p.edificaciones).sum::<f64>();
+    let epocas: std::collections::BTreeSet<i32> = e.construido.values().flatten().map(|p| p.anio).collect();
+    Ok(Json(json!({ "disponible": !e.construido.is_empty(), "desde": desde, "pais": epocas.iter().map(|a| json!([a, pais(*a).round()])).collect::<Vec<_>>(), "municipios": salida })))
+}
+
+/// Lo necesario para comparar precios de materiales de construcción contra el IPMC.
+struct Construccion {
+    reglas: faro_homologa::productos::Reglas,
+    /// Artículos oficiales: código -> fila del catálogo (artículo, unidad, índice, variación).
+    articulos: BTreeMap<u32, HashMap<String, String>>,
+    precios: Vec<HashMap<String, String>>,
+    /// Perfiles; se les agrega `municipio_codigo` cuando el municipio se reconoce sin duda.
+    proveedores: Vec<HashMap<String, String>>,
+}
+
+impl Construccion {
+    fn cargar(dir: &std::path::Path, catalogo: &Catalogo) -> Self {
+        let leer = |ruta: PathBuf| -> Vec<HashMap<String, String>> { csv::Reader::from_path(&ruta).map(|mut l| l.deserialize().flatten().collect()).unwrap_or_default() };
+        let reglas = faro_homologa::productos::Reglas::cargar(&PathBuf::from(var("FARO_REGLAS_IPMC", "datos/estandar/ipmc_reglas.toml"))).unwrap_or_else(|e| {
+            eprintln!("AVISO: sin reglas del IPMC ({e}).");
+            faro_homologa::productos::Reglas { articulos: vec![] }
+        });
+        let articulos = leer(PathBuf::from(var("FARO_IPMC", "datos/catalogo_precios/ipmc_articulos.csv"))).into_iter().filter_map(|f| Some((f.get("codigo")?.parse().ok()?, f))).collect();
+        // El municipio de cada proveedor se homologa con el mismo motor que los envíos.
+        let memoria = Memoria::default();
+        let h = Homologador::new(catalogo, &memoria);
+        let mut proveedores = leer(dir.join("proveedores_construccion.csv"));
+        for p in &mut proveedores {
+            let depto = h.homologar(p.get("departamento").map(String::as_str).unwrap_or(""), Nivel::Departamento, None);
+            let muni = h.homologar(p.get("municipio").map(String::as_str).unwrap_or(""), Nivel::Municipio, depto.codigo.as_deref());
+            p.insert("departamento_codigo".into(), depto.codigo.unwrap_or_default());
+            p.insert("municipio_codigo".into(), muni.codigo.unwrap_or_default());
+        }
+        Construccion { reglas, articulos, precios: leer(dir.join("precios_construccion.csv")), proveedores }
+    }
+}
+
+/// Precios de materiales de construcción: cada producto publicado se homologa contra el IPMC y,
+/// por artículo, se compara un precio por proveedor.
+async fn api_construccion(State(e): State<Compartido>) -> Res<Json<Value>> {
+    use faro_homologa::productos;
+    use faro_territorio::construccion::{resumir, Observacion};
+    let mem = memoria(&e).await?;
+    let c = &e.construccion;
+    let observaciones: Vec<Observacion> = c
+        .precios
+        .iter()
+        .filter_map(|f| {
+            let campo = |k: &str| f.get(k).cloned().unwrap_or_default();
+            let precio: f64 = campo("precio").parse().ok()?;
+            let r = productos::homologar(&c.reglas, &mem, &campo("producto"), &campo("unidad_publicada"), precio);
+            Some(Observacion { proveedor: campo("proveedor"), producto: campo("producto"), url: campo("url"), fecha: campo("fecha"), precio, unidad: campo("unidad_publicada"), codigo: r.codigo, estado: r.estado.texto().to_string(), precio_oficial: r.precio_oficial, motivo: r.motivo })
+        })
+        .collect();
+    let resumenes: HashMap<u32, Value> = resumir(&observaciones, &faro_territorio::precios::Parametros::default()).into_iter().map(|r| (r.codigo, json!(r))).collect();
+    let con_regla: std::collections::BTreeSet<u32> = c.reglas.articulos.iter().map(|r| r.codigo).collect();
+    let articulos: Vec<Value> = c.articulos.iter().map(|(codigo, a)| {
+        let campo = |k: &str| a.get(k).cloned().unwrap_or_default();
+        json!({ "codigo": codigo, "grupo": campo("grupo"), "articulo": campo("articulo"), "unidad": campo("unidad"), "periodo": campo("periodo"), "indice": campo("indice").parse::<f64>().ok(),
+                "variacion_interanual_pct": campo("variacion_interanual_pct").parse::<f64>().ok(), "tiene_regla": con_regla.contains(codigo), "comparacion": resumenes.get(codigo) })
+    }).collect();
+    let cuenta = |estado: &str| observaciones.iter().filter(|o| o.estado == estado).count();
+    let mut por_proveedor: HashMap<&str, usize> = HashMap::new();
+    for o in &observaciones {
+        *por_proveedor.entry(&o.proveedor).or_default() += 1;
+    }
+    let proveedores: Vec<Value> = c.proveedores.iter().map(|p| {
+        let mut v = json!(p);
+        v["precios"] = json!(por_proveedor.get(p.get("nombre").map(String::as_str).unwrap_or("")).copied().unwrap_or(0));
+        v
+    }).collect();
+    let nombre_articulo = |codigo: Option<u32>| codigo.and_then(|k| c.articulos.get(&k)).and_then(|a| a.get("articulo")).cloned();
+    let por_revisar: Vec<Value> = observaciones.iter().filter(|o| o.estado == "revisar").take(400).map(|o| { let mut v = json!(o); v["articulo"] = json!(nombre_articulo(o.codigo)); v }).collect();
+    Ok(Json(json!({
+        "resumen": { "proveedores": c.proveedores.len(), "proveedores_con_precios": por_proveedor.len(), "precios": observaciones.len(), "comparables": cuenta("comparable") + cuenta("memoria"), "aprendidos": cuenta("memoria"),
+                     "por_revisar": cuenta("revisar"), "distintos": cuenta("distinto"), "descartados": cuenta("descartado"), "articulos_con_regla": con_regla.len(), "articulos": c.articulos.len(),
+                     "articulos_con_precio": resumenes.values().filter(|r| r["por_proveedor"].as_array().is_some_and(|a| !a.is_empty())).count() },
+        "articulos": articulos, "por_revisar": por_revisar, "proveedores": proveedores,
+    })))
 }

@@ -1,0 +1,175 @@
+# Reglas para reconocer, en el texto con que una tienda publica un producto, a qué artículo del
+# Índice de Precios de Materiales de Construcción (IPMC, INE) corresponde y cómo llevar su precio
+# a la unidad oficial. BORRADOR DEL EQUIPO (24-nov-2026): los artículos y unidades son del INE;
+# las palabras, medidas equivalentes y conversiones son propuestas para que las fije la Dirección
+# de Índices y Estadísticas Continuas.
+#
+# requiere: de cada grupo debe aparecer una palabra. excluye: si aparece alguna, no es el artículo.
+# medidas: de cada grupo debe aparecer una (in = pulgadas, kg, lb, cal = calibre, chapa, dim =
+# dimensiones ordenadas de menor a mayor, ft = pies, m = metros, psi, gal, num = número de cable).
+# presentaciones: cómo se lleva el precio publicado a la unidad oficial.
+# revisar: característica oficial que el texto no permite comprobar; siempre decide una persona.
+
+[[articulo]]
+codigo = 1
+requiere = [["angular"]]
+excluye = ["esquinero", "ranurado", "aluminio", "plastico", "pvc"]
+medidas = [["in:1 1/4"], ["in:1/8"]]
+presentaciones = [{ contiene = [] }]
+
+[[articulo]]
+codigo = 2
+requiere = [["tubo"], ["cuadrado"]]
+excluye = ["estructural", "galvanizado", "rectangular"]
+medidas = [["in:1"], ["chapa:20"]]
+presentaciones = [{ contiene = [] }]
+
+[[articulo]]
+codigo = 4
+requiere = [["alambre"], ["amarre"]]
+excluye = ["galvanizado", "espigado", "puas"]
+medidas = [["cal:16", "num:16"]]
+presentaciones = [{ contiene = ["quintal", "qq"] }, { contiene = ["libra", "lb", "lbs"], factor = 100.0, nota = "precio por libra × 100" }]
+
+[[articulo]]
+codigo = 7
+requiere = [["arena"], ["rio"]]
+excluye = ["bolsa", "saco", "triturada", "blanca", "silica"]
+presentaciones = [{ contiene = ["m3", "m³", "metro cubico", "metro"] }]
+
+[[articulo]]
+codigo = 8
+requiere = [["arena"], ["amarilla"]]
+excluye = ["bolsa", "saco"]
+presentaciones = [{ contiene = ["m3", "m³", "metro cubico", "metro"] }]
+
+[[articulo]]
+codigo = 9
+requiere = [["cal"], ["hidratada", "horcalsa"]]
+excluye = ["suelo", "pintura", "pasta"]
+medidas = [["lb:50"]]
+presentaciones = [{ contiene = [] }]
+nota = "El IPMC pide bolsa de 50 lb; las de 18, 20 o 25 kg no son comparables."
+
+[[articulo]]
+codigo = 10
+requiere = [["piedrin"]]
+excluye = ["bolsa", "saco"]
+medidas = [["in:3/8"]]
+presentaciones = [{ contiene = ["m3", "m³", "metro cubico", "metro"] }]
+
+[[articulo]]
+codigo = 11
+requiere = [["selecto"]]
+excluye = ["bolsa", "saco"]
+presentaciones = [{ contiene = ["m3", "m³", "metro cubico", "metro"] }]
+
+[[articulo]]
+codigo = 12
+requiere = [["cemento"], ["ugc", "uso general"]]
+excluye = ["blanco", "libra", "libras", "pegamento", "mezcla", "mortero"]
+medidas = [["kg:42.5"]]
+presentaciones = [{ contiene = [] }]
+nota = "Solo cemento tipo UGC en saco de 42.5 kg. Otros cementos grises (estructural, obrero, mampostería) se revisan aparte."
+
+[[articulo]]
+codigo = 13
+requiere = [["cemento"], ["blanco"]]
+excluye = ["libra", "libras", "pegamento", "boquilla"]
+medidas = [["kg:42.5"]]
+presentaciones = [{ contiene = [] }]
+
+[[articulo]]
+codigo = 21
+requiere = [["varilla", "hierro"], ["corrugado", "corrugada"], ["legitimo", "legitima"], ["g 40", "grado 40", "g40"]]
+medidas = [["in:3/8"]]
+presentaciones = [{ contiene = ["quintal", "qq"] }, { contiene = [], factor = 13.5, nota = "precio por varilla × 13.5 varillas de 6 m por quintal, a 0.560 kg/m de peso nominal" }]
+
+[[articulo]]
+codigo = 22
+requiere = [["varilla", "hierro"], ["corrugado", "corrugada"], ["legitimo", "legitima"], ["g 60", "grado 60", "g60"]]
+medidas = [["in:3/8"]]
+presentaciones = [{ contiene = ["quintal", "qq"] }, { contiene = [], factor = 13.5, nota = "precio por varilla × 13.5 varillas de 6 m por quintal, a 0.560 kg/m de peso nominal" }]
+
+[[articulo]]
+codigo = 26
+requiere = [["lamina"], ["galvanizada", "galvanizado"], ["troquelada", "estructural"]]
+excluye = ["aluzinc", "prepintada", "roja", "lisa"]
+medidas = [["cal:26"]]
+presentaciones = [{ contiene = ["pie lineal"] }, { contiene = [], divide_por = "ft", nota = "precio de la lámina entre su largo en pies" }]
+
+[[articulo]]
+codigo = 36
+requiere = [["tablayeso", "tabla yeso", "tablero de yeso", "tablaroca"]]
+excluye = ["antimoho", "anti moho", "humedad", "exterior", "fuego", "tornillo", "pasta", "cinta", "dm"]
+medidas = [["in:1/2"]]
+presentaciones = [{ contiene = [] }]
+
+[[articulo]]
+codigo = 47
+requiere = [["thhn"]]
+medidas = [["num:12"]]
+presentaciones = [{ contiene = ["100m", "100 m", "rollo", "caja"] }, { contiene = ["metro", "m"], factor = 100.0, nota = "precio por metro × 100" }]
+
+[[articulo]]
+codigo = 50
+requiere = [["tubo"], ["emt", "ducton"]]
+medidas = [["in:1"]]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide tubo de 10 pies (3.05 m); las tiendas lo publican de 3 m."
+
+[[articulo]]
+codigo = 53
+requiere = [["tubo", "tuberia"], ["pvc"]]
+excluye = ["drenaje", "sanitario", "electrico", "conduit", "ducto"]
+medidas = [["in:1"], ["psi:250"]]
+presentaciones = [{ contiene = [] }]
+
+[[articulo]]
+codigo = 61
+requiere = [["block"], ["pomez"]]
+excluye = ["solera", "u", "medio", "mitad"]
+medidas = [["dim:14x19x39", "dim:15x20x40"], ["kg:25"]]
+presentaciones = [{ contiene = ["ciento"] }, { contiene = [], factor = 100.0, nota = "precio por unidad × 100" }]
+nota = "15x20x40 es la medida nominal del block de 14x19x39."
+
+[[articulo]]
+codigo = 62
+requiere = [["block"], ["concreto"]]
+excluye = ["solera", "u", "medio", "mitad", "pomez"]
+medidas = [["dim:14x19x39", "dim:15x20x40"], ["kg:50"]]
+presentaciones = [{ contiene = ["ciento"] }, { contiene = [], factor = 100.0, nota = "precio por unidad × 100" }]
+
+[[articulo]]
+codigo = 63
+requiere = [["ladrillo"], ["tubular"]]
+medidas = [["dim:6.5x11x23"]]
+presentaciones = [{ contiene = ["ciento"] }, { contiene = [], factor = 100.0, nota = "precio por unidad × 100" }]
+
+[[articulo]]
+codigo = 64
+requiere = [["ladrillo"], ["tayuyo"]]
+medidas = [["dim:6.5x11x23"]]
+presentaciones = [{ contiene = ["ciento"] }, { contiene = [], factor = 100.0, nota = "precio por unidad × 100" }]
+
+[[articulo]]
+codigo = 67
+requiere = [["pintura"], ["latex"], ["blanco", "blanca"]]
+excluye = ["exterior", "aceite", "base", "satinado", "satinada"]
+medidas = [["gal:1"]]
+presentaciones = [{ contiene = [] }]
+revisar = "El IPMC pide pintura de primera y nacional: la calidad y el origen no se pueden comprobar con el texto."
+
+[[articulo]]
+codigo = 72
+requiere = [["piso", "ceramico", "ceramica"], ["blanco", "white", "blanca"]]
+excluye = ["porcelanato", "azulejo", "vinilico", "laminado"]
+medidas = [["dim:33x33"]]
+presentaciones = [{ contiene = ["m2", "m²", "metro cuadrado"] }]
+revisar = "El IPMC pide piso nacional: el origen no se puede comprobar con el texto."
+
+[[articulo]]
+codigo = 85
+requiere = [["pala"], ["redonda", "redondo"], ["largo", "larga"]]
+excluye = ["plastica", "jardin", "mini"]
+presentaciones = [{ contiene = [] }]

@@ -43,16 +43,43 @@ y cómo repetirlo.
    Detalle: [`datos/referencia/LEEME.md`](../datos/referencia/LEEME.md). Repetir: `faro vial`.
    Fuente: © colaboradores de OpenStreetMap (ODbL), corte del 3-nov-2026.
 
+## Límites, crecimiento urbano y mapa
+
+7. **La capa oficial de límites trae intercambiados los códigos de Sanarate y Sansare**, y dos
+   figuras que son lagos. FARO lo detectó ubicando los lugares poblados del censo dentro de cada
+   figura y lo corrigió. Además, **13 % de los lugares poblados cae fuera de la figura de su
+   municipio**: en 137 municipios el límite y el censo no coinciden en más de uno de cada diez lugares.
+   Detalle: [`datos/referencia/LEEME.md`](../datos/referencia/LEEME.md). Repetir: `faro limites`.
+
+8. **Serie real de crecimiento urbano por municipio, sin Earth Engine.** Con la capa abierta GHSL
+   de la Comisión Europea, la superficie construida del país pasa de 30,722 hectáreas en 1975 a
+   93,297 en 2020; hay cifra para los 340 municipios cada cinco años y se calcula en 8 segundos.
+   Detalle: [`10-imagenes-satelitales.md`](10-imagenes-satelitales.md). Repetir: `faro construido`.
+
+9. **Un mapa y capas publicables.** Población, crecimiento, superficie construida, conexión vial y
+   registros recibidos por municipio en un mismo mapa, y siete capas con dirección estable
+   (GeoJSON y CSV) para que las consuma un portal o un SIG.
+
+## Precios de materiales de construcción
+
+10. **116 proveedores perfilados y 2,332 precios publicados, comparados contra la canasta oficial
+    del IPMC.** De esos precios, FARO declara comparables solo 45 (coinciden palabras, medidas y
+    presentación), deja 117 para que decida una persona y aparta 42 por ser de otra medida. Con
+    eso hay precio para 17 de los 89 artículos; por ejemplo, el saco de cemento UGC de 42.5 kg
+    está entre Q81.00 y Q83.04 en tres proveedores. La cifra baja de comparables es deliberada: el
+    sistema no compara lo que no puede comprobar.
+    Detalle: [`datos/referencia/LEEME.md`](../datos/referencia/LEEME.md). Repetir: `faro construccion`.
+
 ## Operadores de campo (necesidad planteada por la Gerencia)
 
-7. **Asignación con la menor distancia total posible**, calculada de forma exacta. Con el ejemplo
+11. **Asignación con la menor distancia total posible**, calculada de forma exacta. Con el ejemplo
    ficticio de Sololá (19 operadores, 7 puestos) el total baja de 305 km a 163 km frente a repartir
    en el orden de las listas. Las cifras del ejemplo no son del INE; el método sí está probado
    contra todos los repartos posibles en tablas pequeñas.
 
 ## Lo que ya no hay que hacer a mano
 
-8. **Lo que una persona decide una vez no se vuelve a preguntar**, sea un lugar ("El puerto" es San
+12. **Lo que una persona decide una vez no se vuelve a preguntar**, sea un lugar ("El puerto" es San
    José, Escuintla), un código propio de una institución o un valor de catálogo ("Motobici" es
    motocicleta). En la prueba de punta a punta, el reenvío del mismo archivo pasó de 70 % a 100 %
    de lugares resueltos sin intervención.

@@ -23,11 +23,14 @@ pub struct Parametros {
     pub minimo_primarias_pct: f64,
     /// Con menos cotizaciones que estas no se recomienda un precio.
     pub minimo_cotizaciones: usize,
+    /// Un precio que supera este múltiplo de la mediana (o queda por debajo de la mediana entre
+    /// este número) se aparta para revisar: suele ser otro producto u otra presentación.
+    pub max_razon: f64,
 }
 
 impl Default for Parametros {
     fn default() -> Self {
-        Parametros { factor_extremos: 1.5, cv_parecidos_pct: 15.0, minimo_primarias_pct: 50.0, minimo_cotizaciones: 3 }
+        Parametros { factor_extremos: 1.5, cv_parecidos_pct: 15.0, minimo_primarias_pct: 50.0, minimo_cotizaciones: 3, max_razon: 3.0 }
     }
 }
 
@@ -124,7 +127,8 @@ pub fn analizar(producto: &str, cotizaciones: &[&Cotizacion], p: &Parametros) ->
     }
     let (q1, q3) = (cuantil(&precios, 0.25), cuantil(&precios, 0.75));
     let (bajo, alto) = (q1 - p.factor_extremos * (q3 - q1), q3 + p.factor_extremos * (q3 - q1));
-    r.extremos = validas.iter().filter(|c| n >= 4 && (c.precio < bajo || c.precio > alto)).map(|c| (c.fuente.clone(), c.precio)).collect();
+    let fuera_de_razon = |x: f64| r.mediana > 0.0 && (x > r.mediana * p.max_razon || x < r.mediana / p.max_razon);
+    r.extremos = validas.iter().filter(|c| (n >= 4 && (c.precio < bajo || c.precio > alto)) || (n >= 3 && fuera_de_razon(c.precio))).map(|c| (c.fuente.clone(), c.precio)).collect();
     let primarias = validas.iter().filter(|c| c.tipo_fuente.trim().eq_ignore_ascii_case("primaria")).count();
     r.fuentes_primarias_pct = 100.0 * primarias as f64 / n as f64;
 

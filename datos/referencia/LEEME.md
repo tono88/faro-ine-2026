@@ -52,3 +52,58 @@ está en la red principal; 19,016 de 19,723 lugares quedan conectados.
 paso en lancha o un vado (OpenStreetMap no registra los transbordadores como camino). El
 resultado dice dónde mirar primero; la confirmación es en campo o en imagen. Los umbrales (500 m,
 5 km) son parámetros del comando.
+
+## `municipios.geojson` y `limites_verificacion.csv`
+
+Capa de los 340 municipios con código INE para los mapas (`faro limites --entrada <zip>`).
+
+Fuente: CONRED / OCHA, límites administrativos de Guatemala (COD-AB, conjunto `cod-ab-gtm` de HDX,
+licencia CC BY-IGO), vigentes desde 2019. Descargado el 24-nov-2026 (UTC); SHA-256
+`f178eda98c46329380bdbb43f0637b4c43535bc843de6a0b8b960193b8f4363f`. Los contornos se simplificaron (tolerancia ≈ 160 m) para que la capa pese
+380 KB; no sirven para medir linderos.
+
+Verificación contra el censo: se ubicó cada lugar poblado del Censo 2018 dentro de las figuras.
+
+- La capa original trae **intercambiados los códigos de Sanarate y Sansare** (El Progreso): la
+  figura rotulada `0206` contiene en 98 % lugares de `0207` y viceversa. Se corrigió.
+- Trae dos figuras que no son municipios (`0100` y `0700`, los lagos de Amatitlán y Atitlán): se omiten.
+- **86.9 % de los lugares poblados cae dentro de la figura de su municipio**; el resto cae en un
+  municipio vecino. En 137 municipios menos del 90 % de sus lugares queda dentro de su figura
+  (detalle en `limites_verificacion.csv`). No es un error de FARO ni necesariamente del censo:
+  estos límites son operativos, no legales. Indica dónde el límite y el censo no coinciden.
+
+## `superficie_construida_municipio.csv`
+
+Hectáreas construidas por municipio cada cinco años, de 1975 a 2020 (`faro construido`).
+
+Fuente: Comisión Europea, Centro Común de Investigación (JRC), GHSL GHS-BUILT-S R2023A, 100 m,
+proyección Mollweide (Pesaresi y Politis, 2023), datos abiertos con atribución. 30 mosaicos
+(3 por época) descargados el 24-nov-2026 de `jeodpp.jrc.ec.europa.eu`; cada uno está en
+`datos/crudo/manifiesto.jsonl` con su URL y SHA-256.
+
+Método: los límites municipales se llevan a Mollweide y se suman las celdas cuyo centro cae dentro
+de cada municipio (cada celda trae los metros cuadrados construidos). `celdas` es cuántas se sumaron.
+
+Cifras del país: 30,722 ha en 1975, 60,593 en 2000 y 93,297 en 2020.
+
+Cómo leerlo: es superficie edificada vista por satélite, no viviendas ni personas. Las épocas
+anteriores a 2015 vienen de imágenes Landsat y son menos precisas. GHSL publica 2025 y 2030 como
+proyecciones; no se usan. Las opciones evaluadas están en `docs/10-imagenes-satelitales.md`.
+
+## `proveedores_construccion.csv` y `precios_construccion.csv`
+
+Levantamiento del 24-nov-2026 en páginas públicas de negocios de materiales de construcción de
+Guatemala: 116 perfiles (tipo, ubicación, canales, si publica precios, rubros y la página de
+donde salió cada perfil) y 2,332 precios de 16 de ellos, cada uno con el texto del producto tal
+como lo publica la tienda, la unidad, la dirección exacta de la página y la fecha.
+
+- Solo negocios e información comercial pública. Sin nombres de personas, teléfonos ni correos.
+- 62 perfiles vienen del directorio Páginas Amarillas: su tipo y rubros se dedujeron del nombre y
+  la categoría, y no tienen precios.
+- No se entró a sitios con bloqueo, captcha o inicio de sesión (Facebook, Instagram, Encuentra24 y
+  varios fabricantes quedaron fuera por eso). Casi todos los precios son de cadenas con tienda en
+  línea; no hay precios de ferreterías del interior.
+- La mayoría de las páginas no dice si el precio incluye IVA.
+- Son precios publicados, no cotizaciones: para la Dirección de Precios son fuentes secundarias.
+
+La comparación contra el IPMC (`faro construccion`) usa las reglas de `datos/estandar/ipmc_reglas.toml`.

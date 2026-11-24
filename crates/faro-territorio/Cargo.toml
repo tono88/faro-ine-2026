@@ -7,3 +7,4 @@ edition.workspace = true
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 csv = "1"
+weezl = "0.1"

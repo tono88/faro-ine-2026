@@ -67,12 +67,21 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
     cuáles quedan en un tramo desconectado de la red principal, cuáles no tienen camino mapeado
     cerca y cuál es el enlace más corto que probablemente falta (`faro vial` y la pantalla).
     Resultado real: 707 lugares por revisar y 83 enlaces probables. Ver [logros](docs/09-logros.md).
-15. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
+15. **Materiales de construcción contra el IPMC.** Toma los 89 artículos del Índice de Precios de
+    Materiales de Construcción del INE como catálogo oficial y homologa contra él los productos
+    que publican los proveedores: comparable, por revisar o de otra medida, con el precio llevado
+    a la unidad oficial. Incluye un levantamiento real de 116 proveedores y 2,332 precios
+    (`faro ipmc`, `faro construccion` y la pantalla).
+16. **Mapa y capas publicables.** Un mapa por municipio con población, crecimiento, superficie
+    construida, conexión vial y registros recibidos; cada capa tiene una dirección estable en
+    GeoJSON o CSV para un portal o un SIG (`/capas`).
+17. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
     y elige como lo explica la Dirección de Precios e Índices de Referencia (mediana si hay
     precios extremos, media si son parecidos); avisa si faltan cotizaciones directas o se mezclan
     unidades (`faro precios` y la pantalla).
-16. **Crecimiento urbano.** A partir de edificaciones por año vistas por satélite, calcula el
-    ritmo de crecimiento de cada municipio y lo proyecta con su margen (`faro crecimiento`).
+18. **Crecimiento urbano real.** Superficie construida por municipio de 1975 a 2020 con la capa
+    satelital abierta GHSL de la Comisión Europea, sin Earth Engine; ritmo de crecimiento y
+    proyección con su margen (`faro construido`, `faro crecimiento`).
 
 ## Levantarlo con Docker
 
@@ -84,10 +93,10 @@ docker compose up --build     # base de datos PostgreSQL + FARO
 Abra <http://localhost:8082>. Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
-La pantalla tiene nueve secciones: recibir un envío, revisar pendientes, equivalencias
+La pantalla abre en un mapa por municipio y tiene doce secciones agrupadas por área: recibir un envío, revisar pendientes, equivalencias
 confirmadas, resultados y avance por institución, conjuntos del portal del INE (se sincroniza
 sola al arrancar y cada 24 horas), crecimiento poblacional y urbano, asignación de operadores de
-campo, red vial y precios de referencia. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.
+campo, red vial, materiales de construcción, precios de referencia y capas publicadas. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.
 
 En Linux, el contenedor escribe las descargas de fuentes abiertas en `datos/crudo` con un usuario
 sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecute
@@ -98,7 +107,7 @@ sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecu
 Requiere [Rust](https://rustup.rs) estable (probado con 1.97) y, para el servidor, PostgreSQL 16.
 
 ```bash
-cargo test                       # 55 pruebas
+cargo test                       # 65 pruebas
 cargo build --release
 
 # Línea de comandos (no necesita base de datos)
@@ -143,9 +152,13 @@ Si una solicitud sustituye identificadores por llaves, defina el secreto `FARO_S
 | `datos/catalogo/` | 22 departamentos, 340 municipios y 20,036 lugares poblados con código INE y alias | Incluido; verificado código por código contra el listado oficial ([detalle](datos/catalogo/LEEME.md)) |
 | INE, "Estimaciones y proyecciones de la población total por municipio, 2015–2030" ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/proyecciones-de-poblacion-2015-2030), ODC-BY), descargado el 24-nov-2026 | Población por municipio y año: denominador de tasas y crecimiento poblacional | Incluido resumido en `datos/referencia/poblacion_municipio.csv` ([detalle](datos/referencia/LEEME.md)) |
 | © Colaboradores de OpenStreetMap, exportación de carreteras de HOT en [HDX](https://data.humdata.org/dataset/hotosm_gtm_roads) (ODbL 1.0), corte del 3-nov-2026, descargado el 24-nov-2026 | Red vial como grafo | Resultados derivados en `datos/referencia/red_vial_*` (ODbL); el archivo original no se versiona |
+| CONRED / OCHA, límites administrativos de Guatemala ([HDX: cod-ab-gtm](https://data.humdata.org/dataset/cod-ab-gtm), CC BY-IGO), descargado el 24-nov-2026 | Figuras de los municipios para los mapas y para sumar por municipio | Capa simplificada y verificada en `datos/referencia/municipios.geojson` |
+| Comisión Europea, JRC, GHSL GHS-BUILT-S R2023A (datos abiertos con atribución), descargado el 24-nov-2026 | Superficie construida 1975–2020 para crecimiento urbano | Resumida por municipio en `datos/referencia/superficie_construida_municipio.csv` |
+| INE, Índice de Precios de Materiales de Construcción ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/indice-de-precios-de-materiales-de-construccion-ipmc)), descargado el 24-nov-2026 | Catálogo oficial de 89 artículos, con índice y variación | `datos/catalogo_precios/ipmc_articulos.csv` |
+| Páginas públicas de 116 negocios de materiales de construcción, consultadas el 24-nov-2026 | Perfil de proveedores y precios publicados | `datos/referencia/proveedores_construccion.csv` y `precios_construccion.csv`, con la dirección de cada página |
 | `datos/solicitudes/` | Solicitudes de datos para RENAP (defunciones, nacimientos), PNC (detenidos) y SE-CONRED (emergencias) | Incluido |
 | Archivos de ejemplo de instituciones compartidos por el INE (23-nov-2026) | Diseño y prueba de las solicitudes | **No están en el repositorio** (contienen datos personales) |
-| Google Research, Open Buildings 2.5D Temporal (CC BY 4.0 / ODbL) | Edificaciones por año 2016–2023 para crecimiento urbano | Script listo (`scripts/`), pendiente de ejecutar |
+| Google Research, Open Buildings 2.5D Temporal (CC BY 4.0 / ODbL) | Edificaciones por año 2016–2023 | Opcional: script listo (`scripts/`); la serie que se usa es GHSL ([opciones](docs/10-imagenes-satelitales.md)) |
 | `datos/estandar/` | Núcleo común de variables y mapa de registros e instituciones (borrador del equipo) | Incluido |
 | `datos/ejemplos/` | Envío, solicitud, serie de edificaciones, operadores y puestos **ficticios** para demostración ([detalle](datos/ejemplos/LEEME.md)) | Incluido |
 
@@ -180,6 +193,7 @@ docs/                   necesidades del INE, investigación, arquitectura y plan
 - [Modelos de código abierto que tendría sentido entrenar](docs/07-modelos.md)
 - [Versiones](docs/08-versiones.md)
 - [Logros y hallazgos](docs/09-logros.md)
+- [Crecimiento urbano con imágenes satelitales abiertas](docs/10-imagenes-satelitales.md)
 
 ## Limitaciones y mejoras
 
@@ -189,8 +203,11 @@ docs/                   necesidades del INE, investigación, arquitectura y plan
 - **Distancias en línea recta.** La asignación de operadores y la red vial no usan tiempo de viaje.
   El siguiente paso es calcular rutas sobre el mismo grafo vial.
 - **La red vial mide el mapa.** Un hueco puede ser un camino sin dibujar o un paso en lancha.
-- **Crecimiento urbano sin serie real todavía.** El cálculo está; falta ejecutar el script de
-  Earth Engine para obtener las edificaciones por municipio.
+- **Crecimiento urbano a 100 m y cada cinco años.** GHSL mide superficie construida, no
+  viviendas; para detalle de edificios haría falta Open Buildings (140 GB por año).
+- **Precios de construcción: pocas fuentes y solo en línea.** 16 proveedores con precios, casi
+  todos cadenas de la capital; las reglas del IPMC cubren 24 de 89 artículos y son un borrador.
+- **Límites municipales operativos.** La capa de mapas no sirve para definir linderos.
 - **Precios sin históricos de Guatecompras.** El cálculo usa las cotizaciones que se le den.
 - **Un solo nivel de acceso.** Hay una clave compartida para enviar y confirmar; faltan usuarios y
   roles por institución.
@@ -202,11 +219,17 @@ docs/                   necesidades del INE, investigación, arquitectura y plan
 ## Componentes de terceros
 
 Bibliotecas de Rust de código abierto (licencias MIT o Apache-2.0): `serde`, `serde_json`, `toml`,
-`csv`, `strsim`, `unicode-normalization`, `chrono`, `clap`, `ureq`, `sha2`, `calamine`, `zip`, `axum`,
-`tokio`, `tokio-postgres`. Base de datos: PostgreSQL 16 (licencia PostgreSQL). Imágenes de Docker:
+`csv`, `strsim`, `unicode-normalization`, `chrono`, `clap`, `ureq`, `sha2`, `calamine`, `zip`, `regex`,
+`weezl`, `axum`, `tokio`, `tokio-postgres`. Mapas: Leaflet 1.9.4 (BSD de 2 cláusulas), incluido en
+`crates/faro-servidor/web/vendor/`; la tipografía Noto Sans se carga de Google Fonts si hay internet. Base de datos: PostgreSQL 16 (licencia PostgreSQL). Imágenes de Docker:
 `rust`, `debian` y `postgres` oficiales. Versiones exactas en `Cargo.lock`. No se copió código de
 proyectos previos; los algoritmos (homologación, método húngaro, grafo vial, lector de Shapefile)
 se escribieron durante el evento.
+
+Los criterios para comparar productos entre tiendas (no unir medidas distintas, comparar por
+unidad, dejar "por revisar" lo que solo coincide por nombre y apartar precios que difieren más de
+tres veces) vienen de `allseeneye`, un comparador de precios propio del equipo anterior al evento.
+Se tomaron las ideas y se programaron de nuevo en Rust; no se copió código.
 
 ## Servicios en la nube
 

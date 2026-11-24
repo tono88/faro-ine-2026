@@ -1,0 +1,90 @@
+codigo,grupo,articulo,unidad,periodo,indice,indice_un_anio_antes,variacion_interanual_pct
+1,A,"Angular laminado en frío de 6 m de largo x 1/8"" espesor de 1 1/4""",unidad,Septiembre 2026,142.05,137.81,3.08
+2,A,"Tubo industrial cuadrado de 6 m de largo chapa de 20 de 1""",unidad,Septiembre 2026,142.62,135.58,5.19
+3,A,"Tubo de metal corrugado redondo de 24"" x 0.86 m calibre 16 (incluye accesorios)",unidad,Septiembre 2026,149.20,151.62,-1.60
+4,A,Alambre de acero calibre 16 (de amarre),quintal,Septiembre 2026,167.57,159.69,4.93
+5,B,"Inodoro de porcelana color blanco, tipo económico, con accesorios",unidad,Septiembre 2026,136.44,132.37,3.07
+6,B,"Lavamanos de porcelana color blanco, tipo económico, de empotrar, con accesorios",unidad,Septiembre 2026,120.75,119.74,0.84
+7,C,Arena de río,metro cúbico,Septiembre 2026,170.36,142.56,19.50
+8,C,Arena amarilla,metro cúbico,Septiembre 2026,154.84,134.08,15.48
+9,C,Cal hidratada,bolsa 50 lb,Septiembre 2026,108.99,107.75,1.15
+10,C,"Piedrín de 3/8""",metro cúbico,Septiembre 2026,138.06,117.82,17.18
+11,C,Material selecto,metro cúbico,Septiembre 2026,145.49,124.96,16.43
+12,D,"Cemento gris (Cemento hidráulico tipo UGC, para uso general en la construcción).",saco 42.5 kg,Septiembre 2026,111.69,109.85,1.68
+13,D,Cemento blanco (Cemento hidráulico tipo BL).,saco 42.5 kg,Septiembre 2026,139.94,135.43,3.33
+14,D,Concreto de 3000 PSI,metro cúbico,Septiembre 2026,124.73,121.74,2.46
+15,E,Combustible diésel /1,galón,Septiembre 2026,234.38,126.22,85.69
+16,E,Combustible gasolina regular (octanaje mínimo: 88 ) /1,galón,Septiembre 2026,197.55,133.10,48.42
+17,E,Combustible Fuel oil pesado No. 6 (bunker C),galón,Septiembre 2026,142.23,105.45,34.88
+18,E,Aceite lubricante para motor,galón,Septiembre 2026,220.59,137.69,60.21
+19,E,Grasa lubricante,libra,Septiembre 2026,209.47,208.33,0.55
+20,E,"Material bituminoso AC-20, asfalto virgen",galón,Septiembre 2026,144.00,110.31,30.54
+21,F,"Varilla de 3/8"" diámetro, largo 20', corrugado, legítimo",quintal,Septiembre 2026,122.94,116.91,5.16
+22,F,"Varilla de 3/8"" diámetro, largo 20´, corrugado, legítimo",quintal,Septiembre 2026,131.63,124.51,5.72
+23,F,"Malla electrosoldada 2.35 x 6 m, tipo 6x6, 6/6",unidad,Septiembre 2026,135.25,128.98,4.86
+24,G,Grama (San Agustín),metro cuadrado,Septiembre 2026,121.01,117.33,3.14
+25,G,"Grama sintética (césped artificial) fibrilada de 25 oz de hilado, alto de 50 mm",metro cuadrado,Septiembre 2026,115.59,111.98,3.22
+26,H,"Lámina de acero galvanizado estructural, troquelada, calibre 26, de 1.08 m de ancho",pie lineal,Septiembre 2026,115.07,108.38,6.17
+27,H,"Lámina tipo losacero calibre 22, 0.95 m de ancho",pie lineal,Septiembre 2026,112.37,110.26,1.91
+28,H,"Lámina para techo curvo de aluzinc, calibre 26, 30.5 cm de ancho",pie lineal,Septiembre 2026,116.59,119.23,-2.21
+29,H,"Lámina negra, plancha 4' x 8' x 1/16""",unidad,Septiembre 2026,127.33,126.98,0.28
+30,H,Lámina ondulada roja de 1 m x 2.44 m,unidad,Septiembre 2026,118.00,113.72,3.76
+31,H,"Lámina de policarbonato ondulada, traslúcida 1.08 m de ancho",pie lineal,Septiembre 2026,102.70,99.59,3.12
+32,H,"Teja de concreto 42 x 32 cm, tipo veneciana con color",metro cuadrado,Septiembre 2026,106.62,108.08,-1.35
+33,I,Madera para encofrados de pino rústico,pie lineal,Septiembre 2026,178.21,175.77,1.39
+34,I,"Tablero de madera aglomerada de 4' x 8' x 3/4""",unidad,Septiembre 2026,124.27,124.03,0.19
+35,I,"Melamina, plancha, espesor de 5/8""",pie cuadrado,Septiembre 2026,139.82,136.19,2.67
+36,I,"Tablero de yeso de 4' x 8' x 1/2"" para interior",unidad,Septiembre 2026,139.58,130.15,7.25
+37,J,Mezcladora de concreto de un saco,día,Septiembre 2026,111.53,111.53,0.00
+38,J,Minicargador frontal sin accesorios,hora,Septiembre 2026,131.42,118.15,11.23
+39,J,"Retroexcavadora sobre llantas, capacidad mínima del cucharón 0.75 m³, profundidad máxima de excavación 4.50 m",hora,Septiembre 2026,154.43,138.68,11.36
+40,J,"Camión con palangana de volteo, 10 m³, doble eje",hora,Septiembre 2026,140.01,129.62,8.02
+41,J,Puntal telescópico de 2.00 m,mes,Septiembre 2026,119.79,118.81,0.82
+42,J,"Formaleta reutilizable, bastidor metálico + plywood fenólico 0.61 x 2.44 m",mes,Septiembre 2026,111.34,108.81,2.33
+43,J,"Pickup doble cabina, 4 x 4",día,Septiembre 2026,99.02,98.68,0.34
+44,K,"Poste 8 m de alto, 500 kg de resistencia",unidad,Septiembre 2026,100.00,100.00,0.00
+45,K,Malla de alambre galvanizado calibre 12 con agujero de 2 ½”,metro cuadrado,Septiembre 2026,122.41,122.46,-0.04
+46,K,Alambre espigado calibre 15,metro lineal,Septiembre 2026,138.12,128.36,7.60
+47,L,Alambre #12 forrado THHN (100 m),rollo,Septiembre 2026,163.19,139.50,16.98
+48,L,"Switch sencillo de sobreponer, 10 amperios, ovalado",unidad,Septiembre 2026,146.39,138.28,5.86
+49,L,Tablero monofásico 8 circuitos y 3 líneas sin flip on,unidad,Septiembre 2026,174.49,142.46,22.48
+50,L,"Tubo ductón de metal de 1"" x 10' de largo",unidad,Septiembre 2026,133.34,126.54,5.37
+51,L,"Flexitubo plástico de 1"" diámetro, corrugado",metro,Septiembre 2026,118.81,114.87,3.43
+52,L,"Lámpara listón para tubo led de 1 x 48""",unidad,Septiembre 2026,99.36,102.69,-3.24
+53,M,"Tubería de PVC 1"" diámetro C. 250 PSI 20´ de largo",unidad,Septiembre 2026,143.41,130.34,10.03
+54,M,"Tubería de PVC (o ADS) de 18"" diámetro x 20´ de largo",unidad,Septiembre 2026,154.63,141.39,9.36
+55,M,"Válvula de compuerta de bronce 1"" diámetro, importada",unidad,Septiembre 2026,121.48,115.63,5.06
+56,M,"Tubo de cobre rígido de 1/2"" diámetro x 20' de largo",unidad,Septiembre 2026,118.82,100.01,18.81
+57,M,"Tubo de concreto vibroprensado 1 m largo x 6"" de diámetro",unidad,Septiembre 2026,154.71,142.29,8.73
+58,M,"Tubo de concreto no reforzado 1 m largo x 18"" de diámetro",unidad,Septiembre 2026,137.78,125.29,9.97
+59,M,"Tubo de concreto reforzado 1 m largo x 42"" de diámetro",unidad,Septiembre 2026,134.37,121.73,10.38
+60,M,"Tubería perforada concreto simple 10"" de diámetro",metro lineal,Septiembre 2026,119.88,110.51,8.48
+61,N,"Block de pómez de 14 x 19 x 39 cm, 25 kg",ciento,Septiembre 2026,125.85,116.80,7.75
+62,N,"Block de concreto de 14 x 19 x 39 cm, 50 kg",ciento,Septiembre 2026,120.11,110.46,8.74
+63,N,Ladrillo tubular de 6.5 x 11 x 23 cm,ciento,Septiembre 2026,131.70,121.54,8.36
+64,N,Ladrillo tayuyo de 6.5 x 11 x 23 cm,ciento,Septiembre 2026,144.26,122.16,18.09
+65,N,"Muros prefabricados, 5 cm espesor, concreto de 315 kg/cm2, liso ambas caras",metro cuadrado,Septiembre 2026,116.77,111.39,4.83
+66,O,"Pintura anticorrosiva, nacional, de secado normal",galón,Septiembre 2026,134.90,130.15,3.65
+67,O,"Pintura látex de primera, nacional para interior, color blanco",galón,Septiembre 2026,125.35,120.26,4.23
+68,O,"Pintura de aceite de primera, nacional color blanco",galón,Septiembre 2026,126.76,122.17,3.76
+69,O,"Pintura impermeabilizante acrílica, nacional económica",galón,Septiembre 2026,123.03,118.46,3.86
+70,O,Pintura para tráfico,galón,Septiembre 2026,125.25,117.74,6.38
+71,P,"Azulejo de 20 x 30 cm nacional, blanco",metro cuadrado,Septiembre 2026,109.53,105.20,4.12
+72,P,"Piso cerámico nacional 33 x 33 cm, blanco",metro cuadrado,Septiembre 2026,124.60,123.54,0.86
+73,P,Piso vinílico,metro cuadrado,Septiembre 2026,130.43,128.65,1.38
+74,P,"Piso porcelanato 60 x 60 cm blanco, nacional",metro cuadrado,Septiembre 2026,98.17,98.29,-0.12
+75,P,Piso laminado imitación madera,metro cuadrado,Septiembre 2026,116.69,116.39,0.26
+76,P,"Adoquín de concreto tipo cruz de 22 x 25 x 8 cm, 42.5 kg/cm2 resistencia a la flexión",millar,Septiembre 2026,115.19,109.92,4.79
+77,P,"Baldosa de barro, doble, de 5 x 30 x 30 cm",millar,Septiembre 2026,154.48,128.26,20.44
+78,Q,"Llantas para camión, direccional, 11R 22.5 16 PR",unidad,Septiembre 2026,126.70,131.32,-3.52
+79,Q,"Llantas para vehículo liviano, 185/60 R15",unidad,Septiembre 2026,101.20,100.86,0.34
+80,R,"Vidrio claro de 5 mm, traslúcido",metro cuadrado,Septiembre 2026,114.68,101.85,12.60
+81,R,"Perfil de aluminio anodizado 1 1/2"" x 1/16"" (riel superior)",metro lineal,Septiembre 2026,111.51,111.41,0.09
+82,R,"Perfiles de PVC blanco para ventanas y puertas de 80 mm termoacústico, 6 m de largo",unidad,Septiembre 2026,96.36,95.03,1.40
+83,R,"Puertas prefabricadas de MDF lisas de 0.90 m ancho x 2.10 m alto, con marco",unidad,Septiembre 2026,134.85,133.60,0.94
+84,S,Flete de camión de 6 Ton. dentro del perímetro del casco urbano,km,Septiembre 2026,158.74,117.61,34.97
+85,S,"Pala metálica de punta redonda, cabo largo de madera",unidad,Septiembre 2026,113.92,111.75,1.94
+86,S,"Poste de concreto 6 m de largo, 300 daN (300 kg) de resistencia",unidad,Septiembre 2026,141.49,118.45,19.45
+87,S,Geomallas de 60 kN/m polietileno de alta densidad,metro cuadrado,Septiembre 2026,103.23,102.48,0.73
+88,S,Geotextiles no tejidos (150 gr),metro cuadrado,Septiembre 2026,133.23,133.23,0.00
+89,T,"Salario mínimo, según último Acuerdo Gubernativo publicado",mes,Septiembre 2026,142.09,132.76,7.03

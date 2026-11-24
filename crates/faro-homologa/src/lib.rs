@@ -11,6 +11,7 @@ pub mod homologar;
 pub mod lectura;
 pub mod memoria;
 pub mod normalizar;
+pub mod productos;
 pub mod recepcion;
 pub mod solicitud;
 

@@ -130,6 +130,39 @@ enum Comando {
         #[arg(long, default_value = "datos/referencia/municipios.geojson")]
         salida: PathBuf,
     },
+    /// Superficie construida por municipio y año a partir de los mosaicos de GHSL (GHS-BUILT-S, 100 m).
+    Construido {
+        /// Carpeta con los zip de GHSL (faro fuentes url ... --fuente ghsl-built-s).
+        #[arg(long, default_value = "datos/crudo/ghsl-built-s")]
+        mosaicos: PathBuf,
+        /// Capa de municipios generada por `faro limites`.
+        #[arg(long, default_value = "datos/referencia/municipios.geojson")]
+        municipios: PathBuf,
+        #[arg(long, default_value = "datos/referencia/superficie_construida_municipio.csv")]
+        salida: PathBuf,
+    },
+    /// Catálogo de artículos del IPMC (INE) con su índice más reciente y la variación en doce meses.
+    Ipmc {
+        /// Libro mensual más reciente del IPMC (faro fuentes descargar indice-de-precios-de-materiales-de-construccion-ipmc).
+        #[arg(long)]
+        actual: PathBuf,
+        /// Libro que contiene el mismo mes del año anterior (el anual).
+        #[arg(long)]
+        anterior: Option<PathBuf>,
+        #[arg(long, default_value = "datos/catalogo_precios/ipmc_articulos.csv")]
+        salida: PathBuf,
+    },
+    /// Homologa los precios publicados por proveedores contra el IPMC y los compara por artículo.
+    Construccion {
+        #[arg(long, default_value = "datos/referencia/precios_construccion.csv")]
+        precios: PathBuf,
+        #[arg(long, default_value = "datos/estandar/ipmc_reglas.toml")]
+        reglas: PathBuf,
+        #[arg(long, default_value = "datos/catalogo_precios/ipmc_articulos.csv")]
+        articulos: PathBuf,
+        #[arg(long, default_value = "salida/construccion")]
+        salida: PathBuf,
+    },
     /// Reparte operadores de campo entre puestos con la menor distancia total (línea recta).
     Asignar {
         /// CSV: operador, lugar (código de lugar poblado donde vive) o longitud y latitud.
@@ -223,6 +256,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
     // Estos comandos no necesitan catálogo ni memoria.
     let comando = match cli.comando {
         Comando::Fuentes { portal, manifiesto, accion } => return fuentes(&portal, &manifiesto, accion),
+        Comando::Construido { mosaicos, municipios, salida } => return construido(&mosaicos, &municipios, &salida),
         Comando::Precios { cotizaciones, cv_parecidos, salida } => {
             use faro_territorio::precios;
             let p = precios::Parametros { cv_parecidos_pct: cv_parecidos, ..Default::default() };
@@ -292,6 +326,8 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         Comando::Recibir { solicitud, entrada, salida } => recibir(&catalogo, &memoria, &solicitud, &entrada, &salida),
         Comando::Catalogo { accion } => catalogo_censo(&catalogo, &cli.catalogo, accion),
         Comando::Asignar { operadores, puestos, salida } => asignar(&catalogo, &operadores, &puestos, &salida),
+        Comando::Ipmc { actual, anterior, salida } => ipmc(&actual, anterior.as_deref(), &salida),
+        Comando::Construccion { precios, reglas, articulos, salida } => construccion(&memoria, &precios, &reglas, &articulos, &salida),
         Comando::Limites { entrada, tolerancia, salida } => limites(&catalogo, &entrada, tolerancia, &salida),
         Comando::Vial { carreteras, cerca_m, max_enlace_km, con_senderos, salida } => vial(&catalogo, &carreteras, faro_territorio::vial::Parametros { cerca_m, max_enlace_km }, con_senderos, &salida),
         Comando::Poblacion { entrada, diccionario, salida } => {
@@ -338,7 +374,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } => unreachable!("atendidos arriba"),
+        Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } => unreachable!("atendidos arriba"),
     }
 }
 
@@ -490,6 +526,149 @@ fn asignar(catalogo: &Catalogo, ruta_operadores: &Path, ruta_puestos: &Path, sal
     for (puesto, n) in &a.sin_cubrir {
         println!("plazas sin cubrir: {puesto} ({n})");
     }
+    Ok(ExitCode::SUCCESS)
+}
+
+/// Filas de un libro del IPMC: (año, mes, código, grupo, artículo, unidad, índice).
+fn leer_ipmc(ruta: &Path) -> Result<Vec<(i32, String, u32, String, String, String, f64)>, String> {
+    let filas = faro_homologa::lectura::leer_crudo(ruta)?;
+    let pos = filas.iter().take(10).position(|f| f.iter().any(|c| faro_homologa::normalizar::basico(c) == "codigo articulo")).ok_or(format!("{}: no parece un libro del IPMC", ruta.display()))?;
+    let enc: Vec<String> = filas[pos].iter().map(|c| faro_homologa::normalizar::basico(c)).collect();
+    let col = |n: &str| enc.iter().position(|c| c == n).ok_or(format!("{}: falta la columna {n}", ruta.display()));
+    let (ia, im, ig, ic, in_, iu, ii) = (col("ano")?, col("mes")?, col("grupo")?, col("codigo articulo")?, col("nombre articulo")?, col("unidad de medida")?, col("indice")?);
+    Ok(filas.iter().skip(pos + 1).filter_map(|f| {
+        let c = |i: usize| f.get(i).map(|x| x.trim()).unwrap_or("");
+        Some((c(ia).parse().ok()?, c(im).to_string(), c(ic).parse().ok()?, c(ig).to_string(), c(in_).split_whitespace().collect::<Vec<_>>().join(" "), c(iu).to_string(), c(ii).parse().ok()?))
+    }).collect())
+}
+
+fn ipmc(actual: &Path, anterior: Option<&Path>, salida: &Path) -> Result<ExitCode, String> {
+    let filas = leer_ipmc(actual)?;
+    let (anio, mes) = filas.iter().map(|f| (f.0, f.1.clone())).last().ok_or("el libro no tiene filas")?;
+    let previo: std::collections::HashMap<u32, f64> = match anterior {
+        Some(r) => leer_ipmc(r)?.into_iter().filter(|f| f.0 == anio - 1 && f.1 == mes).map(|f| (f.2, f.6)).collect(),
+        None => Default::default(),
+    };
+    if let Some(d) = salida.parent() {
+        std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+    }
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(salida).map_err(|e| e.to_string())?;
+    w.write_record(["codigo", "grupo", "articulo", "unidad", "periodo", "indice", "indice_un_anio_antes", "variacion_interanual_pct"]).map_err(|e| e.to_string())?;
+    let mut n = 0;
+    for f in filas.iter().filter(|f| f.0 == anio && f.1 == mes) {
+        let antes = previo.get(&f.2);
+        w.write_record([f.2.to_string(), f.3.clone(), f.4.clone(), f.5.clone(), format!("{mes} {anio}"), format!("{:.2}", f.6), antes.map(|a| format!("{a:.2}")).unwrap_or_default(), antes.filter(|a| **a > 0.0).map(|a| format!("{:.2}", (f.6 / a - 1.0) * 100.0)).unwrap_or_default()]).map_err(|e| e.to_string())?;
+        n += 1;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    println!("{n} artículos del IPMC, {mes} {anio}{} -> {}", if previo.is_empty() { String::new() } else { format!(", con variación frente a {mes} {}", anio - 1) }, salida.display());
+    Ok(ExitCode::SUCCESS)
+}
+
+fn construccion(memoria: &Memoria, ruta_precios: &Path, ruta_reglas: &Path, ruta_articulos: &Path, salida: &Path) -> Result<ExitCode, String> {
+    use faro_homologa::productos;
+    use faro_territorio::construccion::{resumir, Observacion};
+    let reglas = productos::Reglas::cargar(ruta_reglas)?;
+    let articulos: std::collections::HashMap<u32, (String, String)> = csv::Reader::from_path(ruta_articulos).map_err(|e| format!("{}: {e}", ruta_articulos.display()))?
+        .deserialize::<std::collections::HashMap<String, String>>().flatten().filter_map(|f| Some((f.get("codigo")?.parse().ok()?, (f.get("articulo")?.clone(), f.get("unidad")?.clone())))).collect();
+    let mut observaciones = Vec::new();
+    for f in csv::Reader::from_path(ruta_precios).map_err(|e| format!("{}: {e}", ruta_precios.display()))?.deserialize::<std::collections::HashMap<String, String>>() {
+        let f = f.map_err(|e| format!("{}: {e}", ruta_precios.display()))?;
+        let campo = |k: &str| f.get(k).cloned().unwrap_or_default();
+        let Ok(precio) = campo("precio").parse::<f64>() else { continue };
+        let r = productos::homologar(&reglas, memoria, &campo("producto"), &campo("unidad_publicada"), precio);
+        observaciones.push(Observacion { proveedor: campo("proveedor"), producto: campo("producto"), url: campo("url"), fecha: campo("fecha"), precio, unidad: campo("unidad_publicada"), codigo: r.codigo, estado: r.estado.texto().to_string(), precio_oficial: r.precio_oficial, motivo: r.motivo });
+    }
+    let cuenta = |e: &str| observaciones.iter().filter(|o| o.estado == e).count();
+    println!("{} precios publicados: {} comparables, {} por revisar, {} de otra medida, {} sin artículo del catálogo con regla", observaciones.len(), cuenta("comparable") + cuenta("memoria"), cuenta("revisar"), cuenta("distinto"), cuenta("sin_articulo"));
+    std::fs::create_dir_all(salida).map_err(|e| e.to_string())?;
+    let mut w = csv::Writer::from_path(salida.join("productos_homologados.csv")).map_err(|e| e.to_string())?;
+    w.write_record(["proveedor", "producto", "precio", "unidad_publicada", "ipmc", "estado", "precio_unidad_oficial", "motivo", "url"]).map_err(|e| e.to_string())?;
+    for o in observaciones.iter().filter(|o| o.codigo.is_some()) {
+        w.write_record([o.proveedor.clone(), o.producto.clone(), o.precio.to_string(), o.unidad.clone(), o.codigo.map(|c| c.to_string()).unwrap_or_default(), o.estado.clone(), o.precio_oficial.map(|p| format!("{p:.2}")).unwrap_or_default(), o.motivo.clone(), o.url.clone()]).map_err(|e| e.to_string())?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    for a in resumir(&observaciones, &faro_territorio::precios::Parametros::default()) {
+        let (nombre, unidad) = articulos.get(&a.codigo).cloned().unwrap_or_default();
+        let detalle = a.por_proveedor.iter().map(|p| format!("{} Q{:.2}", p.proveedor, p.precio)).collect::<Vec<_>>().join(" · ");
+        println!("{:>2} {} [{unidad}]: {} proveedor(es){} · {} por revisar · {} de otra medida\n     {detalle}", a.codigo, nombre.chars().take(60).collect::<String>(), a.por_proveedor.len(),
+            a.referencia.precio_referencia.map(|p| format!(" · referencia Q{p:.2} ({})", a.referencia.medida)).unwrap_or_default(), a.por_revisar, a.distintos);
+    }
+    println!("detalle -> {}", salida.join("productos_homologados.csv").display());
+    Ok(ExitCode::SUCCESS)
+}
+
+/// Lee el GeoTIFF de un zip de GHSL.
+fn leer_mosaico(ruta: &Path) -> Result<faro_territorio::geotiff::Raster, String> {
+    use std::io::Read;
+    let en = |e: String| format!("{}: {e}", ruta.display());
+    let mut zip = zip::ZipArchive::new(std::fs::File::open(ruta).map_err(|e| en(e.to_string()))?).map_err(|e| en(e.to_string()))?;
+    let nombre = zip.file_names().find(|n| n.ends_with(".tif")).map(str::to_string).ok_or(en("el zip no trae un .tif".into()))?;
+    let mut bytes = Vec::new();
+    zip.by_name(&nombre).map_err(|e| en(e.to_string()))?.read_to_end(&mut bytes).map_err(|e| en(e.to_string()))?;
+    faro_territorio::geotiff::leer(&bytes).map_err(en)
+}
+
+fn construido(dir: &Path, ruta_municipios: &Path, salida: &Path) -> Result<ExitCode, String> {
+    use faro_territorio::construido::{self, Mosaico};
+    use faro_territorio::geo::Poligono;
+    use std::collections::BTreeMap;
+    let g: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(ruta_municipios).map_err(|e| format!("{}: {e}", ruta_municipios.display()))?).map_err(|e| e.to_string())?;
+    let anillo = |v: &serde_json::Value| -> Vec<(f64, f64)> { v.as_array().map(|pts| pts.iter().filter_map(|p| Some((p.get(0)?.as_f64()?, p.get(1)?.as_f64()?))).collect()).unwrap_or_default() };
+    let municipios: Vec<(String, Vec<Poligono>)> = g["features"].as_array().ok_or("la capa de municipios no tiene figuras")?.iter().map(|f| {
+        let poligonos: Vec<Poligono> = f["geometry"]["coordinates"].as_array().map(|ps| ps.iter().map(|p| p.as_array().map(|a| a.iter().map(anillo).collect()).unwrap_or_default()).collect()).unwrap_or_default();
+        (f["properties"]["codigo"].as_str().unwrap_or("").to_string(), construido::proyectar(&poligonos))
+    }).collect();
+
+    // Los archivos de GHSL llevan la época en el nombre: ..._E2020_...
+    let mut por_anio: BTreeMap<i32, Vec<PathBuf>> = BTreeMap::new();
+    for e in std::fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))?.flatten() {
+        let n = e.file_name().to_string_lossy().to_string();
+        if let Some(anio) = n.split("_E").nth(1).and_then(|r| r.get(..4)).and_then(|a| a.parse::<i32>().ok()).filter(|_| n.ends_with(".zip")) {
+            por_anio.entry(anio).or_default().push(e.path());
+        }
+    }
+    if por_anio.is_empty() {
+        return Err(format!("{}: no hay mosaicos de GHSL (archivos ..._E<año>_....zip)", dir.display()));
+    }
+    // (municipio, año) -> (m², celdas sumadas)
+    let mut total: BTreeMap<(String, i32), (f64, usize)> = BTreeMap::new();
+    for (anio, rutas) in &por_anio {
+        if *anio > 2020 {
+            println!("{anio}: es una proyección de GHSL, no una observación; se omite");
+            continue;
+        }
+        for ruta in rutas {
+            let r = leer_mosaico(ruta)?;
+            let m = Mosaico { ancho: r.ancho, alto: r.alto, x0: r.x0, y0: r.y0, paso: r.paso, celdas: &r.celdas, sin_dato: r.sin_dato };
+            for (codigo, poligonos) in &municipios {
+                let (suma, n) = construido::sumar(&m, poligonos);
+                if n > 0 {
+                    let e = total.entry((codigo.clone(), *anio)).or_default();
+                    e.0 += suma;
+                    e.1 += n;
+                }
+            }
+        }
+        let pais: f64 = total.iter().filter(|((_, a), _)| a == anio).map(|(_, (s, _))| s).sum();
+        println!("{anio}: {} mosaico(s) · {:.0} hectáreas construidas en los municipios", rutas.len(), pais / 10_000.0);
+    }
+    // Todo municipio debe quedar cubierto por los mosaicos en cada época.
+    let anios: Vec<i32> = por_anio.keys().copied().filter(|a| *a <= 2020).collect();
+    let faltan: Vec<String> = municipios.iter().filter(|(c, _)| anios.iter().any(|a| !total.contains_key(&(c.clone(), *a)))).map(|(c, _)| c.clone()).collect();
+    if !faltan.is_empty() {
+        return Err(format!("{} municipios quedan fuera de los mosaicos descargados (por ejemplo {}): falta algún mosaico", faltan.len(), faltan[..faltan.len().min(5)].join(", ")));
+    }
+    if let Some(d) = salida.parent() {
+        std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+    }
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(salida).map_err(|e| e.to_string())?;
+    w.write_record(["municipio", "anio", "construido_ha", "celdas"]).map_err(|e| e.to_string())?;
+    for ((codigo, anio), (m2, n)) in &total {
+        w.write_record([codigo.clone(), anio.to_string(), format!("{:.2}", m2 / 10_000.0), n.to_string()]).map_err(|e| e.to_string())?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    println!("{} municipios × {} épocas -> {}", municipios.len(), anios.len(), salida.display());
     Ok(ExitCode::SUCCESS)
 }
 

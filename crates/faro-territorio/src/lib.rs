@@ -9,8 +9,11 @@
 //! priorizar actualización cartográfica, no para sustituir un conteo.
 pub mod aire;
 pub mod asignacion;
+pub mod construccion;
+pub mod construido;
 pub mod crecimiento;
 pub mod geo;
+pub mod geotiff;
 pub mod poblacion;
 pub mod precios;
 pub mod shp;

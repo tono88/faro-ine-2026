@@ -28,7 +28,7 @@ Leer primero `README.md` y `docs/` (necesidades del INE, arquitectura, plan, hal
 Hecho y probado en contenedor + Chromium: núcleo de homologación con memoria (lugares y valores de
 catálogo por dimensión), lectura de Excel/CSV reales, salida estándar sin datos personales,
 solicitudes RENAP/PNC/SE-CONRED, cliente CKAN con procedencia, servidor axum + PostgreSQL + pantalla
-(9 pestañas), catálogo Censo 2018 verificado (20,036 lugares poblados con coordenadas), asignación
+(12 secciones), catálogo Censo 2018 verificado (20,036 lugares poblados con coordenadas), asignación
 de operadores (método húngaro), población INE 2015–2030 por municipio (`datos/referencia/`), tasas
 por 100 mil habitantes, avance de recepción por institución, precios de referencia a partir de
 cotizaciones (`faro precios`), crecimiento de edificaciones, aire.
@@ -58,13 +58,27 @@ la nube; Geofabrik no. Resultados en `datos/referencia/red_vial_*`. Logros en `d
 Los archivos reales de instituciones NO van a `datos/crudo` ni a ninguna carpeta del repositorio:
 se suben por la pantalla (pestaña 1), que los procesa en un temporal y no los guarda.
 
+Agregado el 24-nov (v0.6.0), todo probado en contenedor + Chromium:
+- Mapa (Leaflet incluido en `web/vendor/`), capas en `/capas` (catálogo JSON, GeoJSON/CSV con CORS),
+  pantalla con menú lateral y paleta del INE (#0051b3, #4d9ae1, Noto Sans). Sin logotipo del INE.
+- `faro limites` (COD-AB de HDX → `datos/referencia/municipios.geojson`, verificado contra el censo).
+- `faro construido` (GHSL → `superficie_construida_municipio.csv`); lector propio de GeoTIFF en
+  `geotiff.rs` porque el crate `tiff` falla con teselas vacías. Opciones en `docs/10-imagenes-satelitales.md`.
+- Construcción: `faro ipmc` (catálogo en `datos/catalogo_precios/`, NO en `datos/catalogo/`, que solo
+  lleva lugares), `faro construccion`, reglas en `datos/estandar/ipmc_reglas.toml` (borrador, 24 de 89
+  artículos), `crates/faro-homologa/src/productos.rs`. Las decisiones de producto se guardan en la
+  memoria con dimensión `ipmc`.
+- `allseeneye` (otro repositorio del equipo, anterior al evento): solo se tomaron criterios; no
+  copiar su código (regla del concurso). Está declarado en el README.
+
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar
    `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del municipio,
    declararla como `respaldo` en sus solicitudes.
 2. Históricos de Guatecompras (OCDS) para precios de referencia: el sitio responde con un desafío
    de Cloudflare a clientes automáticos desde la nube; probar desde la máquina del equipo.
-3. Serie real de Open Buildings 2.5D Temporal por municipio (`scripts/`, requiere Earth Engine).
-4. Publicar releases v0.1.0–v0.5.0 (la sesión en la nube no tiene permiso; ver `docs/08-versiones.md`).
+3. Ampliar las reglas del IPMC a más artículos y sumar proveedores con precios (ferreterías del
+   interior: sus precios no están en línea; haría falta cotización directa).
+4. Publicar releases v0.1.0–v0.6.0 (la sesión en la nube no tiene permiso; ver `docs/08-versiones.md`).
 5. Entregables: PDF, video (2–3 min), README final con las secciones mínimas de la Nota
    Conceptual. Invitar al jurado al repositorio. Fusionar la rama de trabajo en `main`.

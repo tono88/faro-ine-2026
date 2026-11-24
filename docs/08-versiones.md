@@ -2,6 +2,14 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.6.0 · 24-nov-2026
+- Mapa de municipios con indicadores y capas; publicación de capas (GeoJSON y CSV) con catálogo.
+- Pantalla rediseñada con la paleta y la tipografía del INE, menú por áreas y versión para móvil.
+- Capa de límites municipales verificada contra el censo (`faro limites`).
+- Crecimiento urbano real con GHSL, sin Earth Engine (`faro construido`).
+- Materiales de construcción: 116 proveedores, 2,332 precios publicados, homologación de productos
+  contra el IPMC del INE con memoria y comparación por artículo (`faro ipmc`, `faro construccion`).
+
 ## v0.5.0 · 24-nov-2026
 - Red vial como grafo con caminos reales de OpenStreetMap: lugares poblados en tramos sueltos,
   sin camino mapeado y enlaces probables (`faro vial`, pestaña "Red vial").
