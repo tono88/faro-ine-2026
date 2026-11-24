@@ -36,12 +36,27 @@ adivinó y todo se puede comprobar.
 
 Logotipo, colores, tipografía y voz: [`docs/25-identidad.md`](docs/25-identidad.md).
 
-## El problema
+## Los problemas que atiende
 
-Las instituciones que envían datos al INE no tienen un formato común. El mismo municipio llega
-como "Puerto de San José", "El puerto", "PTO. SAN JOSE" o "San José" (que además existe en
-Escuintla y en Petén); RENAP lo manda como dos números. Cada envío se limpia a mano y lo aprendido
-se pierde con la persona que lo hizo.
+El INE planteó varias necesidades en el lanzamiento del Datatón y en las presentaciones de sus
+direcciones. Todas tienen la misma raíz: **hay datos que ya existen, pero no llegan en una forma
+que se pueda usar**. FARO las atiende una por una.
+
+| Problema | Quién lo planteó | Qué pasa hoy |
+|---|---|---|
+| **No hay un estándar para enviar registros al INE** | Gerencia | Cada institución manda su propio formato. El mismo municipio llega como "Puerto de San José", "El puerto", "PTO. SAN JOSE" o "San José" (que existe en Escuintla y en Petén); RENAP lo manda como dos números. Cada envío se limpia a mano y lo aprendido se pierde con la persona que lo hizo |
+| **Los archivos traen datos personales** | Hallado en los archivos reales | Llegan CUI, nombres y direcciones que el INE no necesita para la estadística y debe proteger |
+| **No se sabe qué falta de cada institución** | Coordinación Regional | El avance de la recopilación se lleva aparte, por delegación |
+| **El crecimiento urbano no se mide entre censos** | Gerencia | Se pidió detectarlo con imágenes de satélite |
+| **Hay caminos sin mapear** | Gerencia | No se sabe qué lugares poblados quedan sin conexión ni dónde falta dibujar un tramo |
+| **Los operadores de campo quedan lejos de su puesto** | Gerencia | La asignación no optimiza distancias, y no queda constancia de dónde se hizo cada visita |
+| **Los datos del censo no están a la mano por lugar poblado** | Coordinación Regional | Están en decenas de cuadros de Excel, uno por tema |
+| **Reunir precios es lento y difícil de respaldar** | Precios e Índices de Referencia; IPP; IPMC | Cotizaciones y catálogos se juntan a mano; comparar el mismo producto entre proveedores obliga a interpretar descripciones |
+| **Faltan herramientas propias de cálculo y de tableros** | DESA; Hoja de Balance | Se pidieron tableros con software libre y una calculadora de derivados |
+| **Las fuentes oficiales traen errores que nadie avisa** | Hallado por FARO | Códigos de municipio que no existen en las proyecciones, límites intercambiados |
+
+Cómo responde FARO a cada uno, con su cifra: [Antes y ahora](#antes-y-ahora). La lista completa de
+necesidades y el estado de cada una, incluido lo que no se hizo: [`docs/01`](docs/01-necesidades-ine.md).
 
 ## FARO en cifras
 
