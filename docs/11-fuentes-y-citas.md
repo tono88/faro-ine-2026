@@ -16,6 +16,8 @@ Todo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, 
   - Uso en FARO: 4,990 precios de referencia emitidos por el INE, consultables desde la pantalla. Licencia: CC BY.
 - Instituto Nacional de Estadística (INE). (2023). Precios promedio de la canasta básica alimentaria, diciembre 2020 a octubre 2023 [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/precios-promedio-canasta-basica-alimentaria Consultado el 24 de noviembre de 2026.
   - Uso en FARO: Precio promedio mensual de 34 productos de la canasta básica. Licencia: CC BY.
+- Secretaría de Seguridad Alimentaria y Nutricional (SESAN), Sistema de Información Nacional de Seguridad Alimentaria y Nutricional (SIINSAN). (2024). Retardo en talla, Censo 2024: clasificación de municipios según prevalencia (V Censo Nacional de Talla en Escolares) [conjunto de datos]. SIINSAN. https://portal.siinsan.gob.gt/wp-content/uploads/VULNERABILIDAD_DC_MUNICIPAL_QUINTO_CENSO_2024_2.xlsx Consultado el 24 de noviembre de 2026.
+  - Uso en FARO: Porcentaje de escolares con retardo en talla y categoría de vulnerabilidad nutricional por municipio. Licencia: publicación oficial; no indica licencia.
 - FARO (muestreo automático). (2026). Precios publicados en tiendas en línea de Guatemala (búsquedas públicas de sus catálogos) [conjunto de datos]. páginas públicas de cada tienda. Consultado el la fecha de cada muestreo.
   - Uso en FARO: Precios de construcción y de alimentos que el portal recoge con tareas configurables. Licencia: información comercial pública; cada precio guarda la dirección de su página.
 - Instituto Nacional de Estadística (INE). (2026). Portal de datos abiertos del INE: catálogo de conjuntos (API CKAN) [sitio web]. INE. https://datos.ine.gob.gt Consultado el 23 de noviembre de 2026.
@@ -31,8 +33,10 @@ Todo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, 
 - FARO (levantamiento propio). (2026). Perfiles y precios publicados por 116 negocios de materiales de construcción de Guatemala [conjunto de datos]. páginas públicas de cada negocio y directorio Páginas Amarillas. Consultado el 24 de noviembre de 2026.
   - Uso en FARO: Comparación de precios publicados contra el IPMC. Cada precio lleva la dirección de su página en `datos/referencia/precios_construccion.csv`. Licencia: información comercial pública; se cita la página de cada precio.
 
-## Documentos del INE y de referencia
+## Documentos del INE, de gobierno y de referencia
 
+- Secretaría de Seguridad Alimentaria y Nutricional (SESAN); Grupo Técnico de la CIF Guatemala. (2026). Guatemala: análisis de inseguridad alimentaria aguda de la CIF. Actualización de la situación proyectada, octubre 2026 – febrero 2027 (publicado el 19 de noviembre de 2026, corregido el 20) [documento]. SESAN. https://portal.sesan.gob.gt/wp-content/uploads/2026/11/CIF_Guatemala-ct2026-Feb2027.pdf Consultado el 24 de noviembre de 2026.
+  - Uso en FARO: Personas por fase de inseguridad alimentaria aguda en cada departamento (tabla de población del informe). Licencia: publicación oficial; no indica licencia.
 - Instituto Nacional de Estadística (INE), Dirección de Precios e Índices de Referencia. (2026). Presentación para el Datatón INE 2026: proceso y análisis estadístico de los precios de referencia [presentación]. INE. Consultado el 23 de noviembre de 2026.
   - Uso en FARO: Regla para elegir media, mediana o moda y recomendación de más de 50 % de cotizaciones directas.
 - Instituto Nacional de Estadística (INE), Dirección de Censos y Encuestas; Dirección de Índices y Estadísticas Continuas. (2026). Presentaciones para el Datatón INE 2026 [presentaciones]. INE. Consultado el 23 de noviembre de 2026.

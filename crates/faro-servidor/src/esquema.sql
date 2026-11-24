@@ -27,6 +27,26 @@ CREATE TABLE IF NOT EXISTS equivalencias_valor (
     fecha          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Cuentas: usuarios con rol (admin, analista, consulta) y sus sesiones. Las contraseñas se
+-- guardan como huella Argon2; de cada sesión solo se guarda la huella de su llave.
+CREATE TABLE IF NOT EXISTS usuarios (
+    id             BIGSERIAL PRIMARY KEY,
+    usuario        TEXT NOT NULL UNIQUE,
+    nombre         TEXT NOT NULL,
+    rol            TEXT NOT NULL,
+    clave          TEXT NOT NULL,
+    activo         BOOLEAN NOT NULL DEFAULT TRUE,
+    debe_cambiar   BOOLEAN NOT NULL DEFAULT FALSE,
+    creado         TIMESTAMPTZ NOT NULL DEFAULT now(),
+    ultimo_ingreso TIMESTAMPTZ
+);
+CREATE TABLE IF NOT EXISTS sesiones (
+    huella     TEXT PRIMARY KEY,
+    usuario_id BIGINT NOT NULL REFERENCES usuarios (id) ON DELETE CASCADE,
+    creada     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expira     TIMESTAMPTZ NOT NULL
+);
+
 -- Muestreo automático de precios publicados: estado de cada tarea y precios observados.
 CREATE TABLE IF NOT EXISTS muestreos (
     id         TEXT PRIMARY KEY,

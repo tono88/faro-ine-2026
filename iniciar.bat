@@ -44,7 +44,6 @@ echo ESTADO: LISTO %date% %time% >> %LOG%
 
 echo.
 echo FARO esta en http://localhost:%PUERTO%
-echo La clave de acceso que pide la pantalla es:
-findstr FARO_TOKEN .env
+echo Entre con el usuario admin y la contrasena admin, y cambiela en "Mi perfil".
 start http://localhost:%PUERTO%
 pause

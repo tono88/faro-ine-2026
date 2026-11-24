@@ -88,11 +88,17 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
     crecimiento construido, estadísticos de la confianza y un reporte para imprimir (`/reporte`).
 22. **Cada etapa se puede repetir fuera del portal.** Junto a cada resultado se descarga el
     procedimiento (Bash o PowerShell) que lo reproduce con los mismos datos (`scripts/reproducir/`).
-23. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
+23. **Usuarios y roles.** Se entra con usuario y contraseña. Administrador (todo, incluido manejar
+    usuarios), analista (recibe, decide, configura) y consulta (solo ve). Cada decisión queda a
+    nombre de quien inició sesión.
+24. **Datos de otras instituciones, citados.** Inseguridad alimentaria aguda por departamento
+    (CIF, SESAN), leída del informe oficial, verificada y cruzada con la población del INE (`faro cif`),
+    y desnutrición crónica en escolares por municipio (Censo de Talla 2024, SESAN; `faro talla`).
+25. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
     y elige como lo explica la Dirección de Precios e Índices de Referencia (mediana si hay
     precios extremos, media si son parecidos); avisa si faltan cotizaciones directas o se mezclan
     unidades (`faro precios` y la pantalla).
-24. **Crecimiento urbano real.** Superficie construida por municipio de 1975 a 2020 con la capa
+26. **Crecimiento urbano real.** Superficie construida por municipio de 1975 a 2020 con la capa
     satelital abierta GHSL de la Comisión Europea, sin Earth Engine; ritmo de crecimiento y
     proyección con su margen (`faro construido`, `faro crecimiento`).
 
@@ -103,10 +109,11 @@ cp .env.example .env          # cambie las tres claves
 docker compose up --build     # base de datos PostgreSQL + FARO
 ```
 
-Abra <http://localhost:8082>. Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
+Abra <http://localhost:8082> y entre con el usuario inicial `admin` y la contraseña `admin`; la
+pantalla le pedirá cambiarla en "Mi perfil". Los demás usuarios se crean en "Usuarios". Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
-La pantalla abre en un mapa por municipio y tiene dieciséis secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
+La pantalla abre en un mapa por municipio y tiene diecinueve secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
 confirmadas, resultados y avance por institución, conjuntos del portal del INE (se sincroniza
 sola al arrancar y cada 24 horas), crecimiento poblacional y urbano, asignación de operadores de
 campo, red vial, materiales de construcción, precios de referencia y capas publicadas. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.
@@ -170,6 +177,8 @@ Si una solicitud sustituye identificadores por llaves, defina el secreto `FARO_S
 | INE, Índice de Precios de Materiales de Construcción ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/indice-de-precios-de-materiales-de-construccion-ipmc)), descargado el 24-nov-2026 | Catálogo oficial de 89 artículos, con índice y variación | `datos/catalogo_precios/ipmc_articulos.csv` |
 | Páginas públicas de 116 negocios de materiales de construcción, consultadas el 24-nov-2026 | Perfil de proveedores y precios publicados | `datos/referencia/proveedores_construccion.csv` y `precios_construccion.csv`, con la dirección de cada página |
 | INE, Precios de referencia ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/precios-de-referencia)), descargado el 24-nov-2026 | Antecedentes: 4,990 precios emitidos de 2016 a 2023 | `datos/catalogo_precios/precios_referencia_ine.csv` |
+| SESAN y Grupo Técnico de la CIF Guatemala, análisis de inseguridad alimentaria aguda, octubre 2026 – febrero 2027 ([informe](https://portal.sesan.gob.gt/wp-content/uploads/2026/11/CIF_Guatemala-ct2026-Feb2027.pdf)), descargado el 24-nov-2026 | Personas por fase de la CIF en cada departamento | `datos/referencia/cif_departamentos.csv` |
+| SESAN, SIINSAN, "Retardo en talla, Censo 2024" ([libro](https://portal.siinsan.gob.gt/wp-content/uploads/VULNERABILIDAD_DC_MUNICIPAL_QUINTO_CENSO_2024_2.xlsx)), descargado el 24-nov-2026 | Desnutrición crónica en escolares por municipio | `datos/referencia/censo_talla_municipio.csv` |
 | `datos/solicitudes/` | Solicitudes de datos para RENAP (defunciones, nacimientos), PNC (detenidos) y SE-CONRED (emergencias) | Incluido |
 | Archivos de ejemplo de instituciones compartidos por el INE (23-nov-2026) | Diseño y prueba de las solicitudes | **No están en el repositorio** (contienen datos personales) |
 | Google Research, Open Buildings 2.5D Temporal (CC BY 4.0 / ODbL) | Edificaciones por año 2016–2023 | Opcional: script listo (`scripts/`); la serie que se usa es GHSL ([opciones](docs/10-imagenes-satelitales.md)) |
@@ -228,8 +237,8 @@ docs/                   necesidades del INE, investigación, arquitectura y plan
   todos cadenas de la capital; las reglas del IPMC cubren 42 de 89 artículos y son un borrador.
 - **Límites municipales operativos.** La capa de mapas no sirve para definir linderos.
 - **Precios sin históricos de Guatecompras.** El cálculo usa las cotizaciones que se le den.
-- **Un solo nivel de acceso.** Hay una clave compartida para enviar y confirmar; faltan usuarios y
-  roles por institución.
+- **Usuarios sin institución asignada.** Hay tres roles, pero todavía no se limita a cada usuario a
+  los envíos de su institución. El usuario inicial `admin` / `admin` debe cambiarse al instalar.
 - **Texto libre sin codificar.** Causa de muerte (CIE-10), delito y ocupación quedan como texto.
 - **Intercambio entre sistemas.** Hoy se suben archivos; el diseño prevé recibir lo mismo por
   X-Road ([arquitectura](docs/03-arquitectura.md)).
@@ -239,7 +248,7 @@ docs/                   necesidades del INE, investigación, arquitectura y plan
 
 Bibliotecas de Rust de código abierto (licencias MIT o Apache-2.0): `serde`, `serde_json`, `toml`,
 `csv`, `strsim`, `unicode-normalization`, `chrono`, `clap`, `ureq`, `sha2`, `calamine`, `zip`, `regex`,
-`weezl`, `axum`, `tokio`, `tokio-postgres`. Mapas: Leaflet 1.9.4 (BSD de 2 cláusulas), incluido en
+`weezl`, `argon2`, `axum`, `tokio`, `tokio-postgres`. Mapas: Leaflet 1.9.4 (BSD de 2 cláusulas), incluido en
 `crates/faro-servidor/web/vendor/`; la tipografía Noto Sans se carga de Google Fonts si hay internet. Base de datos: PostgreSQL 16 (licencia PostgreSQL). Imágenes de Docker:
 `rust`, `debian` y `postgres` oficiales. Versiones exactas en `Cargo.lock`. No se copió código de
 proyectos previos; los algoritmos (homologación, método húngaro, grafo vial, lector de Shapefile)

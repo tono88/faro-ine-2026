@@ -60,6 +60,18 @@ y cómo repetirlo.
    registros recibidos por municipio en un mismo mapa, y siete capas con dirección estable
    (GeoJSON y CSV) para que las consuma un portal o un SIG.
 
+## Datos de otras instituciones de gobierno
+
+- **Inseguridad alimentaria aguda (CIF, SESAN) por departamento, incorporada y verificada.** FARO
+  leyó la tabla del informe oficial de noviembre de 2026, comprobó sus sumas y encontró que su
+  población coincide exactamente, en los 22 departamentos, con la proyección del INE para 2026:
+  una confirmación independiente de la tabla de población ya corregida.
+  Detalle: [`datos/referencia/LEEME.md`](../datos/referencia/LEEME.md). Repetir: `faro cif`.
+
+- **Desnutrición crónica en escolares por municipio (Censo de Talla 2024, SESAN).** Los 340
+  municipios del libro cruzan con el catálogo por código y por nombre. El dato va al mapa, a la
+  ficha de cada municipio y a una capa publicable. Repetir: `faro talla`.
+
 ## Precios de materiales de construcción
 
 10. **116 proveedores perfilados y 2,332 precios publicados, comparados contra la canasta oficial

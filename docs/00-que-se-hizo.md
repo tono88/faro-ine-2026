@@ -55,7 +55,13 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 - Capas en GeoJSON y CSV con dirección estable para un portal o un SIG.
 - El flujo de trabajo por etapas y responsables, con cifras en vivo ([proceso](12-proceso.md)).
 
-## 7. Trazabilidad
+## 7. Datos de otras instituciones y cuentas de usuario
+
+- Inseguridad alimentaria aguda por departamento (CIF) y desnutrición crónica en escolares por
+  municipio (Censo de Talla 2024), ambas de SESAN, verificadas y citadas.
+- Se entra con usuario y contraseña; tres roles; la bitácora registra a quien decidió.
+
+## 8. Trazabilidad
 
 - Cada descarga queda con dirección, fecha, licencia y huella.
 - Cada decisión queda con quién y cuándo.
@@ -66,8 +72,8 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 | | |
 |---|---|
 | Pruebas automáticas | 69 |
-| Comandos de `faro` | 17 |
-| Secciones de la pantalla | 16 |
-| Capas publicadas | 11 |
-| Fuentes citadas | 21 |
+| Comandos de `faro` | 19 |
+| Secciones de la pantalla | 19 |
+| Capas publicadas | 13 |
+| Fuentes citadas | 23 |
 | Hallazgos documentados | [12](09-logros.md) |

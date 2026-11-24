@@ -67,6 +67,19 @@
    "cita": "Instituto Nacional de Estadística (INE). (2023). Precios promedio de la canasta básica alimentaria, diciembre 2020 a octubre 2023 [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/precios-promedio-canasta-basica-alimentaria Consultado el 24 de noviembre de 2026."
   },
   {
+   "id": "talla",
+   "autor": "Secretaría de Seguridad Alimentaria y Nutricional (SESAN), Sistema de Información Nacional de Seguridad Alimentaria y Nutricional (SIINSAN)",
+   "anio": "2024",
+   "titulo": "Retardo en talla, Censo 2024: clasificación de municipios según prevalencia (V Censo Nacional de Talla en Escolares)",
+   "tipo": "conjunto de datos",
+   "editor": "SIINSAN",
+   "url": "https://portal.siinsan.gob.gt/wp-content/uploads/VULNERABILIDAD_DC_MUNICIPAL_QUINTO_CENSO_2024_2.xlsx",
+   "licencia": "publicación oficial; no indica licencia",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Porcentaje de escolares con retardo en talla y categoría de vulnerabilidad nutricional por municipio.",
+   "cita": "Secretaría de Seguridad Alimentaria y Nutricional (SESAN), Sistema de Información Nacional de Seguridad Alimentaria y Nutricional (SIINSAN). (2024). Retardo en talla, Censo 2024: clasificación de municipios según prevalencia (V Censo Nacional de Talla en Escolares) [conjunto de datos]. SIINSAN. https://portal.siinsan.gob.gt/wp-content/uploads/VULNERABILIDAD_DC_MUNICIPAL_QUINTO_CENSO_2024_2.xlsx Consultado el 24 de noviembre de 2026."
+  },
+  {
    "id": "muestreo",
    "autor": "FARO (muestreo automático)",
    "anio": "2026",
@@ -143,6 +156,19 @@
    "consultado": "24 de noviembre de 2026",
    "uso": "Superficie construida por municipio, 1975–2020.",
    "cita": "Pesaresi, M. y Politis, P.. (2023). GHS-BUILT-S R2023A: GHS built-up surface grid, derived from Sentinel-2 composite and Landsat, multitemporal (1975–2030) [conjunto de datos]. Comisión Europea, Centro Común de Investigación (JRC). https://doi.org/10.2905/9F06F36F-4B11-47EC-ABB0-4F8B7B1D72EA Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "cif",
+   "autor": "Secretaría de Seguridad Alimentaria y Nutricional (SESAN); Grupo Técnico de la CIF Guatemala",
+   "anio": "2026",
+   "titulo": "Guatemala: análisis de inseguridad alimentaria aguda de la CIF. Actualización de la situación proyectada, octubre 2026 – febrero 2027 (publicado el 19 de noviembre de 2026, corregido el 20)",
+   "tipo": "documento",
+   "editor": "SESAN",
+   "url": "https://portal.sesan.gob.gt/wp-content/uploads/2026/11/CIF_Guatemala-ct2026-Feb2027.pdf",
+   "licencia": "publicación oficial; no indica licencia",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Personas por fase de inseguridad alimentaria aguda en cada departamento (tabla de población del informe).",
+   "cita": "Secretaría de Seguridad Alimentaria y Nutricional (SESAN); Grupo Técnico de la CIF Guatemala. (2026). Guatemala: análisis de inseguridad alimentaria aguda de la CIF. Actualización de la situación proyectada, octubre 2026 – febrero 2027 (publicado el 19 de noviembre de 2026, corregido el 20) [documento]. SESAN. https://portal.sesan.gob.gt/wp-content/uploads/2026/11/CIF_Guatemala-ct2026-Feb2027.pdf Consultado el 24 de noviembre de 2026."
   },
   {
    "id": "proveedores",

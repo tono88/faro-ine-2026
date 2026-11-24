@@ -15,7 +15,8 @@ Leer primero `README.md` y `docs/` (necesidades del INE, arquitectura, plan, hal
   equivalencia confirmada por una persona. Lo demás se propone.
 - Todo el código se escribe durante el evento (23–26 nov). No copiar código de proyectos previos.
 - Base INE pública como fuente principal; declarar terceros, IA y servicios en la nube en el README.
-- Commits pequeños y frecuentes en `main`: el historial es evidencia para el jurado.
+- Commits pequeños y frecuentes en `main`: el historial es evidencia para el jurado. Al cerrar cada
+  bloque de trabajo, fusionar la rama de trabajo en `main` y subirla (autorizado por el equipo el 24-nov).
 - Documentación y nombres en español. Rust para núcleo, servidor y CLI.
 
 ## Cómo se ejecuta
@@ -28,7 +29,7 @@ Leer primero `README.md` y `docs/` (necesidades del INE, arquitectura, plan, hal
 Hecho y probado en contenedor + Chromium: núcleo de homologación con memoria (lugares y valores de
 catálogo por dimensión), lectura de Excel/CSV reales, salida estándar sin datos personales,
 solicitudes RENAP/PNC/SE-CONRED, cliente CKAN con procedencia, servidor axum + PostgreSQL + pantalla
-(16 secciones), catálogo Censo 2018 verificado (20,036 lugares poblados con coordenadas), asignación
+(19 secciones), catálogo Censo 2018 verificado (20,036 lugares poblados con coordenadas), asignación
 de operadores (método húngaro), población INE 2015–2030 por municipio (`datos/referencia/`), tasas
 por 100 mil habitantes, avance de recepción por institución, precios de referencia a partir de
 cotizaciones (`faro precios`), crecimiento de edificaciones, aire.
@@ -88,6 +89,14 @@ La solicitud de ejemplo está en `datos/ejemplos/` (no se muestra en la pantalla
 El portal no usa modelos externos en ejecución: todo es código determinista (está dicho en "Acerca").
 Los `.ps1` no se han probado en Windows.
 
+Agregado después (v0.9.0): cuentas (`usuarios`, `sesiones`; Argon2; galleta `faro_sesion`; roles
+admin/analista/consulta; `/api/sesion`, `/api/perfil`, `/api/usuarios`). `autorizar()` devuelve quién
+actúa y ese nombre va a la bitácora; `FARO_TOKEN` queda solo como clave de servicio (`x-faro-token`).
+Usuario inicial admin/admin con aviso para cambiarla (pedido expreso del equipo). CIF de SESAN:
+`faro cif --texto` (texto de `pdftotext -layout`), `datos/referencia/cif_departamentos.csv`,
+sección "Seguridad alimentaria"; dato por departamento, no por municipio. Censo de Talla 2024
+(SESAN): `faro talla`, `datos/referencia/censo_talla_municipio.csv`, por municipio.
+
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar
    `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del municipio,
@@ -96,6 +105,11 @@ Los `.ps1` no se han probado en Windows.
    de Cloudflare a clientes automáticos desde la nube; probar desde la máquina del equipo.
 3. Ampliar las reglas del IPMC a más artículos y sumar proveedores con precios (ferreterías del
    interior: sus precios no están en línea; haría falta cotización directa).
-4. Publicar releases v0.1.0–v0.8.0 (la sesión en la nube no tiene permiso; ver `docs/08-versiones.md`).
-5. Entregables: PDF, video (2–3 min), README final con las secciones mínimas de la Nota
-   Conceptual. Invitar al jurado al repositorio. Fusionar la rama de trabajo en `main`.
+4. Publicar releases v0.1.0–v0.9.0 (la sesión en la nube no tiene permiso; ver `docs/08-versiones.md`).
+5. Más fuentes de gobierno ya verificadas (descarga directa, con código de municipio), por integrar
+   en este orden: CONRED incidentes 2024 y MAGA afectaciones a cultivos 2024 (portal del INE,
+   conjunto de8af067…); SEGEPLAN ranking de gestión municipal 2025 (JSON); MSPAS inventario de
+   sistemas de agua 2024; MINEDUC establecimientos 2025; PNC hechos de tránsito 2025; INAB
+   PROBOSQUE 2024; SAT parque vehicular (solo nombres de municipio: buen caso de homologación).
+   Bloqueados desde la nube (Cloudflare): MINFIN, datos.gob.gt, SIGSA/MSPAS, MEM, MIDES, CONAP.
+6. Entregables: PDF, video (2–3 min). Invitar al jurado al repositorio.

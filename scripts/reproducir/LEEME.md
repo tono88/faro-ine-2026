@@ -11,6 +11,8 @@ Cada archivo repite una etapa fuera de la pantalla, con los mismos datos de orig
 | `construido` | Superficie construida por municipio (GHSL). Descarga los 30 mosaicos de GHSL que cubren Guatemala (10 épocas, 3 mosaicos) y suma la superficie construida por municipio. Requiere haber generado antes la capa de municipios (limites). |
 | `construccion` | Materiales de construcción contra el IPMC. Descarga el IPMC del INE, arma el catálogo de artículos y homologa contra él los precios publicados por los proveedores. |
 | `precios_ine` | Precios de referencia y canasta básica del INE. Descarga la base de precios de referencia y los precios promedio de la canasta básica del portal del INE y los deja en tablas limpias. |
+| `cif` | Inseguridad alimentaria aguda por departamento (CIF, SESAN). Descarga el informe, extrae su texto con pdftotext y lee y verifica la tabla. |
+| `talla` | Desnutrición crónica en escolares por municipio (Censo de Talla, SESAN). |
 | `registros` | Recibir y homologar un envío. Valida un archivo de una institución contra su solicitud, homologa lugares y valores y escribe la salida estándar, los pendientes y el reporte. Cambie la solicitud y el archivo por los suyos. |
 | `operadores` | Asignación de operadores de campo. Reparte operadores entre puestos con la menor distancia total. Cambie los dos archivos por los suyos. |
 | `precios` | Precio de referencia a partir de cotizaciones. Calcula media, mediana y moda por producto y elige según la regla de la Dirección de Precios. Cambie el archivo por el suyo. |

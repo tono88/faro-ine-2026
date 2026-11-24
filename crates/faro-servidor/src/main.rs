@@ -25,6 +25,10 @@ struct Estado {
     dir_ejemplos: PathBuf,
     /// Resultado del análisis de la red vial (`faro vial`), ya con nombres del catálogo.
     vial: Value,
+    /// Retardo en talla en escolares por municipio (Censo de Talla, SESAN): código -> fila.
+    talla: HashMap<String, HashMap<String, String>>,
+    /// Inseguridad alimentaria aguda por departamento (CIF, SESAN).
+    cif: Vec<HashMap<String, String>>,
     /// Tareas de muestreo de precios (datos/estandar/muestreos.toml).
     tareas: Vec<faro_fuentes::muestreo::Tarea>,
     /// Canasta básica: (periodo, producto, precio promedio del INE).
@@ -131,12 +135,21 @@ async fn main() -> Result<(), String> {
             }
         }
     }
+    let cif: Vec<HashMap<String, String>> = csv::Reader::from_path(dir_referencia.join("cif_departamentos.csv")).map(|mut l| l.deserialize().flatten().collect()).unwrap_or_default();
+    let talla: HashMap<String, HashMap<String, String>> = csv::Reader::from_path(dir_referencia.join("censo_talla_municipio.csv")).map(|mut l| l.deserialize::<HashMap<String, String>>().flatten().filter_map(|f| Some((f.get("municipio")?.clone(), f))).collect()).unwrap_or_default();
     let construccion = Construccion::cargar(&dir_referencia, &catalogo);
-    let (capas, catalogo_capas) = armar_capas(&dir_referencia, &catalogo, &poblacion, &vial, &construido, &construccion);
+    let (capas, catalogo_capas) = armar_capas(&dir_referencia, &catalogo, &poblacion, &vial, &construido, &construccion, &cif, &talla);
+    // Primer arranque: un administrador inicial (admin / admin) que debe cambiar su contraseña.
+    if bd.query_one("SELECT count(*) FROM usuarios", &[]).await.map_err(|e| e.to_string())?.get::<_, i64>(0) == 0 {
+        bd.execute("INSERT INTO usuarios (usuario, nombre, rol, clave, debe_cambiar) VALUES ('admin', 'Administrador', 'admin', $1, TRUE)", &[&huella_de_clave("admin")?]).await.map_err(|e| e.to_string())?;
+        eprintln!("AVISO: se creó el usuario inicial admin con contraseña admin. Cámbiela al entrar.");
+    }
     let estado = Arc::new(Estado {
         bd,
         vial,
         referencias: csv::Reader::from_path(var("FARO_REFERENCIAS_INE", "datos/catalogo_precios/precios_referencia_ine.csv")).map(|mut l| l.deserialize().flatten().collect()).unwrap_or_default(),
+        cif: cif.clone(),
+        talla: talla.clone(),
         tareas: faro_fuentes::muestreo::cargar_tareas(&PathBuf::from(var("FARO_MUESTREOS", "datos/estandar/muestreos.toml"))).unwrap_or_else(|e| {
             eprintln!("AVISO: sin tareas de muestreo ({e}).");
             vec![]
@@ -160,7 +173,7 @@ async fn main() -> Result<(), String> {
         portal: var("FARO_PORTAL_INE", faro_fuentes::INE_CKAN),
     });
     if estado.token.is_none() {
-        eprintln!("AVISO: FARO_TOKEN no está definido; cualquiera con acceso a la red puede enviar y confirmar.");
+        eprintln!("FARO_TOKEN no está definido: no hay clave de servicio; los cambios requieren iniciar sesión.");
     }
 
     // Muestreos de precios: cada diez minutos se revisa qué tareas activas ya tocan.
@@ -216,6 +229,15 @@ async fn main() -> Result<(), String> {
         .route("/api/proceso", get(api_proceso))
         .route("/api/fuentes", get(|State(e): State<Compartido>| async move { Json(e.fuentes.clone()) }))
         .route("/api/reproducir/poblacion", post(api_reproducir_poblacion))
+        .route("/api/sesion", get(api_sesion).post(api_ingresar).delete(api_salir))
+        .route("/api/perfil", post(api_perfil))
+        .route("/api/usuarios", get(api_usuarios).post(api_usuario_crear))
+        .route("/api/usuarios/:id", post(api_usuario_cambiar))
+        .route("/api/cif", get(|State(e): State<Compartido>| async move {
+            let mut talla: Vec<Value> = e.talla.values().map(|f| { let mut v = json!(f); v["departamento"] = json!(f.get("municipio").and_then(|m| e.catalogo.por_codigo(&m[..2])).map(|d| d.nombre.clone())); v }).collect();
+            talla.sort_by(|a, b| b["retardo_en_talla_pct"].as_str().and_then(|x| x.parse::<f64>().ok()).unwrap_or(0.0).total_cmp(&a["retardo_en_talla_pct"].as_str().and_then(|x| x.parse::<f64>().ok()).unwrap_or(0.0)));
+            Json(json!({ "disponible": !e.cif.is_empty(), "departamentos": e.cif, "talla": talla }))
+        }))
         .route("/api/muestreos", get(api_muestreos))
         .route("/api/muestreos/:id", post(api_muestreo_configurar))
         .route("/api/muestreos/:id/ejecutar", post(api_muestreo_ejecutar))
@@ -247,11 +269,15 @@ async fn main() -> Result<(), String> {
 }
 
 /// Las operaciones que cambian datos exigen el token cuando está configurado.
-fn autorizar(e: &Estado, cabeceras: &HeaderMap) -> Res<()> {
+/// Quién hace la operación. Las operaciones que cambian datos exigen una sesión de analista o
+/// administrador; la clave de servicio (FARO_TOKEN) queda para procesos automáticos.
+async fn autorizar(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
+    if let Some(s) = sesion_de(e, cabeceras).await? {
+        return if s.rol == "consulta" { Err(Fallo(StatusCode::FORBIDDEN, "su usuario es de consulta: no puede hacer cambios".into())) } else { Ok(s) };
+    }
     match &e.token {
-        None => Ok(()),
-        Some(t) if cabeceras.get("x-faro-token").and_then(|v| v.to_str().ok()) == Some(t.as_str()) => Ok(()),
-        Some(_) => Err(Fallo(StatusCode::UNAUTHORIZED, "token inválido o ausente".into())),
+        Some(t) if cabeceras.get("x-faro-token").and_then(|v| v.to_str().ok()) == Some(t.as_str()) => Ok(Sesion { id: 0, usuario: "servicio".into(), nombre: "Clave de servicio".into(), rol: "analista".into(), debe_cambiar: false }),
+        _ => Err(Fallo(StatusCode::UNAUTHORIZED, "inicie sesión para hacer cambios".into())),
     }
 }
 
@@ -343,7 +369,7 @@ fn agregar(rec: &Recepcion) -> BTreeMap<(String, String, String), i64> {
 }
 
 async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap, mut partes: Multipart) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras)?;
+    autorizar(&e, &cabeceras).await?;
     let sol = solicitudes(&e).map_err(interno)?.into_iter().find(|s| s.id == id).ok_or_else(|| pedido(format!("no existe la solicitud {id}")))?;
     let mut archivo = None;
     while let Some(parte) = partes.next_field().await.map_err(pedido)? {
@@ -459,9 +485,11 @@ struct Confirmacion {
 }
 
 async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c): Json<Confirmacion>) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras)?;
-    if c.usuario.trim().is_empty() {
-        return Err(pedido("indique quién confirma: queda en la bitácora"));
+    // En la bitácora queda quien inició sesión, no un nombre escrito a mano.
+    let quien = autorizar(&e, &cabeceras).await?;
+    let mut c = c;
+    if quien.id != 0 || c.usuario.trim().is_empty() {
+        c.usuario = quien.nombre;
     }
     if c.nivel == "valor" && c.contexto == faro_homologa::productos::DIMENSION {
         // Decisión de producto → artículo del IPMC ("ninguno" = no corresponde a ningún artículo).
@@ -650,7 +678,7 @@ async fn sincronizar_ine(e: &Compartido) -> Res<Value> {
 }
 
 async fn api_sincronizar(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras)?;
+    autorizar(&e, &cabeceras).await?;
     Ok(Json(sincronizar_ine(&e).await?))
 }
 
@@ -669,7 +697,7 @@ async fn api_ine(State(e): State<Compartido>) -> Res<Json<Value>> {
 /// - `departamento, municipio, anio, edificaciones`: nombres, que se homologan al código INE con
 ///   el mismo motor que los envíos.
 async fn api_edificaciones(State(e): State<Compartido>, cabeceras: HeaderMap, cuerpo: String) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras)?;
+    autorizar(&e, &cabeceras).await?;
     let mem = memoria(&e).await?;
     let h = Homologador::new(&e.catalogo, &mem);
     let mut lector = csv::Reader::from_reader(cuerpo.as_bytes());
@@ -743,7 +771,7 @@ struct PedidoAsignacion {
 /// dato personal: se usa para el cálculo y se devuelve el resultado, pero no se guarda nada.
 async fn api_asignar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(p): Json<PedidoAsignacion>) -> Res<Json<Value>> {
     use faro_territorio::asignacion::{self, Coordenada};
-    autorizar(&e, &cabeceras)?;
+    autorizar(&e, &cabeceras).await?;
     let resultado = tokio::task::spawn_blocking(move || {
         let donde = |codigo: &str| faro_homologa::censo::centroide(&e.catalogo, codigo).map(|(longitud, latitud)| Coordenada { longitud, latitud });
         let operadores = asignacion::leer_operadores(p.operadores.as_bytes(), &donde).map_err(|x| format!("operadores: {x}"))?;
@@ -759,7 +787,7 @@ async fn api_asignar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(p):
 
 /// Precio de referencia por producto. Calcula y devuelve; no guarda las cotizaciones.
 async fn api_precios(State(e): State<Compartido>, cabeceras: HeaderMap, cuerpo: String) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras)?;
+    autorizar(&e, &cabeceras).await?;
     let p = faro_territorio::precios::Parametros::default();
     let productos = faro_territorio::precios::analizar_csv(cuerpo.as_bytes(), &p).map_err(pedido)?;
     Ok(Json(json!({ "parametros": p, "productos": productos })))
@@ -820,7 +848,7 @@ fn cargar_vial(dir: &std::path::Path, catalogo: &Catalogo) -> Result<Value, Stri
 
 /// Prepara las capas geográficas: municipios con sus indicadores, enlaces viales probables y
 /// lugares sin conexión. Si falta un insumo, esa capa simplemente no se publica.
-fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion, vial: &Value, construido: &BTreeMap<String, Vec<faro_territorio::Punto>>, construccion: &Construccion) -> (HashMap<String, (&'static str, String)>, Vec<Value>) {
+fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion, vial: &Value, construido: &BTreeMap<String, Vec<faro_territorio::Punto>>, construccion: &Construccion, cif: &[HashMap<String, String>], talla: &HashMap<String, HashMap<String, String>>) -> (HashMap<String, (&'static str, String)>, Vec<Value>) {
     const GEOJSON: &str = "application/geo+json; charset=utf-8";
     let mut capas = HashMap::new();
     let mut descripcion = Vec::new();
@@ -868,6 +896,12 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
             p["construido_ha_2020"] = json!(ha(2020).map(|v| v.round()));
             p["construido_crecimiento_anual_pct"] = json!(ha(2000).zip(ha(2020)).filter(|(a, _)| *a > 0.0).map(|(a, b)| (((b / a).powf(1.0 / 20.0) - 1.0) * 10000.0).round() / 100.0));
             p["construido_m2_por_habitante_2020"] = json!(ha(2020).zip(poblacion.total(&codigo, 2020)).filter(|(_, n)| *n > 0).map(|(h, n)| (h * 10_000.0 / n as f64).round()));
+            // Inseguridad alimentaria aguda: el dato es del departamento (CIF), no del municipio.
+            let del_depto = cif.iter().find(|f| f.get("departamento").map(String::as_str) == Some(&codigo[..2]));
+            p["cif_fase_area_departamento"] = json!(del_depto.and_then(|f| f.get("fase_area")?.parse::<i64>().ok()));
+            p["cif_fase3_o_superior_pct_departamento"] = json!(del_depto.and_then(|f| f.get("fase3_o_superior_pct")?.parse::<f64>().ok()));
+            p["retardo_en_talla_pct"] = json!(talla.get(&codigo).and_then(|f| f.get("retardo_en_talla_pct")?.parse::<f64>().ok()));
+            p["vulnerabilidad_nutricional"] = json!(talla.get(&codigo).and_then(|f| f.get("vulnerabilidad")));
             p["proveedores_construccion"] = json!(construccion.proveedores.iter().filter(|x| x.get("municipio_codigo").map(String::as_str) == Some(codigo.as_str())).count());
             p["lugares_poblados"] = json!(lugares_de.get(&codigo).copied().unwrap_or(0));
             let (suelto, sin) = sin_conexion.get(&codigo).copied().unwrap_or((0, 0));
@@ -908,6 +942,8 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
         }
     }
     for (archivo, tipo, titulo, detalle, fuente, licencia) in [
+        ("censo_talla_municipio.csv", "text/csv; charset=utf-8", "Retardo en talla en escolares por municipio, Censo de Talla 2024", "Porcentaje de escolares con retardo en talla (desnutrición crónica), escolares evaluados y categoría de vulnerabilidad nutricional, con código INE.", "SESAN, SIINSAN: V Censo Nacional de Talla en Escolares, 2024.", "publicación oficial; cite la fuente"),
+        ("cif_departamentos.csv", "text/csv; charset=utf-8", "Inseguridad alimentaria aguda por departamento (CIF), octubre 2026 – febrero 2027", "Personas en cada fase de la CIF, fase del área y Fase 3 o superior, con código INE del departamento.", "SESAN y Grupo Técnico de la CIF Guatemala, actualización publicada el 19-nov-2026 y corregida el 20-nov-2026.", "publicación oficial; cite la fuente"),
         ("departamentos.geojson", GEOJSON, "Departamentos", "22 departamentos con código INE, para mapas a menor detalle.", "CONRED / OCHA (COD-AB Guatemala).", "CC BY-IGO"),
         ("red_vial_contexto.geojson", GEOJSON, "Caminos mapeados alrededor de los enlaces probables", "Tramos de camino a 1.5 km de cada enlace propuesto; indica si pertenecen a la red principal o a un tramo suelto.", "© colaboradores de OpenStreetMap (HOT/HDX), corte del 3-nov-2026.", "ODbL 1.0"),
         ("superficie_construida_bloques.csv", "text/csv; charset=utf-8", "Superficie construida en bloques de 1 km, 1975–2020", "Hectáreas construidas por bloque de 1 km y época, con el municipio al que pertenece: la huella edificada del país.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A.", "CC BY 4.0"),
@@ -1126,7 +1162,7 @@ async fn api_proceso(State(e): State<Compartido>) -> Res<Json<Value>> {
 /// que usa este servidor. Devuelve cada paso con sus cifras.
 async fn api_reproducir_poblacion(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     use faro_territorio::poblacion::{procesar, Paso};
-    autorizar(&e, &cabeceras)?;
+    autorizar(&e, &cabeceras).await?;
     let resultado = tokio::task::spawn_blocking(move || -> Result<Value, String> {
         const CONJUNTO: &str = "proyecciones-de-poblacion-2015-2030";
         let mut pasos: Vec<Paso> = Vec::new();
@@ -1212,7 +1248,7 @@ struct ConfigMuestreo {
 }
 
 async fn api_muestreo_configurar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap, Json(c): Json<ConfigMuestreo>) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras)?;
+    autorizar(&e, &cabeceras).await?;
     let t = e.tareas.iter().find(|t| t.id == id).ok_or_else(|| pedido(format!("no existe la tarea {id}")))?;
     if c.cada_horas.is_some_and(|h| !(1..=24 * 90).contains(&h)) {
         return Err(pedido("la frecuencia debe estar entre 1 hora y 90 días"));
@@ -1228,7 +1264,7 @@ async fn api_muestreo_configurar(State(e): State<Compartido>, Ruta(id): Ruta<Str
 }
 
 async fn api_muestreo_ejecutar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras)?;
+    autorizar(&e, &cabeceras).await?;
     let t = e.tareas.iter().find(|t| t.id == id).ok_or_else(|| pedido(format!("no existe la tarea {id}")))?.clone();
     Ok(Json(ejecutar_muestreo(&e, &t).await?))
 }
@@ -1288,6 +1324,8 @@ async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>) 
         "lugares_poblados": e.catalogo.de_nivel(Nivel::LugarPoblado, Some(&codigo)).count(), "sin_conexion": sin_conexion,
         "proveedores": e.construccion.proveedores.iter().filter(|p| p.get("municipio_codigo").map(String::as_str) == Some(codigo.as_str())).filter_map(|p| p.get("nombre")).collect::<Vec<_>>(),
         "registros": registros.iter().map(|f| json!({ "solicitud": f.get::<_, String>(0), "total": f.get::<_, i64>(1) })).collect::<Vec<_>>(),
+        "talla": e.talla.get(&codigo),
+        "cif": e.cif.iter().find(|f| f.get("departamento").map(String::as_str) == Some(&codigo[..2])),
         "epocas": e.epocas, "bloques": e.bloques.get(&codigo),
     })))
 }
@@ -1327,8 +1365,9 @@ async fn plantilla(State(e): State<Compartido>, Ruta(id): Ruta<String>) -> Respo
 /// institucion) como equivalencias confirmadas por quien la sube. Las filas que no cuadran con
 /// el catálogo se rechazan una por una y se devuelven.
 async fn api_tabla_equivalencias(State(e): State<Compartido>, cabeceras: HeaderMap, Query(q): Query<HashMap<String, String>>, cuerpo: String) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras)?;
-    let usuario = q.get("usuario").map(|u| u.trim()).filter(|u| !u.is_empty()).ok_or_else(|| pedido("indique quién sube la tabla: queda en la bitácora"))?;
+    let quien = autorizar(&e, &cabeceras).await?;
+    let usuario = quien.nombre.as_str();
+    let _ = &q;
     let mut lector = csv::ReaderBuilder::new().trim(csv::Trim::All).flexible(true).from_reader(cuerpo.trim_start_matches('\u{feff}').as_bytes());
     let cab: Vec<String> = lector.headers().map_err(pedido)?.iter().map(|c| c.to_lowercase()).collect();
     let pos = |n: &str| cab.iter().position(|c| c == n).ok_or_else(|| pedido(format!("falta la columna {n}")));
@@ -1374,4 +1413,207 @@ async fn script(State(e): State<Compartido>, Ruta(archivo): Ruta<String>) -> Res
         (true, Ok(bytes)) => ([("content-type", "text/plain; charset=utf-8".to_string()), ("content-disposition", format!("attachment; filename=\"{archivo}\""))], bytes).into_response(),
         _ => Fallo(StatusCode::NOT_FOUND, "no existe ese procedimiento".into()).into_response(),
     }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Cuentas: inicio de sesión, perfil y manejo de usuarios
+// ---------------------------------------------------------------------------------------------
+
+#[derive(Debug, Clone, serde::Serialize)]
+struct Sesion {
+    id: i64,
+    usuario: String,
+    nombre: String,
+    rol: String,
+    debe_cambiar: bool,
+}
+
+const ROLES: [&str; 3] = ["admin", "analista", "consulta"];
+const HORAS_DE_SESION: i64 = 12;
+
+fn huella_de_clave(clave: &str) -> Result<String, String> {
+    use argon2::password_hash::{rand_core::OsRng, PasswordHasher, SaltString};
+    argon2::Argon2::default().hash_password(clave.as_bytes(), &SaltString::generate(&mut OsRng)).map(|h| h.to_string()).map_err(|e| e.to_string())
+}
+
+fn clave_correcta(clave: &str, huella: &str) -> bool {
+    use argon2::password_hash::{PasswordHash, PasswordVerifier};
+    PasswordHash::new(huella).is_ok_and(|h| argon2::Argon2::default().verify_password(clave.as_bytes(), &h).is_ok())
+}
+
+fn huella_de_llave(llave: &str) -> String {
+    use sha2::{Digest, Sha256};
+    Sha256::digest(llave.as_bytes()).iter().map(|b| format!("{b:02x}")).collect()
+}
+
+fn llave_de(cabeceras: &HeaderMap) -> Option<String> {
+    cabeceras.get("cookie")?.to_str().ok()?.split(';').find_map(|c| c.trim().strip_prefix("faro_sesion=").map(str::to_string)).filter(|l| !l.is_empty())
+}
+
+async fn sesion_de(e: &Estado, cabeceras: &HeaderMap) -> Res<Option<Sesion>> {
+    let Some(llave) = llave_de(cabeceras) else { return Ok(None) };
+    let f = e.bd.query_opt("SELECT u.id, u.usuario, u.nombre, u.rol, u.debe_cambiar FROM sesiones s JOIN usuarios u ON u.id = s.usuario_id WHERE s.huella = $1 AND s.expira > now() AND u.activo", &[&huella_de_llave(&llave)]).await.map_err(interno)?;
+    Ok(f.map(|f| Sesion { id: f.get(0), usuario: f.get(1), nombre: f.get(2), rol: f.get(3), debe_cambiar: f.get(4) }))
+}
+
+fn galleta(llave: &str, segundos: i64) -> (&'static str, String) {
+    ("set-cookie", format!("faro_sesion={llave}; HttpOnly; SameSite=Strict; Path=/; Max-Age={segundos}"))
+}
+
+async fn api_sesion(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    Ok(Json(match sesion_de(&e, &cabeceras).await? {
+        Some(s) => json!({ "sesion": true, "usuario": s }),
+        None => json!({ "sesion": false }),
+    }))
+}
+
+#[derive(Deserialize)]
+struct Ingreso {
+    usuario: String,
+    clave: String,
+}
+
+async fn api_ingresar(State(e): State<Compartido>, Json(i): Json<Ingreso>) -> Result<Response, Fallo> {
+    let f = e.bd.query_opt("SELECT id, usuario, nombre, rol, debe_cambiar, clave FROM usuarios WHERE usuario = $1 AND activo", &[&i.usuario.trim().to_lowercase()]).await.map_err(interno)?;
+    let (clave, guardada) = (i.clave.clone(), f.as_ref().map(|f| f.get::<_, String>(5)));
+    // Verificar cuesta lo mismo exista o no el usuario, y un fallo se demora: frena los intentos en serie.
+    let bien = tokio::task::spawn_blocking(move || guardada.is_some_and(|g| clave_correcta(&clave, &g))).await.map_err(interno)?;
+    let Some(f) = f.filter(|_| bien) else {
+        tokio::time::sleep(std::time::Duration::from_millis(700)).await;
+        return Err(Fallo(StatusCode::UNAUTHORIZED, "usuario o contraseña incorrectos".into()));
+    };
+    let llave = {
+        use rand_core::{OsRng, RngCore};
+        let mut b = [0u8; 32];
+        OsRng.fill_bytes(&mut b);
+        b.iter().map(|x| format!("{x:02x}")).collect::<String>()
+    };
+    let id: i64 = f.get(0);
+    e.bd.execute("DELETE FROM sesiones WHERE expira < now()", &[]).await.map_err(interno)?;
+    e.bd.execute("INSERT INTO sesiones (huella, usuario_id, expira) VALUES ($1, $2, now() + make_interval(hours => $3))", &[&huella_de_llave(&llave), &id, &(HORAS_DE_SESION as i32)]).await.map_err(interno)?;
+    e.bd.execute("UPDATE usuarios SET ultimo_ingreso = now() WHERE id = $1", &[&id]).await.map_err(interno)?;
+    let s = Sesion { id, usuario: f.get(1), nombre: f.get(2), rol: f.get(3), debe_cambiar: f.get(4) };
+    Ok(([galleta(&llave, HORAS_DE_SESION * 3600)], Json(json!({ "sesion": true, "usuario": s }))).into_response())
+}
+
+async fn api_salir(State(e): State<Compartido>, cabeceras: HeaderMap) -> Result<Response, Fallo> {
+    if let Some(llave) = llave_de(&cabeceras) {
+        e.bd.execute("DELETE FROM sesiones WHERE huella = $1", &[&huella_de_llave(&llave)]).await.map_err(interno)?;
+    }
+    Ok(([galleta("", 0)], Json(json!({ "sesion": false }))).into_response())
+}
+
+fn clave_aceptable(clave: &str) -> Res<()> {
+    if clave.chars().count() < 8 {
+        return Err(pedido("la contraseña debe tener al menos 8 caracteres"));
+    }
+    Ok(())
+}
+
+#[derive(Deserialize)]
+struct CambioPerfil {
+    nombre: Option<String>,
+    clave_actual: Option<String>,
+    clave_nueva: Option<String>,
+}
+
+async fn api_perfil(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c): Json<CambioPerfil>) -> Res<Json<Value>> {
+    let s = sesion_de(&e, &cabeceras).await?.ok_or(Fallo(StatusCode::UNAUTHORIZED, "inicie sesión".into()))?;
+    if let Some(nombre) = c.nombre.as_deref().map(str::trim).filter(|n| !n.is_empty()) {
+        e.bd.execute("UPDATE usuarios SET nombre = $1 WHERE id = $2", &[&nombre, &s.id]).await.map_err(interno)?;
+    }
+    if let Some(nueva) = c.clave_nueva.filter(|n| !n.is_empty()) {
+        clave_aceptable(&nueva)?;
+        let guardada: String = e.bd.query_one("SELECT clave FROM usuarios WHERE id = $1", &[&s.id]).await.map_err(interno)?.get(0);
+        let actual = c.clave_actual.unwrap_or_default();
+        let huella = tokio::task::spawn_blocking(move || if clave_correcta(&actual, &guardada) { huella_de_clave(&nueva).map(Some) } else { Ok(None) }).await.map_err(interno)?.map_err(interno)?;
+        let huella = huella.ok_or_else(|| pedido("la contraseña actual no es correcta"))?;
+        e.bd.execute("UPDATE usuarios SET clave = $1, debe_cambiar = FALSE WHERE id = $2", &[&huella, &s.id]).await.map_err(interno)?;
+    }
+    Ok(Json(json!({ "guardado": true })))
+}
+
+async fn solo_admin(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
+    sesion_de(e, cabeceras).await?.filter(|s| s.rol == "admin").ok_or(Fallo(StatusCode::FORBIDDEN, "solo un administrador puede manejar usuarios".into()))
+}
+
+async fn api_usuarios(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    solo_admin(&e, &cabeceras).await?;
+    let filas = e.bd.query("SELECT id, usuario, nombre, rol, activo, debe_cambiar, to_char(creado, 'YYYY-MM-DD'), to_char(ultimo_ingreso, 'YYYY-MM-DD HH24:MI') FROM usuarios ORDER BY id", &[]).await.map_err(interno)?;
+    Ok(Json(json!(filas.iter().map(|f| json!({ "id": f.get::<_, i64>(0), "usuario": f.get::<_, String>(1), "nombre": f.get::<_, String>(2), "rol": f.get::<_, String>(3), "activo": f.get::<_, bool>(4),
+        "debe_cambiar": f.get::<_, bool>(5), "creado": f.get::<_, String>(6), "ultimo_ingreso": f.get::<_, Option<String>>(7) })).collect::<Vec<_>>())))
+}
+
+#[derive(Deserialize)]
+struct UsuarioNuevo {
+    usuario: String,
+    nombre: String,
+    rol: String,
+    clave: String,
+}
+
+async fn api_usuario_crear(State(e): State<Compartido>, cabeceras: HeaderMap, Json(u): Json<UsuarioNuevo>) -> Res<Json<Value>> {
+    solo_admin(&e, &cabeceras).await?;
+    let usuario = u.usuario.trim().to_lowercase();
+    if usuario.len() < 3 || !usuario.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-')) {
+        return Err(pedido("el usuario debe tener al menos 3 caracteres: letras sin tilde, números, punto, guion o guion bajo"));
+    }
+    if u.nombre.trim().is_empty() || !ROLES.contains(&u.rol.as_str()) {
+        return Err(pedido("indique el nombre y un rol: admin, analista o consulta"));
+    }
+    clave_aceptable(&u.clave)?;
+    let clave = u.clave.clone();
+    let huella = tokio::task::spawn_blocking(move || huella_de_clave(&clave)).await.map_err(interno)?.map_err(interno)?;
+    let n = e.bd.execute("INSERT INTO usuarios (usuario, nombre, rol, clave, debe_cambiar) VALUES ($1,$2,$3,$4, TRUE) ON CONFLICT (usuario) DO NOTHING", &[&usuario, &u.nombre.trim(), &u.rol, &huella]).await.map_err(interno)?;
+    if n == 0 {
+        return Err(pedido(format!("ya existe el usuario {usuario}")));
+    }
+    Ok(Json(json!({ "creado": usuario })))
+}
+
+#[derive(Deserialize)]
+struct CambioUsuario {
+    nombre: Option<String>,
+    rol: Option<String>,
+    activo: Option<bool>,
+    clave: Option<String>,
+}
+
+async fn api_usuario_cambiar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap, Json(c): Json<CambioUsuario>) -> Res<Json<Value>> {
+    let admin = solo_admin(&e, &cabeceras).await?;
+    let actual = e.bd.query_opt("SELECT rol, activo FROM usuarios WHERE id = $1", &[&id]).await.map_err(interno)?.ok_or_else(|| pedido("no existe ese usuario"))?;
+    if c.rol.as_deref().is_some_and(|r| !ROLES.contains(&r)) {
+        return Err(pedido("rol no válido: admin, analista o consulta"));
+    }
+    // Nunca se queda el sistema sin un administrador activo.
+    let deja_de_ser_admin = actual.get::<_, String>(0) == "admin" && actual.get::<_, bool>(1) && (c.rol.as_deref().is_some_and(|r| r != "admin") || c.activo == Some(false));
+    if deja_de_ser_admin {
+        if id == admin.id {
+            return Err(pedido("no puede quitarse a usted mismo el rol de administrador ni desactivarse"));
+        }
+        let otros: i64 = e.bd.query_one("SELECT count(*) FROM usuarios WHERE rol = 'admin' AND activo AND id <> $1", &[&id]).await.map_err(interno)?.get(0);
+        if otros == 0 {
+            return Err(pedido("debe quedar al menos un administrador activo"));
+        }
+    }
+    if let Some(nombre) = c.nombre.as_deref().map(str::trim).filter(|n| !n.is_empty()) {
+        e.bd.execute("UPDATE usuarios SET nombre = $1 WHERE id = $2", &[&nombre, &id]).await.map_err(interno)?;
+    }
+    if let Some(rol) = &c.rol {
+        e.bd.execute("UPDATE usuarios SET rol = $1 WHERE id = $2", &[rol, &id]).await.map_err(interno)?;
+    }
+    if let Some(activo) = c.activo {
+        e.bd.execute("UPDATE usuarios SET activo = $1 WHERE id = $2", &[&activo, &id]).await.map_err(interno)?;
+        if !activo {
+            e.bd.execute("DELETE FROM sesiones WHERE usuario_id = $1", &[&id]).await.map_err(interno)?;
+        }
+    }
+    if let Some(clave) = c.clave.filter(|k| !k.is_empty()) {
+        clave_aceptable(&clave)?;
+        let huella = tokio::task::spawn_blocking(move || huella_de_clave(&clave)).await.map_err(interno)?.map_err(interno)?;
+        // Contraseña puesta por el administrador: el usuario debe cambiarla y sus sesiones se cierran.
+        e.bd.execute("UPDATE usuarios SET clave = $1, debe_cambiar = TRUE WHERE id = $2", &[&huella, &id]).await.map_err(interno)?;
+        e.bd.execute("DELETE FROM sesiones WHERE usuario_id = $1", &[&id]).await.map_err(interno)?;
+    }
+    Ok(Json(json!({ "guardado": true })))
 }

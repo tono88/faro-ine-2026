@@ -117,3 +117,39 @@ La comparación contra el IPMC (`faro construccion`) usa las reglas de `datos/es
 - `superficie_construida_bloques.csv`: 26,669 bloques de 1 km con al menos media hectárea
   construida en alguna época, con su centro, su municipio y las hectáreas por época
   (`faro construido`; GHSL). Es la huella edificada que anima el mapa.
+
+## `cif_departamentos.csv`
+
+Personas en cada fase de inseguridad alimentaria aguda (CIF) por departamento, octubre de 2026 a
+febrero de 2027: población analizada, fases 1 a 5, fase del área y Fase 3 o superior.
+
+Fuente: SESAN y Grupo Técnico de la CIF Guatemala, "Análisis de inseguridad alimentaria aguda de la
+CIF: actualización de la situación proyectada octubre 2026 – febrero 2027", publicado el
+19-nov-2026 y corregido el 20-nov-2026. Descargado de `portal.sesan.gob.gt` el 24-nov-2026 (UTC);
+SHA-256 `60cc4c24c51aaaba6f6fa78f4ab77c7f5c6d2a2479ec67f38880f92269946edf`.
+
+Cómo se obtuvo: `pdftotext -layout informe.pdf informe.txt` y luego `faro cif --texto informe.txt`,
+que lee la "Tabla de población" y comprueba, antes de escribir, que en cada departamento las fases
+suman la población y que fase 3 + 4 + 5 da la Fase 3 o superior publicada, y que los 22
+departamentos suman el Gran Total del informe. Los nombres se llevan al código INE con el mismo
+motor de homologación.
+
+Verificación cruzada: la población analizada de los 22 departamentos coincide exactamente con la
+proyección del INE para 2026 que usa FARO (la tabla con los 16 códigos de municipio reubicados).
+
+Las cifras son por departamento; el informe no las publica por municipio. Son 3,247,361 personas
+en Fase 3 o superior (18 % de la población analizada) y 11 departamentos con área en Fase 3.
+
+## `censo_talla_municipio.csv`
+
+Porcentaje de escolares con retardo en talla (desnutrición crónica), escolares evaluados y
+categoría de vulnerabilidad nutricional, para los 340 municipios.
+
+Fuente: SESAN, SIINSAN, "Retardo en talla, Censo 2024" (V Censo Nacional de Talla en Escolares).
+Descargado de `portal.siinsan.gob.gt` el 24-nov-2026 (UTC); SHA-256 `8f8f8f0d92c9bbc72dd8740eb2aed5a775e7956e8043e4abb00553aae4ee5547`.
+
+Cómo se obtuvo: `faro talla --entrada <libro>`. El libro trae código de departamento y correlativo
+de municipio; se componen en el código INE y se comprueba, además, que el nombre que trae el libro
+lleva al mismo municipio. Coinciden los 340 (uno, "San Raimundo", quedó agregado como otra forma de
+escribir San Raymundo). Las cifras y categorías se copian sin cambios: 90 municipios en
+vulnerabilidad muy alta, 90 en alta, 89 en moderada y 71 en baja.

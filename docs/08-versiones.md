@@ -2,6 +2,14 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.9.0 · 24-nov-2026
+- Inicio de sesión con usuarios y roles (administrador, analista, consulta), perfil y manejo de
+  usuarios; la bitácora registra a quien inició sesión. Usuario inicial `admin` / `admin`.
+- Inseguridad alimentaria aguda por departamento (CIF, SESAN), verificada y citada, en una
+  sección propia, en el mapa y en la ficha.
+- Desnutrición crónica en escolares por municipio (Censo de Talla 2024, SESAN).
+- La ficha del municipio cabe completa sobre el mapa.
+
 ## v0.8.0 · 24-nov-2026
 - Muestreos automáticos configurables de precios publicados (tiendas con catálogo VTEX); los de
   construcción entran a la comparación contra el IPMC.

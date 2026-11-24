@@ -179,6 +179,25 @@ enum Comando {
         #[arg(long, default_value = "datos/catalogo_precios/cba_precios.csv")]
         salida: PathBuf,
     },
+    /// Tabla de población por fase de inseguridad alimentaria aguda (CIF, SESAN) por departamento.
+    Cif {
+        /// Texto del informe obtenido con `pdftotext -layout informe.pdf informe.txt`.
+        #[arg(long)]
+        texto: PathBuf,
+        /// Periodo del análisis, tal como lo titula el informe.
+        #[arg(long, default_value = "octubre 2026 - febrero 2027")]
+        periodo: String,
+        #[arg(long, default_value = "datos/referencia/cif_departamentos.csv")]
+        salida: PathBuf,
+    },
+    /// Retardo en talla (desnutrición crónica) en escolares por municipio: Censo de Talla de SESAN.
+    Talla {
+        /// Libro "Retardo en talla, Censo 2024" del SIINSAN.
+        #[arg(long)]
+        entrada: PathBuf,
+        #[arg(long, default_value = "datos/referencia/censo_talla_municipio.csv")]
+        salida: PathBuf,
+    },
     /// Reparte operadores de campo entre puestos con la menor distancia total (línea recta).
     Asignar {
         /// CSV: operador, lugar (código de lugar poblado donde vive) o longitud y latitud.
@@ -372,6 +391,54 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         Comando::Recibir { solicitud, entrada, salida } => recibir(&catalogo, &memoria, &solicitud, &entrada, &salida),
         Comando::Catalogo { accion } => catalogo_censo(&catalogo, &cli.catalogo, accion),
         Comando::Asignar { operadores, puestos, salida } => asignar(&catalogo, &operadores, &puestos, &salida),
+        Comando::Cif { texto, periodo, salida } => cif(&catalogo, &memoria, &texto, &periodo, &salida),
+        Comando::Talla { entrada, salida } => {
+            use faro_homologa::normalizar::basico;
+            let filas = faro_homologa::lectura::leer_crudo(&entrada)?;
+            let pos = filas.iter().position(|f| f.first().is_some_and(|c| basico(c) == "coddepto")).ok_or(format!("{}: no parece el libro del censo de talla", entrada.display()))?;
+            let enc: Vec<String> = filas[pos].iter().map(|c| basico(c)).collect();
+            let col = |n: &str| enc.iter().position(|c| c.starts_with(n)).ok_or(format!("{}: falta la columna {n}", entrada.display()));
+            let (id, im, inom, ia, inn, ip, ic) = (col("coddepto")?, col("codmun")?, col("municipio")?, col("censo")?, col("n")?, col("prevalencia")?, col("categoria")?);
+            let h = Homologador::new(&catalogo, &memoria);
+            let (mut salen, mut distintos) = (Vec::new(), Vec::new());
+            for f in filas.iter().skip(pos + 1).filter(|f| f.get(id).is_some_and(|c| !c.trim().is_empty())) {
+                let c = |i: usize| f.get(i).map(|x| x.trim()).unwrap_or("");
+                let codigo = format!("{:0>2}{:0>2}", c(id), c(im));
+                let l = catalogo.por_codigo(&codigo).filter(|l| l.nivel == Nivel::Municipio).ok_or(format!("el código {codigo} ({}) no es un municipio del catálogo", c(inom)))?;
+                // Doble comprobación: el nombre que trae el libro debe llevar al mismo código.
+                let por_nombre = h.homologar(c(inom), Nivel::Municipio, Some(&codigo[..2]));
+                if por_nombre.codigo.as_deref() != Some(codigo.as_str()) {
+                    distintos.push(format!("{codigo} {} (el libro lo llama {:?})", l.nombre, c(inom)));
+                }
+                let prevalencia: f64 = c(ip).parse().map_err(|_| format!("{codigo}: prevalencia no numérica: {:?}", c(ip)))?;
+                if !(0.0..=100.0).contains(&prevalencia) {
+                    return Err(format!("{codigo}: prevalencia fuera de 0 a 100: {prevalencia}"));
+                }
+                salen.push((codigo, l.nombre.clone(), c(ia).to_string(), c(inn).to_string(), prevalencia, c(ic).to_lowercase()));
+            }
+            salen.sort_by(|a, b| a.0.cmp(&b.0));
+            let unicos: std::collections::BTreeSet<&str> = salen.iter().map(|s| s.0.as_str()).collect();
+            if unicos.len() != salen.len() {
+                return Err("hay municipios repetidos en el libro".into());
+            }
+            if let Some(d) = salida.parent() {
+                std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+            }
+            let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(&salida).map_err(|e| e.to_string())?;
+            w.write_record(["municipio", "nombre", "censo", "escolares_evaluados", "retardo_en_talla_pct", "vulnerabilidad"]).map_err(|e| e.to_string())?;
+            for (codigo, nombre, censo, n, p, cat) in &salen {
+                w.write_record([codigo.as_str(), nombre.as_str(), censo.as_str(), n.as_str(), format!("{p:.1}").as_str(), cat.as_str()]).map_err(|e| e.to_string())?;
+            }
+            w.flush().map_err(|e| e.to_string())?;
+            println!("{} municipios -> {}", salen.len(), salida.display());
+            println!("nombre y código coinciden en {}; el nombre no lleva solo al mismo código en {}{}", salen.len() - distintos.len(), distintos.len(), if distintos.is_empty() { String::new() } else { format!(": {}", distintos.join("; ")) });
+            let mut cuenta = std::collections::BTreeMap::new();
+            for s in &salen {
+                *cuenta.entry(s.5.clone()).or_insert(0) += 1;
+            }
+            println!("por categoría de vulnerabilidad: {cuenta:?}");
+            Ok(ExitCode::SUCCESS)
+        }
         Comando::Ipmc { actual, anterior, salida } => ipmc(&actual, anterior.as_deref(), &salida),
         Comando::Construccion { precios, reglas, articulos, salida } => construccion(&memoria, &precios, &reglas, &articulos, &salida),
         Comando::Limites { entrada, tolerancia, salida } => limites(&catalogo, &entrada, tolerancia, &salida),
@@ -600,6 +667,76 @@ fn referencias(entrada: &Path, salida: &Path) -> Result<ExitCode, String> {
     }
     w.flush().map_err(|e| e.to_string())?;
     println!("{escritas} precios de referencia en {} categorías tal como vienen escritas; {sin_precio} filas sin precio numérico no se incluyen -> {}", categorias.len(), salida.display());
+    Ok(ExitCode::SUCCESS)
+}
+
+/// Lee la "Tabla de población" del informe CIF: una fila por departamento con población total,
+/// personas y porcentaje en cada fase, fase del área y Fase 3 o superior. Comprueba cada fila y
+/// el total contra lo que el propio informe publica; si algo no cuadra, no escribe nada.
+fn cif(catalogo: &Catalogo, memoria: &Memoria, ruta: &Path, periodo: &str, salida: &Path) -> Result<ExitCode, String> {
+    let texto = std::fs::read_to_string(ruta).map_err(|e| format!("{}: {e}", ruta.display()))?;
+    let h = Homologador::new(catalogo, memoria);
+    // Los miles vienen separados por espacios ("1 482 083"): los números de una fila se leen de
+    // derecha a izquierda según la forma conocida de la tabla.
+    let numeros = |resto: &str| -> Vec<String> { resto.split("  ").map(|c| c.trim().replace(' ', "")).filter(|c| !c.is_empty()).collect() };
+    let (mut filas, mut gran_total): (Vec<(String, String, Vec<i64>)>, Option<Vec<i64>>) = (Vec::new(), None);
+    let mut dentro = false;
+    for linea in texto.lines() {
+        if linea.contains("Tabla de población de la situación proyectada") {
+            dentro = true;
+            continue;
+        }
+        if !dentro {
+            continue;
+        }
+        let l = linea.trim();
+        let Some(corte) = l.find("  ") else { continue };
+        let (nombre, resto) = (l[..corte].trim(), &l[corte..]);
+        let Ok(valores) = numeros(resto).iter().map(|c| c.parse::<i64>()).collect::<Result<Vec<i64>, _>>() else { continue };
+        if nombre == "Gran Total" && valores.len() == 13 {
+            gran_total = Some(valores);
+            break;
+        }
+        if valores.len() != 14 {
+            continue;
+        }
+        let d = h.homologar(nombre, Nivel::Departamento, None);
+        let codigo = d.codigo.filter(|_| d.estado.resuelto()).ok_or(format!("{nombre:?} no es un departamento del catálogo"))?;
+        filas.push((codigo, nombre.to_string(), valores));
+    }
+    let total = gran_total.ok_or("no se encontró la fila Gran Total de la tabla de población")?;
+    if filas.len() != 22 {
+        return Err(format!("se esperaban 22 departamentos y se leyeron {}", filas.len()));
+    }
+    // Columnas: 0 población; 1-2 fase 1 (# y %); 3-4 fase 2; 5-6 fase 3; 7-8 fase 4; 9-10 fase 5; 11 fase de área; 12-13 fase 3+.
+    for (codigo, nombre, v) in &filas {
+        if v[5] + v[7] + v[9] != v[12] {
+            return Err(format!("{codigo} {nombre}: fase 3 + fase 4 + fase 5 no da la Fase 3 o superior publicada"));
+        }
+        if (v[1] + v[3] + v[5] + v[7] + v[9] - v[0]).abs() > 10 {
+            return Err(format!("{codigo} {nombre}: las fases no suman la población total"));
+        }
+    }
+    for (k, que) in [(0usize, "población"), (1, "fase 1"), (3, "fase 2"), (5, "fase 3"), (7, "fase 4"), (9, "fase 5")] {
+        let suma: i64 = filas.iter().map(|(_, _, v)| v[k]).sum();
+        if (suma - total[k]).abs() > 22 {
+            return Err(format!("la suma de {que} por departamento ({suma}) no coincide con el Gran Total del informe ({})", total[k]));
+        }
+    }
+    if let Some(d) = salida.parent() {
+        std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+    }
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(salida).map_err(|e| e.to_string())?;
+    w.write_record(["departamento", "nombre", "periodo", "poblacion_analizada", "fase1", "fase2", "fase3", "fase4", "fase5", "fase_area", "fase3_o_superior", "fase3_o_superior_pct"]).map_err(|e| e.to_string())?;
+    filas.sort();
+    for (codigo, _, v) in &filas {
+        let nombre = catalogo.por_codigo(codigo).map(|l| l.nombre.clone()).unwrap_or_default();
+        w.write_record([codigo.clone(), nombre, periodo.to_string(), v[0].to_string(), v[1].to_string(), v[3].to_string(), v[5].to_string(), v[7].to_string(), v[9].to_string(), v[11].to_string(), v[12].to_string(), v[13].to_string()]).map_err(|e| e.to_string())?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    let en_crisis: i64 = filas.iter().map(|(_, _, v)| v[12]).sum();
+    println!("22 departamentos, {periodo}: {} personas analizadas; {en_crisis} en Fase 3 o superior; {} departamentos con área en Fase 3 -> {}", total[0], filas.iter().filter(|(_, _, v)| v[11] >= 3).count(), salida.display());
+    println!("comprobado: cada fila suma su total y su Fase 3 o superior, y los departamentos suman el Gran Total del informe");
     Ok(ExitCode::SUCCESS)
 }
 

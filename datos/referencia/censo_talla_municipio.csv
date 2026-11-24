@@ -1,0 +1,341 @@
+municipio,nombre,censo,escolares_evaluados,retardo_en_talla_pct,vulnerabilidad
+0101,Guatemala,2024,10624,12.6,baja
+0102,Santa Catarina Pinula,2024,1336,12.1,baja
+0103,San José Pinula,2024,1541,13.6,baja
+0104,San José del Golfo,2024,184,13.0,baja
+0105,Palencia,2024,1506,17.1,moderada
+0106,Chinautla,2024,1920,14.3,baja
+0107,San Pedro Ayampuc,2024,1058,16.5,moderada
+0108,Mixco,2024,4593,12.9,baja
+0109,San Pedro Sacatepéquez,2024,1270,25.8,alta
+0110,San Juan Sacatepéquez,2024,5951,33.2,alta
+0111,San Raymundo,2024,782,22.5,moderada
+0112,Chuarrancho,2024,309,21.0,moderada
+0113,Fraijanes,2024,860,11.7,baja
+0114,Amatitlán,2024,2313,11.1,baja
+0115,Villa Nueva,2024,5608,11.1,baja
+0116,Villa Canales,2024,2669,15.5,baja
+0117,San Miguel Petapa,2024,1570,12.0,baja
+0201,Guastatoya,2024,403,8.4,baja
+0202,Morazán,2024,310,12.3,baja
+0203,San Agustín Acasaguastlán,2024,1106,22.7,moderada
+0204,San Cristóbal Acasaguastlán,2024,115,6.1,baja
+0205,El Jícaro,2024,208,7.7,baja
+0206,Sansare,2024,249,8.4,baja
+0207,Sanarate,2024,710,10.0,baja
+0208,San Antonio La Paz,2024,487,15.0,baja
+0301,Antigua Guatemala,2024,754,19.2,moderada
+0302,Jocotenango,2024,200,13.0,baja
+0303,Pastores,2024,263,14.8,baja
+0304,Sumpango,2024,811,31.6,alta
+0305,Santo Domingo Xenacoj,2024,290,26.2,alta
+0306,Santiago Sacatepéquez,2024,682,27.0,alta
+0307,San Bartolomé Milpas Altas,2024,119,17.6,moderada
+0308,San Lucas Sacatepéquez,2024,357,17.6,moderada
+0309,Santa Lucía Milpas Altas,2024,144,13.2,baja
+0310,Magdalena Milpas Altas,2024,217,23.0,moderada
+0311,Santa María de Jesús,2024,474,37.1,alta
+0312,Ciudad Vieja,2024,477,15.3,baja
+0313,San Miguel Dueñas,2024,214,17.3,moderada
+0314,San Juan Alotenango,2024,402,25.4,alta
+0315,San Antonio Aguas Calientes,2024,157,17.8,moderada
+0316,Santa Catarina Barahona,2024,91,7.7,baja
+0401,Chimaltenango,2024,2146,24.2,alta
+0402,San José Poaquil,2024,694,36.5,alta
+0403,San Martín Jilotepeque,2024,2072,29.8,alta
+0404,San Juan Comalapa,2024,1105,37.3,alta
+0405,Santa Apolonia,2024,578,58.5,muy alta
+0406,Tecpán Guatemala,2024,2609,51.6,muy alta
+0407,Patzún,2024,1371,46.8,muy alta
+0408,San Miguel Pochuta,2024,176,23.3,moderada
+0409,Patzicía,2024,487,35.1,alta
+0410,Santa Cruz Balanyá,2024,244,37.3,alta
+0411,Acatenango,2024,551,32.1,alta
+0412,San Pedro Yepocapa,2024,878,26.3,alta
+0413,San Andrés Itzapa,2024,782,28.9,alta
+0414,Parramos,2024,283,24.7,alta
+0415,Zaragoza,2024,403,26.3,alta
+0416,El Tejar,2024,434,17.1,moderada
+0501,Escuintla,2024,2834,14.3,baja
+0502,Santa Lucía Cotzumalguapa,2024,2543,23.0,moderada
+0503,La Democracia,2024,536,17.4,moderada
+0504,Siquinalá,2024,556,16.7,moderada
+0505,Masagua,2024,1343,13.6,baja
+0506,Tiquisate,2024,1343,19.7,moderada
+0507,La Gomera,2024,903,15.5,baja
+0508,Guanagazapa,2024,507,15.2,baja
+0509,San José,2024,1421,13.7,baja
+0510,Iztapa,2024,452,11.1,baja
+0511,Palín,2024,1284,16.8,moderada
+0512,San Vicente Pacaya,2024,451,12.9,baja
+0513,Nueva Concepción,2024,1834,13.8,baja
+0514,Sipacate,2024,453,18.5,moderada
+0601,Cuilapa,2024,931,22.8,moderada
+0602,Barberena,2024,1230,15.9,moderada
+0603,Santa Rosa de Lima,2024,418,12.2,baja
+0604,Casillas,2024,533,11.3,baja
+0605,San Rafael Las Flores,2024,377,15.6,moderada
+0606,Oratorio,2024,627,16.3,moderada
+0607,San Juan Tecuaco,2024,245,20.4,moderada
+0608,Chiquimulilla,2024,1270,13.5,baja
+0609,Taxisco,2024,880,13.6,baja
+0610,Santa María Ixhuatán,2024,552,18.3,moderada
+0611,Guazacapán,2024,382,20.9,moderada
+0612,Santa Cruz Naranjo,2024,328,10.7,baja
+0613,Pueblo Nuevo Viñas,2024,679,18.6,moderada
+0614,Nueva Santa Rosa,2024,802,16.1,moderada
+0701,Sololá,2024,2374,46.8,muy alta
+0702,San José Chacayá,2024,149,40.9,muy alta
+0703,Santa María Visitación,2024,48,22.9,moderada
+0704,Santa Lucía Utatlán,2024,573,31.4,alta
+0705,Nahualá,2024,2375,45.7,muy alta
+0706,Santa Catarina Ixtahuacán,2024,1472,44.8,muy alta
+0707,Santa Clara La Laguna,2024,219,27.9,alta
+0708,Concepción,2024,207,47.8,muy alta
+0709,San Andrés Semetabaj,2024,341,37.5,muy alta
+0710,Panajachel,2024,302,19.5,moderada
+0711,Santa Catarina Palopó,2024,122,43.4,muy alta
+0712,San Antonio Palopó,2024,341,33.4,alta
+0713,San Lucas Tolimán,2024,624,24.2,alta
+0714,Santa Cruz La Laguna,2024,167,46.1,muy alta
+0715,San Pablo La Laguna,2024,169,21.9,moderada
+0716,San Marcos La Laguna,2024,46,21.7,moderada
+0717,San Juan La Laguna,2024,291,28.9,alta
+0718,San Pedro La Laguna,2024,176,13.1,baja
+0719,Santiago Atitlán,2024,821,18.3,moderada
+0801,Totonicapán,2024,2263,37.3,alta
+0802,San Cristóbal Totonicapán,2024,872,34.5,alta
+0803,San Francisco El Alto,2024,1496,42.6,muy alta
+0804,San Andrés Xecul,2024,808,43.4,muy alta
+0805,Momostenango,2024,3360,56.0,muy alta
+0806,Santa María Chiquimula,2024,1723,62.5,muy alta
+0807,Santa Lucía la Reforma,2024,622,52.9,muy alta
+0808,San Bartolo Aguas Calientes,2024,342,47.4,muy alta
+0901,Quetzaltenango,2024,2804,20.9,moderada
+0902,Salcajá,2024,456,21.1,moderada
+0903,San Juan Olintepeque,2024,630,30.6,alta
+0904,San Carlos Sija,2024,926,25.5,alta
+0905,Sibilia,2024,215,27.4,alta
+0906,Cabricán,2024,657,47.5,muy alta
+0907,Cajolá,2024,561,43.3,muy alta
+0908,San Miguel Siguilá,2024,239,42.7,muy alta
+0909,San Juan Ostuncalco,2024,1587,44.1,muy alta
+0910,San Mateo,2024,147,22.4,moderada
+0911,Concepción Chiquirichapa,2024,414,40.1,muy alta
+0912,San Martín Sacatepéquez,2024,902,36.5,alta
+0913,Almolonga,2024,282,36.2,alta
+0914,Cantel,2024,841,27.7,alta
+0915,Huitán,2024,451,54.3,muy alta
+0916,Zunil,2024,263,17.1,moderada
+0917,Colomba Costa Cuca,2024,1229,23.9,alta
+0918,San Francisco La Unión,2024,166,33.1,alta
+0919,El Palmar,2024,829,23.6,moderada
+0920,Coatepeque,2024,2971,20.1,moderada
+0921,Génova,2024,1181,24.9,alta
+0922,Flores Costa Cuca,2024,480,21.3,moderada
+0923,La Esperanza,2024,469,16.4,moderada
+0924,Palestina de Los Altos,2024,607,52.1,muy alta
+1001,Mazatenango,2024,1827,19.2,moderada
+1002,Cuyotenango,2024,859,26.1,alta
+1003,San Francisco Zapotitlán,2024,485,17.3,moderada
+1004,San Bernardino,2024,383,25.8,alta
+1005,San José el Ídolo,2024,276,22.5,moderada
+1006,Santo Domingo Suchitepéquez,2024,1228,19.3,moderada
+1007,San Lorenzo,2024,348,23.9,alta
+1008,Samayac,2024,616,19.0,moderada
+1009,San Pablo Jocopilas,2024,520,19.4,moderada
+1010,San Antonio Suchitepéquez,2024,1703,36.2,alta
+1011,San Miguel Panán,2024,296,26.7,alta
+1012,San Gabriel,2024,182,18.7,moderada
+1013,Chicacao,2024,1949,33.4,alta
+1014,Patulul,2024,945,25.4,alta
+1015,Santa Bárbara,2024,733,30.7,alta
+1016,San Juan Bautista,2024,226,26.5,alta
+1017,Santo Tomas La Unión,2024,223,22.4,moderada
+1018,Zunilito,2024,218,13.8,baja
+1019,Pueblo Nuevo,2024,275,13.1,baja
+1020,Río Bravo,2024,763,24.6,alta
+1021,San José La Máquina,2024,661,18.9,moderada
+1101,Retalhuleu,2024,2211,13.4,baja
+1102,San Sebastián,2024,590,20.5,moderada
+1103,Santa Cruz Muluá,2024,376,18.6,moderada
+1104,San Martín Zapotitlán,2024,276,21.4,moderada
+1105,San Felipe,2024,585,18.5,moderada
+1106,San Andrés Villa Seca,2024,1508,28.6,alta
+1107,Champerico,2024,969,24.8,alta
+1108,Nuevo San Carlos,2024,931,22.4,moderada
+1109,El Asintal,2024,955,23.6,moderada
+1201,San Marcos,2024,1114,19.0,moderada
+1202,San Pedro Sacatepéquez,2024,1640,25.6,alta
+1203,San Antonio Sacatepéquez,2024,512,27.9,alta
+1204,Comitancillo,2024,2220,59.5,muy alta
+1205,San Miguel Ixtahuacán,2024,1730,40.3,muy alta
+1206,Concepción Tutuapa,2024,2750,67.2,muy alta
+1207,Tacaná,2024,2724,47.2,muy alta
+1208,Sibinal,2024,483,41.2,muy alta
+1209,Tajumulco,2024,2141,46.7,muy alta
+1210,Tejutla,2024,1236,34.3,alta
+1211,San Rafael Pie de la Cuesta,2024,372,19.6,moderada
+1212,Nuevo Progreso,2024,762,24.5,alta
+1213,El Tumbador,2024,1212,28.7,alta
+1214,San José el Rodeo,2024,464,24.6,alta
+1215,Malacatán,2024,3355,29.0,alta
+1216,Catarina,2024,737,16.1,moderada
+1217,Ayutla,2024,989,15.4,baja
+1218,Ocós,2024,274,13.5,baja
+1219,San Pablo,2024,1365,26.2,alta
+1220,El Quetzal,2024,654,27.1,alta
+1221,La Reforma,2024,507,24.1,alta
+1222,Pajapita,2024,505,23.0,moderada
+1223,Ixchiguán,2024,710,46.2,muy alta
+1224,San José Ojetenam,2024,671,44.9,muy alta
+1225,San Cristóbal Cucho,2024,451,23.1,moderada
+1226,Sipacapa,2024,740,38.5,muy alta
+1227,Esquipulas Palo Gordo,2024,314,24.5,alta
+1228,Río Blanco,2024,153,27.5,alta
+1229,San Lorenzo,2024,361,33.2,alta
+1230,La Blanca,2024,801,16.6,moderada
+1301,Huehuetenango,2024,2319,14.8,baja
+1302,Chiantla,2024,3026,41.1,muy alta
+1303,Malacatancito,2024,501,22.2,moderada
+1304,Cuilco,2024,1837,34.0,alta
+1305,Nentón,2024,1596,54.0,muy alta
+1306,San Pedro Necta,2024,1201,46.8,muy alta
+1307,Jacaltenango,2024,1159,33.3,alta
+1308,San Pedro Soloma,2024,1865,40.9,muy alta
+1309,San Ildefonso Ixtahuacán,2024,1531,47.4,muy alta
+1310,Santa Bárbara,2024,1380,50.1,muy alta
+1311,La Libertad,2024,1253,36.8,alta
+1312,La Democracia,2024,1943,25.8,alta
+1313,San Miguel Acatán,2024,1094,63.7,muy alta
+1314,San Rafael La Independencia,2024,493,58.6,muy alta
+1315,Todos Santos Cuchumatán,2024,971,48.9,muy alta
+1316,San Juan Atitán,2024,605,69.6,muy alta
+1317,Santa Eulalia,2024,1629,59.4,muy alta
+1318,San Mateo Ixtatán,2024,2023,73.8,muy alta
+1319,Colotenango,2024,1179,65.1,muy alta
+1320,San Sebastián Huehuetenango,2024,1174,52.9,muy alta
+1321,Tectitán,2024,395,42.0,muy alta
+1322,Concepción Huista,2024,664,48.2,muy alta
+1323,San Juan Ixcoy,2024,883,54.0,muy alta
+1324,San Antonio Huista,2024,456,29.6,alta
+1325,San Sebastián Coatán,2024,583,46.8,muy alta
+1326,Santa Cruz Barillas,2024,3887,53.6,muy alta
+1327,Aguacatán,2024,1246,44.1,muy alta
+1328,San Rafael Petzal,2024,346,33.2,alta
+1329,San Gaspar Ixchil,2024,338,54.7,muy alta
+1330,Santiago Chimaltenango,2024,300,50.7,muy alta
+1331,Santa Ana Huista,2024,210,21.9,moderada
+1332,Unión Cantinil,2024,469,23.0,moderada
+1333,Petatán,2024,216,32.4,alta
+1401,Santa Cruz del Quiché,2024,2349,42.7,muy alta
+1402,Chiché,2024,899,45.3,muy alta
+1403,Chinique,2024,436,40.1,muy alta
+1404,Zacualpa,2024,1195,40.8,muy alta
+1405,Chajul,2024,1490,53.6,muy alta
+1406,Santo Tomás Chichicastenango,2024,4131,55.7,muy alta
+1407,Patzité,2024,243,55.6,muy alta
+1408,San Antonio Ilotenango,2024,1059,43.3,muy alta
+1409,San Pedro Jocopilas,2024,1180,51.0,muy alta
+1410,Cunén,2024,1727,58.8,muy alta
+1411,San Juan Cotzal,2024,1059,53.8,muy alta
+1412,Joyabaj,2024,3343,43.0,muy alta
+1413,Santa María Nebaj,2024,1999,46.7,muy alta
+1414,San Andrés Sajcabajá,2024,753,36.3,alta
+1415,San Miguel Uspantán,2024,2430,43.5,muy alta
+1416,Sacapulas,2024,1678,47.9,muy alta
+1417,San Bartolomé Jocotenango,2024,532,42.9,muy alta
+1418,Canillá,2024,342,28.9,alta
+1419,Chicamán,2024,1392,51.1,muy alta
+1420,Playa Grande Ixcán,2024,3838,32.6,alta
+1421,Pachalum,2024,252,20.2,moderada
+1501,Salamá,2024,1604,22.6,moderada
+1502,San Miguel Chicaj,2024,900,24.2,alta
+1503,Rabinal,2024,967,28.4,alta
+1504,Cubulco,2024,1659,35.3,alta
+1505,Granados,2024,335,15.2,baja
+1506,Santa Cruz El Chol,2024,226,12.4,baja
+1507,San Jerónimo,2024,678,23.6,moderada
+1508,Purulhá,2024,2243,53.0,muy alta
+1601,Cobán,2024,5771,29.3,alta
+1602,Santa Cruz Verapaz,2024,1114,31.8,alta
+1603,San Cristóbal Verapaz,2024,2360,52.1,muy alta
+1604,Tactic,2024,1035,44.9,muy alta
+1605,Tamahú,2024,715,43.5,muy alta
+1606,San Miguel Tucurú,2024,1584,46.0,muy alta
+1607,Panzós,2024,2754,38.8,muy alta
+1608,Senahú,2024,3414,43.6,muy alta
+1609,San Pedro Carchá,2024,8003,37.9,muy alta
+1610,San Juan Chamelco,2024,1910,44.7,muy alta
+1611,San Agustín Lanquín,2024,987,47.0,muy alta
+1612,Santa María Cahabón,2024,2378,38.7,muy alta
+1613,Chisec,2024,3418,32.7,alta
+1614,Chahal,2024,1021,39.0,muy alta
+1615,Fray Bartolomé de Las Casas,2024,2680,30.6,alta
+1616,Santa Catalina La Tinta,2024,1629,37.1,alta
+1617,Raxruhá,2024,1362,35.5,alta
+1701,Flores,2024,764,14.0,baja
+1702,San José,2024,186,18.3,moderada
+1703,San Benito,2024,902,14.0,baja
+1704,San Andrés,2024,1092,21.8,moderada
+1705,La Libertad,2024,2512,18.9,moderada
+1706,San Francisco,2024,412,17.2,moderada
+1707,Santa Ana,2024,677,13.3,baja
+1708,Dolores,2024,867,23.6,moderada
+1709,San Luis,2024,2342,27.9,alta
+1710,Sayaxché,2024,3026,27.7,alta
+1711,Melchor de Mencos,2024,645,12.4,baja
+1712,Poptún,2024,1660,24.6,alta
+1713,Las Cruces,2024,1081,19.2,moderada
+1714,El Chal,2024,381,14.4,baja
+1801,Puerto Barrios,2024,1808,10.6,baja
+1802,Livingston,2024,2484,32.5,alta
+1803,El Estor,2024,3041,36.4,alta
+1804,Morales,2024,2440,17.4,moderada
+1805,Los Amates,2024,1606,23.7,moderada
+1901,Zacapa,2024,1248,23.8,moderada
+1902,Estanzuela,2024,200,7.5,baja
+1903,Río Hondo,2024,407,9.1,baja
+1904,Gualán,2024,1038,21.3,moderada
+1905,Teculután,2024,413,10.7,baja
+1906,Usumatlán,2024,320,11.6,baja
+1907,Cabañas,2024,333,14.4,baja
+1908,San Diego,2024,146,16.4,moderada
+1909,La Unión,2024,1208,44.7,muy alta
+1910,Huité,2024,288,25.7,alta
+1911,San Jorge,2024,246,22.8,moderada
+2001,Chiquimula,2024,2975,35.9,alta
+2002,San José La Arada,2024,180,16.1,moderada
+2003,San Juan Ermita,2024,511,39.3,muy alta
+2004,Jocotán,2024,2791,60.7,muy alta
+2005,Camotán,2024,1942,45.2,muy alta
+2006,Olopa,2024,1022,56.0,muy alta
+2007,Esquipulas,2024,1356,20.1,moderada
+2008,Concepción Las Minas,2024,253,12.6,baja
+2009,Quezaltepeque,2024,494,16.4,moderada
+2010,San Jacinto,2024,294,32.3,alta
+2011,Ipala,2024,428,10.0,baja
+2101,Jalapa,2024,5349,35.6,alta
+2102,San Pedro Pinula,2024,2170,47.6,muy alta
+2103,San Luis Jilotepeque,2024,490,17.6,moderada
+2104,San Manuel Chaparrón,2024,150,12.0,baja
+2105,San Carlos Alzatate,2024,622,36.2,alta
+2106,Monjas,2024,688,16.1,moderada
+2107,Mataquescuintla,2024,1141,21.4,moderada
+2201,Jutiapa,2024,3636,16.1,moderada
+2202,El Progreso,2024,454,9.0,baja
+2203,Santa Catarina Mita,2024,578,9.5,baja
+2204,Agua Blanca,2024,258,7.4,baja
+2205,Asunción Mita,2024,892,6.5,baja
+2206,Yupiltepeque,2024,364,13.2,baja
+2207,Atescatempa,2024,289,10.0,baja
+2208,Jerez,2024,114,9.6,baja
+2209,El Adelanto,2024,159,10.7,baja
+2210,Zapotitlán,2024,197,6.6,baja
+2211,Comapa,2024,929,32.5,alta
+2212,Jalpatagua,2024,622,16.6,moderada
+2213,Conguaco,2024,875,30.1,alta
+2214,Moyuta,2024,1229,15.6,moderada
+2215,Pasaco,2024,240,10.8,baja
+2216,San José Acatempa,2024,251,10.8,baja
+2217,Quesada,2024,497,7.8,baja
