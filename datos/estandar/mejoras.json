@@ -1,6 +1,13 @@
 {
   "nota": "Única fuente del apartado «Antes y ahora» del portal y de docs/22-antes-y-ahora.md (se regenera con `faro mejoras`). Cada punto dice qué se tenía y quién lo planteó, qué hace FARO con una cifra comprobable, dónde verlo y cómo crece. Al ganar algo nuevo: agregar un punto aquí.",
-  "areas": ["Registros administrativos", "Territorio", "Trabajo de campo", "Precios e índices", "Datos y publicación", "Seguridad y cumplimiento"],
+  "areas": [
+    "Registros administrativos",
+    "Territorio",
+    "Trabajo de campo",
+    "Precios e índices",
+    "Datos y publicación",
+    "Seguridad y cumplimiento"
+  ],
   "puntos": [
     {
       "area": "Registros administrativos",
@@ -70,6 +77,17 @@
     },
     {
       "area": "Territorio",
+      "tema": "Uso del suelo: residencial y no residencial",
+      "antes": "Se pidió estimar el uso del suelo a partir de las imágenes, por el tipo de techo.",
+      "origen": "Pedido del equipo para esta versión",
+      "ahora": "Landsat ve cuadros de 30 m y no distingue techos. FARO usa lo que sí existe: la capa del satélite que separa lo residencial de lo no residencial, y el material del techo que cada hogar declaró en el Censo 2018, por lugar poblado.",
+      "cifra": "1,486 ha",
+      "cifra_de": "no residenciales en 2020 (1.6 % de lo construido), con Guatemala, Villa Nueva y Mixco a la cabeza",
+      "ver": "mapa",
+      "escala": "La capa de 10 m del mismo proyecto (GHS-BUILT-C) agrega altura y tipo de edificio. Con imagen de dron se pueden clasificar techos, como ya se hizo en Mixco (Open AI Caribbean Challenge)."
+    },
+    {
+      "area": "Territorio",
       "tema": "Caminos que faltan en el mapa",
       "antes": "Hay carreteras sin mapear; se propuso usar teoría de grafos para completarlas.",
       "origen": "Gerencia del INE, lanzamiento del 23-nov-2026",
@@ -89,6 +107,17 @@
       "cifra_de": "lugares poblados del Censo 2018, que cuadran uno a uno con el catálogo",
       "ver": "mapa",
       "escala": "Los 28 cuadros del censo ya están descargados con procedencia: un indicador nuevo es una columna más."
+    },
+    {
+      "area": "Territorio",
+      "tema": "Población más allá de 2030",
+      "antes": "Las proyecciones oficiales llegan a 2030. Se señaló que para población conviene la curva exponencial a corto plazo y la logística a largo plazo, cuando los recursos son limitados.",
+      "origen": "Observación recibida por el equipo el 24-nov-2026",
+      "ahora": "El portal ofrece las dos curvas a partir del último dato oficial, sugiere una según el horizonte y dice que no son proyecciones oficiales. El techo de la logística sale de la propia serie del INE.",
+      "cifra": "0.17 %",
+      "cifra_de": "de error mediano de la logística al estimar 2030 con datos hasta 2025 (exponencial: 1.05 %)",
+      "ver": "crecimiento",
+      "escala": "Cuando el INE publique proyecciones nuevas, las curvas se recalculan solas con `faro poblacion`."
     },
     {
       "area": "Territorio",
@@ -122,6 +151,17 @@
       "cifra_de": "evidencias independientes por visita: posición, foto, satélite y censo",
       "ver": "campo",
       "escala": "Funciona en cualquier teléfono con navegador, sin instalar nada. Las respuestas se unen con las visitas por su número; otros formularios se admiten por configuración."
+    },
+    {
+      "area": "Trabajo de campo",
+      "tema": "La foto confirma que es una vivienda",
+      "antes": "Se pidió que, al hacer la encuesta, una foto del lugar permita a un modelo ligero confirmar que es una vivienda y no una tienda.",
+      "origen": "Pedido del equipo para esta versión",
+      "ahora": "Un modelo de escenas ya entrenado (Places365) corre dentro del servidor, sin nube. Si la foto parece un comercio, la visita se marca para que alguien la revise; la foto se descarta al terminar.",
+      "cifra": "11 de 16",
+      "cifra_de": "fotos de fachadas acertadas, 0 errores y 5 no concluyentes en la prueba",
+      "ver": "campo",
+      "escala": "Con fotos de campo del INE se mide mejor y se ajustan las escenas que cuentan. El modelo se cambia por otro sin tocar el portal."
     },
     {
       "area": "Precios e índices",

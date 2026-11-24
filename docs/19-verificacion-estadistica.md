@@ -55,6 +55,32 @@ modelo por municipio según cuál habría acertado más en la década anterior: 
 proyecta con ninguna regresión: se usan las proyecciones oficiales del INE, hechas por componentes
 demográficos, y su crecimiento se resume con la tasa compuesta.
 
+### Población más allá de 2030: exponencial a corto plazo, logística a largo plazo
+
+Las proyecciones oficiales del INE llegan a 2030. Para mirar más lejos el portal ofrece dos curvas, las dos a
+partir del último dato oficial: la **exponencial** (la tasa de los últimos cinco años se mantiene), que es la
+adecuada a corto plazo, y la **logística** (el crecimiento se frena al acercarse a un techo), que es la adecuada
+a largo plazo, cuando los recursos son limitados. Hasta 10 años después del último dato se sugiere la
+exponencial; después, la logística si la serie deja ver un techo. **No son proyecciones oficiales.**
+
+La única prueba posible con datos por municipio es de corto plazo: con lo publicado hasta 2025 se estimó 2030 y
+se comparó con el 2030 del propio INE, en 340 municipios.
+
+| Curva | Municipios | Error mediano | Error del 90 % |
+|---|---|---|---|
+| Exponencial | 340 | 1.05 % | 1.54 % |
+| Logística (donde hay techo) | 302 | 0.17 % | 0.61 % |
+
+Con la serie completa (2015–2030), 308 de 340 municipios dejan ver un techo; en los demás el crecimiento no se
+frena lo suficiente para estimarlo (0 pierden población) y se usa la exponencial. Sumando los municipios, para 2050
+la exponencial da 24.6 millones de habitantes, la logística 22.7 millones y la curva sugerida 22.7 millones (en 2030 el INE
+proyecta 19.2 millones). La diferencia entre las dos curvas es la medida de cuánto pesa el supuesto: a cinco años casi
+no se nota; a veinte, sí. A largo plazo no hay dato por municipio contra el cual probarlas.
+
+Lectura: en la prueba a cinco años las dos curvas se apartan poco del INE, y la logística menos que la exponencial
+en los municipios donde hay techo, porque las propias proyecciones del INE ya se frenan. El portal mantiene la regla
+habitual —exponencial a corto plazo, logística a largo plazo— y muestra siempre las dos cifras.
+
 ## 3. Intervalo de confianza de la mediana de precios
 
 El informe de precio de referencia da, junto a la mediana, un intervalo que no supone ninguna
@@ -132,6 +158,7 @@ menor y no contradice la tasa.
 |---|---|---|
 | La constante de margen de la tasa constante coincide con el error observado | cuadra | observado: 24.4 % |
 | Las constantes de margen del código coinciden con el error observado | cuadra | observado: 20.1 % y 47.3 % |
+| Extrapolación de población: la logística nunca supera su techo ni la exponencial cambia de signo | cuadra | 340 municipios |
 
 ## Resultado
 

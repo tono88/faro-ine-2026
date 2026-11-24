@@ -808,6 +808,9 @@ async fn api_poblacion(State(e): State<Compartido>, Query(q): Query<HashMap<Stri
     if hasta <= desde {
         return Err(pedido(format!("el año final debe ser mayor que el inicial (hay datos de {min} a {max})")));
     }
+    // Opcional: llevar la serie más allá de su último año (no oficial), con las dos curvas.
+    let extender = q.get("extender").and_then(|a| a.parse::<i32>().ok()).filter(|a| *a > max).map(|a| a.min(max + 40));
+    let serie_de = |codigo: &str| -> Vec<(i32, f64)> { (min..=max).filter_map(|a| Some((a, e.poblacion.total(codigo, a)? as f64))).collect() };
     let mut municipios: Vec<Value> = e
         .poblacion
         .municipios()
@@ -816,13 +819,20 @@ async fn api_poblacion(State(e): State<Compartido>, Query(q): Query<HashMap<Stri
         .map(|c| {
             let l = e.catalogo.por_codigo(&c.codigo);
             let mut v = serde_json::to_value(&c).unwrap_or(Value::Null);
+            if let Some(x) = extender.and_then(|a| faro_territorio::crecimiento::extrapolar(&serie_de(&c.codigo), a)) {
+                v["extrapolacion"] = json!(x);
+            }
             v["municipio"] = json!(l.map(|l| l.nombre.clone()));
             v["departamento"] = json!(l.and_then(|l| e.catalogo.por_codigo(&l.padre)).map(|d| d.nombre.clone()));
             v
         })
         .collect();
     municipios.sort_by(|a, b| b["tasa_anual_pct"].as_f64().unwrap_or(0.0).total_cmp(&a["tasa_anual_pct"].as_f64().unwrap_or(0.0)));
-    Ok(Json(json!({ "disponible": true, "desde": desde, "hasta": hasta, "anio_minimo": min, "anio_maximo": max, "pais": e.poblacion.cambio("", desde, hasta), "municipios": municipios })))
+    // El total del país al año extendido es la suma de los municipios, curva por curva.
+    let suma = |k: &str| municipios.iter().filter_map(|m| m["extrapolacion"][k].as_f64().or_else(|| m["extrapolacion"]["exponencial"].as_f64())).sum::<f64>();
+    let extendido = extender.map(|a| json!({ "anio": a, "horizonte": a - max, "horizonte_corto": faro_territorio::crecimiento::HORIZONTE_CORTO, "exponencial": suma("exponencial"), "logistica": suma("logistica"), "sugerida": suma("valor"),
+        "con_techo": municipios.iter().filter(|m| m["extrapolacion"]["logistica"].is_number()).count() }));
+    Ok(Json(json!({ "disponible": true, "desde": desde, "hasta": hasta, "anio_minimo": min, "anio_maximo": max, "pais": e.poblacion.cambio("", desde, hasta), "extendido": extendido, "municipios": municipios })))
 }
 
 /// Archivos de ejemplo (ficticios) para probar cada pantalla sin tener datos propios.

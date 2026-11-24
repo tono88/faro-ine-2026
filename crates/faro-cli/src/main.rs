@@ -1826,6 +1826,46 @@ fn verificar(dir: &std::path::Path, salida: &std::path::Path) -> Result<bool, St
     cuadra(&mut md2, "La constante de margen de la tasa constante coincide con el error observado", (p80_tc - faro_territorio::crecimiento::ERROR_TASA_CONSTANTE_P80).abs() < 0.02, format!("observado: {:.1} %", p80_tc * 100.0));
     cuadra(&mut md2, "Las constantes de margen del código coinciden con el error observado", (p80 - faro_territorio::crecimiento::ERROR_OBSERVADO_P80).abs() < 0.02 && (p95 - faro_territorio::crecimiento::ERROR_OBSERVADO_P95).abs() < 0.03, format!("observado: {:.1} % y {:.1} %", p80 * 100.0, p95 * 100.0));
 
+    // ---- 2b. Población más allá de la serie del INE: exponencial y logística ----
+    {
+        use faro_territorio::crecimiento::{extrapolar, HORIZONTE_CORTO};
+        // Serie por municipio: año -> habitantes.
+        let mut series: BTreeMap<String, Vec<(i32, f64)>> = BTreeMap::new();
+        for f in &poblacion {
+            if let (Some(m), Ok(a)) = (f.get("municipio"), f["anio"].parse::<i32>()) {
+                series.entry(m.clone()).or_default().push((a, num(f, "total")));
+            }
+        }
+        let (mut e_exp, mut e_log, mut con_techo_2025) = (Vec::new(), Vec::new(), 0usize);
+        for serie in series.values() {
+            // Con lo publicado hasta 2025 se estima 2030 y se compara con el 2030 del propio INE.
+            let base: Vec<(i32, f64)> = serie.iter().copied().filter(|p| p.0 <= 2025).collect();
+            let (Some(real), Some(x)) = (serie.iter().find(|p| p.0 == 2030).map(|p| p.1), extrapolar(&base, 2030)) else { continue };
+            e_exp.push((x.exponencial - real).abs() / real * 100.0);
+            if let Some(l) = x.logistica {
+                e_log.push((l - real).abs() / real * 100.0);
+                con_techo_2025 += 1;
+            }
+        }
+        e_exp.sort_by(f64::total_cmp);
+        e_log.sort_by(f64::total_cmp);
+        // Con la serie completa: cuántos municipios dejan ver un techo y qué da cada curva en 2050.
+        let (mut con_techo, mut bajan, mut suma_exp, mut suma_log, mut suma_sugerida, mut hoy) = (0usize, 0usize, 0.0, 0.0, 0.0, 0.0);
+        for serie in series.values() {
+            let Some(x) = extrapolar(serie, 2050) else { continue };
+            con_techo += usize::from(x.logistica.is_some());
+            bajan += usize::from(x.tasa_reciente_pct <= 0.0);
+            suma_exp += x.exponencial;
+            suma_log += x.logistica.unwrap_or(x.exponencial);
+            suma_sugerida += x.valor;
+            hoy += serie.iter().find(|p| p.0 == 2030).map_or(0.0, |p| p.1);
+        }
+        let p = |v: &[f64], q: f64| percentil(v, q).unwrap_or(f64::NAN);
+        let _ = write!(md, "\n### Población más allá de 2030: exponencial a corto plazo, logística a largo plazo\n\nLas proyecciones oficiales del INE llegan a 2030. Para mirar más lejos el portal ofrece dos curvas, las dos a\npartir del último dato oficial: la **exponencial** (la tasa de los últimos cinco años se mantiene), que es la\nadecuada a corto plazo, y la **logística** (el crecimiento se frena al acercarse a un techo), que es la adecuada\na largo plazo, cuando los recursos son limitados. Hasta {HORIZONTE_CORTO} años después del último dato se sugiere la\nexponencial; después, la logística si la serie deja ver un techo. **No son proyecciones oficiales.**\n\nLa única prueba posible con datos por municipio es de corto plazo: con lo publicado hasta 2025 se estimó 2030 y\nse comparó con el 2030 del propio INE, en {} municipios.\n\n| Curva | Municipios | Error mediano | Error del 90 % |\n|---|---|---|---|\n| Exponencial | {} | {:.2} % | {:.2} % |\n| Logística (donde hay techo) | {} | {:.2} % | {:.2} % |\n\n", e_exp.len(), e_exp.len(), p(&e_exp, 0.5), p(&e_exp, 0.9), con_techo_2025, p(&e_log, 0.5), p(&e_log, 0.9));
+        let _ = write!(md, "Con la serie completa (2015–2030), {con_techo} de {} municipios dejan ver un techo; en los demás el crecimiento no se\nfrena lo suficiente para estimarlo ({bajan} pierden población) y se usa la exponencial. Sumando los municipios, para 2050\nla exponencial da {:.1} millones de habitantes, la logística {:.1} millones y la curva sugerida {:.1} millones (en 2030 el INE\nproyecta {:.1} millones). La diferencia entre las dos curvas es la medida de cuánto pesa el supuesto: a cinco años casi\nno se nota; a veinte, sí. A largo plazo no hay dato por municipio contra el cual probarlas.\n\nLectura: en la prueba a cinco años las dos curvas se apartan poco del INE, y la logística menos que la exponencial\nen los municipios donde hay techo, porque las propias proyecciones del INE ya se frenan. El portal mantiene la regla\nhabitual —exponencial a corto plazo, logística a largo plazo— y muestra siempre las dos cifras.\n", series.len(), suma_exp / 1e6, suma_log / 1e6, suma_sugerida / 1e6, hoy / 1e6);
+        cuadra(&mut md2, "Extrapolación de población: la logística nunca supera su techo ni la exponencial cambia de signo", series.values().filter_map(|s| extrapolar(s, 2050)).all(|x| x.techo.zip(x.logistica).is_none_or(|(t, l)| l <= t) && x.exponencial > 0.0), format!("{} municipios", series.len()));
+    }
+
     // ---- 3. Intervalo de la mediana de precios ----
     md.push_str("\n## 3. Intervalo de confianza de la mediana de precios\n\nEl informe de precio de referencia da, junto a la mediana, un intervalo que no supone ninguna\ndistribución (estadísticos de orden). Cobertura exacta según la cantidad de precios:\n\n| Precios | Puestos que forman el intervalo | Cobertura exacta |\n|---|---|---|\n");
     for n in [5usize, 6, 8, 10, 15, 20, 30, 50] {

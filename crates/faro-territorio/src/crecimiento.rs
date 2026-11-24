@@ -133,6 +133,101 @@ pub fn analizar(codigo: &str, serie: &[Punto], anio_proyectado: i32) -> Option<C
     })
 }
 
+/// Hasta cuántos años más allá del último dato se prefiere la curva exponencial. Después, si la
+/// serie deja ver un techo, se prefiere la logística.
+pub const HORIZONTE_CORTO: i32 = 10;
+
+/// Una población llevada más allá del último año de su serie con las dos curvas clásicas.
+///
+/// - **Exponencial** (tasa constante): sirve a corto plazo, cuando el ritmo reciente no ha tenido
+///   tiempo de cambiar.
+/// - **Logística** (crecimiento que se frena al acercarse a un techo): sirve a largo plazo, cuando
+///   los recursos —suelo, agua, empleo— son limitados y el ritmo no puede sostenerse.
+///
+/// Las dos parten del último valor de la serie, para no dar un salto. Ninguna es una proyección
+/// oficial: la oficial es la del INE, hecha por componentes demográficos, y llega hasta donde llega
+/// la serie.
+#[derive(Debug, Clone, Serialize, PartialEq)]
+pub struct Extrapolacion {
+    pub anio: i32,
+    /// Años más allá del último dato de la serie.
+    pub horizonte: i32,
+    /// Tasa anual compuesta de los últimos cinco años de la serie, en %.
+    pub tasa_reciente_pct: f64,
+    /// Último valor creciendo a esa tasa constante.
+    pub exponencial: f64,
+    /// Valor de la logística ajustada a toda la serie. `None` si la serie no se frena (no deja ver
+    /// un techo) o si la población baja.
+    pub logistica: Option<f64>,
+    /// Techo de la logística: el valor al que la curva se acerca sin pasarlo.
+    pub techo: Option<f64>,
+    /// "exponencial" o "logistica": la que corresponde al horizonte pedido.
+    pub sugerida: &'static str,
+    /// Valor de la curva sugerida.
+    pub valor: f64,
+}
+
+/// Ajusta una curva logística a la serie y devuelve (techo, ritmo). Para cada techo candidato la
+/// logística se vuelve una recta —ln(y ÷ (techo − y)) = a + ritmo × año— que se ajusta por mínimos
+/// cuadrados; se queda con el techo que deja menos error en habitantes. Devuelve `None` cuando el
+/// mejor techo es el mayor de los probados: la serie no se frena y no hay techo que estimar.
+fn ajustar_logistica(serie: &[(i32, f64)]) -> Option<(f64, f64)> {
+    let maximo = serie.iter().map(|p| p.1).fold(0.0, f64::max);
+    let n = serie.len() as f64;
+    let media_t = serie.iter().map(|p| p.0 as f64).sum::<f64>() / n;
+    const PASOS: usize = 400;
+    const MAYOR: f64 = 20.0;
+    let mut mejor: Option<(f64, f64, f64)> = None; // (error, techo, ritmo)
+    for k in 0..=PASOS {
+        // Techos candidatos de 1.01 a 20 veces el máximo observado, más juntos cerca del máximo.
+        let techo = maximo * 1.01 * (MAYOR / 1.01f64).powf(k as f64 / PASOS as f64);
+        let z: Vec<f64> = serie.iter().map(|p| (p.1 / (techo - p.1)).ln()).collect();
+        let media_z = z.iter().sum::<f64>() / n;
+        let sxx: f64 = serie.iter().map(|p| (p.0 as f64 - media_t).powi(2)).sum();
+        let sxz: f64 = serie.iter().zip(&z).map(|(p, z)| (p.0 as f64 - media_t) * (z - media_z)).sum();
+        let ritmo = sxz / sxx;
+        let a = media_z - ritmo * media_t;
+        let error: f64 = serie.iter().map(|p| (techo / (1.0 + (-(a + ritmo * p.0 as f64)).exp()) - p.1).powi(2)).sum();
+        if mejor.is_none_or(|m| error < m.0) {
+            mejor = Some((error, techo, ritmo));
+        }
+    }
+    let (_, techo, ritmo) = mejor?;
+    (ritmo > 0.0 && techo < maximo * MAYOR * 0.98).then_some((techo, ritmo))
+}
+
+/// Lleva una serie anual de población (año, habitantes) hasta `anio`, más allá de su último dato.
+/// Los años sin habitantes se dejan fuera (un municipio creado después del inicio de la serie trae
+/// cero en sus primeros años). Devuelve `None` si quedan menos de seis años o si `anio` no es
+/// posterior al último.
+pub fn extrapolar(serie: &[(i32, f64)], anio: i32) -> Option<Extrapolacion> {
+    let mut s: Vec<(i32, f64)> = serie.iter().copied().filter(|p| p.1.is_finite() && p.1 > 0.0).collect();
+    s.sort_by_key(|p| p.0);
+    s.dedup_by_key(|p| p.0);
+    let (ultimo_anio, ultimo) = *s.last()?;
+    if s.len() < 6 || anio <= ultimo_anio {
+        return None;
+    }
+    let horizonte = anio - ultimo_anio;
+    // Tasa reciente: los últimos cinco años de la serie (o los que haya).
+    let base = s.iter().rev().find(|p| p.0 <= ultimo_anio - 5).copied().unwrap_or(s[0]);
+    let tasa = (ultimo / base.1).powf(1.0 / (ultimo_anio - base.0) as f64) - 1.0;
+    let exponencial = ultimo * (1.0 + tasa).powi(horizonte);
+    // La logística describe un crecimiento que se frena: si la población baja, no aplica.
+    let ajuste = if tasa > 0.0 { ajustar_logistica(&s) } else { None };
+    let logistica = ajuste.map(|(techo, ritmo)| {
+        // Se desplaza la curva para que pase por el último dato de la serie.
+        let centro = ultimo_anio as f64 + (techo / ultimo - 1.0).ln() / ritmo;
+        techo / (1.0 + (-ritmo * (anio as f64 - centro)).exp())
+    });
+    let (sugerida, valor) = match logistica {
+        Some(l) if horizonte > HORIZONTE_CORTO => ("logistica", l),
+        _ => ("exponencial", exponencial),
+    };
+    let redondo = |x: f64| x.round();
+    Some(Extrapolacion { anio, horizonte, tasa_reciente_pct: (tasa * 10_000.0).round() / 100.0, exponencial: redondo(exponencial), logistica: logistica.map(redondo), techo: ajuste.map(|a| redondo(a.0)), sugerida, valor: redondo(valor) })
+}
+
 #[cfg(test)]
 mod pruebas {
     use super::*;
@@ -173,5 +268,41 @@ mod pruebas {
         let c = analizar("x", &s, 2025).unwrap();
         assert_eq!((c.anio_inicial, c.anio_final), (2016, 2019));
         assert!((c.proyeccion - 190.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn la_exponencial_sirve_a_corto_plazo_y_la_logistica_a_largo() {
+        // Serie logística exacta: techo 100,000, ritmo 0.08, centro en 2020.
+        let curva = |t: i32| 100_000.0 / (1.0 + (-0.08 * (t as f64 - 2020.0)).exp());
+        let serie: Vec<(i32, f64)> = (2015..=2030).map(|t| (t, curva(t))).collect();
+        let corto = extrapolar(&serie, 2035).unwrap();
+        assert_eq!((corto.horizonte, corto.sugerida), (5, "exponencial"));
+        let largo = extrapolar(&serie, 2060).unwrap();
+        assert_eq!(largo.sugerida, "logistica");
+        // Recupera el techo con el que se hizo la serie y da el valor de la curva.
+        assert!((largo.techo.unwrap() - 100_000.0).abs() < 1_500.0, "techo {:?}", largo.techo);
+        assert!((largo.logistica.unwrap() - curva(2060)).abs() < 600.0);
+        // A largo plazo la exponencial se pasa del techo; la logística no.
+        assert!(largo.exponencial > 100_000.0 && largo.valor < 100_000.0);
+    }
+
+    #[test]
+    fn sin_freno_no_hay_techo_y_si_baja_no_hay_logistica() {
+        // Crece siempre 2 % al año: no hay techo que estimar; se sugiere la exponencial a cualquier plazo.
+        let serie: Vec<(i32, f64)> = (2015..=2030).map(|t| (t, 50_000.0 * 1.02f64.powi(t - 2015))).collect();
+        let e = extrapolar(&serie, 2055).unwrap();
+        assert_eq!((e.logistica, e.sugerida), (None, "exponencial"));
+        assert!((e.tasa_reciente_pct - 2.0).abs() < 0.01);
+        assert!((e.exponencial - 50_000.0 * 1.02f64.powi(40)).abs() < 2.0);
+        // Una población que baja sigue bajando a su ritmo; la logística no aplica.
+        let baja: Vec<(i32, f64)> = (2015..=2030).map(|t| (t, 20_000.0 * 0.99f64.powi(t - 2015))).collect();
+        let e = extrapolar(&baja, 2045).unwrap();
+        assert!(e.logistica.is_none() && e.exponencial < 20_000.0 * 0.99f64.powi(15));
+        // No se extrapola hacia atrás ni con series cortas.
+        assert!(extrapolar(&serie, 2030).is_none() && extrapolar(&serie[..4], 2040).is_none());
+        // Un municipio creado después del inicio de la serie trae cero al principio: se empieza en su primer año con población.
+        let mut nuevo = serie.clone();
+        nuevo[0].1 = 0.0;
+        assert!((extrapolar(&nuevo, 2035).unwrap().exponencial - extrapolar(&serie, 2035).unwrap().exponencial).abs() < 1.0);
     }
 }

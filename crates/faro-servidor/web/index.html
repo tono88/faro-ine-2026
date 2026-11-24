@@ -310,12 +310,15 @@
       <p class="nota">Estimaciones y proyecciones de población del INE por municipio, 2015–2030 (portal de datos abiertos). No hace falta cargar nada: vienen con el sistema. <span id="pobpais"></span></p>
       <label for="pobdesde">Comparar del año</label><input type="number" id="pobdesde" value="2018" min="2015" max="2029" style="max-width:120px">
       <label for="pobhasta">al año</label><input type="number" id="pobhasta" value="2030" min="2016" max="2030" style="max-width:120px">
+      <label for="pobextender">Mirar más allá de 2030, hasta el año (opcional; no es una proyección oficial)</label><input type="number" id="pobextender" min="2031" max="2070" placeholder="por ejemplo 2040" style="max-width:180px">
+      <p class="aviso-suave" id="pobextendido" hidden></p>
       <div class="tabla" style="margin-top:12px"><table id="tpob"></table></div>
       <details class="como"><summary>Cómo se calcula (algoritmo)</summary><ol>
         <li><b>Entrada.</b> El libro del INE trae una fila por municipio, sexo y edad simple, y una columna por año (2015–2030).</li>
         <li><b>Suma.</b> Para cada municipio y año se suman las edades: total, hombres y mujeres. Se comprueba que hombres + mujeres = total publicado; si no, el proceso se detiene.</li>
         <li><b>Códigos.</b> Cada código de municipio se busca en el catálogo oficial. Si no existe, se toma el nombre que le da el diccionario del propio libro y se ubica solo con coincidencia exacta y única dentro de su departamento.</li>
         <li><b>Cambio.</b> Cambio = población final − población inicial; en el periodo (%) = cambio ÷ inicial × 100.</li>
+        <li><b>Más allá de 2030 (opcional).</b> La proyección oficial termina en 2030. Para mirar más lejos se ofrecen dos curvas que parten del último dato oficial. La <b>exponencial</b> mantiene la tasa de los últimos cinco años: es la adecuada a corto plazo (hasta diez años). La <b>logística</b> supone que el crecimiento se frena al acercarse a un techo, porque el suelo, el agua y el empleo son limitados: es la adecuada a largo plazo. El techo se estima de la propia serie del INE; si la serie no se frena, no hay techo que estimar y se usa la exponencial. Probadas a cinco años contra el propio INE, las dos se apartan muy poco; a largo plazo no hay dato por municipio para probarlas (ver la verificación estadística).</li>
         <li><b>Crecimiento anual.</b> Tasa compuesta = (final ÷ inicial)<sup>1 ÷ años</sup> − 1. Es el ritmo constante que lleva de la cifra inicial a la final.</li>
         <li><b>Tasas por 100 mil.</b> Registros recibidos ÷ población del territorio en el año del registro × 100,000.</li></ol>
         <p class="nota">Son las proyecciones oficiales del INE: FARO no estima población, solo la resume y la cruza. Todo el cálculo es código del portal; no interviene ningún modelo externo.</p></details>
@@ -763,11 +766,15 @@ async function ine() {
     {t:'Formatos', f:f => esc(f.formatos)}, {t:'Licencia', f:f => esc(f.licencia)}], r.conjuntos, 'Sin datos: pulse "Sincronizar ahora".');
 }
 async function poblacion() {
-  const r = await api(`/api/poblacion?desde=${encodeURIComponent($('#pobdesde').value)}&hasta=${encodeURIComponent($('#pobhasta').value)}`);
+  const r = await api(`/api/poblacion?desde=${encodeURIComponent($('#pobdesde').value)}&hasta=${encodeURIComponent($('#pobhasta').value)}&extender=${encodeURIComponent($('#pobextender').value)}`);
   if (!r.disponible) { $('#pobpais').textContent = 'Este servidor no tiene cargada la tabla de población.'; return; }
   const p = r.pais; $('#pobpais').textContent = p ? `País: ${num(p.poblacion_inicial)} habitantes en ${r.desde} y ${num(p.poblacion_final)} en ${r.hasta} (${num(p.tasa_anual_pct)} % anual).` : '';
+  const x = r.extendido, mas = x ? [{t:`${x.anio}, exponencial (hab.)`, num:1, f:f => f.extrapolacion ? (f.extrapolacion.sugerida === 'exponencial' ? '<b>' + num(f.extrapolacion.exponencial) + '</b>' : num(f.extrapolacion.exponencial)) : ''},
+    {t:`${x.anio}, logística (hab.)`, num:1, f:f => !f.extrapolacion ? '' : f.extrapolacion.logistica == null ? '<small>sin techo que estimar</small>' : (f.extrapolacion.sugerida === 'logistica' ? '<b>' + num(f.extrapolacion.logistica) + '</b>' : num(f.extrapolacion.logistica)) + `<br><small>techo: ${num(f.extrapolacion.techo)}</small>`}] : [];
+  $('#pobextendido').hidden = !x;
+  if (x) $('#pobextendido').innerHTML = `<b>${x.anio} está ${x.horizonte} años después del último dato oficial: ${x.horizonte <= x.horizonte_corto ? 'plazo corto, se sugiere la exponencial' : 'plazo largo, se sugiere la logística donde la serie deja ver un techo'}</b> (en negrita en la tabla). Sumando los municipios: exponencial ${num(x.exponencial / 1e6)} millones de habitantes; logística ${num(x.logistica / 1e6)} millones; curva sugerida ${num(x.sugerida / 1e6)} millones. ${x.con_techo} de ${r.municipios.length} municipios dejan ver un techo. Son extrapolaciones de FARO para explorar, no proyecciones del INE.`;
   tabla('#tpob', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:`${r.desde} (hab.)`, num:1, f:f => num(f.poblacion_inicial)}, {t:`${r.hasta} (hab.)`, num:1, f:f => num(f.poblacion_final)},
-    {t:'Cambio (hab.)', num:1, f:f => `${f.cambio > 0 ? '+' : ''}${num(f.cambio)}`}, {t:'En el periodo', num:1, f:f => `${num(f.cambio_pct)} %`}, {t:'Crecimiento anual', num:1, f:f => `${num(f.tasa_anual_pct)} %`}], r.municipios, 'Sin datos.');
+    {t:'Cambio (hab.)', num:1, f:f => `${f.cambio > 0 ? '+' : ''}${num(f.cambio)}`}, {t:'En el periodo', num:1, f:f => `${num(f.cambio_pct)} %`}, {t:'Crecimiento anual', num:1, f:f => `${num(f.tasa_anual_pct)} %`}, ...mas], r.municipios, 'Sin datos.');
 }
 // Minigráfica de la serie: una barra por época, altura relativa al máximo.
 const chispa = serie => { const max = Math.max(...serie.map(p => p[1]), 1); return `<span style="display:inline-flex;gap:2px;align-items:flex-end;height:26px" title="${serie.map(p => p[0] + ': ' + num(p[1]) + ' ha').join(' · ')}">` + serie.map(p => `<i style="width:6px;height:${Math.max(2, Math.round(26 * p[1] / max))}px;background:var(--celeste);display:block"></i>`).join('') + '</span>'; };
@@ -1870,7 +1877,7 @@ $('#reproducir').onclick = async () => {
   catch (e) { $('#reproducido').innerHTML = ''; aviso(e.message, true); } finally { $('#reproducir').disabled = false; }
 };
 $('#consanio').onchange = () => construido().catch(e => aviso(e.message, true));
-$('#pobdesde').onchange = $('#pobhasta').onchange = () => poblacion().catch(e => aviso(e.message, true));
+$('#pobdesde').onchange = $('#pobhasta').onchange = $('#pobextender').onchange = () => poblacion().catch(e => aviso(e.message, true));
 $('#anio').onchange = () => crecimiento().catch(e => aviso(e.message, true));
 // La lista de envíos pide sesión: se carga al entrar a "Recibir envío", no al abrir la página.
 estado().then(cargarSolicitudes).catch(e => aviso(e.message, true));
