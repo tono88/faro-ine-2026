@@ -4,55 +4,123 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FARO · Recepción y homologación de registros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/vendor/leaflet.css">
 <style>
-  :root { --tinta:#14263a; --azul:#0b5cab; --fondo:#f6f8fa; --borde:#d5dce3; --ok:#1a7f4b; --alerta:#a15c00; --mal:#b3261e; }
+  /* Paleta y tipografía tomadas del sitio del INE (azules #0051b3 y #4d9ae1, texto #313131, Noto Sans). */
+  :root { --azul:#0051b3; --azul-oscuro:#07306b; --celeste:#4d9ae1; --cielo:#e8f1fb; --tinta:#313131; --gris:#5b6672; --fondo:#f4f6f9; --borde:#d9dfe6; --ok:#1a7f4b; --alerta:#a15c00; --mal:#b3261e; --radio:10px; }
   * { box-sizing: border-box; }
-  body { margin:0; font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--tinta); background:var(--fondo); }
-  header { background:var(--tinta); color:#fff; padding:14px 20px; display:flex; gap:16px; align-items:baseline; flex-wrap:wrap; }
-  header h1 { font-size:20px; margin:0; } header span { opacity:.8; font-size:14px; }
-  nav { display:flex; gap:4px; padding:0 16px; background:#fff; border-bottom:1px solid var(--borde); overflow-x:auto; }
-  nav button { border:0; background:none; padding:12px 14px; font:inherit; cursor:pointer; border-bottom:3px solid transparent; color:var(--tinta); white-space:nowrap; }
-  nav button[aria-selected=true] { border-color:var(--azul); color:var(--azul); font-weight:600; }
-  main { max-width:1100px; margin:0 auto; padding:20px; }
+  html, body { height:100%; }
+  body { margin:0; font:15px/1.55 "Noto Sans", "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--tinta); background:var(--fondo); display:grid; grid-template-columns:248px 1fr; grid-template-rows:auto 1fr; }
+  header { grid-column:1 / -1; background:#fff; border-bottom:3px solid var(--azul); padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  header .marca { display:flex; align-items:center; gap:10px; }
+  header .marca i { width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg, var(--azul), var(--celeste)); display:grid; place-items:center; color:#fff; font-style:normal; font-weight:700; }
+  header h1 { font-size:20px; margin:0; color:var(--azul-oscuro); letter-spacing:.3px; }
+  header span { color:var(--gris); font-size:13px; }
+  header .acceso { margin-left:auto; display:flex; gap:8px; align-items:center; font-size:13px; color:var(--gris); }
+  header .acceso input { width:190px; padding:6px 8px; }
+  #menu { display:none; border:1px solid var(--borde); background:#fff; border-radius:6px; padding:6px 10px; font:inherit; cursor:pointer; }
+  nav { background:var(--azul-oscuro); color:#fff; padding:10px 8px 24px; overflow-y:auto; }
+  nav h3 { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:#a9c6ee; margin:16px 10px 6px; font-weight:600; }
+  nav button { display:flex; width:100%; gap:8px; align-items:center; border:0; background:none; color:#e9f0fa; padding:8px 10px; font:inherit; text-align:left; cursor:pointer; border-radius:7px; }
+  nav button:hover { background:rgba(255,255,255,.09); }
+  nav button[aria-selected=true] { background:#fff; color:var(--azul-oscuro); font-weight:600; }
+  nav button b { margin-left:auto; background:#f5a623; color:#3b2a00; border-radius:10px; padding:0 7px; font-size:12px; }
+  main { overflow-y:auto; padding:20px 24px 40px; min-width:0; }
+  main > .ancho { max-width:1180px; margin:0 auto; }
   section { display:none; } section.activa { display:block; }
-  .tarjetas { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:20px; }
-  .tarjeta { background:#fff; border:1px solid var(--borde); border-radius:8px; padding:12px 14px; }
-  .tarjeta b { display:block; font-size:26px; } .tarjeta small { color:#55616d; }
-  .panel { background:#fff; border:1px solid var(--borde); border-radius:8px; padding:16px; margin-bottom:16px; }
-  h2 { font-size:18px; margin:0 0 10px; } p.nota { color:#55616d; font-size:14px; margin:6px 0 12px; }
+  .titulo { margin:0 0 14px; } .titulo h2 { font-size:22px; margin:0; color:var(--azul-oscuro); } .titulo p { margin:4px 0 0; color:var(--gris); max-width:80ch; }
+  .tarjetas { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:18px; }
+  .tarjeta { background:#fff; border:1px solid var(--borde); border-radius:var(--radio); padding:12px 14px; border-top:3px solid var(--celeste); }
+  .tarjeta b { display:block; font-size:24px; color:var(--azul-oscuro); font-variant-numeric:tabular-nums; } .tarjeta small { color:var(--gris); }
+  .panel { background:#fff; border:1px solid var(--borde); border-radius:var(--radio); padding:18px; margin-bottom:16px; box-shadow:0 1px 2px rgba(7,48,107,.04); }
+  h2 { font-size:17px; margin:0 0 8px; color:var(--azul-oscuro); } p.nota { color:var(--gris); font-size:14px; margin:6px 0 12px; max-width:95ch; }
   label { display:block; font-weight:600; margin:10px 0 4px; font-size:14px; }
-  select, input[type=text], input[type=password], input[type=number], input[type=file] { width:100%; max-width:520px; padding:8px; font:inherit; border:1px solid #8a96a3; border-radius:6px; background:#fff; }
-  button.accion { background:var(--azul); color:#fff; border:0; border-radius:6px; padding:9px 16px; font:inherit; font-weight:600; cursor:pointer; margin-top:12px; }
+  select, input[type=text], input[type=password], input[type=number], input[type=file] { width:100%; max-width:520px; padding:8px 10px; font:inherit; border:1px solid #8a96a3; border-radius:7px; background:#fff; color:var(--tinta); }
+  button.accion { background:var(--azul); color:#fff; border:0; border-radius:7px; padding:9px 16px; font:inherit; font-weight:600; cursor:pointer; margin-top:12px; }
+  button.accion:hover { background:var(--azul-oscuro); }
   button.accion:disabled { opacity:.5; cursor:wait; } button.chico { padding:4px 10px; margin:0 4px 4px 0; font-size:14px; font-weight:500; }
-  button:focus-visible, select:focus-visible, input:focus-visible { outline:3px solid #f5a623; outline-offset:2px; }
-  table { border-collapse:collapse; width:100%; font-size:14px; } th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--borde); vertical-align:top; }
-  th { background:#eef2f6; position:sticky; top:0; } td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
-  .tabla { overflow:auto; max-height:520px; border:1px solid var(--borde); border-radius:6px; }
-  a { color:var(--azul); } code { background:#eef2f6; padding:1px 4px; border-radius:4px; font-size:.92em; }
-  .etq { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; font-weight:600; background:#e6ebf0; }
+  button.suave { background:var(--cielo); color:var(--azul-oscuro); }
+  button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid #f5a623; outline-offset:2px; }
+  table { border-collapse:collapse; width:100%; font-size:14px; } th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--borde); vertical-align:top; }
+  th { background:var(--cielo); color:var(--azul-oscuro); position:sticky; top:0; font-weight:600; z-index:1; } td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  tbody tr:hover { background:#fafcff; }
+  .tabla { overflow:auto; max-height:520px; border:1px solid var(--borde); border-radius:8px; }
+  a { color:var(--azul); } code { background:var(--cielo); padding:1px 5px; border-radius:4px; font-size:.92em; }
+  .etq { display:inline-block; padding:1px 9px; border-radius:10px; font-size:12px; font-weight:600; background:#e6ebf0; white-space:nowrap; }
   .etq.ok { background:#dff3e7; color:var(--ok); } .etq.alerta { background:#fdeecf; color:var(--alerta); } .etq.mal { background:#fbe0de; color:var(--mal); }
-  .barra { height:10px; background:#e6ebf0; border-radius:5px; overflow:hidden; min-width:80px; } .barra i { display:block; height:100%; background:var(--ok); }
-  #aviso { position:fixed; right:16px; bottom:16px; background:var(--tinta); color:#fff; padding:10px 14px; border-radius:8px; display:none; max-width:420px; white-space:pre-line; }
+  .barra { height:8px; background:#e6ebf0; border-radius:5px; overflow:hidden; min-width:80px; } .barra i { display:block; height:100%; background:var(--ok); }
+  #aviso { position:fixed; right:16px; bottom:16px; background:var(--azul-oscuro); color:#fff; padding:10px 14px; border-radius:8px; display:none; max-width:420px; white-space:pre-line; z-index:2000; box-shadow:0 6px 20px rgba(0,0,0,.2); }
   #aviso.mal { background:var(--mal); }
+  /* Mapa */
+  .mapa-zona { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; }
+  #lienzo { height:min(72vh, 700px); min-height:420px; border:1px solid var(--borde); border-radius:var(--radio); background:#eef3f8; }
+  .mapa-lado { display:flex; flex-direction:column; gap:12px; }
+  .mapa-lado .panel { margin:0; padding:14px; }
+  .opcion { display:flex; gap:8px; align-items:flex-start; margin:6px 0; font-weight:400; font-size:14px; } .opcion input { margin-top:4px; }
+  .leyenda { display:grid; gap:3px; font-size:13px; } .leyenda span { display:flex; gap:8px; align-items:center; } .leyenda i { width:22px; height:12px; border-radius:2px; border:1px solid rgba(0,0,0,.15); }
+  .ficha dl { display:grid; grid-template-columns:1fr auto; gap:4px 12px; margin:8px 0 0; font-size:14px; } .ficha dt { color:var(--gris); } .ficha dd { margin:0; font-weight:600; text-align:right; font-variant-numeric:tabular-nums; }
+  .leaflet-container { font:inherit; }
+  @media (max-width: 980px) {
+    body { grid-template-columns:1fr; } #menu { display:block; }
+    nav { display:none; position:fixed; inset:58px 0 0 0; z-index:1500; } nav.abierto { display:block; }
+    .mapa-zona { grid-template-columns:1fr; } main { padding:14px; } header .acceso input { width:130px; }
+  }
+  @media (prefers-reduced-motion: no-preference) { nav button, button.accion { transition:background .15s; } }
 </style>
 </head>
 <body>
-<header><h1>FARO</h1><span>Recepción y homologación de registros administrativos · prototipo Datatón INE 2026</span></header>
-<nav role="tablist" aria-label="Secciones">
-  <button role="tab" data-s="recibir" aria-selected="true">1. Recibir envío</button>
-  <button role="tab" data-s="pendientes">2. Revisar pendientes</button>
-  <button role="tab" data-s="memoria">3. Equivalencias</button>
-  <button role="tab" data-s="resultados">4. Resultados</button>
-  <button role="tab" data-s="ine">Portal INE</button>
-  <button role="tab" data-s="crecimiento">Crecimiento urbano</button>
-  <button role="tab" data-s="operadores">Operadores de campo</button>
-  <button role="tab" data-s="vial">Red vial</button>
-  <button role="tab" data-s="precios">Precios de referencia</button>
+<header>
+  <button id="menu" aria-label="Abrir el menú" aria-expanded="false">☰</button>
+  <div class="marca"><i aria-hidden="true">F</i><div><h1>FARO</h1></div></div>
+  <span>Registros administrativos, territorio y precios · prototipo para el Datatón INE 2026</span>
+  <div class="acceso"><label for="token" style="margin:0;font-weight:500">Clave</label><input type="password" id="token" autocomplete="off" placeholder="para enviar y confirmar"></div>
+</header>
+<nav aria-label="Secciones">
+  <h3>Panorama</h3>
+  <button data-s="mapa" aria-selected="true">Mapa</button>
+  <h3>Registros administrativos</h3>
+  <button data-s="recibir">Recibir envío</button>
+  <button data-s="pendientes">Revisar pendientes <b id="npend" hidden></b></button>
+  <button data-s="memoria">Equivalencias</button>
+  <button data-s="resultados">Resultados y avance</button>
+  <h3>Territorio</h3>
+  <button data-s="crecimiento">Población y crecimiento</button>
+  <button data-s="vial">Red vial</button>
+  <button data-s="operadores">Operadores de campo</button>
+  <h3>Precios</h3>
+  <button data-s="precios">Precios de referencia</button>
+  <h3>Datos</h3>
+  <button data-s="ine">Portal del INE</button>
+  <button data-s="capas">Capas publicadas</button>
 </nav>
-<main>
-  <div class="tarjetas" id="tarjetas" aria-live="polite"></div>
+<main><div class="ancho">
+  <section id="mapa" class="activa">
+    <div class="titulo"><h2>Guatemala por municipio</h2><p>Lo que FARO sabe de cada municipio, en un solo mapa: población del INE, conexión vial de sus lugares poblados y los registros que han enviado las instituciones. Elija qué ver; toque un municipio para su ficha.</p></div>
+    <div class="mapa-zona">
+      <div id="lienzo" role="application" aria-label="Mapa de municipios de Guatemala"></div>
+      <div class="mapa-lado">
+        <div class="panel">
+          <h2>Qué colorear</h2>
+          <label for="indicador" style="margin-top:0">Indicador por municipio</label><select id="indicador"></select>
+          <div class="leyenda" id="leyenda" style="margin-top:10px" aria-live="polite"></div>
+          <p class="nota" id="indnota" style="margin-bottom:0"></p>
+        </div>
+        <div class="panel">
+          <h2>Capas</h2>
+          <label class="opcion"><input type="checkbox" id="capaenlaces"> Enlaces viales que probablemente faltan</label>
+          <label class="opcion"><input type="checkbox" id="capalugares"> Lugares poblados sin conexión vial</label>
+          <label class="opcion"><input type="checkbox" id="capabase"> Mapa base de OpenStreetMap (requiere internet)</label>
+        </div>
+        <div class="panel ficha" id="ficha"><h2>Ficha</h2><p class="nota" style="margin:0">Toque un municipio.</p></div>
+      </div>
+    </div>
+  </section>
 
-  <section id="recibir" class="activa">
+  <section id="recibir">
+    <div class="titulo"><h2>Recibir un envío</h2><p>El archivo llega como lo manda la institución; sale con las columnas pedidas, códigos oficiales y sin datos personales.</p></div>
+    <div class="tarjetas" id="tarjetas" aria-live="polite"></div>
     <div class="panel">
       <h2>Recibir un envío</h2>
       <p class="nota">Elija qué registro envía la institución y suba el archivo tal como llega (CSV o Excel). Solo pasan las columnas pedidas; nombres y documentos de identidad se eliminan o se sustituyen por una llave.</p>
@@ -60,7 +128,6 @@
       <label for="sol">Solicitud de datos</label><select id="sol"></select>
       <div id="solinfo" class="nota"></div>
       <label for="archivo">Archivo</label><input type="file" id="archivo" accept=".csv,.txt,.xlsx,.xls,.xlsm,.ods">
-      <label for="token">Clave de acceso</label><input type="password" id="token" autocomplete="off" placeholder="solo si el servidor la exige">
       <button class="accion" id="enviar">Validar y homologar</button>
     </div>
     <div class="panel" id="resultado" hidden></div>
@@ -141,8 +208,15 @@
     </div>
     <div class="panel" id="preciosres" hidden><p class="nota" id="preciosnota"></p><div class="tabla"><table id="tprecios"></table></div></div>
   </section>
-</main>
+
+  <section id="capas">
+    <div class="titulo"><h2>Capas publicadas</h2><p>Lo que FARO deja listo para que lo consuma un portal de datos, un tablero o un SIG (QGIS, ArcGIS): direcciones estables, formato estándar y la fuente de cada capa. El catálogo completo está en <a href="/capas"><code>/capas</code></a>.</p></div>
+    <div class="panel"><div class="tabla"><table id="tcapas"></table></div>
+    <p class="nota" style="margin-bottom:0">Para usarlas en QGIS: Capa → Añadir capa → Vectorial → Protocolo HTTP, y pegar la dirección. Las capas admiten lectura desde otros sitios web (CORS).</p></div>
+  </section>
+</div></main>
 <div id="aviso" role="status"></div>
+<script src="/vendor/leaflet.js"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -165,6 +239,7 @@ async function estado() {
   const e = await api('/api/estado');
   $('#tarjetas').innerHTML = [['envios','envíos recibidos'],['filas','filas procesadas'],['pendientes','valores por revisar'],['equivalencias','equivalencias aprendidas'],['conjuntos_ine','conjuntos del INE vigilados'],['lugares_en_catalogo','lugares en el catálogo']]
     .map(([k,t]) => `<div class="tarjeta"><b>${num(e[k])}</b><small>${t}</small></div>`).join('');
+  $('#npend').hidden = !e.pendientes; $('#npend').textContent = e.pendientes;
 }
 async function cargarSolicitudes() {
   solicitudes = await api('/api/solicitudes');
@@ -285,7 +360,7 @@ function mostrarPrecios(r) {
     {t:'Directas', num:1, f:f => `${num(f.fuentes_primarias_pct)} %`},
     {t:'Notas', f:f => f.notas.map(esc).join('<br>') + (f.extremos.length ? '<br><small>Extremos: ' + f.extremos.map(([fu, x]) => `${esc(fu)} ${q(x)}`).join('; ') + '</small>' : '')}], r.productos, 'El archivo no trae cotizaciones.');
 }
-const mapa = (lon, lat, texto) => `<a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}" target="_blank" rel="noopener">${texto}</a>`;
+const enMapa = (lon, lat, texto) => `<a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}" target="_blank" rel="noopener">${texto}</a>`;
 async function redVial() {
   const r = await api('/api/vial');
   if (!r.disponible) { $('#vialinfo').textContent = 'Este servidor no tiene cargado el análisis (se genera con "faro vial").'; return; }
@@ -295,14 +370,77 @@ async function redVial() {
     .map(([v, t]) => `<div class="tarjeta"><b>${esc(v)}</b><small>${esc(t)}</small></div>`).join('');
   tabla('#tvialdep', [{t:'Departamento', f:f => `${esc(f.codigo)} ${esc(f.nombre)}`}, {t:'Lugares poblados', num:1, f:f => num(f.lugares)}, {t:'En tramo suelto', num:1, f:f => num(f.tramo_suelto)}, {t:'Sin camino mapeado', num:1, f:f => num(f.sin_camino)},
     {t:'Por revisar', num:1, f:f => f.lugares ? `${num(100 * (f.tramo_suelto + f.sin_camino) / f.lugares)} %` : ''}], r.departamentos.slice().sort((a, b) => (b.tramo_suelto + b.sin_camino) - (a.tramo_suelto + a.sin_camino)), 'Sin datos.');
-  tabla('#tvialenl', [{t:'Dónde', f:f => `${esc(f.lugares[0]?.municipio)}, ${esc(f.lugares[0]?.departamento)}`}, {t:'Hueco', num:1, f:f => mapa(f.desde[0], f.desde[1], f.km < 1 ? num(f.km * 1000) + ' m' : num(f.km) + ' km')},
+  tabla('#tvialenl', [{t:'Dónde', f:f => `${esc(f.lugares[0]?.municipio)}, ${esc(f.lugares[0]?.departamento)}`}, {t:'Hueco', num:1, f:f => enMapa(f.desde[0], f.desde[1], f.km < 1 ? num(f.km * 1000) + ' m' : num(f.km) + ' km')},
     {t:'Vías que se unirían', num:1, f:f => `${num(f.tramo_km)} km`}, {t:'Lugares', num:1, f:f => f.lugares.length},
     {t:'Cuáles', f:f => f.lugares.slice(0, 6).map(l => esc(l.nombre)).join(', ') + (f.lugares.length > 6 ? ` y ${f.lugares.length - 6} más` : '')}], r.enlaces, 'No hay tramos sueltos con lugares poblados.');
-  tabla('#tvialsin', [{t:'Lugar poblado', f:f => `<b>${mapa(f.longitud, f.latitud, esc(f.nombre))}</b> <small>${esc(f.codigo)}</small>`}, {t:'Municipio', f:f => `${esc(f.municipio)}, ${esc(f.departamento)}`},
+  tabla('#tvialsin', [{t:'Lugar poblado', f:f => `<b>${enMapa(f.longitud, f.latitud, esc(f.nombre))}</b> <small>${esc(f.codigo)}</small>`}, {t:'Municipio', f:f => `${esc(f.municipio)}, ${esc(f.departamento)}`},
     {t:'Vía más cercana', num:1, f:f => f.distancia_m == null ? `más de ${num(x.max_enlace_km)} km` : (f.distancia_m < 1000 ? num(f.distancia_m) + ' m' : num(f.distancia_m / 1000) + ' km')}], r.sin_camino, 'Todos los lugares tienen una vía cerca.');
 }
-const cargar = {vial: redVial, precios: async () => {}, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
+// ---- Mapa ----
+const INDICADORES = [
+  {id:'poblacion_actual', t:'Población proyectada (INE)', f:p => p.poblacion_actual, u:'hab.', nota:p => `Proyección del INE para ${p.anio_actual}.`, tonos:'azul'},
+  {id:'crecimiento_anual_pct', t:'Crecimiento anual de la población 2018–2030', f:p => p.crecimiento_anual_pct, u:'%', nota:() => 'Tasa anual compuesta entre 2018 y 2030, proyecciones del INE.', tonos:'azul', dec:2},
+  {id:'sin_conexion', t:'Lugares poblados sin conexión vial', f:p => p.lugares_en_tramo_suelto + p.lugares_sin_camino, u:'lugares', nota:() => 'Lugares del censo sin camino mapeado a 500 m o en un tramo suelto (OpenStreetMap).', tonos:'naranja'},
+  {id:'limites', t:'Lugares del censo dentro del límite municipal', f:p => p.lugares_dentro_de_su_limite_pct, u:'%', nota:() => 'Porcentaje de lugares poblados que caen dentro del polígono de su municipio. Bajo = el límite y el censo no coinciden.', tonos:'verde'},
+];
+const TONOS = {azul:['#e8f1fb','#b9d6f5','#7fb3ea','#3f86d6','#0051b3'], naranja:['#fff3e0','#ffd8a8','#ffb061','#f08a24','#b85c00'], verde:['#fdecea','#f9c9a8','#f3e48e','#a8d58a','#3c9a5f']};
+let mapa, capaMuni, capaEnlaces, capaLugares, capaBase, geoMuni, registros = {};
+// Cortes por cuantiles. Si muchos municipios valen cero, el cero es su propia clase.
+function cortes(valores) {
+  const v = valores.filter(x => x != null && isFinite(x)).sort((a, b) => a - b); if (!v.length) return [];
+  const ceros = v.filter(x => x === 0).length, base = ceros > v.length * .3 ? v.filter(x => x > 0) : v, qs = base === v ? [0.2, 0.4, 0.6, 0.8] : [0, 0.34, 0.67];
+  return qs.map(q => base[Math.min(base.length - 1, Math.floor(q * base.length))]).filter((x, i, a) => x != null && (i === 0 || x > a[i - 1]));
+}
+function indicadorActual() {
+  const id = $('#indicador').value;
+  if (id.startsWith('reg:')) { const sol = id.slice(4), tasa = id.endsWith(':tasa'), clave = sol.replace(':tasa', ''); const d = registros[clave] || {};
+    return {id, t:'', f:p => { const x = d[p.codigo]; return x ? (tasa ? x.por_100_mil : x.total) : null; }, u:tasa ? 'por 100 mil hab.' : 'registros', nota:() => 'Registros recibidos y homologados (solo conteos). Sin dato = no ha llegado nada de ese municipio.', tonos:'azul', dec:tasa ? 1 : 0}; }
+  return INDICADORES.find(i => i.id === id);
+}
+function pintarMapa() {
+  if (!capaMuni) return; const ind = indicadorActual(), c = cortes(geoMuni.features.map(f => ind.f(f.properties))), tonos = TONOS[ind.tonos].slice(-(c.length + 1));
+  const color = v => v == null || !isFinite(v) ? '#f1f3f5' : tonos[c.filter(x => v >= x).length];
+  capaMuni.setStyle(f => ({fillColor: color(ind.f(f.properties)), fillOpacity: capaBase && mapa.hasLayer(capaBase) ? .65 : 1, color:'#fff', weight:.6}));
+  const n = x => Number(x).toLocaleString('es-GT', {maximumFractionDigits: ind.dec ?? 0});
+  const rangos = c.length ? [c[0] <= 1 && (ind.dec ?? 0) === 0 ? '0' : `menos de ${n(c[0])}`].concat(c.map((x, i) => i + 1 < c.length ? `${n(x)} a ${n(c[i + 1])}` : `${n(x)} o más`)) : ['sin datos'];
+  $('#leyenda').innerHTML = rangos.map((t, i) => `<span><i style="background:${tonos[i] || '#f1f3f5'}"></i>${esc(t)} ${esc(ind.u)}</span>`).join('') + '<span><i style="background:#f1f3f5"></i>sin dato</span>';
+  $('#indnota').textContent = ind.nota(geoMuni.features[0].properties);
+}
+function ficha(p) {
+  const fila = (t, v) => v == null || v === '' ? '' : `<dt>${esc(t)}</dt><dd>${v}</dd>`;
+  const reg = Object.entries(registros).map(([sol, d]) => d[p.codigo] ? fila(sol, `${num(d[p.codigo].total)}${d[p.codigo].por_100_mil != null ? ' <small>(' + num(d[p.codigo].por_100_mil) + ' por 100 mil)</small>' : ''}`) : '').join('');
+  $('#ficha').innerHTML = `<h2>${esc(p.nombre)}</h2><p class="nota" style="margin:0">${esc(p.departamento)} · código INE ${esc(p.codigo)}</p><dl>
+    ${fila('Población 2018', num(p.poblacion_2018))}${fila('Población ' + p.anio_actual, num(p.poblacion_actual))}${fila('Población 2030', num(p.poblacion_2030))}${fila('Crecimiento anual', p.crecimiento_anual_pct == null ? null : num(p.crecimiento_anual_pct) + ' %')}
+    ${fila('Lugares poblados (censo)', num(p.lugares_poblados))}${fila('En tramo vial suelto', num(p.lugares_en_tramo_suelto))}${fila('Sin camino mapeado', num(p.lugares_sin_camino))}
+    ${fila('Lugares dentro de su límite', p.lugares_dentro_de_su_limite_pct == null ? null : num(p.lugares_dentro_de_su_limite_pct) + ' %')}${reg}</dl>`;
+}
+async function iniciarMapa() {
+  if (mapa) { mapa.invalidateSize(); return; }
+  mapa = L.map('lienzo', {zoomSnap:.25, attributionControl:true}).setView([15.7, -90.3], 7.25);
+  mapa.attributionControl.setPrefix('').addAttribution('Límites: CONRED/OCHA · Población y lugares: INE · Caminos: © colaboradores de OpenStreetMap');
+  const [g, r] = await Promise.all([fetch('/capas/municipios.geojson').then(x => x.ok ? x.json() : null), api('/api/registros_municipio').catch(() => ({}))]);
+  if (!g) { $('#ficha').innerHTML = '<h2>Ficha</h2><p class="nota">Este servidor no tiene la capa de municipios (se genera con "faro limites").</p>'; return; }
+  geoMuni = g; registros = r;
+  $('#indicador').innerHTML = INDICADORES.map(i => `<option value="${i.id}">${esc(i.t)}</option>`).join('') +
+    Object.keys(registros).map(s => `<option value="reg:${esc(s)}">Registros recibidos: ${esc(s)}</option><option value="reg:${esc(s)}:tasa">Registros por 100 mil hab.: ${esc(s)}</option>`).join('');
+  capaMuni = L.geoJSON(g, {onEachFeature: (f, capa) => { capa.bindTooltip(`${f.properties.nombre}, ${f.properties.departamento}`, {sticky:true});
+    capa.on({click: () => ficha(f.properties), mouseover: () => capa.setStyle({weight:2.2, color:'#07306b'}), mouseout: () => capa.setStyle({weight:.6, color:'#fff'})}); }}).addTo(mapa);
+  mapa.fitBounds(capaMuni.getBounds()); pintarMapa();
+}
+async function capaOpcional(marcada, actual, crear) { if (!mapa) return actual; if (!marcada) { if (actual) mapa.removeLayer(actual); return actual; } if (!actual) actual = await crear(); actual.addTo(mapa); return actual; }
+$('#indicador').onchange = pintarMapa;
+$('#capaenlaces').onchange = async e => { capaEnlaces = await capaOpcional(e.target.checked, capaEnlaces, async () => L.geoJSON(await (await fetch('/capas/red_vial_enlaces.geojson')).json(), {style:{color:'#d1242f', weight:4}, onEachFeature:(f, c) => c.bindPopup(`<b>Enlace probable</b><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>Hueco de ${f.properties.km < 1 ? num(f.properties.km * 1000) + ' m' : num(f.properties.km) + ' km'} · uniría ${num(f.properties.tramo_km)} km de vías y ${f.properties.lugares} lugar(es)<br><small>${esc(f.properties.nombres)}</small>`)})); };
+$('#capalugares').onchange = async e => { capaLugares = await capaOpcional(e.target.checked, capaLugares, async () => L.geoJSON(await (await fetch('/capas/lugares_sin_conexion.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {radius:4, weight:1, color:'#fff', fillOpacity:.9, fillColor: f.properties.conexion === 'sin_camino' ? '#b85c00' : '#7a3fb5'}), onEachFeature:(f, c) => c.bindPopup(`<b>${esc(f.properties.nombre)}</b> <small>${esc(f.properties.codigo)}</small><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>${f.properties.conexion === 'sin_camino' ? 'Sin camino mapeado cerca' + (f.properties.distancia_m ? ' (vía más cercana a ' + num(f.properties.distancia_m) + ' m)' : '') : 'En un tramo que no se une a la red principal'}`)})); };
+$('#capabase').onchange = async e => { capaBase = await capaOpcional(e.target.checked, capaBase, async () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:17, attribution:'© OpenStreetMap'})); if (capaBase && e.target.checked) capaBase.bringToBack(); pintarMapa(); };
+async function capasPublicadas() {
+  const r = await (await fetch('/capas')).json();
+  tabla('#tcapas', [{t:'Capa', f:f => `<b>${esc(f.titulo)}</b><br><small>${esc(f.descripcion)}</small>`}, {t:'Formato', f:f => `<span class="etq">${esc(f.formato)}</span>`}, {t:'Dirección', f:f => `<a href="${esc(f.url)}"><code>${esc(location.origin + f.url)}</code></a><br><small>${num(f.bytes / 1024)} KB</small>`},
+    {t:'Fuente y licencia', f:f => `${esc(f.fuente)}<br><small>${esc(f.licencia)}</small>`}], r.capas, 'Este servidor no tiene capas cargadas.');
+}
+const cargar = {mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: async () => {}, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
+$('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelector('nav').classList.remove('abierto');
   document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
   document.querySelectorAll('section').forEach(s => s.classList.toggle('activa', s.id === b.dataset.s));
   cargar[b.dataset.s]().catch(e => aviso(e.message, true));
@@ -346,6 +484,7 @@ $('#calcprecios').onclick = async () => {
 $('#pobdesde').onchange = $('#pobhasta').onchange = () => poblacion().catch(e => aviso(e.message, true));
 $('#anio').onchange = () => crecimiento().catch(e => aviso(e.message, true));
 estado().then(cargarSolicitudes).then(envios).catch(e => aviso(e.message, true));
+iniciarMapa().catch(e => aviso(e.message, true));
 </script>
 </body>
 </html>

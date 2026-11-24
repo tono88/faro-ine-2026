@@ -10,6 +10,7 @@
 pub mod aire;
 pub mod asignacion;
 pub mod crecimiento;
+pub mod geo;
 pub mod poblacion;
 pub mod precios;
 pub mod shp;

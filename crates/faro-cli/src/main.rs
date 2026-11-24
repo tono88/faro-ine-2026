@@ -118,6 +118,18 @@ enum Comando {
         #[arg(long, default_value = "datos/referencia")]
         salida: PathBuf,
     },
+    /// Capa de municipios para mapas: toma los límites oficiales, los verifica contra los lugares
+    /// poblados del censo y escribe un GeoJSON liviano con el código INE.
+    Limites {
+        /// Zip GeoJSON de límites administrativos (COD-AB Guatemala en HDX: cod-ab-gtm).
+        #[arg(long)]
+        entrada: PathBuf,
+        /// Tolerancia de simplificación en grados (0.0015 ≈ 160 m).
+        #[arg(long, default_value_t = 0.0015)]
+        tolerancia: f64,
+        #[arg(long, default_value = "datos/referencia/municipios.geojson")]
+        salida: PathBuf,
+    },
     /// Reparte operadores de campo entre puestos con la menor distancia total (línea recta).
     Asignar {
         /// CSV: operador, lugar (código de lugar poblado donde vive) o longitud y latitud.
@@ -280,6 +292,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         Comando::Recibir { solicitud, entrada, salida } => recibir(&catalogo, &memoria, &solicitud, &entrada, &salida),
         Comando::Catalogo { accion } => catalogo_censo(&catalogo, &cli.catalogo, accion),
         Comando::Asignar { operadores, puestos, salida } => asignar(&catalogo, &operadores, &puestos, &salida),
+        Comando::Limites { entrada, tolerancia, salida } => limites(&catalogo, &entrada, tolerancia, &salida),
         Comando::Vial { carreteras, cerca_m, max_enlace_km, con_senderos, salida } => vial(&catalogo, &carreteras, faro_territorio::vial::Parametros { cerca_m, max_enlace_km }, con_senderos, &salida),
         Comando::Poblacion { entrada, diccionario, salida } => {
             let mut filas = faro_territorio::poblacion::resumir(&faro_homologa::lectura::leer_crudo(&entrada)?)?;
@@ -477,6 +490,112 @@ fn asignar(catalogo: &Catalogo, ruta_operadores: &Path, ruta_puestos: &Path, sal
     for (puesto, n) in &a.sin_cubrir {
         println!("plazas sin cubrir: {puesto} ({n})");
     }
+    Ok(ExitCode::SUCCESS)
+}
+
+fn limites(catalogo: &Catalogo, entrada: &Path, tolerancia: f64, salida: &Path) -> Result<ExitCode, String> {
+    use faro_territorio::asignacion::Coordenada;
+    use faro_territorio::geo::{self, Poligono};
+    use std::collections::BTreeMap;
+    let en = |e: String| format!("{}: {e}", entrada.display());
+    let mut zip = zip::ZipArchive::new(std::fs::File::open(entrada).map_err(|e| en(e.to_string()))?).map_err(|e| en(e.to_string()))?;
+    let nombre = zip.file_names().find(|n| n.to_lowercase().contains("admin2") && n.ends_with(".geojson")).map(str::to_string).ok_or(en("el zip no trae la capa admin2 en GeoJSON".into()))?;
+    let datos: serde_json::Value = serde_json::from_reader(zip.by_name(&nombre).map_err(|e| en(e.to_string()))?).map_err(|e| en(e.to_string()))?;
+    let anillo = |v: &serde_json::Value| -> Vec<(f64, f64)> { v.as_array().map(|pts| pts.iter().filter_map(|p| Some((p.get(0)?.as_f64()?, p.get(1)?.as_f64()?))).collect()).unwrap_or_default() };
+    let poligono = |v: &serde_json::Value| -> Poligono { v.as_array().map(|a| a.iter().map(anillo).collect()).unwrap_or_default() };
+    // (código tal como viene, polígonos)
+    let mut formas: Vec<(String, Vec<Poligono>)> = Vec::new();
+    for f in datos["features"].as_array().ok_or(en("no hay features".into()))? {
+        let pcode = f["properties"]["adm2_pcode"].as_str().ok_or(en("una figura no trae adm2_pcode".into()))?;
+        let g = &f["geometry"];
+        let poligonos = match g["type"].as_str() {
+            Some("Polygon") => vec![poligono(&g["coordinates"])],
+            Some("MultiPolygon") => g["coordinates"].as_array().map(|a| a.iter().map(poligono).collect()).unwrap_or_default(),
+            otro => return Err(en(format!("{pcode}: geometría {otro:?} no esperada"))),
+        };
+        formas.push((pcode.trim_start_matches("GT").to_string(), poligonos));
+    }
+    let es_municipio = |c: &str| catalogo.por_codigo(c).is_some_and(|l| l.nivel == Nivel::Municipio);
+    let ajenos: Vec<&str> = formas.iter().map(|(c, _)| c.as_str()).filter(|c| !es_municipio(c)).collect();
+    println!("{} figuras; {} con código de municipio del catálogo; sin municipio (se omiten): {}", formas.len(), formas.len() - ajenos.len(), if ajenos.is_empty() { "ninguna".into() } else { ajenos.join(", ") });
+
+    // Verificación: ¿los lugares poblados del censo caen en el polígono que lleva su código?
+    let cajas: Vec<(f64, f64, f64, f64)> = formas.iter().map(|(_, p)| geo::caja(p)).collect();
+    let mut dentro: Vec<BTreeMap<String, usize>> = vec![BTreeMap::new(); formas.len()];
+    let (mut ubicados, mut coinciden, mut total) = (0usize, 0usize, 0usize);
+    for l in catalogo.de_nivel(Nivel::LugarPoblado, None) {
+        let (Some(longitud), Some(latitud)) = (l.longitud, l.latitud) else { continue };
+        total += 1;
+        let c = Coordenada { longitud, latitud };
+        if let Some(i) = (0..formas.len()).find(|&i| longitud >= cajas[i].0 && longitud <= cajas[i].2 && latitud >= cajas[i].1 && latitud <= cajas[i].3 && geo::contiene(&formas[i].1, c)) {
+            ubicados += 1;
+            coinciden += usize::from(formas[i].0 == l.padre);
+            *dentro[i].entry(l.padre.clone()).or_default() += 1;
+        }
+    }
+    println!("{total} lugares poblados con coordenadas: {ubicados} caen en alguna figura; {coinciden} ({:.1} %) en la que lleva su código de municipio", 100.0 * coinciden as f64 / ubicados.max(1) as f64);
+    // Figura cuyo contenido es, casi todo, de otro municipio: el código de la figura está cambiado.
+    let mayoria = |i: usize| dentro[i].iter().max_by_key(|(_, n)| **n).map(|(c, n)| (c.clone(), *n as f64 / dentro[i].values().sum::<usize>() as f64));
+    let mut correccion: BTreeMap<usize, String> = BTreeMap::new();
+    for i in 0..formas.len() {
+        let Some((codigo, parte)) = mayoria(i) else { continue };
+        if codigo != formas[i].0 && parte >= 0.8 {
+            // Solo se corrige si es un intercambio: la figura que hoy lleva ese código contiene, a su vez, los lugares de esta.
+            let otra = (0..formas.len()).find(|&j| formas[j].0 == codigo);
+            let reciproco = otra.and_then(|j| mayoria(j)).is_some_and(|(c, p)| c == formas[i].0 && p >= 0.8);
+            println!("  la figura {} ({}) contiene en {:.0} % lugares de {} ({}){}", formas[i].0, catalogo.por_codigo(&formas[i].0).map_or("", |l| &l.nombre), parte * 100.0, codigo, catalogo.por_codigo(&codigo).map_or("", |l| &l.nombre), if reciproco { ": códigos intercambiados, se corrigen" } else { ": se deja como viene" });
+            if reciproco {
+                correccion.insert(i, codigo);
+            }
+        }
+    }
+    // Por municipio: cuántos de sus lugares poblados caen dentro de su propia figura (ya corregida).
+    let mut acuerdo: BTreeMap<String, (usize, usize, BTreeMap<String, usize>)> = BTreeMap::new();
+    for (i, cuenta) in dentro.iter().enumerate() {
+        let figura = correccion.get(&i).unwrap_or(&formas[i].0);
+        for (municipio, n) in cuenta {
+            let e = acuerdo.entry(municipio.clone()).or_default();
+            e.0 += n;
+            if municipio == figura {
+                e.1 += n;
+            } else {
+                *e.2.entry(figura.clone()).or_default() += n;
+            }
+        }
+    }
+    let ruta_v = salida.with_file_name("limites_verificacion.csv");
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(&ruta_v).map_err(|e| e.to_string())?;
+    w.write_record(["municipio", "nombre", "lugares_ubicados", "en_su_figura", "pct", "caen_sobre_todo_en"]).map_err(|e| e.to_string())?;
+    let (mut bien, mut mal) = (0, 0);
+    for (m, (total, propios, otros)) in &acuerdo {
+        let pct = 100.0 * *propios as f64 / (*total).max(1) as f64;
+        if pct >= 90.0 { bien += 1 } else { mal += 1 }
+        let otro = otros.iter().max_by_key(|(_, n)| **n).map(|(c, n)| format!("{c} {} ({n})", catalogo.por_codigo(c).map_or("", |l| &l.nombre))).unwrap_or_default();
+        w.write_record([m.clone(), catalogo.por_codigo(m).map_or(String::new(), |l| l.nombre.clone()), total.to_string(), propios.to_string(), format!("{pct:.1}"), otro]).map_err(|e| e.to_string())?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    println!("{bien} municipios con 90 % o más de sus lugares dentro de su figura; {mal} con menos -> {}", ruta_v.display());
+
+    let figuras: Vec<serde_json::Value> = formas
+        .iter()
+        .enumerate()
+        .map(|(i, (codigo, poligonos))| (correccion.get(&i).unwrap_or(codigo), poligonos))
+        .filter(|(codigo, _)| es_municipio(codigo))
+        .map(|(codigo, poligonos)| {
+            let simples = geo::simplificar_poligonos(poligonos, tolerancia);
+            let coords: Vec<Vec<Vec<[f64; 2]>>> = simples.iter().map(|p| p.iter().map(|a| a.iter().map(|(x, y)| [(x * 1e4).round() / 1e4, (y * 1e4).round() / 1e4]).collect()).collect()).collect();
+            let l = catalogo.por_codigo(codigo);
+            serde_json::json!({ "type": "Feature", "properties": { "codigo": codigo, "nombre": l.map(|l| l.nombre.clone()), "departamento_codigo": &codigo[..2], "departamento": catalogo.por_codigo(&codigo[..2]).map(|d| d.nombre.clone()) },
+                                "geometry": { "type": "MultiPolygon", "coordinates": coords } })
+        })
+        .collect();
+    let puntos: usize = figuras.iter().map(|f| f["geometry"]["coordinates"].as_array().map_or(0, |ps| ps.iter().flat_map(|p| p.as_array().into_iter().flatten()).map(|a| a.as_array().map_or(0, Vec::len)).sum())).sum();
+    if let Some(dir) = salida.parent() {
+        std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    }
+    let n = figuras.len();
+    std::fs::write(salida, serde_json::to_string(&serde_json::json!({ "type": "FeatureCollection", "features": figuras })).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    println!("{n} municipios, {puntos} puntos -> {} ({} KB)", salida.display(), std::fs::metadata(salida).map(|m| m.len() / 1024).unwrap_or(0));
     Ok(ExitCode::SUCCESS)
 }
 

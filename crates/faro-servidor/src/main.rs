@@ -25,6 +25,10 @@ struct Estado {
     dir_ejemplos: PathBuf,
     /// Resultado del análisis de la red vial (`faro vial`), ya con nombres del catálogo.
     vial: Value,
+    /// Capas geográficas listas para publicar: nombre de archivo -> (tipo de contenido, texto).
+    capas: HashMap<String, (&'static str, String)>,
+    /// Descripción de cada capa (título, fuente, licencia) para el catálogo.
+    catalogo_capas: Vec<Value>,
     dir_solicitudes: PathBuf,
     dir_privado: PathBuf,
     token: Option<String>,
@@ -91,9 +95,12 @@ async fn main() -> Result<(), String> {
         eprintln!("AVISO: sin análisis de red vial ({e}).");
         json!({ "disponible": false })
     });
+    let (capas, catalogo_capas) = armar_capas(&PathBuf::from(var("FARO_REFERENCIA", "datos/referencia")), &catalogo, &poblacion, &vial);
     let estado = Arc::new(Estado {
         bd,
         vial,
+        capas,
+        catalogo_capas,
         poblacion,
         dir_ejemplos: PathBuf::from(var("FARO_EJEMPLOS", "datos/ejemplos")),
         catalogo,
@@ -141,6 +148,11 @@ async fn main() -> Result<(), String> {
         .route("/api/precios", post(api_precios))
         .route("/api/avance", get(api_avance))
         .route("/ejemplos/:archivo", get(ejemplo))
+        .route("/capas", get(api_capas))
+        .route("/capas/:archivo", get(capa))
+        .route("/api/registros_municipio", get(api_registros_municipio))
+        .route("/vendor/leaflet.js", get(|| async { ([("content-type", "text/javascript; charset=utf-8"), ("cache-control", "public, max-age=86400")], include_str!("../web/vendor/leaflet.js")) }))
+        .route("/vendor/leaflet.css", get(|| async { ([("content-type", "text/css; charset=utf-8"), ("cache-control", "public, max-age=86400")], include_str!("../web/vendor/leaflet.css")) }))
         .layer(DefaultBodyLimit::max(300 * 1024 * 1024))
         .with_state(estado);
 
@@ -710,4 +722,119 @@ fn cargar_vial(dir: &std::path::Path, catalogo: &Catalogo) -> Result<Value, Stri
         "departamentos": por_depto.iter().map(|(d, [total, suelto, sin])| json!({ "codigo": d, "nombre": nombre(d), "lugares": total, "tramo_suelto": suelto, "sin_camino": sin })).collect::<Vec<_>>(),
         "enlaces": enlaces, "sin_camino": sin_camino,
     }))
+}
+
+/// Prepara las capas geográficas: municipios con sus indicadores, enlaces viales probables y
+/// lugares sin conexión. Si falta un insumo, esa capa simplemente no se publica.
+fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion, vial: &Value) -> (HashMap<String, (&'static str, String)>, Vec<Value>) {
+    const GEOJSON: &str = "application/geo+json; charset=utf-8";
+    let mut capas = HashMap::new();
+    let mut descripcion = Vec::new();
+    let mut publicar = |archivo: &str, tipo: &'static str, texto: String, titulo: &str, detalle: &str, fuente: &str, licencia: &str| {
+        descripcion.push(json!({ "archivo": archivo, "url": format!("/capas/{archivo}"), "formato": if tipo == GEOJSON { "GeoJSON" } else { "CSV" }, "titulo": titulo, "descripcion": detalle, "fuente": fuente, "licencia": licencia, "bytes": texto.len() }));
+        capas.insert(archivo.to_string(), (tipo, texto));
+    };
+
+    // Lugares sin conexión por municipio, a partir del análisis vial.
+    let mut sin_conexion: HashMap<String, (i64, i64)> = HashMap::new();
+    if let Ok(mut lector) = csv::Reader::from_path(dir.join("red_vial_lugares.csv")) {
+        for f in lector.deserialize::<HashMap<String, String>>().flatten() {
+            let (Some(codigo), Some(conexion)) = (f.get("codigo"), f.get("conexion")) else { continue };
+            let e = sin_conexion.entry(codigo.chars().take(4).collect()).or_default();
+            if conexion == "tramo_suelto" { e.0 += 1 } else { e.1 += 1 }
+        }
+    }
+    let mut lugares_de: HashMap<String, i64> = HashMap::new();
+    for l in catalogo.de_nivel(Nivel::LugarPoblado, None) {
+        *lugares_de.entry(l.padre.clone()).or_default() += 1;
+    }
+    let mut acuerdo: HashMap<String, f64> = HashMap::new();
+    if let Ok(mut lector) = csv::Reader::from_path(dir.join("limites_verificacion.csv")) {
+        for f in lector.deserialize::<HashMap<String, String>>().flatten() {
+            if let (Some(m), Some(p)) = (f.get("municipio"), f.get("pct").and_then(|p| p.parse().ok())) {
+                acuerdo.insert(m.clone(), p);
+            }
+        }
+    }
+
+    if let Some(mut g) = std::fs::read_to_string(dir.join("municipios.geojson")).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok()) {
+        let (desde, hasta) = poblacion.anios().unwrap_or((2018, 2030));
+        let hoy = 2026.clamp(desde, hasta);
+        for f in g["features"].as_array_mut().into_iter().flatten() {
+            let codigo = f["properties"]["codigo"].as_str().unwrap_or("").to_string();
+            let p = &mut f["properties"];
+            p["poblacion_2018"] = json!(poblacion.total(&codigo, 2018));
+            p["poblacion_actual"] = json!(poblacion.total(&codigo, hoy));
+            p["anio_actual"] = json!(hoy);
+            p["poblacion_2030"] = json!(poblacion.total(&codigo, hasta));
+            p["crecimiento_anual_pct"] = json!(poblacion.cambio(&codigo, 2018, hasta).map(|c| (c.tasa_anual_pct * 100.0).round() / 100.0));
+            p["lugares_poblados"] = json!(lugares_de.get(&codigo).copied().unwrap_or(0));
+            let (suelto, sin) = sin_conexion.get(&codigo).copied().unwrap_or((0, 0));
+            p["lugares_en_tramo_suelto"] = json!(suelto);
+            p["lugares_sin_camino"] = json!(sin);
+            p["lugares_dentro_de_su_limite_pct"] = json!(acuerdo.get(&codigo));
+        }
+        publicar("municipios.geojson", GEOJSON, g.to_string(), "Municipios con indicadores",
+            "340 municipios con código INE: población 2018, actual y 2030 (proyecciones INE), crecimiento anual, lugares poblados y cuántos no están conectados a la red vial.",
+            "Límites: CONRED / OCHA (COD-AB Guatemala). Población: INE, proyecciones 2015–2030. Lugares: INE, Censo 2018. Caminos: © colaboradores de OpenStreetMap.", "CC BY-IGO (límites) · ODC-BY (población) · CC BY (censo) · ODbL (caminos)");
+    }
+    if vial["disponible"] == json!(true) {
+        let enlaces: Vec<Value> = vial["enlaces"].as_array().into_iter().flatten().map(|e| json!({ "type": "Feature",
+            "properties": { "km": e["km"], "tramo_km": e["tramo_km"], "lugares": e["lugares"].as_array().map_or(0, Vec::len), "municipio": e["lugares"][0]["municipio"], "departamento": e["lugares"][0]["departamento"],
+                            "nombres": e["lugares"].as_array().into_iter().flatten().take(8).filter_map(|l| l["nombre"].as_str()).collect::<Vec<_>>().join(", ") },
+            "geometry": { "type": "LineString", "coordinates": [e["desde"], e["hasta"]] } })).collect();
+        publicar("red_vial_enlaces.geojson", GEOJSON, json!({ "type": "FeatureCollection", "features": enlaces }).to_string(), "Enlaces viales que probablemente faltan en el mapa",
+            "Para cada tramo de camino desconectado con lugares poblados, el hueco más corto hasta la red principal.", "FARO, a partir de © colaboradores de OpenStreetMap (HOT/HDX) e INE, Censo 2018.", "ODbL 1.0");
+        let mut puntos: Vec<Value> = vial["sin_camino"].as_array().into_iter().flatten().filter(|l| l["longitud"].is_number()).map(|l| json!({ "type": "Feature",
+            "properties": { "codigo": l["codigo"], "nombre": l["nombre"], "municipio": l["municipio"], "departamento": l["departamento"], "conexion": "sin_camino", "distancia_m": l["distancia_m"] },
+            "geometry": { "type": "Point", "coordinates": [l["longitud"], l["latitud"]] } })).collect();
+        // Los lugares en tramo suelto salen de la tabla de enlaces y del catálogo.
+        for e in vial["enlaces"].as_array().into_iter().flatten() {
+            for l in e["lugares"].as_array().into_iter().flatten() {
+                if let Some(c) = l["codigo"].as_str().and_then(|c| catalogo.por_codigo(c)).filter(|c| c.longitud.is_some()) {
+                    puntos.push(json!({ "type": "Feature", "properties": { "codigo": c.codigo, "nombre": c.nombre, "municipio": l["municipio"], "departamento": l["departamento"], "conexion": "tramo_suelto", "distancia_m": Value::Null },
+                                        "geometry": { "type": "Point", "coordinates": [c.longitud, c.latitud] } }));
+                }
+            }
+        }
+        publicar("lugares_sin_conexion.geojson", GEOJSON, json!({ "type": "FeatureCollection", "features": puntos }).to_string(), "Lugares poblados sin conexión a la red vial",
+            "Lugares del Censo 2018 sin camino para vehículos a 500 m, o en un tramo que no se une a la red principal.", "FARO, a partir de INE, Censo 2018 y © colaboradores de OpenStreetMap (HOT/HDX).", "ODbL 1.0");
+    }
+    if let Ok(texto) = std::fs::read_to_string(dir.join("poblacion_municipio.csv")) {
+        publicar("poblacion_municipio.csv", "text/csv; charset=utf-8", texto, "Población por municipio y año, 2015–2030", "Total, hombres y mujeres por municipio y año, con el código INE ya corregido.", "INE, Estimaciones y proyecciones de población 2015–2030.", "ODC-BY");
+    }
+    (capas, descripcion)
+}
+
+/// Catálogo de capas publicadas: lo que un portal o un SIG necesita para consumirlas.
+async fn api_capas(State(e): State<Compartido>) -> Response {
+    ([("access-control-allow-origin", "*")], Json(json!({ "titulo": "FARO · capas publicadas", "nota": "Datos abiertos derivados de fuentes oficiales y abiertas. Cite la fuente de cada capa.", "capas": e.catalogo_capas }))).into_response()
+}
+
+async fn capa(State(e): State<Compartido>, Ruta(archivo): Ruta<String>) -> Response {
+    match e.capas.get(&archivo) {
+        // Abiertas a otros sitios (CORS) para que un portal de mapas las lea directamente.
+        Some((tipo, texto)) => ([("content-type", *tipo), ("access-control-allow-origin", "*"), ("cache-control", "public, max-age=300")], texto.clone()).into_response(),
+        None => Fallo(StatusCode::NOT_FOUND, "no existe esa capa".into()).into_response(),
+    }
+}
+
+/// Registros recibidos por municipio y solicitud (solo conteos), con tasa por 100 mil habitantes.
+async fn api_registros_municipio(State(e): State<Compartido>) -> Res<Json<Value>> {
+    let filas = e
+        .bd
+        .query(
+            "WITH ultimo AS (SELECT solicitud, periodo, max(envio_id) AS envio_id FROM hechos GROUP BY 1, 2)
+             SELECT h.solicitud, h.municipio, sum(h.n)::bigint, max(left(h.periodo, 4)) FROM hechos h JOIN ultimo u USING (solicitud, periodo, envio_id) WHERE h.municipio <> '' GROUP BY 1, 2",
+            &[],
+        )
+        .await
+        .map_err(interno)?;
+    let mut salida: BTreeMap<String, BTreeMap<String, Value>> = BTreeMap::new();
+    for f in &filas {
+        let (municipio, total): (String, i64) = (f.get(1), f.get(2));
+        let poblacion = f.get::<_, Option<String>>(3).and_then(|a| a.parse::<i32>().ok()).and_then(|a| e.poblacion.total(&municipio, a));
+        salida.entry(f.get(0)).or_default().insert(municipio, json!({ "total": total, "por_100_mil": poblacion.filter(|p| *p > 0).map(|p| (total as f64 * 1_000_000.0 / p as f64).round() / 10.0) }));
+    }
+    Ok(Json(json!(salida)))
 }
