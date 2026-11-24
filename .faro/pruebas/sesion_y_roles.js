@@ -1,3 +1,5 @@
+// HISTÓRICO (v0.9.0): solo funciona en una base recién creada, porque entra con admin / admin y cambia esa
+// contraseña. No forma parte de la batería actual: sesión, roles y grupos se prueban en tableros_grupos_seguridad.js.
 const { chromium } = require('playwright');
 (async () => {
   const [,, base, dir] = process.argv;

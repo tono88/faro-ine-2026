@@ -256,7 +256,7 @@
           <label class="opcion"><input type="checkbox" id="capabase"> Mapa base de OpenStreetMap (requiere internet)</label>
           <label class="opcion"><input type="checkbox" id="capasat"> Foto satelital Sentinel-2, 2016 (requiere internet)</label>
         </div>
-        <div class="panel"><h2>Ficha del municipio</h2><p class="nota" style="margin:0">Toque un municipio: su ficha se abre sobre el mapa, con sus cifras, dos gráficas, la animación de su crecimiento y un reporte para imprimir.</p><p class="proc" data-proc="limites" style="margin:8px 0 0"></p></div>
+        <div class="panel"><h2>Ficha del municipio</h2><p class="nota" style="margin:0">Toque un municipio: su ficha se abre sobre el mapa, con sus cifras, dos gráficas, la animación de su crecimiento y un reporte para imprimir.</p><p class="proc" data-proc="limites" style="margin:8px 0 0"></p><p class="proc" data-proc="censo_indicadores" style="margin:6px 0 0"></p></div>
       </div>
     </div>
   </section>
@@ -344,6 +344,7 @@
         <li><b>La población no se proyecta aquí.</b> Las cifras de población son las proyecciones oficiales del INE, hechas por componentes demográficos (nacimientos, defunciones y migración por edad), que es el método adecuado para personas. FARO solo resume su crecimiento con la tasa compuesta.</li>
         <li><b>Confianza.</b> Alta si R² ≥ 0.90 con al menos 6 épocas; media si R² ≥ 0.70; baja en otro caso. R² es la parte de la variación que la recta explica.</li></ol></details>
       <p class="proc" data-proc="construido"></p>
+      <p class="proc" data-proc="uso_suelo"></p>
     </div>
     <div class="panel">
       <h2>Crecimiento de edificaciones por municipio (serie propia)</h2>
@@ -1279,13 +1280,16 @@ async function proceso() {
 const HECHO = [
   ['Solicitud, recepción y homologación', 'Solicitudes declarativas para RENAP, PNC y SE-CONRED; lectura de Excel y CSV reales; homologación de lugares y de valores de catálogo con memoria; datos personales eliminados o sustituidos por una llave.'],
   ['Catálogo oficial verificado', '22 departamentos, 340 municipios y 20,036 lugares poblados del Censo 2018, comprobados código por código.'],
-  ['Población y tasas', 'Proyecciones del INE por municipio 2015–2030, con el proceso repetible desde esta pantalla; resultados por 100 mil habitantes.'],
-  ['Crecimiento urbano', 'Superficie construida por municipio de 1975 a 2020 con la capa satelital abierta GHSL, sin Earth Engine.'],
+  ['Población y tasas', 'Proyecciones del INE por municipio 2015–2030, con el proceso repetible desde esta pantalla; resultados por 100 mil habitantes. Para mirar más allá de 2030, dos curvas rotuladas como no oficiales: exponencial a corto plazo y logística a largo plazo.'],
+  ['Censo 2018 y condiciones de vida', 'Población, hogares y viviendas por lugar poblado; pirámides de edad; quince indicadores por municipio (alfabetismo, internet, agua, drenaje, electricidad, techo, piso, empleo, educación, basura, tenencia) y material del techo por lugar poblado.'],
+  ['Crecimiento urbano y uso del suelo', 'Superficie construida por municipio de 1975 a 2020 con la capa satelital abierta GHSL (que se obtiene de Landsat y Sentinel-2), sin Earth Engine; animación sobre la foto satelital; superficie residencial y no residencial.'],
   ['Red vial', 'Caminos de OpenStreetMap como grafo: lugares poblados sin conexión y enlaces que probablemente faltan en el mapa.'],
-  ['Operadores de campo', 'Asignación a puestos con la menor distancia total posible (cálculo exacto).'],
+  ['Trabajo de campo', 'Asignación de operadores a puestos con la menor distancia total (cálculo exacto); rutas por operador; registro de cada visita desde el teléfono con su posición, foto comprobada y enlace a la encuesta de Microsoft Forms; cruce de la visita con el satélite y el censo.'],
+  ['Tableros', 'De una frase a un tablero que se edita en un lienzo, se filtra por territorio y condiciones y se publica con un enlace que abre cualquier visitante.'],
   ['Precios', 'Precio de referencia con la regla de la Dirección de Precios; materiales de construcción contra la canasta del IPMC, con 116 proveedores perfilados; búsqueda en los precios de referencia ya emitidos por el INE; precios publicados por rubro (supermercado, ferretería, tecnología, farmacia, hogar) con comparación por código de barras y alertas de cambios atípicos.'],
   ['Mapa y capas', 'Un mapa por municipio con todos los indicadores y capas publicadas en GeoJSON y CSV para un portal o un SIG.'],
   ['Proceso y trazabilidad', 'Cada descarga con fuente, fecha y huella; cada decisión con quién y cuándo; cada cifra con su cita.'],
+  ['Protección y cumplimiento', 'Solo agregados; conteos pequeños ocultos para quien no es analista; bitácora de acciones; cuentas por rol y grupo; análisis de conformidad legal norma por norma.'],
 ];
 async function acerca() {
   $('#hecho').innerHTML = HECHO.map(([t, d]) => `<li><b>${esc(t)}.</b> ${esc(d)}</li>`).join('');

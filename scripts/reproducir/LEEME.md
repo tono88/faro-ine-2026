@@ -9,6 +9,8 @@ Cada archivo repite una etapa fuera de la pantalla, con los mismos datos de orig
 | `limites` | Capa de municipios y departamentos. Descarga los límites oficiales (CONRED/OCHA), los verifica contra los lugares poblados del censo y escribe las capas para los mapas. |
 | `red_vial` | Red vial como grafo. Descarga los caminos de OpenStreetMap (exportación de HOT en HDX) y calcula lugares sin conexión, enlaces probables y los caminos alrededor de cada enlace. |
 | `construido` | Superficie construida por municipio (GHSL). Descarga los 30 mosaicos de GHSL que cubren Guatemala (10 épocas, 3 mosaicos) y suma la superficie construida por municipio. Requiere haber generado antes la capa de municipios (limites). |
+| `uso_suelo` | Uso del suelo construido: residencial y no residencial (GHSL). Descarga el componente no residencial (2000 y 2020) y calcula hectáreas residenciales y no residenciales por municipio y por bloque de 1 km. Requiere haber corrido antes `construido`. |
+| `censo_indicadores` | Condiciones de vida por municipio y techos por lugar poblado (Censo 2018). Descarga los cuadros del censo y calcula quince indicadores por municipio y el material del techo por lugar poblado. |
 | `construccion` | Materiales de construcción contra el IPMC. Descarga el IPMC del INE, arma el catálogo de artículos y homologa contra él los precios publicados por los proveedores. |
 | `precios_ine` | Precios de referencia y canasta básica del INE. Descarga la base de precios de referencia y los precios promedio de la canasta básica del portal del INE y los deja en tablas limpias. |
 | `cif` | Inseguridad alimentaria aguda por departamento (CIF, SESAN). Descarga el informe, extrae su texto con pdftotext y lee y verifica la tabla. |

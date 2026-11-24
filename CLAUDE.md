@@ -167,6 +167,37 @@ Agregado después (v0.15.2): `corte` en la solicitud (columnas de registro; RENA
 estadísticas solo miran envíos vigentes; mismo archivo + misma solicitud = reemplazo; `DELETE
 /api/envios/:id`. Los originales NO se guardan (datos personales): "reanalizar" = volver a subir.
 
+Agregado después (v0.16.0), todo probado con servidor nativo + Chromium y en contenedor:
+- **Tableros**: diseñador nuevo en `index.html` (bloque «Tableros: galería, diseñador y vista publicada»:
+  `tabCambiar`, `tabDeshacer`, `pintarEstudio`, `pintarFiltros`, `pintarProps`, `abrirDeEnlace`); `tablero.rs`
+  con `Filtro`, `Reconocido`, piezas `dispersion` y `texto`, `ancho`; `tableros.publico` (borrador por omisión),
+  `POST /api/tableros/:id/publicar`, enlace `/#tablero=N`. Prueba: `.faro/pruebas/disenador_tableros.js`.
+- **Trabajo de campo**: `campo.rs` (`ordenar_ruta`, `formulario_admitido`, `enlace_formulario`, `cruzar`),
+  tablas `rutas_campo`, `paradas_campo`, `visitas_campo`, rol `operador`, grupo «Operadores de campo»,
+  sección `campo` («Mi ruta de campo») y panel `#campocoord` en «Operadores de campo»; `/api/campo*`;
+  `FARO_FORMULARIOS`. La foto NO se guarda. Geolocalización: exige HTTPS salvo en localhost.
+  Prueba: `.faro/pruebas/trabajo_de_campo.js <url> <carpeta> [foto vivienda] [foto comercio]`.
+- **Clasificador de fotos**: `crates/faro-fuentes/src/fachada.rs` (tract-onnx 0.23, Places365-ResNet18 en
+  `datos/modelos/`, 45 MB, pesos CC BY; `PROCEDENCIA.md`; `scripts/modelo/exportar.py`), `faro fachadas`,
+  `datos/referencia/fachadas_prueba.csv`, `docs/24`. Reglas: `MINIMO_ENTRE_LOS_DOS` 0.25, `PARTE_MINIMA` 0.65.
+  Las 16 fotos de prueba NO están en el repositorio (licencias de Commons).
+- **Censo**: `faro censo-indicadores` (12 cuadros, 51 cifras, 15 indicadores `censo_*_pct`) y techos por lugar;
+  `faro uso-suelo` (GHSL NRES → `uso_construido_municipio.csv`, `uso_construido_bloques.csv`).
+- **Proyecciones**: `crecimiento.rs`: `proyeccion_tasa_constante`, `extrapolar` (exponencial ≤ 10 años,
+  logística después; `ajustar_logistica`), `GET /api/poblacion?extender=AAAA`. Pedido expreso del equipo:
+  exponencial a corto plazo y logística a largo plazo; siempre rotuladas como no oficiales.
+- **Animación**: fotos de NASA GIBS (Landsat WELD 1985/1990/1998/2000) y EOX s2cloudless 2016 en `detalle()`;
+  corre una vez; `#animbucle`. Capa `#capasat`. Prueba: `.faro/pruebas/animacion_con_foto.js` (usa el proxy).
+- **Protección estadística**: `umbral_de_celda()` (`FARO_UMBRAL_CELDA`, 3), `ve_conteos_exactos`, supresión
+  complementaria en `api_registros_municipio`. **Bitácora**: tabla `bitacora`, `bitacora()`, `/api/bitacora`.
+- **Comparativo**: `datos/estandar/mejoras.json` → sección `mejoras` y `docs/22` (`faro mejoras`). Regla del
+  equipo: **cada cosa que se gane se agrega ahí** (antes / con FARO + cifra / cómo escala) y al README.
+- `faro citas` regenera `docs/11` desde `fuentes.json`; `docs/23` (conformidad legal; no es dictamen).
+- `[hidden] { display:none !important }` es global: antes los menús por grupo no ocultaban bien.
+- Envíos y pendientes: `envios.reglas` (huella de la solicitud) y marca «reglas anteriores».
+- En esta nube: `dockerd` y la base temporal `pgtmp` se caen entre turnos; `scratchpad/reiniciar.sh`
+  recompila y levanta el servidor nativo en 8095. La construcción de Docker con tract tarda más.
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)
@@ -182,3 +213,6 @@ estadísticas solo miran envíos vigentes; mismo archivo + misma solicitud = ree
    PROBOSQUE 2024; SAT parque vehicular (solo nombres de municipio: buen caso de homologación).
    Bloqueados desde la nube (Cloudflare): MINFIN, datos.gob.gt, SIGSA/MSPAS, MEM, MIDES, CONAP.
 6. Entregables: PDF, video (2–3 min). Invitar al jurado al repositorio.
+7. De la v0.16.0: medir el clasificador con fotos de campo del INE; bajar los pesos del sitio oficial
+   de Places365 y comparar la huella; publicar con HTTPS para el trabajo de campo; decidir el umbral de
+   celdas; firma electrónica de constancias; GHS-BUILT-C (10 m) para altura y tipo de edificio.

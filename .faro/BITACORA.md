@@ -109,3 +109,19 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - Los archivos mensuales traen hechos de décadas (registro tardío): la unidad de reemplazo es el corte (mes de registro), no el periodo del hecho.
 - Prueba de punta a punta de envíos con archivos reales: servidor nativo + `pgtmp`, subir con `curl -F archivo=@... -H 'x-faro-token: servicio'`, mirar `/api/envios`, y al final `DELETE FROM envios` (la base temporal no debe quedarse con nada).
 - Los archivos reales están en `/root/.claude/uploads/...` solo durante la sesión; NUNCA copiarlos al repositorio.
+
+## Bloque v0.16.0 (24-nov)
+- Tableros: el usuario reportó que «los filtros no se aplican al tablero ya creado». Causa de fondo: el territorio vivía en el editor y con nivel municipio el alcance era el departamento, así que cambiarlo casi no se notaba. Ahora la barra de filtros es del tablero (`pintarFiltros`), vale en la vista publicada sin guardar, y el título sigue al territorio (`ponerTerritorio`).
+- Deshacer: un `change` que no cambia nada no debe ocupar un paso (`tabCambiar` compara antes y después). Playwright dispara `change` dos veces (el explícito y el del desenfoque).
+- `nav button { display:flex }` anulaba el atributo `hidden`: los menús por grupo no ocultaban de verdad. Las pruebas miraban `.hidden`, no la pantalla. Regla global `[hidden]` y pruebas con `getComputedStyle`.
+- El HTML va incrustado en el binario: tras tocar `index.html` hay que recompilar antes de probar.
+- Fotos satelitales: EOX `s2cloudless_3857` (2016) es CC BY; los años 2018+ son no comerciales; GIBS Landsat WELD solo tiene 1983–85, 1988–90 y 1998–2000, hasta nivel 12. Esri World Imagery NO se puede usar (licencia). El navegador de pruebas necesita `proxy` para verlas.
+- Landsat no se usa directamente: las cifras vienen del GHSL. Decirlo siempre así.
+- GHSL NRES: solo 1.6 % de lo construido es no residencial; sirve para cruzar visitas, no para un mapa vistoso.
+- Censo: cada cuadro trae hoja `_2` (municipio) y `_3` (lugar poblado); las columnas se comprueban por palabra del encabezado. Sipacate (0514) y Petatán (1333) traen 0 en 2015.
+- Logística: el techo se busca en una rejilla (linealizando); si el mejor techo es el mayor probado, no hay techo. Contra el INE a 5 años la logística (0.17 %) gana a la exponencial (1.05 %); aun así la regla pedida es exponencial corto / logística largo.
+- Places365: el sitio oficial no responde desde la nube; pesos desde un espejo verificado (ver PROCEDENCIA). tract 0.23: `to_plain_array_view`. En depuración ~0.8 s por foto.
+- Clasificador: decidir por suma de grupos, con «otro» si juntos < 25 % y «no concluyente» si la parte < 65 %; así en 16 fotos no hay ningún error. «Otro» y «no concluyente» NO son duda.
+- Geolocalización: Playwright `geolocation` + `permissions`; `localhost` cuenta como contexto seguro. En producción hace falta HTTPS.
+- Agentes en paralelo que sirvieron: marco legal con citas verificadas, fuentes de imagen satelital, exportación del modelo, revisión de comentarios (45 hallazgos, varios eran comentarios pegados a la función equivocada).
+- La revisión de comentarios destapó un fallo real: el ingreso no calculaba Argon2 si el usuario no existía (docs/21 decía lo contrario). Corregido con huella de relleno.
