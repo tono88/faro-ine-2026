@@ -198,3 +198,7 @@ CREATE OR REPLACE VIEW envios_vigentes AS
 SELECT e.id FROM envios e
 WHERE e.id IN (SELECT max(envio_id) FROM hechos GROUP BY solicitud, corte)
    OR (NOT EXISTS (SELECT 1 FROM hechos h WHERE h.envio_id = e.id) AND e.id = (SELECT max(x.id) FROM envios x WHERE x.solicitud = e.solicitud));
+
+-- Huella de las reglas (la solicitud) con que se analizó cada envío. Si la solicitud cambia después,
+-- el envío queda marcado como «analizado con reglas anteriores»: hay que volver a subirlo.
+ALTER TABLE envios ADD COLUMN IF NOT EXISTS reglas TEXT;

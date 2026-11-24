@@ -86,7 +86,7 @@
   .rampa { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--gris); } .rampa i { display:block; height:10px; flex:1; border-radius:3px; background:linear-gradient(90deg,#fff3c4,#f9b24a,#e0561b,#8f1d0c); }
   tr.clic { cursor:pointer; } .etq.clic { cursor:pointer; text-decoration:underline dotted; }
   details.como { margin-top:12px; border:1px solid var(--borde); border-radius:8px; padding:8px 12px; background:#fbfcfe; } details.como summary { cursor:pointer; font-weight:600; color:var(--azul-oscuro); } details.como li { margin:4px 0; }
-  .proc { font-size:13px; }
+  .proc { font-size:13px; } .aviso-suave { background:#fff7e6; border:1px solid #f3d9a4; border-radius:8px; padding:10px 12px; margin:10px 0; font-size:14px; }
   textarea { width:100%; padding:8px 10px; font:inherit; border:1px solid #8a96a3; border-radius:7px; resize:vertical; }
   .ejemplos { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0; } .ejemplos button { border:1px dashed var(--celeste); background:var(--cielo); color:var(--azul-oscuro); border-radius:16px; padding:4px 12px; font:inherit; font-size:13px; cursor:pointer; text-align:left; }
   .casillas { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:2px 12px; padding:6px 4px; } .casillas label { font-weight:400; margin:3px 0; display:flex; gap:6px; align-items:center; }
@@ -248,6 +248,7 @@
       <h2>Lo que el sistema no quiso adivinar</h2>
       <p class="nota">Elija a qué corresponde cada texto: un lugar del catálogo oficial o un valor permitido (sexo, pueblo y otras variables). La decisión queda grabada con su nombre y no se vuelve a preguntar, sin importar qué institución lo envíe. Si llega un código que no existe, búsquelo por nombre en la lista. Si el código es uno que el diccionario de estadísticas vitales del INE define para esa misma columna («Extranjero», «Ignorado»), se indica.</p>
       <p class="nota" style="margin:0">Cada decisión queda en la bitácora con el nombre de quien inició sesión.</p>
+      <div id="pendviejos" class="aviso-suave" hidden></div>
       <div class="tabla" style="margin-top:12px"><table id="tpend"></table></div>
     </div>
   </section>
@@ -562,7 +563,7 @@ async function envios() {
     {t:'#', f:f => f.id}, {t:'Recibido', f:f => esc(f.recibido)}, {t:'Institución', f:f => esc(f.institucion)}, {t:'Solicitud', f:f => esc(f.solicitud)},
     {t:'Archivo', f:f => esc(f.archivo)}, {t:'Corte (mes de registro)', f:periodo}, {t:'Filas (registros)', num:1, f:f => num(f.filas)}, {t:'Problemas (celdas)', num:1, f:f => num(f.problemas)},
     {t:'Lugares resueltos', f:f => `<div class="barra" title="${num(f.pct_resuelto)} %"><i style="width:${f.pct_resuelto}%"></i></div>${num(f.pct_resuelto)} %`},
-    {t:'En las estadísticas', f:f => !f.vigente ? `<span class="etq">reemplazado${f.reemplazado_por ? ' por el n.º ' + f.reemplazado_por : ''}</span>` : f.periodos && f.periodos_vigentes < f.periodos ? `<span class="etq alerta">vigente en ${f.periodos_vigentes} de ${f.periodos} meses</span>` : `<span class="etq ok">vigente</span>${f.pendientes ? `<br><small>${num(f.pendientes)} por revisar</small>` : ''}`},
+    {t:'En las estadísticas', f:f => (f.reglas_anteriores && f.vigente ? '<span class="etq alerta" title="La solicitud cambió después de este envío">reglas anteriores: vuelva a subirlo</span><br>' : '') + (!f.vigente ? `<span class="etq">reemplazado${f.reemplazado_por ? ' por el n.º ' + f.reemplazado_por : ''}</span>` : f.periodos && f.periodos_vigentes < f.periodos ? `<span class="etq alerta">vigente en ${f.periodos_vigentes} de ${f.periodos} meses</span>` : `<span class="etq ok">vigente</span>${f.pendientes ? `<br><small>${num(f.pendientes)} por revisar</small>` : ''}`)},
     {t:'', f:f => `<button class="accion chico suave" data-borrar-envio="${f.id}" data-n="${esc(f.archivo)}">Eliminar</button>`},
   ], await api('/api/envios'), 'Todavía no hay envíos.');
 }
@@ -591,11 +592,15 @@ async function pendientes() {
     ? `<input type="text" placeholder="otro código" aria-label="Otro código para ${esc(f.valor)}" style="max-width:110px;padding:4px" ${datos(f)}>`
     : `<input type="text" class="buscar" list="cat-${esc(f.nivel)}-${esc(f.contexto)}" placeholder="buscar en el catálogo…" aria-label="Buscar en el catálogo el lugar de ${esc(f.valor)}" style="max-width:230px;padding:4px" ${datos(f)}>`;
   tabla('#tpend', [
-    {t:'Texto recibido', f:f => `<b>${esc(f.valor)}</b><br><small>${esc(f.columna)}</small>`},
+    {t:'Texto recibido', f:f => `<b>${esc(f.valor)}</b><br><small>${esc(f.columna)}</small>${f.reglas_anteriores ? `<br><span class="etq alerta" title="Este envío se analizó antes de que cambiaran las reglas de su solicitud">reglas anteriores · envío n.º ${f.envios.join(', ')}</span>` : ''}`},
     {t:'En', f:f => f.nivel === 'valor' ? `variable <b>${esc(f.contexto)}</b>` : esc(f.contexto_nombre || (f.contexto ? 'código ' + f.contexto : '(sin nivel superior)'))},
     {t:'Veces (filas)', num:1, f:f => num(f.veces)}, {t:'Institución', f:f => esc(f.instituciones)}, {t:'Estado', f:f => etq(f.estado) + (f.pista ? `<br><small class="pista">${esc(f.pista[0].toUpperCase() + f.pista.slice(1))}.</small>` : '')},
     {t:'¿A qué corresponde?', f:f => f.candidatos.map(c => `<button class="accion chico" ${datos(f)} data-c="${esc(c.codigo)}">${f.nivel === 'valor' ? esc(c.nombre) : esc(c.codigo) + ' ' + esc(c.nombre)}</button>`).join('') + otro(f)},
   ], filas, 'No hay nada por revisar.');
+  // Aviso: cuántos pendientes vienen de envíos analizados con reglas que ya cambiaron.
+  const viejos = filas.filter(f => f.reglas_anteriores), nenv = [...new Set(viejos.flatMap(f => f.envios))].sort((a, b) => a - b);
+  $('#pendviejos').hidden = !viejos.length;
+  $('#pendviejos').innerHTML = viejos.length ? `<b>${num(viejos.length)} de estos ${num(filas.length)} valores son observaciones viejas</b>: vienen de ${nenv.length === 1 ? 'el envío n.º ' : 'los envíos n.º '}${nenv.join(', ')}, que se ${nenv.length === 1 ? 'analizó' : 'analizaron'} con una versión anterior de las reglas de su solicitud. El archivo original no se guarda, así que no se pueden reanalizar aquí: <a href="#recibir">vuelva a subir ${nenv.length === 1 ? 'ese archivo' : 'esos archivos'}</a> y el envío nuevo reemplazará al anterior con las reglas de hoy.` : '';
 }
 // Las listas del catálogo se piden la primera vez que se usa cada una.
 const listas = {};
@@ -722,6 +727,16 @@ const INDICADORES = [
   {id:'cif_pct', t:'Inseguridad alimentaria: % en Fase 3 o superior (dato del departamento)', f:p => p.cif_fase3_o_superior_pct_departamento, u:'%', nota:() => 'CIF, SESAN, octubre 2026 – febrero 2027. El dato es del departamento: todos sus municipios muestran el mismo valor.', tonos:'naranja'},
   {id:'proveedores_construccion', t:'Proveedores de construcción perfilados', f:p => p.proveedores_construccion, u:'proveedores', nota:() => 'Negocios de materiales de construcción con ubicación reconocida, del levantamiento en páginas públicas.', tonos:'azul'},
   {id:'sin_conexion', t:'Lugares poblados sin conexión vial', f:p => p.lugares_en_tramo_suelto + p.lugares_sin_camino, u:'lugares', nota:() => 'Lugares del censo sin camino mapeado a 500 m o en un tramo suelto (OpenStreetMap).', tonos:'naranja'},
+  {id:'censo_alfabetismo_pct', t:'Alfabetismo, 7 años o más (Censo 2018)', f:p => p.censo_alfabetismo_pct, u:'%', nota:() => 'Personas de 7 años o más que saben leer y escribir. INE, Censo 2018, cuadro A11.', tonos:'verde', dec:1},
+  {id:'censo_internet_pct', t:'Personas que usan internet (Censo 2018)', f:p => p.censo_internet_pct, u:'%', nota:() => 'Personas de 7 años o más que declararon usar internet. INE, Censo 2018, cuadro A12.', tonos:'azul', dec:1},
+  {id:'censo_agua_en_vivienda_pct', t:'Hogares con agua por tubería en la vivienda (Censo 2018)', f:p => p.censo_agua_en_vivienda_pct, u:'%', nota:() => 'Hogares cuya fuente principal de agua es tubería dentro de la vivienda. INE, Censo 2018, cuadro B2.', tonos:'azul', dec:1},
+  {id:'censo_drenaje_pct', t:'Hogares con inodoro conectado a drenaje (Censo 2018)', f:p => p.censo_drenaje_pct, u:'%', nota:() => 'INE, Censo 2018, cuadro B3.', tonos:'azul', dec:1},
+  {id:'censo_electricidad_pct', t:'Hogares con red eléctrica (Censo 2018)', f:p => p.censo_electricidad_pct, u:'%', nota:() => 'Hogares que se alumbran con la red de energía eléctrica. INE, Censo 2018, cuadro B4.', tonos:'verde', dec:1},
+  {id:'censo_lena_pct', t:'Hogares que cocinan con leña (Censo 2018)', f:p => p.censo_lena_pct, u:'%', nota:() => 'INE, Censo 2018, cuadro B4.', tonos:'naranja', dec:1},
+  {id:'censo_techo_lamina_pct', t:'Viviendas con techo de lámina (Censo 2018)', f:p => p.censo_techo_lamina_pct, u:'%', nota:() => 'Material predominante del techo declarado en el censo. INE, Censo 2018, cuadro C2.', tonos:'naranja', dec:1},
+  {id:'censo_techo_concreto_pct', t:'Viviendas con techo de concreto (Censo 2018)', f:p => p.censo_techo_concreto_pct, u:'%', nota:() => 'INE, Censo 2018, cuadro C2.', tonos:'azul', dec:1},
+  {id:'censo_piso_tierra_pct', t:'Viviendas con piso de tierra (Censo 2018)', f:p => p.censo_piso_tierra_pct, u:'%', nota:() => 'INE, Censo 2018, cuadro C3.', tonos:'naranja', dec:1},
+  {id:'censo_maya_pct', t:'Población que se identifica como maya (Censo 2018)', f:p => p.censo_maya_pct, u:'%', nota:() => 'INE, Censo 2018, cuadro A5.', tonos:'azul', dec:1},
   {id:'limites', t:'Lugares del censo dentro del límite municipal', f:p => p.lugares_dentro_de_su_limite_pct, u:'%', nota:() => 'Porcentaje de lugares poblados que caen dentro del polígono de su municipio. Bajo = el límite y el censo no coinciden.', tonos:'verde'},
 ];
 const TONOS = {azul:['#e8f1fb','#b9d6f5','#7fb3ea','#3f86d6','#0051b3'], naranja:['#fff3e0','#ffd8a8','#ffb061','#f08a24','#b85c00'], verde:['#fdecea','#f9c9a8','#f3e48e','#a8d58a','#3c9a5f']};
@@ -760,7 +775,14 @@ function resumenDepartamento(codigo, nombre, ms) {
     retardo_en_talla_pct: redondo(ponderado(ms, 'retardo_en_talla_pct', 'escolares_evaluados'), 1), escolares_evaluados: suma(ms, 'escolares_evaluados'),
     cif_fase3_o_superior_pct_departamento: ms[0]?.cif_fase3_o_superior_pct_departamento, cif_fase_area_departamento: ms[0]?.cif_fase_area_departamento,
     proveedores_construccion: suma(ms, 'proveedores_construccion'), lugares_poblados: suma(ms, 'lugares_poblados'), lugares_en_tramo_suelto: suma(ms, 'lugares_en_tramo_suelto'), lugares_sin_camino: suma(ms, 'lugares_sin_camino'),
-    lugares_dentro_de_su_limite_pct: redondo(ponderado(ms, 'lugares_dentro_de_su_limite_pct', 'lugares_poblados'), 1)};
+    lugares_dentro_de_su_limite_pct: redondo(ponderado(ms, 'lugares_dentro_de_su_limite_pct', 'lugares_poblados'), 1),
+    // Censo 2018: cada porcentaje se pondera con su propio denominador (personas, hogares o viviendas).
+    censo_alfabetismo_pct: redondo(ponderado(ms, 'censo_alfabetismo_pct', 'censo_pob7'), 1), censo_internet_pct: redondo(ponderado(ms, 'censo_internet_pct', 'censo_pob7'), 1),
+    censo_agua_en_vivienda_pct: redondo(ponderado(ms, 'censo_agua_en_vivienda_pct', 'censo_hogares'), 1), censo_drenaje_pct: redondo(ponderado(ms, 'censo_drenaje_pct', 'censo_hogares'), 1),
+    censo_electricidad_pct: redondo(ponderado(ms, 'censo_electricidad_pct', 'censo_hogares'), 1), censo_lena_pct: redondo(ponderado(ms, 'censo_lena_pct', 'censo_hogares'), 1),
+    censo_techo_lamina_pct: redondo(ponderado(ms, 'censo_techo_lamina_pct', 'censo_viviendas'), 1), censo_techo_concreto_pct: redondo(ponderado(ms, 'censo_techo_concreto_pct', 'censo_viviendas'), 1),
+    censo_piso_tierra_pct: redondo(ponderado(ms, 'censo_piso_tierra_pct', 'censo_viviendas_piso'), 1), censo_maya_pct: redondo(ponderado(ms, 'censo_maya_pct', 'censo_poblacion'), 1),
+    censo_pob7: suma(ms, 'censo_pob7'), censo_hogares: suma(ms, 'censo_hogares'), censo_viviendas: suma(ms, 'censo_viviendas'), censo_viviendas_piso: suma(ms, 'censo_viviendas_piso'), censo_poblacion: suma(ms, 'censo_poblacion')};
 }
 const municipiosDe = dep => geoMuni.features.map(f => f.properties).filter(p => p.departamento_codigo === dep);
 async function cambiarNivel(n, enfocar) {
@@ -889,12 +911,14 @@ function piramide(edades, anio, antes) {
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pirámide de población de ${hoy[0][0]}">${filas}<text x="6" y="${H - 6}" font-size="9" fill="#0051b3">■ hombres</text><text x="${W - 6}" y="${H - 6}" font-size="9" fill="#2f7fcf" text-anchor="end">mujeres ■</text><text x="${centro}" y="${H - 6}" font-size="8.5" fill="#07306b" text-anchor="middle">| ${antes}</text></svg>
     <p class="nota" style="margin:2px 0 0;font-size:12.5px">${num(100 * jov / total)} % menores de 15 años y ${num(100 * may / total)} % de 65 o más en ${hoy[0][0]}. La raya marca ${antes}: donde la barra la supera, ese grupo creció.</p>`;
 }
+// Umbral de protección estadística (lo informa el servidor en /api/estado).
+let UMBRAL = 3;
 const fichas = {};
 async function datosMunicipio(codigo) { return fichas[codigo] || (fichas[codigo] = await api('/api/municipio/' + encodeURIComponent(codigo))); }
 async function ficha(p) {
   const caja = $('#ficha'); caja.hidden = false; caja.innerHTML = `<button class="cerrar" aria-label="Cerrar la ficha">×</button><h2 style="margin-right:30px">${esc(p.nombre)}</h2><p class="nota" style="margin:0">Cargando…</p>`;
   const d = await datosMunicipio(p.codigo), hoy = d.poblacion.find(x => x[0] === d.anio_actual), c = d.poblacion_cambio, a = d.construido_analisis, ult = d.construido[d.construido.length - 1];
-  const reg = Object.entries(registros).map(([sol, m]) => m[p.codigo] ? `<li>${esc(sol)}: <b>${num(m[p.codigo].total)}</b> registros${m[p.codigo].por_100_mil != null ? ` (${num(m[p.codigo].por_100_mil)} por 100 mil hab.)` : ''}</li>` : '').join('');
+  const reg = Object.entries(registros).map(([sol, m]) => m[p.codigo] ? m[p.codigo].protegido ? `<li>${esc(sol)}: <span class="etq" title="Protección estadística: los conteos pequeños no se publican">menos de ${UMBRAL} o protegido</span></li>` : `<li>${esc(sol)}: <b>${num(m[p.codigo].total)}</b> registros${m[p.codigo].por_100_mil != null ? ` (${num(m[p.codigo].por_100_mil)} por 100 mil hab.)` : ''}</li>` : '').join('');
   caja.innerHTML = `<button class="cerrar" aria-label="Cerrar la ficha">×</button><h2 style="margin-right:30px">${esc(d.nombre)}</h2><p class="nota" style="margin:0">${esc(d.departamento)} · código INE ${esc(d.codigo)}</p>
     <div class="mini">
       <div><b>${num(hoy && hoy[1])}</b><small>habitantes en ${d.anio_actual} · puesto ${num(d.puesto_poblacion)} de 340</small></div>
@@ -906,10 +930,15 @@ async function ficha(p) {
     <div><h3>Superficie construida, 1975–2020 (hectáreas)</h3>${mini(d.construido, {barras:true, desde:2000, unidad:'ha'})}</div></div>
     ${d.censo_2018 ? `<h3>Censo 2018 (suma de sus ${num(d.censo_2018.lugares)} lugares poblados)</h3><p class="nota" style="margin:0"><b>${num(d.censo_2018.poblacion)}</b> habitantes censados · ${num(100 * d.censo_2018.urbana / d.censo_2018.poblacion)} % en área urbana · <b>${num(d.censo_2018.hogares)}</b> hogares · <b>${num(d.censo_2018.viviendas)}</b> viviendas (${num(d.censo_2018.viviendas_ocupadas)} ocupadas) · ${num(100 * d.censo_2018.edad_0_14 / d.censo_2018.poblacion)} % menores de 15 años.</p>
       <details class="como" style="margin-top:6px"><summary>Sus lugares poblados más grandes</summary><div class="tabla" style="max-height:200px;margin-top:6px"><table><thead><tr><th scope="col">Lugar poblado</th><th scope="col" class="num">Habitantes</th><th scope="col" class="num">Hogares</th><th scope="col" class="num">Viviendas</th></tr></thead><tbody>${d.censo_2018.mayores.map(l => `<tr><td>${esc(l.nombre)} <small>${esc(l.codigo)}</small></td><td class="num">${num(l.poblacion)}</td><td class="num">${num(l.hogares)}</td><td class="num">${num(l.viviendas)}</td></tr>`).join('')}</tbody></table></div></details>` : ''}
+    ${d.censo_indicadores ? (c => { const pct = (a, b) => b > 0 ? num(100 * a / b) + ' %' : '—'; return `<h3>Condiciones de vida (Censo 2018)</h3><div class="mini" style="grid-template-columns:repeat(4,1fr)">
+      <div><b>${pct(c.alfabetas_hombres + c.alfabetas_mujeres, c.poblacion_7_o_mas)}</b><small>sabe leer y escribir</small></div><div><b>${pct(c.usa_internet, c.poblacion_7_o_mas)}</b><small>usa internet</small></div>
+      <div><b>${pct(c.agua_tuberia_en_vivienda, c.hogares)}</b><small>hogares con agua en la vivienda</small></div><div><b>${pct(c.sanitario_con_drenaje, c.hogares)}</b><small>hogares con drenaje</small></div>
+      <div><b>${pct(c.alumbrado_red_electrica, c.hogares)}</b><small>hogares con red eléctrica</small></div><div><b>${pct(c.cocina_con_lena, c.hogares)}</b><small>cocina con leña</small></div>
+      <div><b>${pct(c.techo_lamina, c.viviendas_particulares)}</b><small>techo de lámina · ${pct(c.techo_concreto, c.viviendas_particulares)} de concreto</small></div><div><b>${pct(c.piso_tierra, c.viviendas_con_piso_declarado)}</b><small>piso de tierra</small></div></div>`; })(d.censo_indicadores) : ''}
     ${d.edades ? `<h3>Edad y sexo, ${d.anio_actual} y 2018 (proyecciones del INE)</h3>${piramide(d.edades, d.anio_actual, 2018)}` : ''}
     ${d.talla ? `<h3>Desnutrición crónica en escolares</h3><p class="nota" style="margin:0"><b>${esc(d.talla.retardo_en_talla_pct)} %</b> con retardo en talla (${num(d.talla.escolares_evaluados)} escolares evaluados, ${esc(d.talla.censo)}) · vulnerabilidad <span class="etq ${/alta/.test(d.talla.vulnerabilidad) ? 'mal' : d.talla.vulnerabilidad === 'moderada' ? 'alerta' : 'ok'}">${esc(d.talla.vulnerabilidad)}</span>. Fuente: SESAN, Censo de Talla.</p>` : ''}
     ${d.cif ? `<h3>Inseguridad alimentaria aguda en ${esc(d.departamento)} (dato del departamento)</h3><p class="nota" style="margin:0">Área en <b>Fase ${esc(d.cif.fase_area)}</b> de la CIF: ${num(d.cif.fase3_o_superior)} personas (${esc(d.cif.fase3_o_superior_pct)} %) en Fase 3 o superior, ${esc(d.cif.periodo)}. Fuente: SESAN, CIF Guatemala.</p>` : ''}
-    ${a ? `<p class="nota" style="margin:4px 0">Proyección a ${a.anio_proyectado}: <b>${num(a.proyeccion)} ha</b>, entre ${num(a.proyeccion - a.proyeccion_margen_80)} y ${num(a.proyeccion + a.proyeccion_margen_80)} en 8 de cada 10 casos (al 95 %: ± ${num(a.proyeccion_margen)}) · confianza <span class="etq clic ${a.confianza === 'alta' ? 'ok' : a.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(d.codigo)}">${esc(a.confianza)}</span></p>` : ''}
+    ${a ? `<p class="nota" style="margin:4px 0">Proyección a ${a.anio_proyectado}: <b>${num(a.proyeccion)} ha</b>, entre ${num(a.proyeccion - a.proyeccion_margen_80)} y ${num(a.proyeccion + a.proyeccion_margen_80)} en 8 de cada 10 casos (al 95 %: ± ${num(a.proyeccion_margen)})${a.proyeccion_tasa_constante != null ? `. Con tasa constante: ${num(a.proyeccion_tasa_constante)} ha` : ''} · confianza <span class="etq clic ${a.confianza === 'alta' ? 'ok' : a.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(d.codigo)}">${esc(a.confianza)}</span></p>` : ''}
     ${reg ? `<h3>Registros recibidos</h3><ul style="margin:0;padding-left:18px;font-size:13px">${reg}</ul>` : ''}
     ${d.proveedores.length ? `<h3>Proveedores de construcción</h3><p class="nota" style="margin:0">${d.proveedores.slice(0, 6).map(esc).join(' · ')}${d.proveedores.length > 6 ? ` y ${d.proveedores.length - 6} más` : ''}</p>` : ''}
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="accion chico" data-det="${esc(d.codigo)}" style="margin:0">▶ Ver crecimiento</button><button class="accion chico suave" data-solo="${esc(d.codigo)}" data-nombre="${esc(d.nombre)}" style="margin:0">Ver solo este municipio</button><a class="accion chico suave" style="margin:0;text-decoration:none;display:inline-block;border-radius:7px;padding:4px 10px" href="/reporte?municipio=${esc(d.codigo)}" target="_blank" rel="noopener">Exportar reporte</a></div>`;

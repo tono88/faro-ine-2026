@@ -28,6 +28,12 @@ pub struct Crecimiento {
     pub proyeccion_margen: f64,
     /// Margen en el que cayó lo observado 8 de cada 10 veces en la prueba hacia atrás.
     pub proyeccion_margen_80: f64,
+    /// Segunda proyección, con tasa de crecimiento constante (recta sobre el logaritmo): es el
+    /// modelo natural de lo que crece en proporción a su tamaño. Se muestra al lado de la recta
+    /// para que quien analiza vea cuánto cambia la cifra según el supuesto. Vacía si la serie tiene ceros.
+    pub proyeccion_tasa_constante: Option<f64>,
+    /// Margen de 8 de cada 10 casos de esa segunda proyección (error observado en la prueba hacia atrás).
+    pub margen_tasa_constante_80: Option<f64>,
     /// "alta", "media" o "baja" según r2 y cantidad de años.
     pub confianza: String,
 }
@@ -56,6 +62,10 @@ pub fn leer_series(ruta: &Path) -> Result<BTreeMap<String, Vec<Punto>>, String> 
 /// avisa si cambia): 8 de cada 10 veces el error fue de 20 % o menos; 95 de cada 100, de 47 % o menos.
 pub const ERROR_OBSERVADO_P80: f64 = 0.20;
 pub const ERROR_OBSERVADO_P95: f64 = 0.47;
+/// Lo mismo para la proyección de tasa constante: en los mismos 1,020 casos su error fue de 24 % o
+/// menos en 8 de cada 10. En conjunto acierta menos que la recta (error mediano de 14 % frente a
+/// 9 %), por eso la recta es la cifra principal y esta es la de contraste.
+pub const ERROR_TASA_CONSTANTE_P80: f64 = 0.24;
 
 pub fn analizar(codigo: &str, serie: &[Punto], anio_proyectado: i32) -> Option<Crecimiento> {
     let mut s: Vec<Punto> = serie.iter().copied().filter(|p| p.edificaciones.is_finite()).collect();
@@ -90,6 +100,12 @@ pub fn analizar(codigo: &str, serie: &[Punto], anio_proyectado: i32) -> Option<C
     let horizonte = ((anio_proyectado - ultimo.anio).max(0) as f64 / 10.0).max(0.1);
     let margen = margen.max(proyeccion * ERROR_OBSERVADO_P95 * horizonte);
     let margen_80 = proyeccion * ERROR_OBSERVADO_P80 * horizonte;
+    // Proyección de tasa constante: misma recta, ajustada al logaritmo de la serie.
+    let tasa_constante = s.iter().all(|p| p.edificaciones > 0.0).then(|| {
+        let ly = s.iter().map(|p| p.edificaciones.ln()).sum::<f64>() / n;
+        let b = s.iter().map(|p| (p.anio as f64 - mx) * (p.edificaciones.ln() - ly)).sum::<f64>() / sxx;
+        (ly + b * (x - mx)).exp()
+    });
     let anios = (ultimo.anio - primero.anio) as f64;
     let tasa = ((ultimo.edificaciones / primero.edificaciones).powf(1.0 / anios) - 1.0) * 100.0;
     let confianza = if r2 >= 0.9 && s.len() >= 6 { "alta" } else if r2 >= 0.7 { "media" } else { "baja" };
@@ -107,6 +123,8 @@ pub fn analizar(codigo: &str, serie: &[Punto], anio_proyectado: i32) -> Option<C
         proyeccion,
         proyeccion_margen: margen,
         proyeccion_margen_80: margen_80,
+        proyeccion_tasa_constante: tasa_constante,
+        margen_tasa_constante_80: tasa_constante.map(|t| t * ERROR_TASA_CONSTANTE_P80 * horizonte),
         confianza: confianza.to_string(),
     })
 }

@@ -387,6 +387,13 @@ async fn memoria(e: &Estado) -> Res<Memoria> {
     .con_valores(valores))
 }
 
+/// Huella de una solicitud: cambia cuando cambia cualquiera de sus reglas (columnas, alias, país,
+/// corte, valores sin dato...). Sirve para saber si un envío se analizó con las reglas de hoy.
+fn huella_de_reglas(sol: &Solicitud) -> String {
+    use sha2::{Digest, Sha256};
+    Sha256::digest(serde_json::to_string(sol).unwrap_or_default().as_bytes()).iter().take(6).map(|b| format!("{b:02x}")).collect()
+}
+
 fn solicitudes(e: &Estado) -> Result<Vec<Solicitud>, String> {
     let mut rutas: Vec<PathBuf> = std::fs::read_dir(&e.dir_solicitudes)
         .map_err(|x| format!("{}: {x}", e.dir_solicitudes.display()))?
@@ -439,13 +446,24 @@ async fn api_envios(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Js
                 (SELECT min(periodo) FROM hechos h WHERE h.envio_id = e.id AND periodo <> ''), (SELECT max(periodo) FROM hechos h WHERE h.envio_id = e.id AND periodo <> ''),
                 (SELECT count(*) FROM (SELECT 1 FROM pendientes p WHERE p.envio_id = e.id AND NOT p.resuelto GROUP BY columna, nivel, contexto, valor) q)
          FROM envios e ORDER BY e.id DESC LIMIT 200", &[]).await.map_err(interno)?;
+    let viejos = envios_con_reglas_anteriores(&e).await?;
     Ok(Json(json!(filas.iter().map(|f| json!({
+        "reglas_anteriores": viejos.contains(&f.get::<_, i64>(0)),
         "id": f.get::<_, i64>(0), "solicitud": f.get::<_, String>(1), "institucion": f.get::<_, String>(2), "archivo": f.get::<_, String>(3),
         "recibido": f.get::<_, String>(4), "filas": f.get::<_, i64>(5), "pct_resuelto": f.get::<_, f64>(6), "problemas": f.get::<_, i64>(7),
         "periodo_desde": f.get::<_, Option<String>>(8), "periodo_hasta": f.get::<_, Option<String>>(9), "periodos": f.get::<_, i64>(10),
         "vigente": f.get::<_, bool>(11), "periodos_vigentes": f.get::<_, i64>(12), "reemplazado_por": f.get::<_, Option<i64>>(13),
         "hechos_desde": f.get::<_, Option<String>>(14), "hechos_hasta": f.get::<_, Option<String>>(15), "pendientes": f.get::<_, i64>(16),
     })).collect::<Vec<_>>())))
+}
+
+/// Envíos cuya solicitud cambió después de analizarlos (o que se analizaron antes de que se
+/// guardara la huella de reglas).
+async fn envios_con_reglas_anteriores(e: &Compartido) -> Res<std::collections::HashSet<i64>> {
+    let actuales: HashMap<String, String> = solicitudes(e).map_err(interno)?.iter().map(|s| (s.id.clone(), huella_de_reglas(s))).collect();
+    Ok(e.bd.query("SELECT id, solicitud, reglas FROM envios", &[]).await.map_err(interno)?.iter()
+        .filter(|f| actuales.get(&f.get::<_, String>(1)).is_some_and(|h| f.get::<_, Option<String>>(2).as_deref() != Some(h.as_str())))
+        .map(|f| f.get(0)).collect())
 }
 
 /// Elimina un envío con sus pendientes y sus conteos (quedan las equivalencias aprendidas).
@@ -524,8 +542,8 @@ async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabecer
     let fila = e
         .bd
         .query_one(
-            "INSERT INTO envios (solicitud, institucion, archivo, filas, pct_resuelto, problemas, reporte) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id",
-            &[&sol.id, &sol.institucion, &nombre, &(rec.reporte.filas as i64), &rec.porcentaje_resuelto(), &problemas, &reporte],
+            "INSERT INTO envios (solicitud, institucion, archivo, filas, pct_resuelto, problemas, reporte, reglas) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id",
+            &[&sol.id, &sol.institucion, &nombre, &(rec.reporte.filas as i64), &rec.porcentaje_resuelto(), &problemas, &reporte, &huella_de_reglas(&sol)],
         )
         .await
         .map_err(interno)?;
@@ -584,17 +602,20 @@ async fn api_pendientes(State(e): State<Compartido>, cabeceras: HeaderMap) -> Re
     let filas = e
         .bd
         .query(
-            "SELECT columna, nivel, contexto, valor, sum(veces)::bigint, max(estado), (array_agg(candidatos ORDER BY id DESC))[1], string_agg(DISTINCT institucion, ', ')
+            "SELECT columna, nivel, contexto, valor, sum(veces)::bigint, max(estado), (array_agg(candidatos ORDER BY id DESC))[1], string_agg(DISTINCT institucion, ', '), array_agg(DISTINCT envio_id)
              FROM pendientes WHERE NOT resuelto AND envio_id IN (SELECT id FROM envios_vigentes) GROUP BY columna, nivel, contexto, valor ORDER BY 5 DESC LIMIT 500",
             &[],
         )
         .await
         .map_err(interno)?;
+    // Envíos analizados con una versión anterior de su solicitud: sus pendientes pueden ser viejos.
+    let viejos = envios_con_reglas_anteriores(&e).await?;
     Ok(Json(json!(filas.iter().map(|f| {
         let ctx: String = f.get(2);
         let pista = pista_de_codigo(&f.get::<_, String>(1), &f.get::<_, String>(3));
+        let envios: Vec<i64> = f.get(8);
         json!({
-            "pista": pista,
+            "pista": pista, "envios": envios, "reglas_anteriores": !envios.is_empty() && envios.iter().all(|i| viejos.contains(i)),
             "columna": f.get::<_, String>(0), "nivel": f.get::<_, String>(1), "contexto": ctx,
             "contexto_nombre": e.catalogo.por_codigo(&ctx).map(|l| l.nombre.clone()),
             "valor": f.get::<_, String>(3), "veces": f.get::<_, i64>(4), "estado": f.get::<_, String>(5),
@@ -691,7 +712,10 @@ async fn api_equivalencias(State(e): State<Compartido>, cabeceras: HeaderMap) ->
     }).collect::<Vec<_>>())))
 }
 
-async fn api_hechos(State(e): State<Compartido>) -> Res<Json<Value>> {
+async fn api_hechos(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let (exacto, umbral) = (ve_conteos_exactos(&e, &cabeceras).await, umbral_de_celda());
+    // Una celda de 1 a (umbral − 1) no se publica; tampoco su complemento, que la delataría por resta.
+    let chica = |n: Option<i64>| !exacto && n.is_some_and(|n| n > 0 && n < umbral);
     // Solo el envío más reciente de cada solicitud y periodo, para no contar dos veces un reenvío.
     let filas = e
         .bd
@@ -710,8 +734,13 @@ async fn api_hechos(State(e): State<Compartido>) -> Res<Json<Value>> {
         // Denominador: proyección del INE para el departamento en el año más reciente recibido.
         let anio: Option<i32> = f.get::<_, Option<String>>(5).and_then(|a| a.parse().ok());
         let poblacion = anio.filter(|_| d.len() == 2).and_then(|a| e.poblacion.total(&d, a));
+        let (h, m): (Option<i64>, Option<i64>) = (f.get(3), f.get(4));
+        let oculta_sexo = chica(h) || chica(m);
+        if chica(Some(total)) {
+            return json!({ "solicitud": f.get::<_, String>(0), "departamento": d, "nombre": e.catalogo.por_codigo(&d).map(|l| l.nombre.clone()).unwrap_or_else(|| "(sin lugar)".into()), "total": null, "protegido": true, "anio": anio, "meses": f.get::<_, i64>(6) });
+        }
         json!({ "solicitud": f.get::<_, String>(0), "departamento": d, "nombre": e.catalogo.por_codigo(&d).map(|l| l.nombre.clone()).unwrap_or_else(|| "(sin lugar)".into()),
-                "total": total, "hombres": f.get::<_, Option<i64>>(3), "mujeres": f.get::<_, Option<i64>>(4),
+                "total": total, "hombres": if oculta_sexo { None } else { h }, "mujeres": if oculta_sexo { None } else { m }, "protegido": oculta_sexo,
                 "anio": anio, "meses": f.get::<_, i64>(6), "poblacion": poblacion,
                 "por_100_mil": poblacion.filter(|p| *p > 0).map(|p| total as f64 * 100_000.0 / p as f64) })
     }).collect::<Vec<_>>())))
@@ -989,6 +1018,12 @@ fn leer_censo_lugar(dir: &std::path::Path) -> HashMap<String, Vec<i64>> {
     lector.records().flatten().filter_map(|f| Some((f.get(0)?.to_string(), f.iter().skip(1).map(|c| c.parse().unwrap_or(0)).collect()))).collect()
 }
 
+/// Indicadores del Censo 2018 por municipio (`faro censo-indicadores`): código -> cifra -> valor.
+fn leer_censo_indicadores(dir: &std::path::Path) -> HashMap<String, HashMap<String, f64>> {
+    let Ok(mut lector) = csv::Reader::from_path(dir.join("censo2018_indicadores_municipio.csv")) else { return HashMap::new() };
+    lector.deserialize::<HashMap<String, String>>().flatten().filter_map(|f| Some((f.get("municipio")?.clone(), f.iter().filter_map(|(k, v)| Some((k.clone(), v.parse().ok()?))).collect()))).collect()
+}
+
 fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion, vial: &Value, construido: &BTreeMap<String, Vec<faro_territorio::Punto>>, construccion: &Construccion, cif: &[HashMap<String, String>], talla: &HashMap<String, HashMap<String, String>>) -> (HashMap<String, (&'static str, String)>, Vec<Value>) {
     const GEOJSON: &str = "application/geo+json; charset=utf-8";
     let mut capas = HashMap::new();
@@ -1023,6 +1058,7 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
     if let Some(mut g) = std::fs::read_to_string(dir.join("municipios.geojson")).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok()) {
         let (desde, hasta) = poblacion.anios().unwrap_or((2018, 2030));
         let hoy = 2026.clamp(desde, hasta);
+        let censo_ind = leer_censo_indicadores(dir);
         for f in g["features"].as_array_mut().into_iter().flatten() {
             let codigo = f["properties"]["codigo"].as_str().unwrap_or("").to_string();
             let p = &mut f["properties"];
@@ -1044,6 +1080,22 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
             p["retardo_en_talla_pct"] = json!(talla.get(&codigo).and_then(|f| f.get("retardo_en_talla_pct")?.parse::<f64>().ok()));
             p["vulnerabilidad_nutricional"] = json!(talla.get(&codigo).and_then(|f| f.get("vulnerabilidad")));
             p["escolares_evaluados"] = json!(talla.get(&codigo).and_then(|f| f.get("escolares_evaluados")?.parse::<f64>().ok()));
+            // Censo 2018: porcentajes y, para poder agregarlos por departamento sin promediar mal, sus denominadores.
+            if let Some(c) = censo_ind.get(&codigo) {
+                let v = |k: &str| c.get(k).copied().unwrap_or(0.0);
+                let pct = |num: f64, den: f64| (den > 0.0).then(|| (num / den * 1000.0).round() / 10.0);
+                p["censo_alfabetismo_pct"] = json!(pct(v("alfabetas_hombres") + v("alfabetas_mujeres"), v("poblacion_7_o_mas")));
+                p["censo_internet_pct"] = json!(pct(v("usa_internet"), v("poblacion_7_o_mas")));
+                p["censo_agua_en_vivienda_pct"] = json!(pct(v("agua_tuberia_en_vivienda"), v("hogares")));
+                p["censo_drenaje_pct"] = json!(pct(v("sanitario_con_drenaje"), v("hogares")));
+                p["censo_electricidad_pct"] = json!(pct(v("alumbrado_red_electrica"), v("hogares")));
+                p["censo_lena_pct"] = json!(pct(v("cocina_con_lena"), v("hogares")));
+                p["censo_techo_lamina_pct"] = json!(pct(v("techo_lamina"), v("viviendas_particulares")));
+                p["censo_techo_concreto_pct"] = json!(pct(v("techo_concreto"), v("viviendas_particulares")));
+                p["censo_piso_tierra_pct"] = json!(pct(v("piso_tierra"), v("viviendas_con_piso_declarado")));
+                p["censo_maya_pct"] = json!(pct(v("pueblo_maya"), v("poblacion_censada")));
+                (p["censo_pob7"], p["censo_hogares"], p["censo_viviendas"], p["censo_viviendas_piso"], p["censo_poblacion"]) = (json!(v("poblacion_7_o_mas")), json!(v("hogares")), json!(v("viviendas_particulares")), json!(v("viviendas_con_piso_declarado")), json!(v("poblacion_censada")));
+            }
             p["proveedores_construccion"] = json!(construccion.proveedores.iter().filter(|x| x.get("municipio_codigo").map(String::as_str) == Some(codigo.as_str())).count());
             p["lugares_poblados"] = json!(lugares_de.get(&codigo).copied().unwrap_or(0));
             let (suelto, sin) = sin_conexion.get(&codigo).copied().unwrap_or((0, 0));
@@ -1130,7 +1182,8 @@ async fn capa(State(e): State<Compartido>, Ruta(archivo): Ruta<String>) -> Respo
 }
 
 /// Registros recibidos por municipio y solicitud (solo conteos), con tasa por 100 mil habitantes.
-async fn api_registros_municipio(State(e): State<Compartido>) -> Res<Json<Value>> {
+async fn api_registros_municipio(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let (exacto, umbral) = (ve_conteos_exactos(&e, &cabeceras).await, umbral_de_celda());
     let filas = e
         .bd
         .query(
@@ -1140,11 +1193,29 @@ async fn api_registros_municipio(State(e): State<Compartido>) -> Res<Json<Value>
         )
         .await
         .map_err(interno)?;
+    // Protección estadística para quien no es analista: las celdas pequeñas no se publican y, si en
+    // un departamento queda una sola oculta, se oculta también la siguiente más pequeña (así no se
+    // puede obtener por resta contra el total del departamento, que sí se publica).
+    let mut ocultas: std::collections::HashSet<(String, String)> = std::collections::HashSet::new();
+    if !exacto && umbral > 1 {
+        let mut por_depto: BTreeMap<(String, String), Vec<(i64, String)>> = BTreeMap::new();
+        for f in &filas {
+            let (sol, municipio, total): (String, String, i64) = (f.get(0), f.get(1), f.get(2));
+            por_depto.entry((sol, municipio.chars().take(2).collect())).or_default().push((total, municipio));
+        }
+        for ((sol, _), mut lista) in por_depto {
+            lista.sort();
+            let chicas = lista.iter().filter(|(n, _)| *n > 0 && *n < umbral).count();
+            let ocultar = if chicas == 1 { 2 } else { chicas };
+            ocultas.extend(lista.into_iter().filter(|(n, _)| *n > 0).take(ocultar).map(|(_, m)| (sol.clone(), m)));
+        }
+    }
     let mut salida: BTreeMap<String, BTreeMap<String, Value>> = BTreeMap::new();
     for f in &filas {
-        let (municipio, total): (String, i64) = (f.get(1), f.get(2));
+        let (sol, municipio, total): (String, String, i64) = (f.get(0), f.get(1), f.get(2));
         let poblacion = f.get::<_, Option<String>>(3).and_then(|a| a.parse::<i32>().ok()).and_then(|a| e.poblacion.total(&municipio, a));
-        salida.entry(f.get(0)).or_default().insert(municipio, json!({ "total": total, "por_100_mil": poblacion.filter(|p| *p > 0).map(|p| (total as f64 * 1_000_000.0 / p as f64).round() / 10.0) }));
+        let celda = if ocultas.contains(&(sol.clone(), municipio.clone())) { json!({ "total": null, "por_100_mil": null, "protegido": true }) } else { json!({ "total": total, "por_100_mil": poblacion.filter(|p| *p > 0).map(|p| (total as f64 * 1_000_000.0 / p as f64).round() / 10.0) }) };
+        salida.entry(sol).or_default().insert(municipio, celda);
     }
     Ok(Json(json!(salida)))
 }
@@ -1838,7 +1909,8 @@ fn censo_del_municipio(e: &Estado, codigo: &str) -> Option<Value> {
         "mayores": mayores.iter().take(8).map(|(l, c)| json!({ "codigo": l.codigo, "nombre": l.nombre, "poblacion": c[0], "hogares": c[8], "viviendas": c[9] })).collect::<Vec<_>>() }))
 }
 
-async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>) -> Res<Json<Value>> {
+async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let (exacto, umbral) = (ve_conteos_exactos(&e, &cabeceras).await, umbral_de_celda());
     let l = e.catalogo.por_codigo(&codigo).filter(|l| l.nivel == Nivel::Municipio).ok_or_else(|| pedido(format!("{codigo} no es un municipio")))?;
     let (desde, hasta) = e.poblacion.anios().unwrap_or((2018, 2030));
     let poblacion: Vec<Value> = (desde..=hasta).filter_map(|a| e.poblacion.fila(&codigo, a)).map(|p| json!([p.anio, p.total, p.hombres, p.mujeres])).collect();
@@ -1864,7 +1936,8 @@ async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>) 
         "censo_2018": censo_del_municipio(&e, &codigo),
         "edades": e.edades.get(&codigo).map(|v| v.iter().map(|(a, d, h, m)| json!([a, d, h, m])).collect::<Vec<_>>()),
         "proveedores": e.construccion.proveedores.iter().filter(|p| p.get("municipio_codigo").map(String::as_str) == Some(codigo.as_str())).filter_map(|p| p.get("nombre")).collect::<Vec<_>>(),
-        "registros": registros.iter().map(|f| json!({ "solicitud": f.get::<_, String>(0), "total": f.get::<_, i64>(1) })).collect::<Vec<_>>(),
+        "registros": registros.iter().map(|f| { let n: i64 = f.get(1); if !exacto && n > 0 && n < umbral { json!({ "solicitud": f.get::<_, String>(0), "total": null, "protegido": true }) } else { json!({ "solicitud": f.get::<_, String>(0), "total": n }) } }).collect::<Vec<_>>(),
+        "censo_indicadores": leer_censo_indicadores(&PathBuf::from(var("FARO_REFERENCIA", "datos/referencia"))).remove(&codigo),
         "talla": e.talla.get(&codigo),
         "cif": e.cif.iter().find(|f| f.get("departamento").map(String::as_str) == Some(&codigo[..2])),
         "epocas": e.epocas, "bloques": e.bloques.get(&codigo),
@@ -2016,6 +2089,18 @@ async fn api_sesion(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Js
 struct Ingreso {
     usuario: String,
     clave: String,
+}
+
+/// Protección estadística (secreto estadístico): un conteo de registros administrativos menor que
+/// este umbral podría señalar a personas concretas, así que no se publica su valor exacto.
+/// `FARO_UMBRAL_CELDA` lo cambia (3 por omisión; 0 lo desactiva).
+fn umbral_de_celda() -> i64 {
+    std::env::var("FARO_UMBRAL_CELDA").ok().and_then(|v| v.parse().ok()).unwrap_or(3)
+}
+
+/// ¿Quien consulta puede ver los conteos exactos? Solo analistas y administradores con sesión.
+async fn ve_conteos_exactos(e: &Estado, cabeceras: &HeaderMap) -> bool {
+    matches!(sesion_de(e, cabeceras).await, Ok(Some(s)) if s.rol != "consulta")
 }
 
 /// Fallos seguidos de ingreso por usuario y hasta cuándo queda bloqueado.

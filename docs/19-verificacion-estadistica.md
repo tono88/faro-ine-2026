@@ -38,6 +38,23 @@ tasa o incremento de la última década): ninguno fue mejor en las tres décadas
 recta, que es la más fácil de explicar. Proyectar 2020 es lo que peor sale en todos (error mediano de 11 % a
 14 %, siempre por debajo de lo observado): la capa satelital muestra una aceleración en su última época.
 
+### Recta o tasa constante
+
+Lo que crece en proporción a su tamaño (como una población) suele describirse mejor con una tasa
+constante que con una recta. Se midió con la misma prueba:
+
+| Modelo | Error mediano | Error del 90 % | Margen de 8 de cada 10 |
+|---|---|---|---|
+| Recta (cifra principal) | 8.9 % | 25.4 % | ± 20 % de lo proyectado |
+| Tasa constante (cifra de contraste) | 14.2 % | 35.6 % | ± 24 % de lo proyectado |
+
+Para la superficie construida la recta acierta más en conjunto, así que sigue siendo la cifra principal; el
+portal muestra las dos para que se vea cuánto depende la proyección del supuesto. También se probó elegir el
+modelo por municipio según cuál habría acertado más en la década anterior: no mejoró de forma consistente
+(2015: error del 90 % de 29 % frente a 19 % de la recta; 2020: 32 % frente a 34 %). La **población** no se
+proyecta con ninguna regresión: se usan las proyecciones oficiales del INE, hechas por componentes
+demográficos, y su crecimiento se resume con la tasa compuesta.
+
 ## 3. Intervalo de confianza de la mediana de precios
 
 El informe de precio de referencia da, junto a la mediana, un intervalo que no supone ninguna
@@ -113,6 +130,7 @@ menor y no contradice la tasa.
 
 | Comprobación | Resultado | Detalle |
 |---|---|---|
+| La constante de margen de la tasa constante coincide con el error observado | cuadra | observado: 24.4 % |
 | Las constantes de margen del código coinciden con el error observado | cuadra | observado: 20.1 % y 47.3 % |
 
 ## Resultado

@@ -20,6 +20,16 @@ pub const INDICADORES: &[(&str, &str, &str, &[&str])] = &[
     ("sin_conexion", "Lugares poblados sin conexión vial", "lugares", &["sin conexion", "sin camino", "red vial", "caminos", "carreteras", "aislados", "conexion vial", "incomunicados"]),
     ("lugares_poblados", "Lugares poblados del censo", "lugares", &["lugares poblados", "aldeas", "caserios", "comunidades", "cantones"]),
     ("proveedores_construccion", "Proveedores de construcción perfilados", "proveedores", &["proveedores", "ferreterias", "materiales de construccion"]),
+    ("censo_alfabetismo_pct", "Alfabetismo (Censo 2018)", "%", &["alfabetismo", "analfabetismo", "saben leer", "leer y escribir", "educacion"]),
+    ("censo_internet_pct", "Personas que usan internet (Censo 2018)", "%", &["internet", "conectividad", "brecha digital", "tecnologia"]),
+    ("censo_agua_en_vivienda_pct", "Hogares con agua por tubería en la vivienda (Censo 2018)", "%", &["agua", "agua potable", "agua entubada", "tuberia"]),
+    ("censo_drenaje_pct", "Hogares con inodoro conectado a drenaje (Censo 2018)", "%", &["drenaje", "saneamiento", "alcantarillado", "servicio sanitario"]),
+    ("censo_electricidad_pct", "Hogares con red eléctrica (Censo 2018)", "%", &["electricidad", "energia electrica", "luz", "alumbrado"]),
+    ("censo_lena_pct", "Hogares que cocinan con leña (Censo 2018)", "%", &["lena", "cocinan con lena"]),
+    ("censo_techo_lamina_pct", "Viviendas con techo de lámina (Censo 2018)", "%", &["techo de lamina", "lamina", "techos", "techo"]),
+    ("censo_techo_concreto_pct", "Viviendas con techo de concreto (Censo 2018)", "%", &["techo de concreto", "terraza", "losa"]),
+    ("censo_piso_tierra_pct", "Viviendas con piso de tierra (Censo 2018)", "%", &["piso de tierra", "piso", "vivienda precaria"]),
+    ("censo_maya_pct", "Población que se identifica como maya (Censo 2018)", "%", &["maya", "pueblo maya", "pueblos indigenas", "indigena"]),
 ];
 
 pub const TIPOS: &[&str] = &["tarjeta", "barras", "tabla", "mapa", "piramide", "serie"];

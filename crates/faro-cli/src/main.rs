@@ -185,6 +185,17 @@ enum Comando {
         #[arg(long, default_value = "datos/referencia/censo2018_lugar_poblado.csv")]
         salida: PathBuf,
     },
+    /// Indicadores del Censo 2018 por municipio (educación, tecnología, agua, saneamiento, energía,
+    /// materiales de la vivienda, pueblos) y material del techo por lugar poblado, de los cuadros del INE.
+    CensoIndicadores {
+        /// Carpeta con los cuadros descargados (faro fuentes descargar censo-2018-lugares-poblados).
+        #[arg(long, default_value = "datos/crudo/censo-2018-lugares-poblados")]
+        cuadros: PathBuf,
+        #[arg(long, default_value = "datos/referencia/censo2018_indicadores_municipio.csv")]
+        salida: PathBuf,
+        #[arg(long, default_value = "datos/referencia/censo2018_techos_lugar_poblado.csv")]
+        techos: PathBuf,
+    },
     /// Población por municipio, sexo y grupo quinquenal de edad (proyecciones del INE), para las pirámides.
     Edades {
         /// Libro de proyecciones por municipio, sexo y edad.
@@ -572,6 +583,82 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             if !fuera.is_empty() || descuadres > 0 {
                 return Err(format!("la tabla no cuadra con el catálogo o consigo misma (por ejemplo {:?})", fuera.first()));
             }
+            Ok(ExitCode::SUCCESS)
+        }
+        Comando::CensoIndicadores { cuadros, salida, techos } => {
+            use faro_homologa::normalizar::basico;
+            use std::collections::BTreeMap;
+            // De cada cuadro: hoja municipal, columnas que se toman (nombre de salida, posición, palabra
+            // que debe traer su encabezado). Si el INE cambia el orden de un cuadro, el proceso se detiene.
+            type Columna = (&'static str, usize, &'static str);
+            let cuadros_usados: [(&str, &str, &[Columna]); 8] = [
+                ("cuadro-a11-", "A11_2", &[("poblacion_7_o_mas", 4, "poblacion de 7"), ("alfabetas_hombres", 7, "hombres"), ("alfabetas_mujeres", 8, "mujeres"), ("asiste_a_estudiar", 9, "asiste")]),
+                ("cuadro-a12-", "A12_2", &[("usa_celular", 5, "usa"), ("usa_computadora", 8, "usa"), ("usa_internet", 11, "usa")]),
+                ("cuadro-a5-", "A5_2", &[("poblacion_censada", 4, "poblacion total"), ("pueblo_maya", 5, "maya"), ("pueblo_garifuna", 6, "garifuna"), ("pueblo_xinka", 7, "xinka"), ("pueblo_ladino", 9, "ladina")]),
+                ("cuadro-b2-", "B2_2", &[("hogares", 4, "total de hogares"), ("agua_tuberia_en_vivienda", 5, "tuberia en la vivienda"), ("agua_tuberia_fuera", 6, "tuberia fuera"), ("agua_chorro_publico", 7, "chorro")]),
+                ("cuadro-b3-", "B3_2", &[("sanitario_con_drenaje", 5, "inodoro conectado a red"), ("sanitario_letrina", 8, "letrina"), ("sin_sanitario", 9, "no tiene")]),
+                ("cuadro-b4-", "B4_2", &[("alumbrado_red_electrica", 5, "red de energia"), ("cocina_con_lena", 11, "lena")]),
+                ("cuadro-c2-", "C2_2", &[("viviendas_particulares", 4, "total de viviendas"), ("pared_block", 6, "block"), ("pared_adobe", 8, "adobe"), ("techo_concreto", 16, "concreto"), ("techo_lamina", 17, "lamina"), ("techo_asbesto_cemento", 18, "asbesto"), ("techo_teja", 19, "teja"), ("techo_paja_palma", 20, "paja"), ("techo_desecho", 21, "desecho")]),
+                ("cuadro-c3-", "C3_2", &[("viviendas_con_piso_declarado", 4, "total de viviendas"), ("piso_tierra", 11, "tierra")]),
+            ];
+            let archivo = |trozo: &str| -> Result<PathBuf, String> {
+                std::fs::read_dir(&cuadros).map_err(|e| format!("{}: {e}", cuadros.display()))?.flatten().map(|x| x.path()).find(|p| p.file_name().and_then(|n| n.to_str()).is_some_and(|n| n.contains(trozo))).ok_or(format!("falta el cuadro {trozo} en {}", cuadros.display()))
+            };
+            // Lee una hoja: comprueba los encabezados (en cualquiera de las filas de título) y devuelve código -> valores.
+            let leer = |trozo: &str, hoja: &str, columnas: &[Columna], digitos: usize| -> Result<BTreeMap<String, Vec<i64>>, String> {
+                let filas = faro_homologa::lectura::leer_hoja_cruda(&archivo(trozo)?, hoja)?;
+                let pos = filas.iter().position(|f| f.first().is_some_and(|c| basico(c).starts_with("codigo"))).ok_or(format!("{hoja}: no se encontró el encabezado"))?;
+                for (nombre, i, palabra) in columnas {
+                    if !filas[pos..(pos + 3).min(filas.len())].iter().any(|f| f.get(*i).is_some_and(|c| basico(c).contains(palabra))) {
+                        return Err(format!("{hoja}: la columna {} ya no es «{palabra}» ({nombre}); el INE cambió el cuadro", i + 1));
+                    }
+                }
+                let col_codigo = if digitos == 7 { 4 } else { 2 };
+                Ok(filas.iter().skip(pos + 1).filter(|f| f.get(col_codigo).is_some_and(|c| c.trim().parse::<u32>().is_ok()) && f.get(columnas[0].1).is_some_and(|c| c.trim().parse::<f64>().is_ok()))
+                    .map(|f| (format!("{:0>digitos$}", f[col_codigo].trim()), columnas.iter().map(|(_, i, _)| f.get(*i).and_then(|c| c.trim().parse::<f64>().ok()).map_or(0, |x| x.round() as i64)).collect())).collect())
+            };
+            let mut por_municipio: BTreeMap<String, Vec<i64>> = BTreeMap::new();
+            let mut encabezado: Vec<&str> = vec!["municipio"];
+            for (trozo, hoja, columnas) in cuadros_usados {
+                let datos = leer(trozo, hoja, columnas, 4)?;
+                if datos.len() != 340 || datos.keys().any(|c| catalogo.por_codigo(c).is_none_or(|l| l.nivel != Nivel::Municipio)) {
+                    return Err(format!("{hoja}: se esperaban los 340 municipios del catálogo y llegaron {}", datos.len()));
+                }
+                let ya = encabezado.len() - 1;
+                encabezado.extend(columnas.iter().map(|c| c.0));
+                for (codigo, valores) in datos {
+                    let fila = por_municipio.entry(codigo).or_default();
+                    fila.resize(ya, 0);
+                    fila.extend(valores);
+                }
+            }
+            if let Some(d) = salida.parent() {
+                std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+            }
+            let mut tabla = csv::Writer::from_path(&salida).map_err(|e| e.to_string())?;
+            tabla.write_record(&encabezado).map_err(|e| e.to_string())?;
+            for (codigo, valores) in &por_municipio {
+                tabla.write_record(std::iter::once(codigo.clone()).chain(valores.iter().map(|v| v.to_string()))).map_err(|e| e.to_string())?;
+            }
+            tabla.flush().map_err(|e| e.to_string())?;
+            let total = |nombre: &str| { let i = encabezado.iter().position(|e| *e == nombre).unwrap_or(1) - 1; por_municipio.values().map(|v| v[i]).sum::<i64>() };
+            println!("{} municipios × {} cifras en {}", por_municipio.len(), encabezado.len() - 1, salida.display());
+            println!("País: alfabetismo {:.1} % · usa internet {:.1} % · agua por tubería en la vivienda {:.1} % · drenaje {:.1} % · red eléctrica {:.1} % · cocina con leña {:.1} % · techo de lámina {:.1} % · piso de tierra {:.1} % · pueblo maya {:.1} %",
+                100.0 * (total("alfabetas_hombres") + total("alfabetas_mujeres")) as f64 / total("poblacion_7_o_mas") as f64, 100.0 * total("usa_internet") as f64 / total("poblacion_7_o_mas") as f64,
+                100.0 * total("agua_tuberia_en_vivienda") as f64 / total("hogares") as f64, 100.0 * total("sanitario_con_drenaje") as f64 / total("hogares") as f64, 100.0 * total("alumbrado_red_electrica") as f64 / total("hogares") as f64,
+                100.0 * total("cocina_con_lena") as f64 / total("hogares") as f64, 100.0 * total("techo_lamina") as f64 / total("viviendas_particulares") as f64, 100.0 * total("piso_tierra") as f64 / total("viviendas_con_piso_declarado") as f64, 100.0 * total("pueblo_maya") as f64 / total("poblacion_censada") as f64);
+            // Material del techo por lugar poblado (misma estructura, hoja de lugares).
+            let columnas_techo: &[Columna] = &[("viviendas_particulares", 6, "total de viviendas"), ("techo_concreto", 18, "concreto"), ("techo_lamina", 19, "lamina"), ("techo_asbesto_cemento", 20, "asbesto"), ("techo_teja", 21, "teja"), ("techo_paja_palma", 22, "paja"), ("techo_desecho", 23, "desecho")];
+            let lugares = leer("cuadro-c2-", "C2_3", columnas_techo, 7)?;
+            let mut tabla = csv::Writer::from_path(&techos).map_err(|e| e.to_string())?;
+            tabla.write_record(std::iter::once("codigo").chain(columnas_techo.iter().map(|c| c.0))).map_err(|e| e.to_string())?;
+            let mut fuera = 0;
+            for (codigo, valores) in &lugares {
+                fuera += usize::from(catalogo.por_codigo(codigo).is_none_or(|l| l.nivel != Nivel::LugarPoblado));
+                tabla.write_record(std::iter::once(codigo.clone()).chain(valores.iter().map(|v| v.to_string()))).map_err(|e| e.to_string())?;
+            }
+            tabla.flush().map_err(|e| e.to_string())?;
+            println!("Techos: {} lugares poblados en {} ({fuera} códigos fuera del catálogo)", lugares.len(), techos.display());
             Ok(ExitCode::SUCCESS)
         }
         Comando::Edades { entrada, diccionario, anios, totales, salida } => {
@@ -1473,6 +1560,7 @@ fn verificar(dir: &std::path::Path, salida: &std::path::Path) -> Result<bool, St
     // épocas anteriores se proyecta 2010, 2015 y 2020 y se compara con lo observado.
     let _ = t_975;
     let mut relativos: Vec<f64> = Vec::new();
+    let (mut relativos_tc, mut errores_tc, mut errores_recta): (Vec<f64>, Vec<f64>, Vec<f64>) = (Vec::new(), Vec::new(), Vec::new());
     md.push_str("\n## 2. Proyección de superficie construida: prueba hacia atrás\n\nEl portal proyecta 2030 con la recta de las cinco épocas 2000–2020. Para saber cuánto acierta ese\nmétodo se repitió hacia atrás en los 340 municipios: con las cinco épocas anteriores se proyectó a\ndiez años y se comparó con lo observado.\n\n| Año proyectado | Con datos de | Error mediano | Error del 90 % | Dentro del margen de 8 de cada 10 | Dentro del margen al 95 % |\n|---|---|---|---|---|---|\n");
     let (mut dentro80, mut dentro95, mut casos, mut dentro_ajuste) = (0usize, 0usize, 0usize, 0usize);
     for objetivo in [2010, 2015, 2020] {
@@ -1486,6 +1574,11 @@ fn verificar(dir: &std::path::Path, salida: &std::path::Path) -> Result<bool, St
             n += 1;
             errores.push(error / real * 100.0);
             relativos.push(error / c.proyeccion);
+            if let Some(t) = c.proyeccion_tasa_constante.filter(|t| *t > 0.0) {
+                relativos_tc.push((t - real).abs() / t);
+                errores_tc.push((t - real).abs() / real * 100.0);
+                errores_recta.push(error / real * 100.0);
+            }
             d80 += usize::from(error <= c.proyeccion_margen_80);
             d95 += usize::from(error <= c.proyeccion_margen);
             // Lo que cubría el margen anterior (solo el error del ajuste, con factor 2).
@@ -1500,6 +1593,11 @@ fn verificar(dir: &std::path::Path, salida: &std::path::Path) -> Result<bool, St
     let (p80, p95) = (percentil(&relativos, 0.8).unwrap_or(f64::NAN), percentil(&relativos, 0.95).unwrap_or(f64::NAN));
     let _ = write!(md, "\nEn los {casos} casos: lo observado cayó dentro del margen de 8 de cada 10 en {:.0} % y dentro del margen al 95 % en {:.0} %.\n\n**Qué se corrigió gracias a esta prueba.** El margen anterior salía solo del error del ajuste (± 2 errores\nestándar) y contenía lo observado en {dentro_ajuste} de {casos} casos ({:.0} %): prometía mucha más precisión de la real, porque la\nserie satelital es suave pero no crece en línea recta. Ahora el margen es el error realmente observado al\nproyectar diez años: {:.0} % de lo proyectado en 8 de cada 10 casos y {:.0} % en 95 de cada 100 (constantes\n`ERROR_OBSERVADO_P80` = {} y `ERROR_OBSERVADO_P95` = {} del código).\n\nTambién se probaron otros métodos con la misma prueba (recta de tres épocas, crecimiento exponencial,\ntasa o incremento de la última década): ninguno fue mejor en las tres décadas, así que se conserva la\nrecta, que es la más fácil de explicar. Proyectar 2020 es lo que peor sale en todos (error mediano de 11 % a\n14 %, siempre por debajo de lo observado): la capa satelital muestra una aceleración en su última época.\n",
         100.0 * dentro80 as f64 / casos.max(1) as f64, 100.0 * dentro95 as f64 / casos.max(1) as f64, 100.0 * dentro_ajuste as f64 / casos.max(1) as f64, p80 * 100.0, p95 * 100.0, faro_territorio::crecimiento::ERROR_OBSERVADO_P80, faro_territorio::crecimiento::ERROR_OBSERVADO_P95);
+    for v in [&mut relativos_tc, &mut errores_tc, &mut errores_recta] { v.sort_by(f64::total_cmp); }
+    let p80_tc = percentil(&relativos_tc, 0.8).unwrap_or(f64::NAN);
+    let _ = write!(md, "\n### Recta o tasa constante\n\nLo que crece en proporción a su tamaño (como una población) suele describirse mejor con una tasa\nconstante que con una recta. Se midió con la misma prueba:\n\n| Modelo | Error mediano | Error del 90 % | Margen de 8 de cada 10 |\n|---|---|---|---|\n| Recta (cifra principal) | {:.1} % | {:.1} % | ± {:.0} % de lo proyectado |\n| Tasa constante (cifra de contraste) | {:.1} % | {:.1} % | ± {:.0} % de lo proyectado |\n\nPara la superficie construida la recta acierta más en conjunto, así que sigue siendo la cifra principal; el\nportal muestra las dos para que se vea cuánto depende la proyección del supuesto. También se probó elegir el\nmodelo por municipio según cuál habría acertado más en la década anterior: no mejoró de forma consistente\n(2015: error del 90 % de 29 % frente a 19 % de la recta; 2020: 32 % frente a 34 %). La **población** no se\nproyecta con ninguna regresión: se usan las proyecciones oficiales del INE, hechas por componentes\ndemográficos, y su crecimiento se resume con la tasa compuesta.\n",
+        percentil(&errores_recta, 0.5).unwrap_or(f64::NAN), percentil(&errores_recta, 0.9).unwrap_or(f64::NAN), p80 * 100.0, percentil(&errores_tc, 0.5).unwrap_or(f64::NAN), percentil(&errores_tc, 0.9).unwrap_or(f64::NAN), p80_tc * 100.0);
+    cuadra(&mut md2, "La constante de margen de la tasa constante coincide con el error observado", (p80_tc - faro_territorio::crecimiento::ERROR_TASA_CONSTANTE_P80).abs() < 0.02, format!("observado: {:.1} %", p80_tc * 100.0));
     cuadra(&mut md2, "Las constantes de margen del código coinciden con el error observado", (p80 - faro_territorio::crecimiento::ERROR_OBSERVADO_P80).abs() < 0.02 && (p95 - faro_territorio::crecimiento::ERROR_OBSERVADO_P95).abs() < 0.03, format!("observado: {:.1} % y {:.1} %", p80 * 100.0, p95 * 100.0));
 
     // ---- 3. Intervalo de la mediana de precios ----
