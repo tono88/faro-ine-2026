@@ -14,12 +14,12 @@ Qué se mide en **cada sección** y en **cada pantalla**:
 
 | Pantalla | Secciones recorridas | Páginas con desborde | Elementos que se salen | Textos pequeños | Controles bajos | Mapa | Errores JS | Resultado |
 |---|---|---|---|---|---|---|---|---|
-| Laptop 15.6" HD (1366×768) | 22 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
-| Laptop 15.6" Full HD (1920×1080) | 22 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
-| Tableta vertical (768×1024) | 22 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
-| Tableta horizontal (1024×768) | 22 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
-| Celular (390×844) | 22 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
-| Celular pequeño (360×740) | 22 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
+| Laptop 15.6" HD (1366×768) | 24 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
+| Laptop 15.6" Full HD (1920×1080) | 24 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
+| Tableta vertical (768×1024) | 24 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
+| Tableta horizontal (1024×768) | 24 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
+| Celular (390×844) | 24 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
+| Celular pequeño (360×740) | 24 | 0 | 0 | 0 | 0 | abre la ficha | 0 | bien |
 
 No quedó ningún hallazgo abierto.
 
