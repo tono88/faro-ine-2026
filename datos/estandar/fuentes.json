@@ -128,7 +128,7 @@
    "url": "https://datos.ine.gob.gt/dataset/96888fc0-5ced-4a58-bfd0-2a6a292e3208",
    "licencia": "el conjunto no declara licencia",
    "consultado": "24 de noviembre de 2026",
-   "uso": "Catálogo de países (datos/estandar/paises_ine.csv) y códigos «Extranjero» e «Ignorado» para las pistas de códigos inexistentes.",
+   "uso": "Códigos «Extranjero» (23, 2300) e «Ignorado» (99, 9999) que el INE define para departamento y municipio, mostrados como aclaración en los pendientes.",
    "cita": "Instituto Nacional de Estadística (INE). (2023). Diccionario de variables de estadísticas vitales: nacimientos 2018–2022 [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/dataset/96888fc0-5ced-4a58-bfd0-2a6a292e3208 Consultado el 24 de noviembre de 2026."
   },
   {

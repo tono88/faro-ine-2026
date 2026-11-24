@@ -33,8 +33,6 @@ struct Estado {
     edades: HashMap<String, Vec<(i32, u32, i64, i64)>>,
     /// Inseguridad alimentaria aguda por departamento (CIF, SESAN).
     cif: Vec<HashMap<String, String>>,
-    /// Catálogo de países del diccionario de estadísticas vitales del INE: código -> nombre.
-    paises: HashMap<String, String>,
     /// Tareas de muestreo de precios (datos/estandar/muestreos.toml).
     tareas: Vec<faro_fuentes::muestreo::Tarea>,
     /// Canasta básica: (periodo, producto, precio promedio del INE).
@@ -171,7 +169,6 @@ async fn main() -> Result<(), String> {
             }
             m
         },
-        paises: csv::Reader::from_path(var("FARO_PAISES", "datos/estandar/paises_ine.csv")).map(|mut l| l.deserialize::<(String, String)>().flatten().collect()).unwrap_or_default(),
         tareas: faro_fuentes::muestreo::cargar_tareas(&PathBuf::from(var("FARO_MUESTREOS", "datos/estandar/muestreos.toml"))).unwrap_or_else(|e| {
             eprintln!("AVISO: sin tareas de muestreo ({e}).");
             vec![]
@@ -265,6 +262,8 @@ async fn main() -> Result<(), String> {
         .route("/api/muestreos/:id/ejecutar", post(api_muestreo_ejecutar))
         .route("/api/canasta", get(api_canasta))
         .route("/api/publicados", get(api_publicados))
+        .route("/api/publicados/decision", post(api_decision_precio))
+        .route("/api/muestreos/ejecutar_todas", post(api_muestreos_todas))
         .route("/api/informe_precio", get(api_informe_precio))
         .route("/informe-precio", get(|| async { Html(include_str!("../web/informe_precio.html")) }))
         .route("/api/balance", post(api_balance).get(api_balance_oficial))
@@ -489,7 +488,7 @@ async fn api_pendientes(State(e): State<Compartido>) -> Res<Json<Value>> {
         .map_err(interno)?;
     Ok(Json(json!(filas.iter().map(|f| {
         let ctx: String = f.get(2);
-        let pista = pista_de_codigo(&e, &f.get::<_, String>(1), &f.get::<_, String>(3));
+        let pista = pista_de_codigo(&f.get::<_, String>(1), &f.get::<_, String>(3));
         json!({
             "pista": pista,
             "columna": f.get::<_, String>(0), "nivel": f.get::<_, String>(1), "contexto": ctx,
@@ -1343,28 +1342,17 @@ async fn api_muestreos(State(e): State<Compartido>) -> Res<Json<Value>> {
     }).collect::<Vec<_>>())))
 }
 
-/// Qué más podría ser un código de lugar que no existe, según el diccionario de estadísticas
-/// vitales del INE. Es una pista para quien revisa: el sistema no decide con ella.
-fn pista_de_codigo(e: &Estado, nivel: &str, valor: &str) -> Option<String> {
+/// Lo que el diccionario de estadísticas vitales del INE define para estas mismas columnas
+/// («Extranjero», «Ignorado»). No se sugieren países ni edades: por decisión del equipo, una
+/// columna de municipio no recibe pistas de otros catálogos.
+fn pista_de_codigo(nivel: &str, valor: &str) -> Option<String> {
     let n: u32 = valor.trim().parse().ok()?;
     let mut pistas: Vec<String> = Vec::new();
     match (nivel, n) {
         ("departamento", 23) | ("municipio", 2300) => pistas.push("en el diccionario del INE este código es «Extranjero»".into()),
         ("departamento", 99) | ("municipio", 9999) => pistas.push("en el diccionario del INE este código es «Ignorado»".into()),
-        (_, 0) => pistas.push("el cero no está en el diccionario del INE como lugar: suele ser un campo sin llenar".into()),
+        (_, 0) => pistas.push("el cero no figura como lugar en el diccionario del INE".into()),
         _ => {}
-    }
-    let fuera = match nivel { "departamento" => n > 22 && n != 23 && n != 99, "municipio" => n != 2300 && n != 9999, _ => false };
-    if fuera {
-        if let Some(pais) = e.paises.get(&n.to_string()).filter(|p| !p.eq_ignore_ascii_case("ignorado")) {
-            pistas.push(format!("{n} es «{pais}» en el catálogo de países del INE"));
-        }
-        if (10..=91).contains(&n) {
-            pistas.push(format!("{n} también es una edad posible"));
-        }
-        if !pistas.is_empty() {
-            pistas.push("revise si las columnas del archivo están corridas o mal rotuladas".into());
-        }
     }
     (!pistas.is_empty()).then(|| pistas.join("; "))
 }
@@ -1411,7 +1399,7 @@ async fn api_muestreo_ejecutar(State(e): State<Compartido>, Ruta(id): Ruta<Strin
 /// Precios publicados por rubro: el más reciente de cada producto de cada tienda, con búsqueda;
 /// el mismo código de barras en tiendas distintas; y los cambios de precio entre dos muestreos.
 async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
-    const ULTIMOS: &str = "SELECT DISTINCT ON (rubro, proveedor, url) rubro, proveedor, producto, marca, precio, precio_lista, ean, termino, url, observado FROM precios_observados ORDER BY rubro, proveedor, url, observado DESC";
+    const ULTIMOS: &str = "SELECT DISTINCT ON (rubro, proveedor, url) rubro, proveedor, producto, marca, precio, precio_lista, ean, termino, url, observado FROM precios_observados p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor) ORDER BY rubro, proveedor, url, observado DESC";
     const PLANO: &str = "translate(lower(producto), 'áéíóúüñ', 'aeiouun')";
     let rubros = e.bd.query(&format!("SELECT rubro, count(*), count(DISTINCT proveedor), count(*) FILTER (WHERE ean <> ''), to_char(max(observado), 'YYYY-MM-DD'), string_agg(DISTINCT proveedor, ', ') FROM ({ULTIMOS}) u GROUP BY 1 ORDER BY 2 DESC"), &[]).await.map_err(interno)?;
     let rubros: Vec<Value> = rubros.iter().map(|f| json!({ "rubro": f.get::<_, String>(0), "productos": f.get::<_, i64>(1), "proveedores": f.get::<_, i64>(2), "con_codigo": f.get::<_, i64>(3), "ultima": f.get::<_, Option<String>>(4), "tiendas": f.get::<_, Option<String>>(5) })).collect();
@@ -1441,6 +1429,33 @@ async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<Str
     let iguales: Vec<Value> = iguales.iter().map(|f| { let (a, b) = (f.get::<_, f64>(3), f.get::<_, f64>(4));
         json!({ "ean": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "tiendas": f.get::<_, i64>(2), "minimo": a, "maximo": b, "diferencia_pct": (b / a - 1.0) * 100.0, "ofertas": serde_json::from_str::<Value>(&f.get::<_, String>(5)).unwrap_or(Value::Null) }) }).collect();
 
+    // Diferencias de 50 % o más entre tiendas para un mismo código: se explican con reglas o se piden confirmar.
+    // Aquí sí entran los precios marcados como error, para que la decisión quede a la vista.
+    let grupos = e.bd.query(
+        "SELECT ean, min(producto), json_agg(json_build_object('proveedor', proveedor, 'precio', precio, 'precio_lista', precio_lista, 'url', url) ORDER BY precio)::text
+         FROM (SELECT DISTINCT ON (proveedor, ean) proveedor, ean, producto, precio, precio_lista, url FROM precios_observados WHERE rubro = $1 AND ean <> '' ORDER BY proveedor, ean, observado DESC) u
+         GROUP BY ean HAVING count(*) >= 2 AND max(precio) >= min(precio) * 1.5", &[&rubro]).await.map_err(interno)?;
+    let decisiones: HashMap<(String, String), (String, String)> = e.bd.query("SELECT ean, proveedor, decision, usuario FROM decisiones_precio WHERE rubro = $1", &[&rubro]).await.map_err(interno)?
+        .iter().map(|f| ((f.get(0), f.get(1)), (f.get(2), f.get(3)))).collect();
+    let mut conteo: BTreeMap<&str, usize> = BTreeMap::new();
+    let mut diferencias: Vec<Value> = grupos.iter().filter_map(|f| {
+        let (ean, producto): (String, String) = (f.get(0), f.get(1));
+        let ofertas: Vec<Value> = serde_json::from_str(&f.get::<_, String>(2)).ok()?;
+        let precios: Vec<(String, f64, Option<f64>)> = ofertas.iter().filter_map(|o| Some((o["proveedor"].as_str()?.to_string(), o["precio"].as_f64()?, o["precio_lista"].as_f64()))).collect();
+        let d = faro_territorio::precios::explicar_diferencia(&precios)?;
+        let ofertas: Vec<Value> = ofertas.into_iter().map(|mut o| { let k = (ean.clone(), o["proveedor"].as_str().unwrap_or("").to_string()); if let Some((dec, quien)) = decisiones.get(&k) { o["decision"] = json!(dec); o["decidio"] = json!(quien); } o }).collect();
+        let decididas = ofertas.iter().filter(|o| o.get("decision").is_some()).count();
+        // Resuelto: una oferta no necesita decisión; lo demás, cuando alguien marcó un error o confirmó todas las tiendas.
+        let resuelto = d.clase == "oferta" || ofertas.iter().any(|o| o["decision"] == "error") || decididas == ofertas.len();
+        *conteo.entry(if d.clase != "oferta" && resuelto { "decididos" } else { d.clase }).or_default() += 1;
+        Some(json!({ "ean": ean, "producto": producto, "clase": d.clase, "tienda": d.tienda, "explicacion": d.explicacion, "razon": d.razon, "razon_regular": d.razon_regular, "resuelto": resuelto, "ofertas": ofertas }))
+    }).filter(|d| palabras.is_empty() || { let n = faro_homologa::normalizar::basico(d["producto"].as_str().unwrap_or("")); palabras.iter().all(|p| n.contains(p.trim_matches('%'))) }).collect();
+    // Primero lo que espera una decisión (atípicos y luego sin regla), de mayor a menor diferencia.
+    let orden = |d: &Value| (d["resuelto"].as_bool().unwrap_or(false), match d["clase"].as_str() { Some("atipico") => 0, Some("por_confirmar") => 1, _ => 2 }, -(d["razon"].as_f64().unwrap_or(0.0) * 1000.0) as i64);
+    diferencias.sort_by_key(orden);
+    let total_diferencias = diferencias.len();
+    diferencias.truncate(300);
+
     // Cambio de precio del mismo producto en la misma tienda entre sus dos últimos días de muestreo.
     let cambios = e.bd.query(&format!(
         "WITH dias AS (SELECT DISTINCT ON (proveedor, url, observado::date) rubro, proveedor, url, producto, precio, observado::date AS dia FROM precios_observados WHERE rubro = $1 ORDER BY proveedor, url, observado::date, observado DESC),
@@ -1452,7 +1467,7 @@ async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<Str
         json!({ "proveedor": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "antes": antes, "ahora": ahora, "fecha_antes": f.get::<_, String>(4), "fecha_ahora": f.get::<_, String>(5), "url": f.get::<_, String>(6), "variacion_pct": v, "atipico": v.abs() >= umbral }) })
         .filter(|c| c["variacion_pct"].as_f64().is_some_and(|v| v != 0.0)).collect();
 
-    Ok(Json(json!({ "rubros": rubros, "rubro": rubro, "total": resumen.get::<_, i64>(0), "minimo": resumen.get::<_, Option<f64>>(1), "mediana": resumen.get::<_, Option<f64>>(2), "maximo": resumen.get::<_, Option<f64>>(3), "media": resumen.get::<_, Option<f64>>(4), "moda": resumen.get::<_, Option<f64>>(5), "informantes": informantes,
+    Ok(Json(json!({ "rubros": rubros, "rubro": rubro, "total": resumen.get::<_, i64>(0), "minimo": resumen.get::<_, Option<f64>>(1), "mediana": resumen.get::<_, Option<f64>>(2), "maximo": resumen.get::<_, Option<f64>>(3), "media": resumen.get::<_, Option<f64>>(4), "moda": resumen.get::<_, Option<f64>>(5), "informantes": informantes, "diferencias": diferencias, "total_diferencias": total_diferencias, "conteo_diferencias": conteo,
         "filas": filas, "mismo_codigo": iguales, "total_mismo_codigo": total_iguales, "cambios": cambios, "comparados": comparados, "atipicos": atipicos, "umbral_pct": umbral })))
 }
 
@@ -1471,7 +1486,7 @@ async fn api_informe_precio(State(e): State<Compartido>, Query(q): Query<HashMap
     let excluidos: Vec<String> = q.get("sin").map(|t| t.split('|').filter(|u| !u.is_empty()).map(String::from).collect()).unwrap_or_default();
     let filas = e.bd.query(
         "SELECT proveedor, producto, marca, precio, ean, url, to_char(observado, 'YYYY-MM-DD'), imagen FROM
-           (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados ORDER BY rubro, proveedor, url, observado DESC) u
+           (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor) ORDER BY rubro, proveedor, url, observado DESC) u
          WHERE ($1 = '' OR rubro = $1) AND ($2 = '' OR proveedor = $2) AND translate(lower(producto), 'áéíóúüñ', 'aeiouun') LIKE ALL($3::text[]) AND NOT (url = ANY($4::text[])) ORDER BY precio LIMIT 300",
         &[&rubro, &proveedor, &palabras, &excluidos]).await.map_err(interno)?;
     // Huella visual de cada foto (se calcula una vez y queda guardada).
@@ -1607,6 +1622,48 @@ async fn api_buscar_lugar(State(e): State<Compartido>, Query(q): Query<HashMap<S
     Ok(Json(json!({ "total": total, "lugares": hallados.into_iter().take(15).map(|(_, _, v)| v).collect::<Vec<_>>() })))
 }
 
+#[derive(Deserialize)]
+struct DecisionPrecio {
+    rubro: String,
+    ean: String,
+    proveedor: String,
+    /// "correcto", "error" o vacío para quitar la decisión.
+    decision: String,
+}
+
+/// Guarda lo que una persona decidió sobre el precio de una tienda para un código de barras.
+async fn api_decision_precio(State(e): State<Compartido>, cabeceras: HeaderMap, Json(d): Json<DecisionPrecio>) -> Res<Json<Value>> {
+    let quien = autorizar(&e, &cabeceras).await?;
+    match d.decision.as_str() {
+        "" => { e.bd.execute("DELETE FROM decisiones_precio WHERE rubro = $1 AND ean = $2 AND proveedor = $3", &[&d.rubro, &d.ean, &d.proveedor]).await.map_err(interno)?; }
+        "correcto" | "error" => {
+            e.bd.execute("INSERT INTO decisiones_precio (rubro, ean, proveedor, decision, usuario) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (rubro, ean, proveedor) DO UPDATE SET decision = $4, usuario = $5, fecha = now()", &[&d.rubro, &d.ean, &d.proveedor, &d.decision, &quien.nombre]).await.map_err(interno)?;
+        }
+        otra => return Err(pedido(format!("decisión {otra:?} no admitida (correcto o error)"))),
+    }
+    Ok(Json(json!({ "guardado": true })))
+}
+
+/// Ejecuta todas las tareas de muestreo: en segundo plano, una tienda a la vez por sitio.
+async fn api_muestreos_todas(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    autorizar(&e, &cabeceras).await?;
+    let mut por_sitio: BTreeMap<String, Vec<faro_fuentes::muestreo::Tarea>> = BTreeMap::new();
+    for t in &e.tareas {
+        por_sitio.entry(t.base.clone()).or_default().push(t.clone());
+    }
+    let (sitios, tareas) = (por_sitio.len(), e.tareas.len());
+    for (_, lista) in por_sitio {
+        let e = e.clone();
+        tokio::spawn(async move {
+            for t in lista {
+                let r = ejecutar_muestreo(&e, &t).await;
+                eprintln!("muestreo {}: {}", t.id, r.map(|v| v.to_string()).unwrap_or_else(|f| f.1));
+            }
+        });
+    }
+    Ok(Json(json!({ "en_curso": true, "tareas": tareas, "sitios": sitios })))
+}
+
 /// Los precios publicados de un rubro (el más reciente de cada producto de cada tienda), en CSV.
 async fn api_publicados_csv(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Response> {
     let rubro = q.get("rubro").cloned().unwrap_or_default();
@@ -1614,7 +1671,7 @@ async fn api_publicados_csv(State(e): State<Compartido>, Query(q): Query<HashMap
     let palabras: Vec<String> = faro_homologa::normalizar::basico(q.get("q").map(String::as_str).unwrap_or("")).split(' ').filter(|p| !p.is_empty()).map(|p| format!("%{}%", p.to_lowercase())).collect();
     let filas = e.bd.query(
         "SELECT rubro, proveedor, producto, marca, precio, precio_lista, ean, termino, url, to_char(observado, 'YYYY-MM-DD') FROM
-           (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados ORDER BY rubro, proveedor, url, observado DESC) u
+           (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor) ORDER BY rubro, proveedor, url, observado DESC) u
          WHERE ($1 = '' OR rubro = $1) AND ($2 = '' OR proveedor = $2) AND translate(lower(producto), 'áéíóúüñ', 'aeiouun') LIKE ALL($3::text[]) ORDER BY rubro, producto, precio LIMIT 300000",
         &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
     let campo = |t: String| if t.contains([',', '"', '\n']) { format!("\"{}\"", t.replace('"', "\"\"")) } else { t };

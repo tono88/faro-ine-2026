@@ -117,6 +117,14 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
     visual se calcula en el propio servidor y sus umbrales están calibrados con datos reales
     ([`docs/13-fotos.md`](docs/13-fotos.md)): no confunde productos distintos, pero reconoce poco
     cuando cada tienda tomó su propia foto.
+19k. **Diferencias de precio explicadas.** Cuando el mismo código de barras cuesta 50 % o más en
+    una tienda que en otra, el portal aplica reglas: de 537 casos en supermercados, 411 son ofertas
+    (el precio regular quita la diferencia), 7 señalan una tienda con precio atípico y 119 no
+    tienen regla y esperan la confirmación de una persona («es correcto» / «es un error»). Lo
+    marcado como error deja de contar en comparaciones e informes.
+19l. **Entregables.** Documento técnico en PDF (`entregables/FARO-documento-tecnico.pdf`, se
+    regenera con `scripts/entregables/generar_pdf.js`), ficha técnica, manual de usuario,
+    instalación y dependencias, guion del video y guion de la presentación (`docs/14` a `docs/18`).
 19g. **Buscador de territorio.** Sobre el mapa: departamento, municipio o lugar poblado por nombre,
     nombre común o código; lleva a su ficha o a su punto.
 20. **Canasta básica.** Precio promedio del INE de 34 productos, con su serie, junto a los

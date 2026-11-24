@@ -169,6 +169,62 @@ pub fn analizar_csv<R: std::io::Read>(entrada: R, p: &Parametros) -> Result<Vec<
     Ok(por_producto.iter().map(|(producto, lista)| analizar(producto, lista, p)).collect())
 }
 
+/// Por qué el mismo producto (mismo código de barras) tiene precios muy distintos entre tiendas.
+#[derive(Debug, Clone, Serialize, PartialEq)]
+pub struct Diferencia {
+    /// `oferta`: el precio regular quita la diferencia. `atipico`: una sola tienda se aparta del
+    /// resto. `por_confirmar`: ninguna regla la explica y debe decidir una persona.
+    pub clase: &'static str,
+    /// Tienda señalada cuando la clase es `atipico`.
+    pub tienda: Option<String>,
+    pub explicacion: String,
+    /// Máximo ÷ mínimo con los precios publicados y con los precios regulares (de lista).
+    pub razon: f64,
+    pub razon_regular: f64,
+}
+
+/// Desde esta razón (máximo ÷ mínimo) una diferencia entre tiendas se revisa: 1.5 = 50 % más.
+pub const RAZON_A_REVISAR: f64 = 1.5;
+
+/// Explica una diferencia de precio entre tiendas para un mismo código de barras.
+/// `precios`: (tienda, precio publicado, precio de lista si la tienda lo publica).
+/// Reglas, en orden:
+/// 1. Si con los precios regulares (el de lista donde lo hay) la razón baja de 1.5, es una oferta.
+/// 2. Si hay tres tiendas o más, una sola queda a más de 3 veces de la mediana (o por debajo de
+///    un tercio) y las demás coinciden entre sí, esa tienda tiene un precio atípico.
+/// 3. En otro caso no hay regla: se pide confirmación.
+pub fn explicar_diferencia(precios: &[(String, f64, Option<f64>)]) -> Option<Diferencia> {
+    let razon_de = |v: &[f64]| v.iter().cloned().fold(f64::MIN, f64::max) / v.iter().cloned().fold(f64::MAX, f64::min);
+    let publicados: Vec<f64> = precios.iter().map(|p| p.1).collect();
+    if precios.len() < 2 || publicados.iter().any(|p| *p <= 0.0) {
+        return None;
+    }
+    let razon = razon_de(&publicados);
+    if razon < RAZON_A_REVISAR {
+        return None;
+    }
+    let regulares: Vec<f64> = precios.iter().map(|p| p.2.filter(|l| *l > p.1).unwrap_or(p.1)).collect();
+    let razon_regular = razon_de(&regulares);
+    let pct = |r: f64| (r - 1.0) * 100.0;
+    if razon_regular < RAZON_A_REVISAR {
+        let en_oferta: Vec<String> = precios.iter().filter(|p| p.2.is_some_and(|l| l > p.1)).map(|p| format!("{} (regular Q{:.2})", p.0, p.2.unwrap_or(0.0))).collect();
+        return Some(Diferencia { clase: "oferta", tienda: None, razon, razon_regular, explicacion: format!("Se explica por oferta en {}: con precios regulares la diferencia baja de {:.0} % a {:.0} %.", en_oferta.join(" y "), pct(razon), pct(razon_regular)) });
+    }
+    let mut orden = regulares.clone();
+    orden.sort_by(|a, b| a.total_cmp(b));
+    let mediana = if orden.len() % 2 == 1 { orden[orden.len() / 2] } else { (orden[orden.len() / 2 - 1] + orden[orden.len() / 2]) / 2.0 };
+    let lejos = |x: f64| x > 3.0 * mediana || x < mediana / 3.0;
+    let apartadas: Vec<usize> = (0..precios.len()).filter(|i| lejos(regulares[*i])).collect();
+    if precios.len() >= 3 && apartadas.len() == 1 {
+        let resto: Vec<f64> = (0..precios.len()).filter(|i| *i != apartadas[0]).map(|i| regulares[i]).collect();
+        if razon_de(&resto) < RAZON_A_REVISAR {
+            let p = &precios[apartadas[0]];
+            return Some(Diferencia { clase: "atipico", tienda: Some(p.0.clone()), razon, razon_regular, explicacion: format!("{} publica Q{:.2}, más de tres veces distinto de la mediana (Q{:.2}), mientras las otras {} tiendas coinciden entre sí: probable error de publicación. Confirme.", p.0, p.1, mediana, resto.len()) });
+        }
+    }
+    Some(Diferencia { clase: "por_confirmar", tienda: None, razon, razon_regular, explicacion: format!("Ninguna regla la explica: no hay oferta declarada y la diferencia es de {:.0} %{}. Puede ser la política de precios de cada formato de tienda o un error: confirme.", pct(razon), if precios.len() == 2 { " entre solo dos tiendas" } else { "" }) })
+}
+
 #[cfg(test)]
 mod pruebas {
     use super::*;
@@ -215,5 +271,22 @@ mod pruebas {
         assert!(r[0].notas.iter().any(|n| n.contains("unidades distintas")));
         assert_eq!(r[1].precio_referencia, None);
         assert!(analizar_csv("producto,precio\nA,caro\n".as_bytes(), &Parametros::default()).is_err());
+    }
+
+    #[test]
+    fn explica_diferencias_entre_tiendas_por_reglas() {
+        let p = |t: &str, x: f64, l: Option<f64>| (t.to_string(), x, l);
+        // Menos de 50 %: nada que revisar.
+        assert!(explicar_diferencia(&[p("A", 10.0, None), p("B", 14.0, None)]).is_none());
+        // Oferta: el precio de lista de la barata coincide con la otra.
+        let d = explicar_diferencia(&[p("A", 8.0, Some(30.0)), p("B", 40.0, None)]).unwrap();
+        assert_eq!((d.clase, d.razon), ("oferta", 5.0));
+        // Una tienda atípica entre tres.
+        let d = explicar_diferencia(&[p("A", 11.69, Some(13.75)), p("B", 13.6, Some(16.0)), p("C", 215.0, None)]).unwrap();
+        assert_eq!((d.clase, d.tienda.as_deref()), ("atipico", Some("C")));
+        // Dos tiendas sin oferta: no se puede saber cuál está mal.
+        assert_eq!(explicar_diferencia(&[p("A", 0.25, None), p("B", 16.0, None)]).unwrap().clase, "por_confirmar");
+        // Tres tiendas donde ninguna se aparta tres veces: tampoco hay regla.
+        assert_eq!(explicar_diferencia(&[p("A", 47.0, None), p("B", 45.5, None), p("C", 25.0, None)]).unwrap().clase, "por_confirmar");
     }
 }

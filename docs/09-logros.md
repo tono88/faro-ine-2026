@@ -98,13 +98,11 @@ y cómo repetirlo.
 10c. **Tres supermercados conocidos no publican catálogo con precios** (Suma, Super del Barrio,
     Mi Super Fresh: solo páginas informativas) y PriceSmart exige navegador con sesión; no se muestrean.
 
-10d. **Los códigos "de municipio" que RENAP envía y no existen coinciden con otros catálogos del INE.**
-    No hay tabla pública de identificadores propios de RENAP (se buscó en RENAP, INE y repositorios
-    abiertos). En cambio, el diccionario de estadísticas vitales del INE muestra que 608 y 643 son
-    países (Filipinas, Rusia) y que 34, 36, 37 y 42 son edades válidas de la madre: lo más probable
-    es que las columnas del archivo estén corridas o mal rotuladas. El portal ahora lo señala como
-    pista junto a cada código inexistente; la confirmación requiere el archivo real o una consulta a RENAP.
-
+10d. **RENAP usa identificadores propios de municipio y no existe una tabla pública que los traduzca.**
+    Se buscó en RENAP, en el portal de datos abiertos del INE y en repositorios abiertos: no hay un
+    catálogo citable de esos números. FARO no los adivina: quedan en "Revisar pendientes" y se
+    resuelven de una vez cargando la tabla de códigos de la institución ("Equivalencias") o
+    eligiendo el municipio en el catálogo. Para cerrar el tema hace falta que RENAP entregue su tabla.
 10e. **Las tasas de extracción de la FAO para Guatemala siguen describiendo lo que el INE publica.**
     Con las cuentas de la Hoja de Balance de Alimentos 2024 (producción del derivado ÷ primario
     procesado): harina de trigo 72.0 % (FAO: 72), salvado de trigo 22.0 % (22), café tostado 80.0 %
@@ -112,6 +110,11 @@ y cómo repetirlo.
     se aparta es el arroz elaborado: 69.3 % frente a 62. Las tasas de la FAO son de 1992–1996.
     Repetir: `faro hba` y la sección "Hoja de balance: derivados".
 
+10i. **Tres de cada cuatro diferencias grandes de precio entre tiendas son ofertas.** De 537 productos
+    de supermercado con el mismo código de barras y 50 % o más de diferencia, en 411 (77 %) el
+    precio regular de la tienda barata coincide con el de las demás; en 7 una sola tienda se aparta
+    más de tres veces de la mediana mientras las otras coinciden (probable error de publicación,
+    como un jabón a Q215.00 frente a Q11.69 y Q13.60); 119 no tienen regla y los confirma una persona.
 10f. **La foto sola no basta para decir que dos productos son el mismo; el código de barras sí.**
     Medido con 300 productos de igual código de barras y fotos distintas en dos tiendas: la huella
     visual no aceptó ningún par de productos distintos, pero solo reconoció 29 de los 300 iguales

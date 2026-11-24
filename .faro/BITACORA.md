@@ -89,3 +89,9 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - `www.ine.gob.gt` activa protección anti-bots (Radware) tras ~10 solicitudes; `datos.ine.gob.gt` no.
 - Calibración de fotos: los pares útiles son La Torre vs Walmart (Walmart/Paiz/Maxi comparten archivo de foto).
 - FAO TCF: sección Guatemala en págs. 222–225 (234–237 del PDF); el primario se deduce del orden de filas.
+
+## Bloque v0.14.0 (24-nov)
+- El usuario rechazó las pistas de país/edad en pendientes de municipio ("incoherente"): no volver a proponerlas.
+- `dockerd` puede caerse entre turnos: `nohup dockerd &` y `docker start pgtmp`.
+- Diferencias de precio: la lista muestra 300 y lo decidido baja al final; para comprobar una decisión usar `q=` o los conteos.
+- PDF entregable: `node scripts/entregables/generar_pdf.js http://localhost:PUERTO` (toma capturas en vivo; convertidor Markdown mínimo propio).

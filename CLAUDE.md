@@ -112,8 +112,8 @@ Agregado después (v0.11.0): `vtex-catalogo` baja a subcategorías; lecturas `sh
 recarga si el CSV cambia. Mapa: `aislar()`, `verTodo()`, paneles `encima` y `puntos`, botón `#volverpais`.
 Canasta: `graficaGrande()`. Pendientes: `pista_de_codigo()` con `datos/estandar/paises_ine.csv`
 (diccionario de estadísticas vitales del INE). Resultados: `cobertura()` por departamento.
-Sobre los códigos de RENAP: no hay tabla pública; 608/643 son países y 34–42 edades en el diccionario
-del INE (probable desfase de columnas; confirmar con el archivo real). Sin catálogo legible: Farma Value,
+Sobre los códigos de RENAP: no hay tabla pública de sus identificadores; hace falta que RENAP la entregue
+(no proponer otras lecturas del código: el equipo las rechazó). Sin catálogo legible: Farma Value,
 Galeno, Suma, Super del Barrio; bloqueados: Kemik, Platino, Fayco, Agencias Way, MEM. Por integrar
 (verificados): Max y Tecnofácil (`__NEXT_DATA__`, traen EAN), Steren (GraphQL), Pacifiko, Office Depot,
 El Gallo más Gallo, Celasa.
@@ -138,6 +138,13 @@ Agregado después (v0.13.0): `faro censo-lugares` → `censo2018_lugar_poblado.c
 `huellas_foto`, parámetro `como` del informe, `faro fotos` (calibración; resultado en `docs/13-fotos.md`:
 0 falsos, 9.7 % de aciertos con fotos distintas). El servidor necesita internet para bajar fotos.
 Sin fuente descargable: censos 2002/1994 por municipio (PDF escaneado; microdatos tras Radware).
+
+Agregado después (v0.14.0): `precios::explicar_diferencia` (oferta / atípico / por confirmar),
+tabla `decisiones_precio`, `POST /api/publicados/decision`, pestaña "Diferencias de 50 % o más";
+`POST /api/muestreos/ejecutar_todas`; menú `#menurubros`; pistas de pendientes reducidas a
+«Extranjero»/«Ignorado» (decisión del equipo: NO sugerir países ni edades para municipios; se quitó
+`paises_ine.csv`). Entregables: `entregables/FARO-documento-tecnico.pdf` (generar con
+`scripts/entregables/generar_pdf.js <url>`; regenerarlo al cerrar versión), `docs/14`–`docs/18`.
 
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar

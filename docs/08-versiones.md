@@ -2,6 +2,15 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.14.0 · 24-nov-2026
+- Precios: diferencias de 50 % o más entre tiendas explicadas por regla (oferta, tienda atípica)
+  o confirmadas por una persona; lo marcado como error sale de comparaciones, búsquedas e informes.
+- Menú de rubros bajo "Precios por rubro"; botón "Ejecutar todas ahora" en los muestreos.
+- Pendientes: ya no se sugieren países ni edades para códigos de municipio; solo lo que el
+  diccionario del INE define para esa columna («Extranjero», «Ignorado»).
+- Entregables: documento técnico en PDF con capturas, ficha técnica, manual de usuario,
+  instalación y dependencias, guion del video y guion de la presentación.
+
 ## v0.13.0 · 24-nov-2026
 - Censo 2018 por lugar poblado (población, sexo, grandes grupos de edad, área, hogares y viviendas
   de 20,036 lugares): en el mapa, la ficha, el buscador y como capa (`faro censo-lugares`).

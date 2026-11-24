@@ -38,7 +38,7 @@
 | Sistema para estandarizar los procedimientos del IPMC y del ICC | DIEC · IPMC/ICC | Parcial: canasta del IPMC como catálogo, homologación de productos y precios por artículo; el ICC no se abordó |
 | Catálogo digital del Manual de Características para dispositivos móviles | DIEC · IPC | No hecho: el Manual no es público; la pantalla sí funciona en teléfonos y el catálogo del IPMC se consulta desde ella |
 | Calculadora de derivados de la Hoja de Balance de Alimentos | DIEC · HBA | Hecho: sección "Hoja de balance: derivados" con las tasas de Guatemala de la FAO, contrastadas con la HBA 2024 del INE; admite otra tabla |
-| Validación de bases de datos con herramientas de licencia libre; tableros dinámicos | DIEC · DESA | Hecho: validación de cada envío contra su solicitud, pistas para códigos inexistentes, resultados y mapa |
+| Validación de bases de datos con herramientas de licencia libre; tableros dinámicos | DIEC · DESA | Hecho: validación de cada envío contra su solicitud, resultados y mapa |
 | Herramienta con datos del censo por municipio y lugar poblado para las delegaciones | DIEC · DCR | Hecho: mapa en tres niveles, buscador, ficha y reporte por municipio, con población, hogares y viviendas del Censo 2018 por lugar poblado |
 | Tablero de avance de recopilación de las 22 delegaciones | DIEC · DCR | Hecho: cobertura por departamento en "Resultados y avance" y registros en el mapa por departamento |
 | Investigación de precios con catálogos en línea; media, mediana y moda; informe técnico | DPIR | Hecho: precio de referencia desde cotizaciones y, ahora, informe imprimible desde precios publicados. Falta Guatecompras (bloqueado desde la nube) |

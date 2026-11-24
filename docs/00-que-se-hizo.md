@@ -44,6 +44,10 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
   proveedores perfilados y 2,332 precios publicados, homologados contra ella.
 - Búsqueda en los 4,990 precios de referencia que el INE ya emitió y publica en su portal.
 - Canasta básica: precio promedio del INE de 34 productos, junto a precios publicados.
+- Precios por rubro: 85,907 precios publicados por 18 tiendas; el mismo producto entre tiendas por
+  código de barras; diferencias de 50 % o más explicadas por regla (oferta, tienda atípica) o
+  confirmadas por una persona; informe de precio de referencia imprimible; comparación por foto.
+- Hoja de Balance de Alimentos: derivados con las tasas de la FAO para Guatemala, contrastadas con el INE.
 - Muestreos automáticos configurables: el portal recoge solo los precios publicados por tiendas
   en línea, con su dirección y fecha.
 
@@ -71,11 +75,11 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 | | |
 |---|---|
-| Pruebas automáticas | 69 |
-| Comandos de `faro` | 19 |
+| Pruebas automáticas | 78 |
+| Comandos de `faro` | 23 |
 | Secciones de la pantalla | 21 |
 | Tareas de muestreo de precios | 26 |
 | Precios publicados en el levantamiento | 85,907 (18 tiendas, 6 rubros) |
 | Capas publicadas | 15 |
 | Fuentes citadas | 24 |
-| Hallazgos documentados | [12](09-logros.md) |
+| Hallazgos documentados | [20](09-logros.md) |

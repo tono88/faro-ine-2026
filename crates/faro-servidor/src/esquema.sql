@@ -80,6 +80,17 @@ CREATE TABLE IF NOT EXISTS huellas_foto (
     color     REAL[],
     calculada TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+-- Decisión de una persona sobre el precio que una tienda publica para un código de barras:
+-- 'correcto' (se confirma) o 'error' (se excluye de comparaciones, búsquedas e informes).
+CREATE TABLE IF NOT EXISTS decisiones_precio (
+    rubro     TEXT NOT NULL,
+    ean       TEXT NOT NULL,
+    proveedor TEXT NOT NULL,
+    decision  TEXT NOT NULL,
+    usuario   TEXT NOT NULL,
+    fecha     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (rubro, ean, proveedor)
+);
 CREATE INDEX IF NOT EXISTS precios_observados_url ON precios_observados (proveedor, url, observado DESC);
 CREATE INDEX IF NOT EXISTS precios_observados_rubro ON precios_observados (rubro, proveedor, producto, observado DESC);
 

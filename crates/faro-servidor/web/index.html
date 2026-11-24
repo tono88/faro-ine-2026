@@ -26,6 +26,8 @@
   nav button { display:flex; width:100%; gap:8px; align-items:center; border:0; background:none; color:#e9f0fa; padding:8px 10px; font:inherit; text-align:left; cursor:pointer; border-radius:7px; }
   nav button:hover { background:rgba(255,255,255,.09); }
   nav button[aria-selected=true] { background:#fff; color:var(--azul-oscuro); font-weight:600; }
+  nav .submenu { margin:0 0 4px 14px; border-left:2px solid rgba(255,255,255,.18); padding-left:6px; } nav .submenu button { padding:5px 10px; font-size:14px; color:#cfe0f6; } nav .submenu button small { margin-left:auto; color:#a9c6ee; font-size:12px; }
+  nav .submenu button[aria-current=true] { background:rgba(255,255,255,.16); color:#fff; font-weight:600; }
   nav button b { margin-left:auto; background:#f5a623; color:#3b2a00; border-radius:10px; padding:0 7px; font-size:12px; }
   main { overflow-y:auto; padding:20px 24px 40px; min-width:0; }
   main > .ancho { max-width:1180px; margin:0 auto; }
@@ -91,6 +93,9 @@
   .descarga { margin-left:10px; font-size:14px; white-space:nowrap; }
   .pestanas { display:flex; gap:4px; flex-wrap:wrap; margin:12px 0 8px; border-bottom:2px solid var(--borde); }
   .pestanas button { border:0; background:none; font:inherit; padding:8px 12px; cursor:pointer; color:var(--gris); border-bottom:3px solid transparent; margin-bottom:-2px; border-radius:6px 6px 0 0; }
+  .pestanas .cuenta { background:#f5a623; color:#3b2a00; border-radius:10px; padding:0 7px; font-size:12px; margin-left:4px; }
+  .dec { display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin:3px 0; } .dec button { border:1px solid var(--borde); background:#fff; border-radius:6px; padding:2px 8px; font:inherit; font-size:12.5px; cursor:pointer; } .dec button:hover { background:var(--cielo); }
+  .dec button[aria-pressed=true].si { background:#dff3e7; border-color:var(--ok); color:var(--ok); font-weight:600; } .dec button[aria-pressed=true].no { background:#fbe0de; border-color:var(--mal); color:var(--mal); font-weight:600; }
   .pestanas button[aria-selected=true] { color:var(--azul-oscuro); font-weight:600; border-bottom-color:var(--azul); background:var(--cielo); }
   /* Flujo de proceso: carriles (quién) y etapas (qué) */
   .flujo { display:grid; gap:0; overflow-x:auto; border:1px solid var(--borde); border-radius:var(--radio); background:#fff; }
@@ -163,6 +168,7 @@
   <button data-s="precios">Precios de referencia</button>
   <button data-s="canasta">Canasta básica</button>
   <button data-s="rubros">Precios por rubro</button>
+  <div id="menurubros" class="submenu" aria-label="Rubros de precios"></div>
   <button data-s="balance">Hoja de balance: derivados</button>
   <button data-s="muestreos">Muestreos automáticos</button>
   <h3>Datos</h3>
@@ -223,7 +229,7 @@
   <section id="pendientes">
     <div class="panel">
       <h2>Lo que el sistema no quiso adivinar</h2>
-      <p class="nota">Elija a qué corresponde cada texto: un lugar del catálogo oficial o un valor permitido (sexo, pueblo y otras variables). La decisión queda grabada con su nombre y no se vuelve a preguntar, sin importar qué institución lo envíe. Si llega un código que no existe, búsquelo por nombre en la lista. Cuando un código no existe, el portal dice qué más podría ser según el diccionario de estadísticas vitales del INE (un país, una edad, «Extranjero», «Ignorado»): es una pista para revisar el archivo, no una decisión.</p>
+      <p class="nota">Elija a qué corresponde cada texto: un lugar del catálogo oficial o un valor permitido (sexo, pueblo y otras variables). La decisión queda grabada con su nombre y no se vuelve a preguntar, sin importar qué institución lo envíe. Si llega un código que no existe, búsquelo por nombre en la lista. Si el código es uno que el diccionario de estadísticas vitales del INE define para esa misma columna («Extranjero», «Ignorado»), se indica.</p>
       <p class="nota" style="margin:0">Cada decisión queda en la bitácora con el nombre de quien inició sesión.</p>
       <div class="tabla" style="margin-top:12px"><table id="tpend"></table></div>
     </div>
@@ -377,12 +383,13 @@
         <div><button class="accion" id="rubrobuscar">Buscar</button> <a id="rubrocsv" class="descarga" href="#">Descargar CSV</a></div></div>
       <p class="nota" style="margin:10px 0 0"><a id="rubroinforme" class="accion chico suave" style="text-decoration:none;display:inline-block;border-radius:7px;padding:6px 12px" target="_blank" rel="noopener" href="#">Hacer informe de precio de referencia con esta búsqueda</a> <span id="rubroinformenota">Escriba un producto y pulse Buscar: el informe se hace sobre una búsqueda concreta.</span></p>
       <p class="nota" id="rubroresumen"></p>
-      <div class="pestanas" role="tablist" id="rubrovistas"><button role="tab" data-v="filas" aria-selected="true">Precios</button><button role="tab" data-v="iguales" aria-selected="false">Mismo producto en varias tiendas</button><button role="tab" data-v="cambios" aria-selected="false">Cambios entre muestreos</button><button role="tab" data-v="informantes" aria-selected="false">Tiendas informantes</button></div>
+      <div class="pestanas" role="tablist" id="rubrovistas"><button role="tab" data-v="filas" aria-selected="true">Precios</button><button role="tab" data-v="iguales" aria-selected="false">Mismo producto en varias tiendas</button><button role="tab" data-v="diferencias" aria-selected="false">Diferencias de 50 % o más <b id="ndif" class="cuenta" hidden></b></button><button role="tab" data-v="cambios" aria-selected="false">Cambios entre muestreos</button><button role="tab" data-v="informantes" aria-selected="false">Tiendas informantes</button></div>
       <div class="tabla"><table id="trubros"></table></div>
       <details class="como"><summary>Cómo se lee esta sección</summary><ul>
         <li><b>Precios</b>: el más reciente de cada producto en cada tienda, de menor a mayor. La media, la mediana, la moda y el rango son de lo que coincide con la búsqueda; compare solo presentaciones iguales.</li>
         <li><b>Tiendas informantes</b>: qué tiendas alimentan el rubro, cuántos productos publica cada una, cuántos traen código de barras y desde cuándo se les sigue.</li>
         <li><b>Mismo producto en varias tiendas</b>: productos con el mismo código de barras (EAN) publicado por dos o más tiendas. Es una coincidencia exacta: el portal no interpreta nombres. La diferencia es (máximo ÷ mínimo − 1) × 100.</li>
+        <li><b>Diferencias de 50 % o más</b>: el mismo código de barras con un precio al menos 50 % mayor en una tienda que en otra. El portal aplica tres reglas, en orden: (1) si con el precio regular (de lista) la diferencia baja de 50 %, es una <b>oferta</b> y no hay nada que decidir; (2) si hay tres tiendas o más, una sola se aparta más de tres veces de la mediana y las demás coinciden, esa tienda tiene un <b>precio atípico</b>, probable error de publicación; (3) si ninguna regla lo explica, queda <b>por confirmar</b>. En (2) y (3) decide una persona: «es correcto» o «es un error». Lo marcado como error deja de contar en comparaciones, búsquedas e informes, y queda registrado quién lo decidió.</li>
         <li><b>Cambios entre muestreos</b>: mismo producto y misma tienda en sus dos últimos días de muestreo. Se marca como atípico un cambio de 15 % o más en valor absoluto; es una alerta para revisar, no una conclusión.</li>
         <li>Solo se leen páginas públicas, con pausas entre consultas; son precios publicados en línea, no cotizaciones ni precios en tienda física.</li></ul></details>
     </div>
@@ -411,7 +418,7 @@
 
   <section id="muestreos">
     <div class="titulo"><h2>Muestreos automáticos</h2><p>Tareas que el propio portal repite sin intervención: consultan la búsqueda pública de una tienda en línea (sin sesión ni claves, una consulta por término y con pausa), y guardan cada precio con su dirección y la fecha. Usted decide cuáles corren y cada cuánto. La vigilancia del portal de datos abiertos del INE funciona igual y está en "Portal del INE".</p></div>
-    <div class="panel"><div class="tabla"><table id="tmuestreos"></table></div>
+    <div class="panel"><p style="margin:0 0 12px"><button class="accion" id="muestreostodas" style="margin:0">↻ Ejecutar todas ahora</button> <span class="nota" id="muestreostodasnota">Vuelve a leer todas las tiendas: corre en segundo plano, una tienda a la vez por sitio, y puede tardar más de una hora. Puede seguir usando el portal.</span></p><div class="tabla"><table id="tmuestreos"></table></div>
     <p class="nota">Cómo se agrega una tienda o un rubro: una tarea más en <code>datos/estandar/muestreos.toml</code> con la dirección base de la tienda, el rubro y los términos de búsqueda. Se admiten cuatro lecturas: búsqueda por términos y catálogo completo por categorías (tiendas con tecnología VTEX), mapa del sitio con datos estructurados de cada producto, y listado paginado (tiendas Magento). Un catálogo completo tarda varios minutos y corre en segundo plano. Los precios de construcción entran solos a la comparación contra el IPMC; los de alimentos aparecen en "Canasta básica"; todos se consultan en "Precios por rubro". Suma, Super del Barrio y Mi Super Fresh no publican catálogo con precios en línea (solo páginas informativas), y PriceSmart exige un navegador con sesión: no se muestrean.</p></div>
   </section>
 
@@ -535,7 +542,7 @@ async function pendientes() {
   tabla('#tpend', [
     {t:'Texto recibido', f:f => `<b>${esc(f.valor)}</b><br><small>${esc(f.columna)}</small>`},
     {t:'En', f:f => f.nivel === 'valor' ? `variable <b>${esc(f.contexto)}</b>` : esc(f.contexto_nombre || (f.contexto ? 'código ' + f.contexto : '(sin nivel superior)'))},
-    {t:'Veces (filas)', num:1, f:f => num(f.veces)}, {t:'Institución', f:f => esc(f.instituciones)}, {t:'Estado', f:f => etq(f.estado) + (f.pista ? `<br><small class="pista">Pista: ${esc(f.pista)}.</small>` : '')},
+    {t:'Veces (filas)', num:1, f:f => num(f.veces)}, {t:'Institución', f:f => esc(f.instituciones)}, {t:'Estado', f:f => etq(f.estado) + (f.pista ? `<br><small class="pista">${esc(f.pista[0].toUpperCase() + f.pista.slice(1))}.</small>` : '')},
     {t:'¿A qué corresponde?', f:f => f.candidatos.map(c => `<button class="accion chico" ${datos(f)} data-c="${esc(c.codigo)}">${f.nivel === 'valor' ? esc(c.nombre) : esc(c.codigo) + ' ' + esc(c.nombre)}</button>`).join('') + otro(f)},
   ], filas, 'No hay nada por revisar.');
 }
@@ -1061,6 +1068,8 @@ async function muestreos() {
   clearTimeout(relojMuestreos);
   if (t.some(f => f.en_curso) && $('#muestreos').classList.contains('activa')) relojMuestreos = setTimeout(() => muestreos().catch(() => {}), 8000);
 }
+$('#muestreostodas').onclick = async () => { if (!confirm('Se volverán a leer todas las tiendas (puede tardar más de una hora). ¿Continuar?')) return; $('#muestreostodas').disabled = true;
+  try { const r = await api('/api/muestreos/ejecutar_todas', {method:'POST'}); aviso(`${r.tareas} tareas iniciadas en ${r.sitios} sitios. El avance se ve en esta tabla.`); } catch (x) { aviso(x.message, true); } $('#muestreostodas').disabled = false; muestreos(); };
 $('#tmuestreos').onchange = async e => { const c = e.target, id = c.dataset.m || c.dataset.h; if (!id) return;
   try { await api('/api/muestreos/' + encodeURIComponent(id), {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(c.dataset.m ? {activa: c.checked} : {cada_horas: +c.value})}); aviso('Guardado.'); muestreos(); } catch (x) { aviso(x.message, true); muestreos(); } };
 $('#tmuestreos').onclick = async e => { const b = e.target.closest('button[data-e]'); if (!b) return; b.disabled = true; b.textContent = 'Consultando…';
@@ -1107,10 +1116,20 @@ async function rubros(conservar) {
   $('#rubrocsv').href = '/api/publicados.csv?' + new URLSearchParams({rubro: r.rubro, q: $('#rubroq').value, proveedor: $('#rubrotienda').value});
   const hayq = !!$('#rubroq').value.trim(); $('#rubroinforme').href = hayq ? '/informe-precio?' + new URLSearchParams({rubro: r.rubro, q: $('#rubroq').value, proveedor: $('#rubrotienda').value}) : '#';
   $('#rubroinforme').style.opacity = hayq ? 1 : .5; $('#rubroinformenota').textContent = hayq ? 'Media, mediana y moda, el precio recomendado según la regla de la Dirección de Precios, las fuentes con su enlace y la metodología; listo para imprimir. Allí puede apartar los productos que no sean comparables.' : 'Escriba un producto y pulse Buscar: el informe se hace sobre una búsqueda concreta.';
-  pintarRubro();
+  const pend = (r.conteo_diferencias?.atipico || 0) + (r.conteo_diferencias?.por_confirmar || 0); $('#ndif').hidden = !pend; $('#ndif').textContent = num(pend);
+  $('#menurubros').innerHTML = r.rubros.map(x => `<button data-rubro="${esc(x.rubro)}" aria-current="${x.rubro === r.rubro && $('#rubros').classList.contains('activa')}">${esc(rubroNombre(x.rubro))} <small>${num(x.productos)}</small></button>`).join('');
+  rubroResumenBase = $('#rubroresumen').innerHTML; pintarRubro();
 }
+let rubroResumenBase = '';
+// Menú de rubros: cada uno abre "Precios por rubro" ya filtrado.
+$('#menurubros').onclick = async e => { const b = e.target.closest('button[data-rubro]'); if (!b) return; e.stopPropagation();
+  document.querySelector('nav').classList.remove('abierto'); document.querySelectorAll('nav > button').forEach(x => x.setAttribute('aria-selected', x.dataset.s === 'rubros')); document.querySelectorAll('section').forEach(x => x.classList.toggle('activa', x.id === 'rubros'));
+  try { if (!$('#rubrosel').querySelector(`option[value="${b.dataset.rubro}"]`)) await rubros(false); $('#rubrosel').value = b.dataset.rubro; $('#rubroq').value = ''; $('#rubrotienda').value = ''; await rubros(true); } catch (x) { aviso(x.message, true); } };
+// Decisión sobre un precio: es correcto / es un error (otra vez sobre la misma la quita).
+$('#trubros').addEventListener('click', async e => { const b = e.target.closest('button[data-dec]'); if (!b) return;
+  try { await api('/api/publicados/decision', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({rubro: rubroDatos.rubro, ean: b.dataset.ean, proveedor: b.dataset.prov, decision: b.getAttribute('aria-pressed') === 'true' ? '' : b.dataset.dec})}); aviso('Decisión guardada.'); await rubros(true); } catch (x) { aviso(x.message, true); } });
 function pintarRubro() {
-  const r = rubroDatos; if (!r) return;
+  const r = rubroDatos; if (!r) return; if (rubroResumenBase) $('#rubroresumen').innerHTML = rubroResumenBase;
   document.querySelectorAll('#rubrovistas button').forEach(b => b.setAttribute('aria-selected', b.dataset.v === rubroVista));
   const enlace = (u, t) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`;
   if (rubroVista === 'filas') tabla('#trubros', [{t:'Producto', f:f => `${enlace(f.url, f.producto)}${f.marca ? `<br><small>${esc(f.marca)}</small>` : ''}`}, {t:'Tienda', f:f => esc(f.proveedor)},
@@ -1119,6 +1138,12 @@ function pintarRubro() {
   else if (rubroVista === 'iguales') tabla('#trubros', [{t:'Producto (código de barras)', f:f => `<b>${esc(f.producto)}</b><br><code>${esc(f.ean)}</code>`},
     {t:'Precio por tienda (Q)', f:f => f.ofertas.map(o => `${enlace(o.url, o.proveedor)} <b>${q(o.precio)}</b>`).join('<br>')},
     {t:'Mínimo (Q)', num:1, f:f => q(f.minimo)}, {t:'Máximo (Q)', num:1, f:f => q(f.maximo)}, {t:'Diferencia (%)', num:1, f:f => `<span class="etq ${f.diferencia_pct >= 15 ? 'alerta' : f.diferencia_pct > 0 ? '' : 'ok'}">${num(f.diferencia_pct)} %</span>`}], r.mismo_codigo, 'Ningún código de barras aparece en dos tiendas de este rubro (o las tiendas no lo publican).');
+  else if (rubroVista === 'diferencias') { const c = r.conteo_diferencias || {}, ETQ = {oferta:['ok', 'oferta'], atipico:['mal', 'precio atípico'], por_confirmar:['alerta', 'por confirmar']};
+    $('#rubroresumen').innerHTML += `<br><b>${num(r.total_diferencias)}</b> producto(s) con 50 % o más de diferencia entre tiendas: <b>${num(c.oferta || 0)}</b> se explican por oferta, <b>${num(c.atipico || 0)}</b> con una tienda atípica y <b>${num(c.por_confirmar || 0)}</b> sin regla esperan su decisión; <b>${num(c.decididos || 0)}</b> ya decididos.`;
+    tabla('#trubros', [{t:'Producto (código de barras)', f:f => `<b>${esc(f.producto)}</b><br><code>${esc(f.ean)}</code>`},
+      {t:'Precio por tienda (Q) y su decisión', f:f => f.ofertas.map(o => `<div class="dec">${enlace(o.url, o.proveedor)} <b>${q(o.precio)}</b>${o.precio_lista > o.precio ? ` <small>regular ${q(o.precio_lista)}</small>` : ''}${f.clase === 'oferta' ? '' : ` <button class="si" data-dec="correcto" data-ean="${esc(f.ean)}" data-prov="${esc(o.proveedor)}" aria-pressed="${o.decision === 'correcto'}">es correcto</button><button class="no" data-dec="error" data-ean="${esc(f.ean)}" data-prov="${esc(o.proveedor)}" aria-pressed="${o.decision === 'error'}">es un error</button>${o.decidio ? `<small>${esc(o.decidio)}</small>` : ''}`}</div>`).join('')},
+      {t:'Diferencia (%)', num:1, f:f => `${num((f.razon - 1) * 100)} %${f.razon_regular < f.razon ? `<br><small>regular: ${num((f.razon_regular - 1) * 100)} %</small>` : ''}`},
+      {t:'Qué dice la regla', f:f => `<span class="etq ${f.resuelto && f.clase !== 'oferta' ? 'ok' : ETQ[f.clase][0]}">${f.resuelto && f.clase !== 'oferta' ? 'decidido' : ETQ[f.clase][1]}</span><br><small>${esc(f.explicacion)}</small>`}], r.diferencias, 'Ningún producto de este rubro tiene 50 % o más de diferencia entre tiendas.'); }
   else if (rubroVista === 'informantes') tabla('#trubros', [{t:'Tienda informante', f:f => `<b>${esc(f.proveedor)}</b><br><small>${esc(f.sitio || '')}</small>`}, {t:'Productos con precio (cantidad)', num:1, f:f => num(f.productos)},
     {t:'Con código de barras (cantidad)', num:1, f:f => `${num(f.con_codigo)}<br><small>${num(100 * f.con_codigo / f.productos)} %</small>`}, {t:'Categorías de la tienda (cantidad)', num:1, f:f => num(f.categorias)},
     {t:'Días con muestreo (cantidad)', num:1, f:f => num(f.dias)}, {t:'Primer y último muestreo', f:f => `${esc(f.desde || '')} a ${esc(f.hasta || '')}`}], r.informantes, 'Sin tiendas en este rubro.');
@@ -1233,7 +1258,8 @@ const cargar = {balance: hbaIniciar, rubros: () => rubros(false), alimentaria, p
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 // Enlaces internos del tipo <a href="#seccion"> llevan a esa sección del menú.
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const b = a && document.querySelector(`nav button[data-s="${a.getAttribute('href').slice(1)}"]`); if (b) { e.preventDefault(); b.click(); } });
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+api('/api/publicados').then(r => { $('#menurubros').innerHTML = r.rubros.map(x => `<button data-rubro="${esc(x.rubro)}">${esc(rubroNombre(x.rubro))} <small>${num(x.productos)}</small></button>`).join(''); }).catch(() => {});
+document.querySelectorAll('nav > button').forEach(b => b.onclick = () => {
   document.querySelector('nav').classList.remove('abierto');
   document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
   document.querySelectorAll('section').forEach(s => s.classList.toggle('activa', s.id === b.dataset.s));
