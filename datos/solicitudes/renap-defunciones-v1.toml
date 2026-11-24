@@ -4,6 +4,19 @@ id = "renap-defunciones-v1"
 titulo = "Defunciones"
 institucion = "RENAP"
 periodicidad = "mensual"
+# El archivo de un mes trae defunciones de meses anteriores inscritas tarde: lo que un reenvío
+# reemplaza es el mes de registro (corte), no el mes de la defunción.
+corte = ["anio_registro", "mes_registro"]
+
+[[columna]]
+nombre = "anio_registro"
+tipo = "entero"
+alias = ["ANIO_REGISTRO"]
+
+[[columna]]
+nombre = "mes_registro"
+tipo = "entero"
+alias = ["MES_REGISTRO"]
 
 [[columna]]
 nombre = "persona"

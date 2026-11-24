@@ -238,7 +238,9 @@
     </div>
     <div class="panel" id="resultado" hidden></div>
     <div class="panel"><p class="proc" data-proc="registros" style="margin:0"></p></div>
-    <div class="panel"><h2>Envíos recibidos</h2><div class="tabla"><table id="envios"></table></div></div>
+    <div class="panel"><h2>Envíos recibidos</h2>
+      <p class="nota">Cada archivo recibido queda en este historial con su fecha. Lo que cuenta en las estadísticas no es la fecha en que se subió, sino el <b>corte</b> del archivo: el mes de registro que la solicitud declara (o, si no declara ninguno, el mes en que ocurrió el hecho). Si llega un archivo con un corte nuevo, se suma al historial; si llega uno con un corte que ya estaba, <b>reemplaza</b> al anterior en ese corte (el anterior queda aquí como «reemplazado» y sus pendientes dejan de mostrarse). El archivo original no se guarda —trae datos personales—, así que para volver a analizar un envío con reglas nuevas hay que subirlo otra vez.</p>
+      <div class="tabla"><table id="envios"></table></div></div>
   </section>
 
   <section id="pendientes">
@@ -554,12 +556,18 @@ function infoSolicitud() {
   $('#solinfo').textContent = `Pide ${c.length} columnas (${c.filter(x => x.requerida).length} obligatorias, ${c.filter(x => x.pareo).length} para pareo, ${c.filter(x => x.sensible).length} con dato personal protegido): ` + c.map(x => x.nombre).join(', ') + '.';
 }
 async function envios() {
+  const rango = (a, b) => a === b ? esc(a) : `${esc(a)} a ${esc(b)}`;
+  const periodo = f => !f.periodos ? '<small>sin fecha en los datos</small>' : `<b>${rango(f.periodo_desde, f.periodo_hasta)}</b>${f.periodos > 1 ? ` <small>(${f.periodos} meses)</small>` : ''}${f.hechos_desde && (f.hechos_desde !== f.periodo_desde || f.hechos_hasta !== f.periodo_hasta) ? `<br><small>hechos ocurridos de ${rango(f.hechos_desde, f.hechos_hasta)}</small>` : ''}`;
   tabla('#envios', [
     {t:'#', f:f => f.id}, {t:'Recibido', f:f => esc(f.recibido)}, {t:'Institución', f:f => esc(f.institucion)}, {t:'Solicitud', f:f => esc(f.solicitud)},
-    {t:'Archivo', f:f => esc(f.archivo)}, {t:'Filas (registros)', num:1, f:f => num(f.filas)}, {t:'Problemas (celdas)', num:1, f:f => num(f.problemas)},
+    {t:'Archivo', f:f => esc(f.archivo)}, {t:'Corte (mes de registro)', f:periodo}, {t:'Filas (registros)', num:1, f:f => num(f.filas)}, {t:'Problemas (celdas)', num:1, f:f => num(f.problemas)},
     {t:'Lugares resueltos', f:f => `<div class="barra" title="${num(f.pct_resuelto)} %"><i style="width:${f.pct_resuelto}%"></i></div>${num(f.pct_resuelto)} %`},
+    {t:'En las estadísticas', f:f => !f.vigente ? `<span class="etq">reemplazado${f.reemplazado_por ? ' por el n.º ' + f.reemplazado_por : ''}</span>` : f.periodos && f.periodos_vigentes < f.periodos ? `<span class="etq alerta">vigente en ${f.periodos_vigentes} de ${f.periodos} meses</span>` : `<span class="etq ok">vigente</span>${f.pendientes ? `<br><small>${num(f.pendientes)} por revisar</small>` : ''}`},
+    {t:'', f:f => `<button class="accion chico suave" data-borrar-envio="${f.id}" data-n="${esc(f.archivo)}">Eliminar</button>`},
   ], await api('/api/envios'), 'Todavía no hay envíos.');
 }
+$('#envios').onclick = async e => { const b = e.target.closest('button[data-borrar-envio]'); if (!b || !confirm(`¿Eliminar el envío n.º ${b.dataset.borrarEnvio} (${b.dataset.n})? Se borran sus conteos y sus pendientes; las equivalencias ya aprendidas se conservan.`)) return;
+  try { await api('/api/envios/' + b.dataset.borrarEnvio, {method:'DELETE'}); aviso('Envío eliminado.'); envios(); estado(); } catch (x) { aviso(x.message, true); } };
 function mostrarResultado(r) {
   const rec = r.recepcion, rep = rec.reporte;
   const geo = Object.entries(rec.homologacion).map(([col, est]) => `<tr><td>${esc(col)}</td><td>${Object.entries(est).map(([k, v]) => `${etq(k)} ${num(v)}`).join(' &nbsp; ')}</td></tr>`).join('');

@@ -102,3 +102,10 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - Seguridad: tras estos cambios, cualquier guion que escriba debe entrar con `_sesion.js`; con admin/admin sin cambiar, todo POST da 403.
 - Interfaz: `small` dentro de tablas de 13 px baja de 11 px en celular; botones `.chico` necesitan 36 px en táctil.
 - Tableros: el intérprete vive en `tablero.rs` (sinónimos en `INDICADORES`); agregar un indicador = una fila allí + que exista la propiedad en `municipios.geojson`.
+
+## Bloques v0.15.1 y v0.15.2 (24-nov)
+- RENAP: códigos = INE en dos columnas, válidos solo con país 320. Se descubrió contando combinaciones en el archivo real (máximo de municipio por departamento = catálogo).
+- `es_sin_dato("-1")` anulaba "1" porque `basico` quita el signo: comparar números con signo.
+- Los archivos mensuales traen hechos de décadas (registro tardío): la unidad de reemplazo es el corte (mes de registro), no el periodo del hecho.
+- Prueba de punta a punta de envíos con archivos reales: servidor nativo + `pgtmp`, subir con `curl -F archivo=@... -H 'x-faro-token: servicio'`, mirar `/api/envios`, y al final `DELETE FROM envios` (la base temporal no debe quedarse con nada).
+- Los archivos reales están en `/root/.claude/uploads/...` solo durante la sesión; NUNCA copiarlos al repositorio.

@@ -235,6 +235,7 @@ async fn main() -> Result<(), String> {
         .route("/api/solicitudes", get(api_solicitudes))
         .route("/api/catalogo/:nivel", get(api_catalogo))
         .route("/api/envios", get(api_envios))
+        .route("/api/envios/:solicitud", axum::routing::delete(api_envio_borrar))
         .route("/api/envios/:solicitud", post(api_enviar).layer(DefaultBodyLimit::max(300 * 1024 * 1024)))
         .route("/api/pendientes", get(api_pendientes))
         .route("/api/confirmar", post(api_confirmar))
@@ -401,7 +402,7 @@ async fn api_estado(State(e): State<Compartido>) -> Res<Json<Value>> {
         .bd
         .query_one(
             "SELECT (SELECT count(*) FROM envios), (SELECT coalesce(sum(filas),0)::bigint FROM envios),
-                    (SELECT count(*) FROM (SELECT 1 FROM pendientes WHERE NOT resuelto GROUP BY columna, nivel, contexto, valor) p),
+                    (SELECT count(*) FROM (SELECT 1 FROM pendientes WHERE NOT resuelto AND envio_id IN (SELECT id FROM envios_vigentes) GROUP BY columna, nivel, contexto, valor) p),
                     (SELECT count(*) FROM equivalencias) + (SELECT count(*) FROM equivalencias_valor),
                     (SELECT count(*) FROM conjuntos_ine), (SELECT count(DISTINCT municipio) FROM edificaciones)",
             &[],
@@ -427,27 +428,55 @@ async fn api_catalogo(State(e): State<Compartido>, Ruta(nivel): Ruta<String>, Qu
 
 async fn api_envios(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     con_sesion(&e, &cabeceras).await?;
-    let filas = e
-        .bd
-        .query("SELECT id, solicitud, institucion, archivo, to_char(recibido, 'YYYY-MM-DD HH24:MI'), filas, pct_resuelto, problemas FROM envios ORDER BY id DESC LIMIT 100", &[])
-        .await
-        .map_err(interno)?;
+    // Cada envío con el periodo de sus datos y si sigue vigente o fue reemplazado por uno posterior.
+    let filas = e.bd.query(
+        "SELECT e.id, e.solicitud, e.institucion, e.archivo, to_char(e.recibido, 'YYYY-MM-DD HH24:MI'), e.filas, e.pct_resuelto, e.problemas,
+                (SELECT min(corte) FROM hechos h WHERE h.envio_id = e.id AND corte <> ''), (SELECT max(corte) FROM hechos h WHERE h.envio_id = e.id AND corte <> ''),
+                (SELECT count(DISTINCT corte) FROM hechos h WHERE h.envio_id = e.id AND corte <> ''),
+                e.id IN (SELECT id FROM envios_vigentes),
+                (SELECT count(DISTINCT h.corte) FROM hechos h WHERE h.envio_id = e.id AND h.corte <> '' AND h.envio_id = (SELECT max(envio_id) FROM hechos x WHERE x.solicitud = h.solicitud AND x.corte = h.corte)),
+                (SELECT max(x.envio_id) FROM hechos h JOIN hechos x ON x.solicitud = h.solicitud AND x.corte = h.corte AND x.envio_id > h.envio_id WHERE h.envio_id = e.id),
+                (SELECT min(periodo) FROM hechos h WHERE h.envio_id = e.id AND periodo <> ''), (SELECT max(periodo) FROM hechos h WHERE h.envio_id = e.id AND periodo <> ''),
+                (SELECT count(*) FROM (SELECT 1 FROM pendientes p WHERE p.envio_id = e.id AND NOT p.resuelto GROUP BY columna, nivel, contexto, valor) q)
+         FROM envios e ORDER BY e.id DESC LIMIT 200", &[]).await.map_err(interno)?;
     Ok(Json(json!(filas.iter().map(|f| json!({
         "id": f.get::<_, i64>(0), "solicitud": f.get::<_, String>(1), "institucion": f.get::<_, String>(2), "archivo": f.get::<_, String>(3),
         "recibido": f.get::<_, String>(4), "filas": f.get::<_, i64>(5), "pct_resuelto": f.get::<_, f64>(6), "problemas": f.get::<_, i64>(7),
+        "periodo_desde": f.get::<_, Option<String>>(8), "periodo_hasta": f.get::<_, Option<String>>(9), "periodos": f.get::<_, i64>(10),
+        "vigente": f.get::<_, bool>(11), "periodos_vigentes": f.get::<_, i64>(12), "reemplazado_por": f.get::<_, Option<i64>>(13),
+        "hechos_desde": f.get::<_, Option<String>>(14), "hechos_hasta": f.get::<_, Option<String>>(15), "pendientes": f.get::<_, i64>(16),
     })).collect::<Vec<_>>())))
 }
 
-/// Conteos por periodo (AAAA-MM), municipio y sexo a partir de la salida estándar.
-fn agregar(rec: &Recepcion) -> BTreeMap<(String, String, String), i64> {
+/// Elimina un envío con sus pendientes y sus conteos (quedan las equivalencias aprendidas).
+async fn api_envio_borrar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let quien = autorizar_en(&e, &cabeceras, "recibir").await?;
+    let n = e.bd.execute("DELETE FROM envios WHERE id = $1", &[&id]).await.map_err(interno)?;
+    if n == 0 {
+        return Err(pedido("no existe ese envío"));
+    }
+    eprintln!("envío {id} eliminado por {}", quien.nombre);
+    Ok(Json(json!({ "borrado": true })))
+}
+
+/// Conteos por corte, periodo del hecho (AAAA-MM), municipio y sexo a partir de la salida estándar.
+/// El corte sale de las columnas que declara la solicitud (fecha de registro, o año y mes); si no
+/// declara ninguna, es el mismo mes del hecho.
+fn agregar(rec: &Recepcion, corte: &[String]) -> BTreeMap<(String, String, String, String), i64> {
     let pos = |n: &str| rec.encabezados.iter().position(|e| e == n);
     let (fecha, muni, sexo) = (pos("fecha_hecho"), pos("municipio_codigo"), pos("sexo"));
+    let cols: Vec<usize> = corte.iter().filter_map(|c| pos(c)).collect();
     let mut conteo = BTreeMap::new();
     for f in &rec.filas {
         let periodo = fecha.and_then(|i| f[i].get(..7)).unwrap_or("").to_string();
+        let de_corte = match cols.as_slice() {
+            [una] => f[*una].get(..7).filter(|t| t.len() == 7 && t.as_bytes()[4] == b'-').map(String::from),
+            [anio, mes] => f[*anio].trim().parse::<u32>().ok().zip(f[*mes].trim().parse::<u32>().ok()).filter(|(a, m)| (1900..=2100).contains(a) && (1..=12).contains(m)).map(|(a, m)| format!("{a}-{m:02}")),
+            _ => None,
+        };
         let m = muni.map(|i| f[i].clone()).unwrap_or_default();
         let s = sexo.map(|i| f[i].clone()).unwrap_or_default();
-        *conteo.entry((periodo, m, s)).or_insert(0) += 1;
+        *conteo.entry((de_corte.unwrap_or_else(|| periodo.clone()), periodo, m, s)).or_insert(0) += 1;
     }
     conteo
 }
@@ -519,9 +548,18 @@ async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabecer
         .await
         .map_err(interno)?;
     }
-    for ((periodo, municipio, sexo), n) in agregar(&rec) {
-        e.bd.execute("INSERT INTO hechos (envio_id, solicitud, periodo, municipio, sexo, n) VALUES ($1,$2,$3,$4,$5,$6)", &[&envio, &sol.id, &periodo, &municipio, &sexo, &n]).await.map_err(interno)?;
+    for ((corte, periodo, municipio, sexo), n) in agregar(&rec, &sol.corte) {
+        e.bd.execute("INSERT INTO hechos (envio_id, solicitud, periodo, municipio, sexo, n, corte) VALUES ($1,$2,$3,$4,$5,$6,$7)", &[&envio, &sol.id, &periodo, &municipio, &sexo, &n, &corte]).await.map_err(interno)?;
     }
+    // El mismo archivo de la misma solicitud siempre reemplaza al anterior, aunque aquel se haya
+    // guardado con otra regla de corte: sus conteos pasan al corte del nuevo y quedan reemplazados.
+    e.bd.execute(
+        "UPDATE hechos SET corte = (SELECT min(corte) FROM hechos WHERE envio_id = $1)
+         WHERE envio_id IN (SELECT id FROM envios WHERE solicitud = $2 AND archivo = $3 AND id < $1) AND EXISTS (SELECT 1 FROM hechos WHERE envio_id = $1)",
+        &[&envio, &sol.id, &nombre],
+    )
+    .await
+    .map_err(interno)?;
     // Salida estándar fila por fila: al volumen privado, nunca al repositorio.
     let dir = e.dir_privado.join("envios").join(envio.to_string());
     let rec = tokio::task::spawn_blocking(move || -> Result<Recepcion, String> {
@@ -547,7 +585,7 @@ async fn api_pendientes(State(e): State<Compartido>, cabeceras: HeaderMap) -> Re
         .bd
         .query(
             "SELECT columna, nivel, contexto, valor, sum(veces)::bigint, max(estado), (array_agg(candidatos ORDER BY id DESC))[1], string_agg(DISTINCT institucion, ', ')
-             FROM pendientes WHERE NOT resuelto GROUP BY columna, nivel, contexto, valor ORDER BY 5 DESC LIMIT 500",
+             FROM pendientes WHERE NOT resuelto AND envio_id IN (SELECT id FROM envios_vigentes) GROUP BY columna, nivel, contexto, valor ORDER BY 5 DESC LIMIT 500",
             &[],
         )
         .await
@@ -658,10 +696,10 @@ async fn api_hechos(State(e): State<Compartido>) -> Res<Json<Value>> {
     let filas = e
         .bd
         .query(
-            "WITH ultimo AS (SELECT solicitud, periodo, max(envio_id) AS envio_id FROM hechos GROUP BY 1, 2)
+            "WITH ultimo AS (SELECT solicitud, corte, max(envio_id) AS envio_id FROM hechos GROUP BY 1, 2)
              SELECT h.solicitud, left(h.municipio, 2), sum(h.n)::bigint, sum(h.n) FILTER (WHERE h.sexo = 'hombre')::bigint, sum(h.n) FILTER (WHERE h.sexo = 'mujer')::bigint,
                     max(left(h.periodo, 4)), count(DISTINCT h.periodo) FILTER (WHERE h.periodo <> '')
-             FROM hechos h JOIN ultimo u USING (solicitud, periodo, envio_id) GROUP BY 1, 2 ORDER BY 1, 2",
+             FROM hechos h JOIN ultimo u USING (solicitud, corte, envio_id) GROUP BY 1, 2 ORDER BY 1, 2",
             &[],
         )
         .await
@@ -686,7 +724,7 @@ async fn api_avance(State(e): State<Compartido>) -> Res<Json<Value>> {
         .query(
             "SELECT e.institucion, e.solicitud, count(*), sum(e.filas)::bigint, to_char(max(e.recibido), 'YYYY-MM-DD HH24:MI'),
                     (array_agg(e.pct_resuelto ORDER BY e.id DESC))[1], (array_agg(e.problemas ORDER BY e.id DESC))[1],
-                    (SELECT count(*) FROM (SELECT 1 FROM pendientes p JOIN envios x ON x.id = p.envio_id WHERE NOT p.resuelto AND x.solicitud = e.solicitud GROUP BY p.columna, p.nivel, p.contexto, p.valor) q)
+                    (SELECT count(*) FROM (SELECT 1 FROM pendientes p JOIN envios x ON x.id = p.envio_id WHERE NOT p.resuelto AND x.id IN (SELECT id FROM envios_vigentes) AND x.solicitud = e.solicitud GROUP BY p.columna, p.nivel, p.contexto, p.valor) q)
              FROM envios e GROUP BY e.institucion, e.solicitud ORDER BY 1, 2",
             &[],
         )
@@ -1096,8 +1134,8 @@ async fn api_registros_municipio(State(e): State<Compartido>) -> Res<Json<Value>
     let filas = e
         .bd
         .query(
-            "WITH ultimo AS (SELECT solicitud, periodo, max(envio_id) AS envio_id FROM hechos GROUP BY 1, 2)
-             SELECT h.solicitud, h.municipio, sum(h.n)::bigint, max(left(h.periodo, 4)) FROM hechos h JOIN ultimo u USING (solicitud, periodo, envio_id) WHERE h.municipio <> '' GROUP BY 1, 2",
+            "WITH ultimo AS (SELECT solicitud, corte, max(envio_id) AS envio_id FROM hechos GROUP BY 1, 2)
+             SELECT h.solicitud, h.municipio, sum(h.n)::bigint, max(left(h.periodo, 4)) FROM hechos h JOIN ultimo u USING (solicitud, corte, envio_id) WHERE h.municipio <> '' GROUP BY 1, 2",
             &[],
         )
         .await
@@ -1255,7 +1293,7 @@ async fn api_proceso(State(e): State<Compartido>) -> Res<Json<Value>> {
         .bd
         .query_one(
             "SELECT (SELECT count(*) FROM envios), (SELECT coalesce(sum(filas),0)::bigint FROM envios), (SELECT coalesce(sum(problemas),0)::bigint FROM envios),
-                    (SELECT count(*) FROM (SELECT 1 FROM pendientes WHERE NOT resuelto GROUP BY columna, nivel, contexto, valor) p),
+                    (SELECT count(*) FROM (SELECT 1 FROM pendientes WHERE NOT resuelto AND envio_id IN (SELECT id FROM envios_vigentes) GROUP BY columna, nivel, contexto, valor) p),
                     (SELECT count(*) FROM equivalencias) + (SELECT count(*) FROM equivalencias_valor), (SELECT coalesce(sum(n),0)::bigint FROM hechos),
                     (SELECT count(*) FROM conjuntos_ine), (SELECT count(DISTINCT institucion) FROM envios)",
             &[],
@@ -1816,7 +1854,7 @@ async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>) 
     let sin_conexion: Vec<Value> = e.vial["sin_camino"].as_array().into_iter().flatten().filter(|x| x["codigo"].as_str().is_some_and(|c| c.starts_with(&codigo))).map(|x| json!({ "nombre": x["nombre"], "codigo": x["codigo"], "distancia_m": x["distancia_m"], "conexion": "sin_camino" }))
         .chain(e.vial["enlaces"].as_array().into_iter().flatten().flat_map(|en| en["lugares"].as_array().into_iter().flatten().filter(|x| x["codigo"].as_str().is_some_and(|c| c.starts_with(&codigo))).map(|x| json!({ "nombre": x["nombre"], "codigo": x["codigo"], "conexion": "tramo_suelto", "hueco_km": en["km"] })).collect::<Vec<_>>()))
         .collect();
-    let registros = e.bd.query("SELECT solicitud, sum(n)::bigint FROM hechos WHERE municipio = $1 GROUP BY 1 ORDER BY 1", &[&codigo]).await.map_err(interno)?;
+    let registros = e.bd.query("WITH ultimo AS (SELECT solicitud, corte, max(envio_id) AS envio_id FROM hechos GROUP BY 1, 2) SELECT h.solicitud, sum(h.n)::bigint FROM hechos h JOIN ultimo u USING (solicitud, corte, envio_id) WHERE h.municipio = $1 GROUP BY 1 ORDER BY 1", &[&codigo]).await.map_err(interno)?;
     Ok(Json(json!({
         "codigo": codigo, "nombre": l.nombre, "departamento": e.catalogo.por_codigo(&l.padre).map(|d| d.nombre.clone()), "anio_actual": hoy,
         "poblacion": poblacion, "poblacion_cambio": e.poblacion.cambio(&codigo, 2018, hasta),

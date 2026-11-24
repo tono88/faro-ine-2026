@@ -185,3 +185,16 @@ CREATE TABLE IF NOT EXISTS tableros (
     creado     TIMESTAMPTZ NOT NULL DEFAULT now(),
     cambiado   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Corte de cada conteo: el mes de registro (o, si la solicitud no lo declara, el mes del hecho).
+ALTER TABLE hechos ADD COLUMN IF NOT EXISTS corte TEXT NOT NULL DEFAULT '';
+UPDATE hechos SET corte = periodo WHERE corte = '' AND periodo <> '';
+CREATE INDEX IF NOT EXISTS hechos_corte ON hechos (solicitud, corte, envio_id);
+-- Envíos vigentes: el más reciente de cada solicitud y corte (AAAA-MM). Un envío
+-- cuyos periodos fueron todos enviados de nuevo queda reemplazado: se conserva en el historial,
+-- pero ya no cuenta en las estadísticas ni muestra pendientes. Un envío sin conteos por periodo
+-- es vigente solo si es el último de su solicitud.
+CREATE OR REPLACE VIEW envios_vigentes AS
+SELECT e.id FROM envios e
+WHERE e.id IN (SELECT max(envio_id) FROM hechos GROUP BY solicitud, corte)
+   OR (NOT EXISTS (SELECT 1 FROM hechos h WHERE h.envio_id = e.id) AND e.id = (SELECT max(x.id) FROM envios x WHERE x.solicitud = e.solicitud));

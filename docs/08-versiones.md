@@ -2,6 +2,16 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.15.2 · 24-nov-2026
+- Historial de envíos con reemplazo real: cada archivo queda en el historial con su fecha; en las
+  estadísticas cuenta el más reciente de cada **corte** (mes de registro que declara la solicitud o,
+  si no declara, mes del hecho). Un envío reemplazado deja de mostrar sus pendientes. El mismo
+  archivo de la misma solicitud siempre reemplaza al anterior. Botón para eliminar un envío.
+- Corrección: los archivos mensuales de RENAP traen hechos de meses anteriores inscritos tarde; con
+  la regla anterior (mes del hecho) el archivo de un mes habría pisado meses de otro. Ahora el
+  corte es el mes de registro (`corte` en la solicitud).
+- La ficha del municipio ya no cuenta dos veces un reenvío.
+
 ## v0.15.1 · 24-nov-2026
 - Resuelta la correspondencia de los códigos de RENAP: son los del INE en dos columnas y solo valen
   cuando el país es Guatemala. La solicitud declara la columna de país; los lugares de otro país ya

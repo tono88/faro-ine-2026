@@ -108,6 +108,11 @@ y cómo repetirlo.
     Resultado con los archivos reales (solo conteos): nacimientos, 30,093 filas, 100.0 % de lugares
     resueltos y un único pendiente (municipio 30 en un departamento que tiene 24, 3 filas);
     defunciones, 10,034 filas, 100 % y ningún pendiente. Antes quedaban 387 valores por revisar.
+10d2. **Un archivo mensual no trae solo ese mes.** El archivo de nacimientos inscritos en junio de 2026
+    trae hechos ocurridos entre 1914 y 2026 (inscripciones tardías), y el de defunciones de julio,
+    desde 1900. Si el reemplazo de un reenvío se hiciera por mes del hecho, el archivo de julio
+    pisaría parte de junio. FARO reemplaza por mes de registro y suma los hechos de un mismo mes
+    que llegan en archivos distintos.
 10e. **Las tasas de extracción de la FAO para Guatemala siguen describiendo lo que el INE publica.**
     Con las cuentas de la Hoja de Balance de Alimentos 2024 (producción del derivado ÷ primario
     procesado): harina de trigo 72.0 % (FAO: 72), salvado de trigo 22.0 % (22), café tostado 80.0 %

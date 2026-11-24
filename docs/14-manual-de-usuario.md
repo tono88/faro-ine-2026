@@ -24,6 +24,8 @@ recepción de registros). El menú de cada persona muestra solo lo suyo.
 ### Registros administrativos: de un archivo cualquiera a un dato oficial
 1. **Recibir envío.** Elija la solicitud y suba el Excel o CSV tal como lo tiene la institución. En
    segundos sabe qué filas sirven, cuáles no y por qué. El archivo original no se guarda.
+   Cada archivo queda en el historial; en las estadísticas cuenta el más reciente de cada corte
+   (mes de registro). Volver a subir el mismo archivo reemplaza al anterior; un envío se puede eliminar.
 2. **Revisar pendientes.** Lo que el sistema no quiso adivinar. Usted elige una vez; queda aprendido
    para todas las instituciones, con su nombre y fecha.
 3. **Equivalencias.** La memoria institucional: todo lo aprendido, y la carga de tablas de códigos propias.

@@ -108,6 +108,12 @@ pub struct Solicitud {
     /// Hoja de Excel a leer; "todas" une todas las hojas. Por defecto, la primera.
     #[serde(default)]
     pub hoja: Option<String>,
+    /// Columnas (de la salida) que dicen a qué corte pertenece cada fila: una fecha de registro, o
+    /// año y mes de registro. El corte es lo que un reenvío reemplaza. Si no se declara, el corte
+    /// es el mes del hecho. Sirve cuando un archivo mensual trae hechos de meses anteriores
+    /// registrados tarde (nacimientos y defunciones).
+    #[serde(default)]
+    pub corte: Vec<String>,
     #[serde(rename = "columna")]
     pub columnas: Vec<Columna>,
 }

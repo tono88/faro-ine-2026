@@ -3,6 +3,14 @@ id = "renap-nacimientos-v1"
 titulo = "Nacimientos"
 institucion = "RENAP"
 periodicidad = "mensual"
+# El archivo de un mes trae nacimientos de meses anteriores inscritos tarde: lo que un reenvío
+# reemplaza es el mes de registro (corte), no el mes del nacimiento.
+corte = ["fecha_registro"]
+
+[[columna]]
+nombre = "fecha_registro"
+tipo = "fecha"
+alias = ["FECHA_GRABACION"]
 
 [[columna]]
 nombre = "fecha_hecho"

@@ -162,10 +162,14 @@ Agregado después (v0.15.1): campo `pais`/`pais_local` de la columna (`recepcion
 `es_sin_dato` compara los números con su signo (antes "-1" anulaba el "1"). Archivos reales vueltos a
 pasar: RENAP 100 %, PNC 100 %, CONRED 99.9 % (`docs/06`). El pendiente 1 de esta lista queda hecho.
 
+Agregado después (v0.15.2): `corte` en la solicitud (columnas de registro; RENAP lo declara) y columna
+`hechos.corte`; vista `envios_vigentes` (último envío por solicitud y corte); los pendientes y las
+estadísticas solo miran envíos vigentes; mismo archivo + misma solicitud = reemplazo; `DELETE
+/api/envios/:id`. Los originales NO se guardan (datos personales): "reanalizar" = volver a subir.
+
 ## Pendiente, en orden
-1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar
-   `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del municipio,
-   declararla como `respaldo` en sus solicitudes.
+1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
+   su base tome las reglas nuevas.)
 2. Históricos de Guatecompras (OCDS) para precios de referencia: el sitio responde con un desafío
    de Cloudflare a clientes automáticos desde la nube; probar desde la máquina del equipo.
 3. Ampliar las reglas del IPMC a más artículos y sumar proveedores con precios (ferreterías del
