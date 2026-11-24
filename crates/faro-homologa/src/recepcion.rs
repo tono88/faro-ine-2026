@@ -47,6 +47,8 @@ pub struct Recepcion {
     pub valores_por_memoria: BTreeMap<String, usize>,
     /// Lugares resueltos con la columna de respaldo (ej. el nombre cuando el código no existe): columna -> filas.
     pub resueltos_por_respaldo: BTreeMap<String, usize>,
+    /// Lugares de otro país según la columna de país de la solicitud: columna -> filas. No se homologan.
+    pub en_el_extranjero: BTreeMap<String, usize>,
     /// columna -> estado -> filas.
     pub homologacion: BTreeMap<String, BTreeMap<&'static str, usize>>,
     /// Columnas con catálogo cerrado: columna -> valores que no se reconocieron -> veces.
@@ -90,6 +92,7 @@ pub fn recibir(sol: &Solicitud, tabla: &Tabla, h: &Homologador, sal: Option<&str
     let mut rec = Recepcion { reporte: sol.validar_con(&tabla.encabezados, tabla.filas.iter().cloned(), &aprendido), ..Default::default() };
     // Columnas de respaldo: índice en el archivo de la primera que exista.
     let normal: Vec<String> = tabla.encabezados.iter().map(|e| crate::normalizar::basico(e)).collect();
+    let pais_de = |c: &Columna| c.pais.iter().find_map(|r| normal.iter().position(|e| *e == crate::normalizar::basico(r)));
     let respaldo_de = |c: &Columna| c.respaldo.iter().find_map(|r| normal.iter().position(|e| *e == crate::normalizar::basico(r)));
 
     let presentes: Vec<(&Columna, usize)> = sol.columnas.iter().filter_map(|c| mapa.get(&c.nombre).map(|&i| (c, i))).collect();
@@ -133,6 +136,14 @@ pub fn recibir(sol: &Solicitud, tabla: &Tabla, h: &Homologador, sal: Option<&str
             let mut valor = fila.get(i).cloned().unwrap_or_default();
             if c.es_sin_dato(&valor) {
                 valor.clear();
+            }
+            // Si la fila dice que el lugar está en otro país, su "departamento" y "municipio" son
+            // divisiones de ese país: no se buscan en el catálogo nacional ni quedan pendientes.
+            if let Some(pais) = pais_de(c).and_then(|j| fila.get(j)).map(|p| p.trim().trim_end_matches(".0")).filter(|p| !p.is_empty() && !es_ignorado(p) && !c.es_sin_dato(p)) {
+                if pais != c.pais_local && !valor.trim().is_empty() {
+                    *rec.en_el_extranjero.entry(c.nombre.clone()).or_default() += 1;
+                    valor.clear();
+                }
             }
             let ctx = c.contexto.as_deref().and_then(|x| codigos.get(x).cloned().flatten());
             let llave = (k, ctx.clone().unwrap_or_default(), valor.clone());
@@ -293,6 +304,46 @@ mod pruebas {
         assert!(r2.reporte.problemas.iter().all(|p| p.columna != "sexo"), "lo aprendido ya no es un problema");
         assert_eq!(r.columnas_eliminadas, vec!["nombre"]);
         assert!((r.porcentaje_resuelto() - 50.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn un_lugar_de_otro_pais_no_se_busca_en_el_catalogo() {
+        let sol: Solicitud = toml::from_str(r#"
+            id = "p"
+            institucion = "X"
+            titulo = "t"
+            [[columna]]
+            nombre = "departamento"
+            tipo = "texto"
+            homologar = "departamento"
+            pais = ["COD_PAIS"]
+            sin_dato = ["-1"]
+            [[columna]]
+            nombre = "municipio"
+            tipo = "texto"
+            homologar = "municipio"
+            contexto = "departamento"
+            pais = ["COD_PAIS"]
+            sin_dato = ["-1"]
+        "#).unwrap();
+        let mut catalogo = Catalogo::default();
+        for (codigo, nombre, nivel, padre) in [("05", "Escuintla", Nivel::Departamento, ""), ("0509", "San José", Nivel::Municipio, "05")] {
+            catalogo.agregar(Lugar { codigo: codigo.into(), nombre: nombre.into(), nivel, padre: padre.into(), ..Default::default() });
+        }
+        let memoria = Memoria::default();
+        let h = Homologador::new(&catalogo, &memoria);
+        // 320 = Guatemala: se homologa. 840 = otro país: 37 y 90 son divisiones de ese país. -1 = sin dato.
+        let tabla = Tabla { encabezados: s(&["COD_PAIS", "departamento", "municipio"]), filas: vec![s(&["320", "5", "9"]), s(&["840", "37", "90"]), s(&["320", "-1", "-1"]), s(&["320", "37", "90"])], ..Default::default() };
+        let r = recibir(&sol, &tabla, &h, None).unwrap();
+        // El municipio 9 del departamento 5 es el 0509: el código de RENAP es el del INE en dos partes.
+        let col = |n: &str| r.encabezados.iter().position(|e| e == n).unwrap();
+        assert_eq!(r.filas[0][col("municipio_codigo")], "0509");
+        assert_eq!(r.en_el_extranjero["departamento"], 1);
+        assert_eq!(r.en_el_extranjero["municipio"], 1);
+        // "-1" es sin dato, pero "1" es un código válido: el signo cuenta.
+        assert!(sol.columnas[0].es_sin_dato("-1") && sol.columnas[0].es_sin_dato(" -1.0") && !sol.columnas[0].es_sin_dato("1") && !sol.columnas[0].es_sin_dato("11"));
+        // Solo queda pendiente la fila que dice ser de Guatemala con un departamento que no existe.
+        assert_eq!(r.pendientes.iter().map(|p| (p.columna.as_str(), p.valor.as_str(), p.veces)).collect::<Vec<_>>(), vec![("departamento", "37", 1), ("municipio", "90", 1)]);
     }
 
     #[test]

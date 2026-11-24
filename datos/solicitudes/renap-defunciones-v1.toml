@@ -39,6 +39,10 @@ requerida = true
 pareo = true
 homologar = "departamento"
 alias = ["DEPTO_DEFUNCION"]
+# El código es el del INE partido en dos (departamento y número de municipio dentro de él) solo
+# cuando el país es Guatemala (320); si es otro país, son divisiones de ese país.
+pais = ["PAIS_OCURRENCIA"]
+sin_dato = ["-1", "0"]
 
 [[columna]]
 nombre = "municipio"
@@ -48,12 +52,20 @@ pareo = true
 homologar = "municipio"
 contexto = "departamento"
 alias = ["MUNIC_DEFUNCION"]
+# El código es el del INE partido en dos (departamento y número de municipio dentro de él) solo
+# cuando el país es Guatemala (320); si es otro país, son divisiones de ese país.
+pais = ["PAIS_OCURRENCIA"]
+sin_dato = ["-1", "0"]
 
 [[columna]]
 nombre = "departamento_residencia"
 tipo = "texto"
 homologar = "departamento"
 alias = ["DEPTO_RESIDENCIA"]
+# El código es el del INE partido en dos (departamento y número de municipio dentro de él) solo
+# cuando el país es Guatemala (320); si es otro país, son divisiones de ese país.
+pais = ["PAIS_RESIDENCIA"]
+sin_dato = ["-1", "0"]
 
 [[columna]]
 nombre = "municipio_residencia"
@@ -61,6 +73,10 @@ tipo = "texto"
 homologar = "municipio"
 contexto = "departamento_residencia"
 alias = ["MUNIC_RESIDENCIA"]
+# El código es el del INE partido en dos (departamento y número de municipio dentro de él) solo
+# cuando el país es Guatemala (320); si es otro país, son divisiones de ese país.
+pais = ["PAIS_RESIDENCIA"]
+sin_dato = ["-1", "0"]
 
 [[columna]]
 nombre = "sexo"

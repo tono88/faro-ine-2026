@@ -112,8 +112,9 @@ Agregado después (v0.11.0): `vtex-catalogo` baja a subcategorías; lecturas `sh
 recarga si el CSV cambia. Mapa: `aislar()`, `verTodo()`, paneles `encima` y `puntos`, botón `#volverpais`.
 Canasta: `graficaGrande()`. Pendientes: `pista_de_codigo()` con `datos/estandar/paises_ine.csv`
 (diccionario de estadísticas vitales del INE). Resultados: `cobertura()` por departamento.
-Sobre los códigos de RENAP: no hay tabla pública de sus identificadores; hace falta que RENAP la entregue
-(no proponer otras lecturas del código: el equipo las rechazó). Sin catálogo legible: Farma Value,
+Sobre los códigos de RENAP (RESUELTO en v0.15.1): son los del INE partidos en dos columnas (departamento
+1–22 y municipio numerado dentro del departamento) y solo valen si la columna de país es 320; con otro
+país son divisiones de ese país. La solicitud lo declara con `pais = [...]` y `sin_dato = ["-1", "0"]`. Sin catálogo legible: Farma Value,
 Galeno, Suma, Super del Barrio; bloqueados: Kemik, Platino, Fayco, Agencias Way, MEM. Por integrar
 (verificados): Max y Tecnofácil (`__NEXT_DATA__`, traen EAN), Steren (GraphQL), Pacifiko, Office Depot,
 El Gallo más Gallo, Celasa.
@@ -156,6 +157,10 @@ contraseña inicial que BLOQUEA los cambios hasta cambiarla, `FARO_ESCUCHA` (127
 `.faro/pruebas/_sesion.js` (cambia admin/admin por `Faro-Prueba-2026` en bases nuevas).
 Pendiente de seguridad: grupo de conexiones a la base, HMAC en la llave de pareo, envío en una
 transacción, tipografía servida localmente, `cargo audit`.
+
+Agregado después (v0.15.1): campo `pais`/`pais_local` de la columna (`recepcion.rs`: `en_el_extranjero`);
+`es_sin_dato` compara los números con su signo (antes "-1" anulaba el "1"). Archivos reales vueltos a
+pasar: RENAP 100 %, PNC 100 %, CONRED 99.9 % (`docs/06`). El pendiente 1 de esta lista queda hecho.
 
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar

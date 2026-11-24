@@ -49,6 +49,14 @@ pub struct Columna {
     /// principal no se pudo resolver.
     #[serde(default)]
     pub respaldo: Vec<String>,
+    /// Columna del archivo que trae el país del lugar (nombres o alias). Si su valor no es el país
+    /// local, el departamento o municipio de esa fila es de otro país y sus códigos no son del
+    /// catálogo nacional: no se homologan ni quedan pendientes; se cuentan como «en el extranjero».
+    #[serde(default)]
+    pub pais: Vec<String>,
+    /// Código del país local en esa columna (320 = Guatemala en los registros de RENAP).
+    #[serde(default = "pais_local")]
+    pub pais_local: String,
     /// Valores que en origen significan "sin dato" (ej. "98", "99", "999"). Salen vacíos.
     #[serde(default)]
     pub sin_dato: Vec<String>,
@@ -68,8 +76,14 @@ impl Columna {
 
     /// ¿El valor es uno de los que la institución usa para decir "sin dato"?
     pub fn es_sin_dato(&self, valor: &str) -> bool {
+        // Un número se compara tal cual, con su signo: "-1" (sin dato) no es "1" (un código válido).
+        let numero = |t: &str| { let t = t.trim().trim_end_matches(".0"); (!t.is_empty() && t.trim_start_matches('-').chars().all(|c| c.is_ascii_digit())).then(|| t.to_string()) };
         let v = basico(valor);
-        !self.sin_dato.is_empty() && self.sin_dato.iter().any(|s| basico(s) == v)
+        self.sin_dato.iter().any(|s| match (numero(s), numero(valor)) {
+            (Some(a), Some(b)) => a == b,
+            (None, None) => basico(s) == v,
+            _ => false,
+        })
     }
 
     /// Valor canónico de un catálogo cerrado: "M", "masculino" y "Hombre" -> "hombre".
@@ -205,6 +219,10 @@ impl Solicitud {
         }
         rep
     }
+}
+
+fn pais_local() -> String {
+    "320".into()
 }
 
 fn tipo_valido(tipo: Tipo, valor: &str) -> bool {

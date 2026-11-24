@@ -98,11 +98,16 @@ y cómo repetirlo.
 10c. **Tres supermercados conocidos no publican catálogo con precios** (Suma, Super del Barrio,
     Mi Super Fresh: solo páginas informativas) y PriceSmart exige navegador con sesión; no se muestrean.
 
-10d. **RENAP usa identificadores propios de municipio y no existe una tabla pública que los traduzca.**
-    Se buscó en RENAP, en el portal de datos abiertos del INE y en repositorios abiertos: no hay un
-    catálogo citable de esos números. FARO no los adivina: quedan en "Revisar pendientes" y se
-    resuelven de una vez cargando la tabla de códigos de la institución ("Equivalencias") o
-    eligiendo el municipio en el catálogo. Para cerrar el tema hace falta que RENAP entregue su tabla.
+10d. **Los códigos de RENAP son los del INE, partidos en dos, y solo valen cuando el país es Guatemala.**
+    En sus archivos, el departamento va de 1 a 22 y el municipio es el número dentro del
+    departamento: el máximo de cada departamento coincide con el número de municipios del catálogo
+    del INE en los 22 (17, 8, 16, 16, 14, 14, 19, 8, 24, 21, 9, 30, 33, 21, 8, 17, 14, 5, 11, 11, 7, 17).
+    Departamento 5 y municipio 9 es el 0509. Los «códigos que no existen» (37, 90, 608…) aparecían
+    solo en filas cuya columna de país no es 320 (Guatemala): son divisiones de otro país, no
+    municipios. La solicitud declara ahora la columna de país (`pais`) y `-1`/`0` como sin dato.
+    Resultado con los archivos reales (solo conteos): nacimientos, 30,093 filas, 100.0 % de lugares
+    resueltos y un único pendiente (municipio 30 en un departamento que tiene 24, 3 filas);
+    defunciones, 10,034 filas, 100 % y ningún pendiente. Antes quedaban 387 valores por revisar.
 10e. **Las tasas de extracción de la FAO para Guatemala siguen describiendo lo que el INE publica.**
     Con las cuentas de la Hoja de Balance de Alimentos 2024 (producción del derivado ÷ primario
     procesado): harina de trigo 72.0 % (FAO: 72), salvado de trigo 22.0 % (22), café tostado 80.0 %

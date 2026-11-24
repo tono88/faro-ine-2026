@@ -573,7 +573,7 @@ function mostrarResultado(r) {
     ${prob ? `<h2 style="margin-top:14px">Problemas de contenido (${num(rep.problemas.length + rep.problemas_omitidos)})</h2><ul>${prob}</ul>` : ''}
     <p class="nota">${rec.pendientes.length} lugar(es) y ${rec.pendientes_valor.length} valor(es) de catálogo por revisar en la pestaña 2.
     ${Object.keys(rec.valores_por_memoria).length ? ' Valores resueltos con equivalencias ya confirmadas: ' + Object.entries(rec.valores_por_memoria).map(([k, n]) => `${esc(k)} (${num(n)})`).join(', ') + '.' : ''}
-    ${Object.keys(rec.resueltos_por_respaldo).length ? ' Lugares resueltos con la columna de respaldo: ' + Object.entries(rec.resueltos_por_respaldo).map(([k, n]) => `${esc(k)} (${num(n)})`).join(', ') + '.' : ''}</p>`;
+    ${Object.keys(rec.en_el_extranjero || {}).length ? ' Lugares de otro país (no se homologan): ' + Object.entries(rec.en_el_extranjero).map(([c, n]) => `${esc(c)} ${num(n)}`).join(', ') + '.' : ''}${Object.keys(rec.resueltos_por_respaldo).length ? ' Lugares resueltos con la columna de respaldo: ' + Object.entries(rec.resueltos_por_respaldo).map(([k, n]) => `${esc(k)} (${num(n)})`).join(', ') + '.' : ''}</p>`;
 }
 async function pendientes() {
   const filas = await api('/api/pendientes');

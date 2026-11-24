@@ -2,6 +2,12 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.15.1 · 24-nov-2026
+- Resuelta la correspondencia de los códigos de RENAP: son los del INE en dos columnas y solo valen
+  cuando el país es Guatemala. La solicitud declara la columna de país; los lugares de otro país ya
+  no quedan pendientes. Con los archivos reales: nacimientos y defunciones al 100 %.
+- Corrección: declarar `-1` como «sin dato» anulaba también el `1`; ahora los números se comparan con su signo.
+
 ## v0.15.0 · 24-nov-2026
 - Verificación estadística (`faro verificar` → `docs/19`): consistencia de todas las tablas; prueba
   hacia atrás de la proyección de superficie construida en 1,020 casos, que mostró que el margen

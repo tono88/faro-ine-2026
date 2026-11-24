@@ -84,3 +84,23 @@ La lectura de la regla es nuestra; conviene confirmarla con la unidad de estadí
 - Diccionarios de variables del INE (hechos delictivos) para codificar delito y causa.
 - Decidir con RENAP el significado de `PERIODO_EDAD` (unidad de la edad).
 - Verificar el catálogo de municipios código por código contra el listado oficial.
+
+## Actualización del 24-nov-2026 (v0.15.1): los cuatro archivos, otra vez
+
+Procesados localmente con `faro recibir` en una carpeta temporal; aquí solo van conteos.
+
+| Archivo | Filas | Lugares resueltos | Pendientes distintos | Nota |
+|---|---|---|---|---|
+| RENAP, nacimientos | 30,093 | 100.0 % | 1 | Municipio 30 en un departamento con 24 municipios (3 filas) |
+| RENAP, defunciones | 10,034 | 100 % | 0 | |
+| PNC, detenidos | 4,255 | 100 % | 0 | El municipio viene con el código del INE completo (101, 1801…) |
+| SE-CONRED, emergencias | 7,337 | 99.9 % | 5 | Nombres mal escritos o de otro departamento («La De Mocracia», «Concepcion») |
+
+Cómo trae el lugar cada institución:
+
+- **RENAP**: código de país (320 = Guatemala), departamento (1–22) y municipio numerado dentro del
+  departamento. Es el código del INE en dos columnas. Cuando el país es otro, esas dos columnas
+  traen divisiones de ese país; `-1` y `0` significan sin dato.
+- **PNC**: código de municipio del INE en una sola columna, sin el cero inicial, y además el nombre.
+- **SE-CONRED**: nombres de departamento, municipio y lugar, sin códigos.
+- **INSIVUMEH** (calidad del aire): el lugar es el nombre de la estación en el encabezado.

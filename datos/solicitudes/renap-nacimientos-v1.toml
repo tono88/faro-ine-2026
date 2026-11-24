@@ -18,6 +18,10 @@ requerida = true
 pareo = true
 homologar = "departamento"
 alias = ["COD_DEPTO_NACIMIENTO"]
+# El código es el del INE partido en dos (departamento y número de municipio dentro de él) solo
+# cuando el país es Guatemala (320); si es otro país, son divisiones de ese país.
+pais = ["COD_PAIS_NACIMIENTO"]
+sin_dato = ["-1", "0"]
 
 [[columna]]
 nombre = "municipio"
@@ -27,6 +31,10 @@ pareo = true
 homologar = "municipio"
 contexto = "departamento"
 alias = ["COD_MUNIC_NACIMIENTO"]
+# El código es el del INE partido en dos (departamento y número de municipio dentro de él) solo
+# cuando el país es Guatemala (320); si es otro país, son divisiones de ese país.
+pais = ["COD_PAIS_NACIMIENTO"]
+sin_dato = ["-1", "0"]
 
 [[columna]]
 nombre = "sexo"
@@ -80,6 +88,10 @@ nombre = "departamento_residencia_madre"
 tipo = "texto"
 homologar = "departamento"
 alias = ["COD_DEPTO_RESIDENCIA_MADRE"]
+# El código es el del INE partido en dos (departamento y número de municipio dentro de él) solo
+# cuando el país es Guatemala (320); si es otro país, son divisiones de ese país.
+pais = ["COD_PAIS_RESIDENCIA_MADRE"]
+sin_dato = ["-1", "0"]
 
 [[columna]]
 nombre = "municipio_residencia_madre"
@@ -87,3 +99,7 @@ tipo = "texto"
 homologar = "municipio"
 contexto = "departamento_residencia_madre"
 alias = ["COD_MUNIC_RESIDENCIA_MADRE"]
+# El código es el del INE partido en dos (departamento y número de municipio dentro de él) solo
+# cuando el país es Guatemala (320); si es otro país, son divisiones de ese país.
+pais = ["COD_PAIS_RESIDENCIA_MADRE"]
+sin_dato = ["-1", "0"]
