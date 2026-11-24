@@ -1,0 +1,16 @@
+{
+  "cerca_m": 500.0,
+  "con_senderos": false,
+  "conectados": 19016,
+  "enlaces": 83,
+  "enlaces_km": 51.33342922839239,
+  "km": 144866.15555829922,
+  "km_red_principal": 140570.01761487298,
+  "lugares": 19723,
+  "max_enlace_km": 5.0,
+  "sin_camino": 544,
+  "tramo_suelto": 163,
+  "tramos": 2101,
+  "vias_leidas": 351809,
+  "vias_usadas": 330598
+}

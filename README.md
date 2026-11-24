@@ -6,6 +6,8 @@ Equipo: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval.
 FARO es una herramienta para que el INE **pida, reciba y homologue** registros administrativos
 de otras instituciones de forma estándar, y los deje listos para integrarse con censos y encuestas.
 
+**Lo más importante que encontró con datos reales:** [logros y hallazgos](docs/09-logros.md).
+
 ## El problema
 
 Las instituciones que envían datos al INE no tienen un formato común. El mismo municipio llega
@@ -49,11 +51,15 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
 13. **Operadores de campo cerca de su casa.** Reparte operadores entre puestos con la menor
     distancia total posible, usando las coordenadas del catálogo (`faro asignar` y la pantalla).
     Cálculo exacto (método húngaro); distancia en línea recta, no por carretera.
-14. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
+14. **Red vial como grafo.** Cruza los lugares poblados del censo con los caminos de OpenStreetMap:
+    cuáles quedan en un tramo desconectado de la red principal, cuáles no tienen camino mapeado
+    cerca y cuál es el enlace más corto que probablemente falta (`faro vial` y la pantalla).
+    Resultado real: 707 lugares por revisar y 83 enlaces probables. Ver [logros](docs/09-logros.md).
+15. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
     y elige como lo explica la Dirección de Precios e Índices de Referencia (mediana si hay
     precios extremos, media si son parecidos); avisa si faltan cotizaciones directas o se mezclan
     unidades (`faro precios` y la pantalla).
-15. **Crecimiento urbano.** A partir de edificaciones por año vistas por satélite, calcula el
+16. **Crecimiento urbano.** A partir de edificaciones por año vistas por satélite, calcula el
     ritmo de crecimiento de cada municipio y lo proyecta con su margen (`faro crecimiento`).
 
 ## Levantarlo con Docker
@@ -66,10 +72,10 @@ docker compose up --build     # base de datos PostgreSQL + FARO
 Abra <http://localhost:8082>. Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
-La pantalla tiene ocho secciones: recibir un envío, revisar pendientes, equivalencias
+La pantalla tiene nueve secciones: recibir un envío, revisar pendientes, equivalencias
 confirmadas, resultados y avance por institución, conjuntos del portal del INE (se sincroniza
 sola al arrancar y cada 24 horas), crecimiento poblacional y urbano, asignación de operadores de
-campo y precios de referencia. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.
+campo, red vial y precios de referencia. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.
 
 En Linux, el contenedor escribe las descargas de fuentes abiertas en `datos/crudo` con un usuario
 sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecute
@@ -80,7 +86,7 @@ sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecu
 Requiere [Rust](https://rustup.rs) estable (probado con 1.97) y, para el servidor, PostgreSQL 16.
 
 ```bash
-cargo test                       # 50 pruebas
+cargo test                       # 55 pruebas
 cargo build --release
 
 # Línea de comandos (no necesita base de datos)
@@ -92,6 +98,7 @@ cargo build --release
 ./target/release/faro catalogo verificar --listado <listado de lugares poblados.xlsx>   # catálogo contra el Censo 2018
 ./target/release/faro crecimiento --entrada datos/ejemplos/edificaciones_ficticias.csv --proyectar 2030
 ./target/release/faro aire --entrada <archivo de calidad del aire.xlsx>
+./target/release/faro vial --carreteras <hotosm_gtm_roads_osm_shp.zip>   # red vial contra lugares poblados
 ./target/release/faro precios --cotizaciones datos/ejemplos/cotizaciones_ficticias.csv
 ./target/release/faro poblacion --entrada <proyecciones.xlsx> --diccionario <diccionario.xlsx>   # tabla municipio-año
 ./target/release/faro asignar --operadores datos/ejemplos/operadores_ficticios.csv --puestos datos/ejemplos/puestos_ficticios.csv

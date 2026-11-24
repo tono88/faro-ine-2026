@@ -101,6 +101,23 @@ enum Comando {
         #[arg(long, default_value = "salida/precios_referencia.csv")]
         salida: PathBuf,
     },
+    /// Red vial como grafo: lugares poblados sin camino mapeado, tramos sueltos y enlaces probables.
+    Vial {
+        /// Zip de carreteras de OpenStreetMap en Shapefile (exportación de HOT en HDX: hotosm_gtm_roads).
+        #[arg(long)]
+        carreteras: PathBuf,
+        /// Un lugar tiene camino si hay una vía a esta distancia (metros) o menos de su centroide.
+        #[arg(long, default_value_t = 500.0)]
+        cerca_m: f64,
+        /// Longitud máxima (km) de un enlace propuesto.
+        #[arg(long, default_value_t = 5.0)]
+        max_enlace_km: f64,
+        /// Incluir senderos y vías peatonales (por defecto solo vías para vehículos).
+        #[arg(long)]
+        con_senderos: bool,
+        #[arg(long, default_value = "datos/referencia")]
+        salida: PathBuf,
+    },
     /// Reparte operadores de campo entre puestos con la menor distancia total (línea recta).
     Asignar {
         /// CSV: operador, lugar (código de lugar poblado donde vive) o longitud y latitud.
@@ -263,6 +280,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         Comando::Recibir { solicitud, entrada, salida } => recibir(&catalogo, &memoria, &solicitud, &entrada, &salida),
         Comando::Catalogo { accion } => catalogo_censo(&catalogo, &cli.catalogo, accion),
         Comando::Asignar { operadores, puestos, salida } => asignar(&catalogo, &operadores, &puestos, &salida),
+        Comando::Vial { carreteras, cerca_m, max_enlace_km, con_senderos, salida } => vial(&catalogo, &carreteras, faro_territorio::vial::Parametros { cerca_m, max_enlace_km }, con_senderos, &salida),
         Comando::Poblacion { entrada, diccionario, salida } => {
             let mut filas = faro_territorio::poblacion::resumir(&faro_homologa::lectura::leer_crudo(&entrada)?)?;
             // Cada municipio del libro debe existir en el catálogo: si no, el cruce por código no vale.
@@ -459,6 +477,63 @@ fn asignar(catalogo: &Catalogo, ruta_operadores: &Path, ruta_puestos: &Path, sal
     for (puesto, n) in &a.sin_cubrir {
         println!("plazas sin cubrir: {puesto} ({n})");
     }
+    Ok(ExitCode::SUCCESS)
+}
+
+/// Tipos de vía de OpenStreetMap que no son un camino en uso.
+const NO_SON_CAMINO: &[&str] = &["proposed", "construction", "raceway", "corridor", "escape", "passing_place", "platform", "rest_area"];
+/// Vías que no admiten vehículos.
+const SENDEROS: &[&str] = &["path", "footway", "steps", "pedestrian", "cycleway", "bridleway"];
+
+fn vial(catalogo: &Catalogo, carreteras: &Path, p: faro_territorio::vial::Parametros, con_senderos: bool, salida: &Path) -> Result<ExitCode, String> {
+    use faro_territorio::asignacion::Coordenada;
+    use faro_territorio::vial::{self, Conexion};
+    let en = |e: String| format!("{}: {e}", carreteras.display());
+    let mut zip = zip::ZipArchive::new(std::fs::File::open(carreteras).map_err(|e| en(e.to_string()))?).map_err(|e| en(e.to_string()))?;
+    let nombre = |zip: &zip::ZipArchive<std::fs::File>, fin: &str| zip.file_names().find(|n| n.ends_with(fin)).map(str::to_string).ok_or(en(format!("el zip no trae un archivo *{fin}")));
+    let (n_shp, n_dbf) = (nombre(&zip, "lines.shp")?, nombre(&zip, "lines.dbf")?);
+    let tipos = faro_territorio::shp::leer_campo(zip.by_name(&n_dbf).map_err(|e| en(e.to_string()))?, "highway").map_err(en)?;
+    let lineas = faro_territorio::shp::leer_lineas(zip.by_name(&n_shp).map_err(|e| en(e.to_string()))?).map_err(en)?;
+    if tipos.len() != lineas.len() {
+        return Err(en(format!("la tabla tiene {} registros y la geometría {}", tipos.len(), lineas.len())));
+    }
+    let sirve = |t: &str| !t.is_empty() && !NO_SON_CAMINO.contains(&t) && (con_senderos || !SENDEROS.contains(&t));
+    let usadas = tipos.iter().filter(|t| sirve(t)).count();
+    let red = vial::Red::construir(lineas.iter().zip(&tipos).filter(|(_, t)| sirve(t)).flat_map(|(partes, _)| partes.iter().map(Vec::as_slice)));
+    println!("{} vías leídas, {usadas} usadas ({}) · {:.0} km · {} tramos no unidos entre sí · red principal: {:.0} km ({:.1} %)",
+        tipos.len(), if con_senderos { "con senderos" } else { "solo para vehículos" }, red.km_total(), red.componentes(), red.km_principal(), 100.0 * red.km_principal() / red.km_total().max(1e-9));
+
+    let lugares: Vec<(String, Coordenada)> = catalogo.de_nivel(Nivel::LugarPoblado, None).filter_map(|l| Some((l.codigo.clone(), Coordenada { longitud: l.longitud?, latitud: l.latitud? }))).collect();
+    let clasificados = vial::clasificar(&red, &lugares, &p);
+    let enlaces = vial::enlaces_probables(&red, &clasificados, &p);
+    let cuenta = |c: Conexion| clasificados.iter().filter(|l| l.conexion == c).count();
+    println!("{} lugares poblados con coordenadas: {} conectados a la red principal, {} en un tramo suelto, {} sin camino mapeado a {} m",
+        lugares.len(), cuenta(Conexion::Conectado), cuenta(Conexion::TramoSuelto), cuenta(Conexion::SinCamino), p.cerca_m);
+    println!("{} enlaces probables de hasta {} km; suman {:.1} km y unirían {} lugares", enlaces.len(), p.max_enlace_km, enlaces.iter().map(|e| e.km).sum::<f64>(), enlaces.iter().map(|e| e.lugares.len()).sum::<usize>());
+
+    std::fs::create_dir_all(salida).map_err(|e| e.to_string())?;
+    let texto = |e: csv::Error| e.to_string();
+    let n = |x: Option<f64>, d: usize| x.map(|v| format!("{v:.d$}")).unwrap_or_default();
+    // Solo los lugares que no están conectados: los demás no necesitan revisión.
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(salida.join("red_vial_lugares.csv")).map_err(texto)?;
+    w.write_record(["codigo", "conexion", "distancia_m", "via_longitud", "via_latitud", "tramo_km"]).map_err(texto)?;
+    for l in clasificados.iter().filter(|l| l.conexion != Conexion::Conectado) {
+        w.write_record([l.codigo.clone(), l.conexion.texto().to_string(), n(l.distancia_m, 0), n(l.via_longitud, 5), n(l.via_latitud, 5), n(l.tramo_km, 2)]).map_err(texto)?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(salida.join("red_vial_enlaces.csv")).map_err(texto)?;
+    w.write_record(["desde_longitud", "desde_latitud", "hasta_longitud", "hasta_latitud", "km", "tramo_km", "lugares"]).map_err(texto)?;
+    for e in &enlaces {
+        w.write_record([format!("{:.5}", e.desde_longitud), format!("{:.5}", e.desde_latitud), format!("{:.5}", e.hasta_longitud), format!("{:.5}", e.hasta_latitud), format!("{:.3}", e.km), format!("{:.2}", e.tramo_km), e.lugares.join("|")]).map_err(texto)?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    let resumen = serde_json::json!({
+        "vias_leidas": tipos.len(), "vias_usadas": usadas, "con_senderos": con_senderos, "km": red.km_total(), "tramos": red.componentes(), "km_red_principal": red.km_principal(),
+        "cerca_m": p.cerca_m, "max_enlace_km": p.max_enlace_km, "lugares": lugares.len(), "conectados": cuenta(Conexion::Conectado), "tramo_suelto": cuenta(Conexion::TramoSuelto), "sin_camino": cuenta(Conexion::SinCamino),
+        "enlaces": enlaces.len(), "enlaces_km": enlaces.iter().map(|e| e.km).sum::<f64>(),
+    });
+    std::fs::write(salida.join("red_vial_resumen.json"), serde_json::to_string_pretty(&resumen).map_err(|e| e.to_string())? + "\n").map_err(|e| e.to_string())?;
+    println!("escrito en {}: red_vial_lugares.csv, red_vial_enlaces.csv, red_vial_resumen.json", salida.display());
     Ok(ExitCode::SUCCESS)
 }
 

@@ -21,3 +21,34 @@ código oficial. Quien cruce el libro original por código pierde esos 16 munici
 Mixco y Villa Nueva.
 
 Uso: denominador de tasas por 100,000 habitantes y crecimiento poblacional por municipio.
+
+## `red_vial_lugares.csv`, `red_vial_enlaces.csv`, `red_vial_resumen.json`
+
+Resultado de cruzar los lugares poblados del Censo 2018 con la red de caminos de OpenStreetMap,
+tratada como un grafo (`faro vial --carreteras <zip>`).
+
+Fuente de los caminos: © colaboradores de OpenStreetMap, exportación "Guatemala Roads" de
+Humanitarian OpenStreetMap Team en HDX (`hotosm_gtm_roads`, Shapefile), corte del 3-nov-2026,
+licencia ODbL 1.0. Descargado el 24-nov-2026 (UTC); SHA-256
+`cd884627eddfa037a0c49e1fd2b327ab5da611cb91d10beeee13ccfad9793977`. Estas tres tablas derivan de
+esos datos y se comparten bajo la misma licencia ODbL.
+
+Método: se usan las vías para vehículos (se excluyen senderos, vías peatonales, en construcción y
+propuestas). Dos vías están unidas si comparten un punto. El componente conexo con más kilómetros
+es la red principal. Para cada lugar se mide la distancia en línea recta de su centroide a la vía
+más cercana.
+
+- `red_vial_lugares.csv`: los 707 lugares que no quedaron conectados. `tramo_suelto` (163): hay
+  una vía a 500 m o menos, pero ese tramo no está unido a la red principal en el mapa.
+  `sin_camino` (544): no hay vía para vehículos a 500 m; se anota la más cercana hasta 5 km.
+- `red_vial_enlaces.csv`: 83 enlaces probables, uno por tramo suelto con lugares poblados: el
+  hueco más corto (hasta 5 km) entre el tramo y la red principal, y los lugares que dependen de él.
+- `red_vial_resumen.json`: totales y parámetros usados.
+
+Cifras: 330,598 vías, 144,866 km, 2,101 tramos no unidos entre sí; 97.0 % de los kilómetros
+está en la red principal; 19,016 de 19,723 lugares quedan conectados.
+
+**Cómo leerlo.** Mide el mapa, no el terreno. Un hueco puede ser un camino que falta dibujar, un
+paso en lancha o un vado (OpenStreetMap no registra los transbordadores como camino). El
+resultado dice dónde mirar primero; la confirmación es en campo o en imagen. Los umbrales (500 m,
+5 km) son parámetros del comando.

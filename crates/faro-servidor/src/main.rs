@@ -23,6 +23,8 @@ struct Estado {
     /// Proyecciones de población del INE por municipio y año (denominador de tasas).
     poblacion: Poblacion,
     dir_ejemplos: PathBuf,
+    /// Resultado del análisis de la red vial (`faro vial`), ya con nombres del catálogo.
+    vial: Value,
     dir_solicitudes: PathBuf,
     dir_privado: PathBuf,
     token: Option<String>,
@@ -84,11 +86,17 @@ async fn main() -> Result<(), String> {
             Poblacion::default()
         }
     };
+    let catalogo = Catalogo::cargar_carpeta(&PathBuf::from(var("FARO_CATALOGO", "datos/catalogo")))?;
+    let vial = cargar_vial(&PathBuf::from(var("FARO_REFERENCIA", "datos/referencia")), &catalogo).unwrap_or_else(|e| {
+        eprintln!("AVISO: sin análisis de red vial ({e}).");
+        json!({ "disponible": false })
+    });
     let estado = Arc::new(Estado {
         bd,
+        vial,
         poblacion,
         dir_ejemplos: PathBuf::from(var("FARO_EJEMPLOS", "datos/ejemplos")),
-        catalogo: Catalogo::cargar_carpeta(&PathBuf::from(var("FARO_CATALOGO", "datos/catalogo")))?,
+        catalogo,
         dir_solicitudes: PathBuf::from(var("FARO_SOLICITUDES", "datos/solicitudes")),
         dir_privado: PathBuf::from(var("FARO_PRIVADO", "datos/privado")),
         token: std::env::var("FARO_TOKEN").ok().filter(|t| !t.is_empty()),
@@ -129,6 +137,7 @@ async fn main() -> Result<(), String> {
         .route("/api/crecimiento", get(api_crecimiento))
         .route("/api/asignar", post(api_asignar))
         .route("/api/poblacion", get(api_poblacion))
+        .route("/api/vial", get(|State(e): State<Compartido>| async move { Json(e.vial.clone()) }))
         .route("/api/precios", post(api_precios))
         .route("/api/avance", get(api_avance))
         .route("/ejemplos/:archivo", get(ejemplo))
@@ -648,4 +657,57 @@ async fn api_precios(State(e): State<Compartido>, cabeceras: HeaderMap, cuerpo: 
     let p = faro_territorio::precios::Parametros::default();
     let productos = faro_territorio::precios::analizar_csv(cuerpo.as_bytes(), &p).map_err(pedido)?;
     Ok(Json(json!({ "parametros": p, "productos": productos })))
+}
+
+/// Lee lo que dejó `faro vial` y le pone nombres: resumen, conteo por departamento, enlaces
+/// probables y lugares sin camino mapeado (los más lejanos primero).
+fn cargar_vial(dir: &std::path::Path, catalogo: &Catalogo) -> Result<Value, String> {
+    let leer = |nombre: &str| -> Result<Vec<HashMap<String, String>>, String> {
+        let ruta = dir.join(nombre);
+        let mut lector = csv::Reader::from_path(&ruta).map_err(|e| format!("{}: {e}", ruta.display()))?;
+        lector.deserialize().collect::<Result<_, _>>().map_err(|e| format!("{}: {e}", ruta.display()))
+    };
+    let resumen: Value = serde_json::from_str(&std::fs::read_to_string(dir.join("red_vial_resumen.json")).map_err(|e| format!("red_vial_resumen.json: {e}"))?).map_err(|e| e.to_string())?;
+    let nombre = |codigo: &str| catalogo.por_codigo(codigo).map(|l| l.nombre.clone()).unwrap_or_default();
+    let lugar = |codigo: &str| json!({ "codigo": codigo, "nombre": nombre(codigo), "municipio": nombre(&codigo[..4.min(codigo.len())]), "departamento": nombre(&codigo[..2.min(codigo.len())]) });
+    let num = |f: &HashMap<String, String>, k: &str| f.get(k).and_then(|v| v.parse::<f64>().ok());
+
+    let lugares = leer("red_vial_lugares.csv")?;
+    // Por departamento: cuántos lugares con coordenadas tiene y cuántos quedaron sin conexión.
+    let mut por_depto: BTreeMap<String, [usize; 3]> = BTreeMap::new();
+    for l in catalogo.de_nivel(Nivel::LugarPoblado, None).filter(|l| l.longitud.is_some()) {
+        por_depto.entry(l.codigo[..2].to_string()).or_default()[0] += 1;
+    }
+    for l in &lugares {
+        let codigo = l.get("codigo").map(String::as_str).unwrap_or("");
+        if codigo.len() >= 2 {
+            por_depto.entry(codigo[..2].to_string()).or_default()[if l.get("conexion").map(String::as_str) == Some("tramo_suelto") { 1 } else { 2 }] += 1;
+        }
+    }
+    let mut sin_camino: Vec<Value> = lugares
+        .iter()
+        .filter(|l| l.get("conexion").map(String::as_str) == Some("sin_camino"))
+        .map(|l| {
+            let mut v = lugar(l.get("codigo").map(String::as_str).unwrap_or(""));
+            let c = catalogo.por_codigo(v["codigo"].as_str().unwrap_or(""));
+            v["longitud"] = json!(c.and_then(|c| c.longitud));
+            v["latitud"] = json!(c.and_then(|c| c.latitud));
+            v["distancia_m"] = json!(num(l, "distancia_m"));
+            v
+        })
+        .collect();
+    sin_camino.sort_by(|a, b| b["distancia_m"].as_f64().unwrap_or(f64::MAX).total_cmp(&a["distancia_m"].as_f64().unwrap_or(f64::MAX)));
+    let enlaces: Vec<Value> = leer("red_vial_enlaces.csv")?
+        .iter()
+        .map(|e| {
+            let codigos: Vec<&str> = e.get("lugares").map(|l| l.split('|').filter(|c| !c.is_empty()).collect()).unwrap_or_default();
+            json!({ "desde": [num(e, "desde_longitud"), num(e, "desde_latitud")], "hasta": [num(e, "hasta_longitud"), num(e, "hasta_latitud")], "km": num(e, "km"), "tramo_km": num(e, "tramo_km"),
+                    "lugares": codigos.iter().map(|c| lugar(c)).collect::<Vec<_>>() })
+        })
+        .collect();
+    Ok(json!({
+        "disponible": true, "resumen": resumen,
+        "departamentos": por_depto.iter().map(|(d, [total, suelto, sin])| json!({ "codigo": d, "nombre": nombre(d), "lugares": total, "tramo_suelto": suelto, "sin_camino": sin })).collect::<Vec<_>>(),
+        "enlaces": enlaces, "sin_camino": sin_camino,
+    }))
 }

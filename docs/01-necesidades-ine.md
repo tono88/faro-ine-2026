@@ -7,7 +7,7 @@
 | 1 | **Integrar encuestas con registros administrativos** de otras instituciones (MP, Salud y otras), que hoy no tienen un estándar para compartir datos. Que el INE lidere una homologación del envío. X-Road existe, pero no está pensado para datos estadísticos. | **Núcleo del proyecto.** Solicitud de datos declarativa, validación del envío, homologación con memoria. Ver [arquitectura](03-arquitectura.md). |
 | 2 | Operadores de campo asignados lejos de donde viven; la asignación no optimiza distancias. | Módulo secundario, **funcionando**: asignación operador–puesto que minimiza la distancia total (método húngaro, exacto), usando las coordenadas del listado de lugares poblados. Distancia en línea recta; con la red vial (necesidad 4) pasaría a distancia por carretera. |
 | 3 | Detectar crecimiento urbano a partir de imágenes. | Módulo secundario: edificaciones por año (Google Open Buildings 2.5D Temporal, 2016–2023) por municipio, comparadas con el Censo 2018. |
-| 4 | Carreteras sin mapear; uso de teoría de grafos para completar. | Módulo secundario: grafo vial de OpenStreetMap; lugares poblados sin conexión o con conexión improbable. |
+| 4 | Carreteras sin mapear; uso de teoría de grafos para completar. | Módulo secundario, **funcionando**: grafo vial de OpenStreetMap (144,866 km); componentes conexos, lugares poblados en tramos sueltos o sin camino mapeado y el enlace más corto que probablemente falta. |
 
 ## Planteadas en las presentaciones
 

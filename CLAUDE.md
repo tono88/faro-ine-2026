@@ -28,7 +28,7 @@ Leer primero `README.md` y `docs/` (necesidades del INE, arquitectura, plan, hal
 Hecho y probado en contenedor + Chromium: núcleo de homologación con memoria (lugares y valores de
 catálogo por dimensión), lectura de Excel/CSV reales, salida estándar sin datos personales,
 solicitudes RENAP/PNC/SE-CONRED, cliente CKAN con procedencia, servidor axum + PostgreSQL + pantalla
-(8 pestañas), catálogo Censo 2018 verificado (20,036 lugares poblados con coordenadas), asignación
+(9 pestañas), catálogo Censo 2018 verificado (20,036 lugares poblados con coordenadas), asignación
 de operadores (método húngaro), población INE 2015–2030 por municipio (`datos/referencia/`), tasas
 por 100 mil habitantes, avance de recepción por institución, precios de referencia a partir de
 cotizaciones (`faro precios`), crecimiento de edificaciones, aire.
@@ -50,17 +50,21 @@ No probado: `iniciar.bat` y `crear_env.ps1` en Windows; sincronización con el I
 contenedor; las solicitudes de RENAP/PNC con los archivos reales tras estos cambios (los archivos
 no están en el repositorio: volver a pasarlos localmente).
 
+Red vial hecha (`faro vial`, `crates/faro-territorio/src/vial.rs` y `shp.rs`, pestaña "Red vial"):
+la fuente es la exportación de HOT en HDX (`hotosm_gtm_roads`, Shapefile), que sí se descarga desde
+la nube; Geofabrik no. Resultados en `datos/referencia/red_vial_*`. Logros en `docs/09-logros.md`
+(agregar ahí cada hallazgo nuevo).
+
+Los archivos reales de instituciones NO van a `datos/crudo` ni a ninguna carpeta del repositorio:
+se suben por la pantalla (pestaña 1), que los procesa en un temporal y no los guarda.
+
 ## Pendiente, en orden
-1. Red vial con OpenStreetMap: lugares poblados sin conexión y enlaces probables. Desde la nube no
-   se pudo descargar el extracto (download.geofabrik.de corta la conexión): hacerlo en la máquina
-   del equipo (`iniciar.bat` ya lo descarga a `datos/crudo/openstreetmap/`).
+1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar
+   `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del municipio,
+   declararla como `respaldo` en sus solicitudes.
 2. Históricos de Guatecompras (OCDS) para precios de referencia: el sitio responde con un desafío
-   de Cloudflare a clientes automáticos desde la nube; probar desde la máquina del equipo. El
-   cálculo ya está (`faro precios`); falta la fuente secundaria real.
+   de Cloudflare a clientes automáticos desde la nube; probar desde la máquina del equipo.
 3. Serie real de Open Buildings 2.5D Temporal por municipio (`scripts/`, requiere Earth Engine).
-4. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED (no están en el repositorio) y
-   actualizar `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del
-   municipio, declararla como `respaldo` en sus solicitudes.
-5. Publicar releases v0.1.0–v0.4.0 (la sesión en la nube no tiene permiso; ver `docs/08-versiones.md`).
-6. Entregables: PDF, video (2–3 min), README final con las secciones mínimas de la Nota
+4. Publicar releases v0.1.0–v0.5.0 (la sesión en la nube no tiene permiso; ver `docs/08-versiones.md`).
+5. Entregables: PDF, video (2–3 min), README final con las secciones mínimas de la Nota
    Conceptual. Invitar al jurado al repositorio. Fusionar la rama de trabajo en `main`.

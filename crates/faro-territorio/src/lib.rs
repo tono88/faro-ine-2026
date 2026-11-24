@@ -12,4 +12,6 @@ pub mod asignacion;
 pub mod crecimiento;
 pub mod poblacion;
 pub mod precios;
+pub mod shp;
+pub mod vial;
 pub use crecimiento::{analizar, leer_series, Crecimiento, Punto};

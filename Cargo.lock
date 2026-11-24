@@ -520,6 +520,7 @@ dependencies = [
  "faro-homologa",
  "faro-territorio",
  "serde_json",
+ "zip",
 ]
 
 [[package]]

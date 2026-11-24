@@ -2,6 +2,11 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.5.0 · 24-nov-2026
+- Red vial como grafo con caminos reales de OpenStreetMap: lugares poblados en tramos sueltos,
+  sin camino mapeado y enlaces probables (`faro vial`, pestaña "Red vial").
+- Documento de logros y hallazgos.
+
 ## v0.4.0 · 24-nov-2026
 - Precios de referencia a partir de cotizaciones (media, mediana, moda; precios extremos;
   proporción de cotizaciones directas), en línea de comandos y en la pantalla.
