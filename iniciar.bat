@@ -15,7 +15,7 @@ if errorlevel 1 (
 
 powershell -NoProfile -ExecutionPolicy Bypass -File crear_env.ps1 >> %LOG% 2>&1
 rem El puerto sale de .env: crear_env.ps1 elige uno libre si el configurado esta ocupado.
-set PUERTO=8090
+set PUERTO=8082
 for /f "tokens=2 delims==" %%p in ('findstr /b "FARO_PUERTO=" .env') do set PUERTO=%%p
 echo PUERTO: %PUERTO% >> %LOG%
 

@@ -1,6 +1,6 @@
 # Crea .env con claves aleatorias si no existe y deja en FARO_PUERTO un puerto libre.
 # Lo llama iniciar.bat.
-$PuertoInicial = 8090
+$PuertoInicial = 8082
 $ruta = Join-Path (Get-Location) ".env"
 
 function Clave { -join ((48..57) + (97..122) | Get-Random -Count 32 | ForEach-Object { [char]$_ }) }

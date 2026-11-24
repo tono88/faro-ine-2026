@@ -46,7 +46,7 @@ cp .env.example .env          # cambie las tres claves
 docker compose up --build     # base de datos PostgreSQL + FARO
 ```
 
-Abra <http://localhost:8090>. Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
+Abra <http://localhost:8082>. Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
 La pantalla tiene siete secciones: recibir un envío, revisar pendientes, equivalencias
