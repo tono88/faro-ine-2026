@@ -2,6 +2,10 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.4.0 · 24-nov-2026
+- Precios de referencia a partir de cotizaciones (media, mediana, moda; precios extremos;
+  proporción de cotizaciones directas), en línea de comandos y en la pantalla.
+
 ## v0.3.0 · 24-nov-2026
 - Población por municipio 2015–2030 (proyecciones del INE) y tasas por 100 mil habitantes.
 - Hallazgo: 16 códigos de municipio inexistentes en el libro de proyecciones, reubicados con su diccionario.

@@ -49,7 +49,11 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
 13. **Operadores de campo cerca de su casa.** Reparte operadores entre puestos con la menor
     distancia total posible, usando las coordenadas del catálogo (`faro asignar` y la pantalla).
     Cálculo exacto (método húngaro); distancia en línea recta, no por carretera.
-14. **Crecimiento urbano.** A partir de edificaciones por año vistas por satélite, calcula el
+14. **Precios de referencia.** A partir de cotizaciones calcula media, mediana y moda por producto
+    y elige como lo explica la Dirección de Precios e Índices de Referencia (mediana si hay
+    precios extremos, media si son parecidos); avisa si faltan cotizaciones directas o se mezclan
+    unidades (`faro precios` y la pantalla).
+15. **Crecimiento urbano.** A partir de edificaciones por año vistas por satélite, calcula el
     ritmo de crecimiento de cada municipio y lo proyecta con su margen (`faro crecimiento`).
 
 ## Levantarlo con Docker
@@ -62,9 +66,10 @@ docker compose up --build     # base de datos PostgreSQL + FARO
 Abra <http://localhost:8082>. Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
-La pantalla tiene siete secciones: recibir un envío, revisar pendientes, equivalencias
-confirmadas, resultados por departamento, conjuntos del portal del INE (se sincroniza sola al
-arrancar y cada 24 horas), crecimiento urbano y asignación de operadores de campo.
+La pantalla tiene ocho secciones: recibir un envío, revisar pendientes, equivalencias
+confirmadas, resultados y avance por institución, conjuntos del portal del INE (se sincroniza
+sola al arrancar y cada 24 horas), crecimiento poblacional y urbano, asignación de operadores de
+campo y precios de referencia. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.
 
 En Linux, el contenedor escribe las descargas de fuentes abiertas en `datos/crudo` con un usuario
 sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecute
@@ -75,7 +80,7 @@ sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecu
 Requiere [Rust](https://rustup.rs) estable (probado con 1.97) y, para el servidor, PostgreSQL 16.
 
 ```bash
-cargo test                       # 46 pruebas
+cargo test                       # 50 pruebas
 cargo build --release
 
 # Línea de comandos (no necesita base de datos)
@@ -87,6 +92,8 @@ cargo build --release
 ./target/release/faro catalogo verificar --listado <listado de lugares poblados.xlsx>   # catálogo contra el Censo 2018
 ./target/release/faro crecimiento --entrada datos/ejemplos/edificaciones_ficticias.csv --proyectar 2030
 ./target/release/faro aire --entrada <archivo de calidad del aire.xlsx>
+./target/release/faro precios --cotizaciones datos/ejemplos/cotizaciones_ficticias.csv
+./target/release/faro poblacion --entrada <proyecciones.xlsx> --diccionario <diccionario.xlsx>   # tabla municipio-año
 ./target/release/faro asignar --operadores datos/ejemplos/operadores_ficticios.csv --puestos datos/ejemplos/puestos_ficticios.csv
 
 # Servidor

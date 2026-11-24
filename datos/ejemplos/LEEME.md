@@ -8,5 +8,7 @@ del INE ni de ninguna institución y no describen a personas reales.
 - `operadores_ficticios.csv`: 19 operadores sin nombre (`OP-01`...) con el lugar poblado donde
   "viven". Los códigos de lugar son reales (catálogo del Censo 2018, Sololá); quién vive dónde es
   inventado.
+- `cotizaciones_ficticias.csv`: cotizaciones inventadas de cuatro productos para probar el
+  cálculo del precio de referencia.
 - `puestos_ficticios.csv`: 7 puestos de trabajo en lugares poblados reales de Sololá y cuántos
   operadores necesita cada uno (inventado).
