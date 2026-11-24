@@ -1,0 +1,258 @@
+alimento,produccion_t,importaciones_t,exportaciones_t,procesado_t,alimentos_t
+Cereales (excluida la cerveza),2556775,3237387,208192,24310,2999871
+Trigo y productos derivados,0,935866,183820,0,606932
+Trigo,0,721041,1100,693272.7,0
+Harina de Trigo,498879,54519,6103,420575.3,126719.7
+Germen Trigo,14729,0,0,0,0
+Obleas (galletas),92527,27838,37762,0,82603
+Macarrones (pastas de todo tipo),84115,16397,25584,0,74928
+Salvado de Trigo,152520,16941,1437,0,0
+Pan,100938,476,1044,0,100370
+Pastelería,84115,56849,64599,0,76365
+Fécula de Trigo,66308,882,0,0,0
+Gluten de Trigo,9733,967,119,0,0
+Cebada y productos derivados,24,0,0,0,0
+Cebada,24,0,0,0,0
+Maíz y productos derivados,2442794,2077082,9514,24310,2108433
+Maíz,2442794,2019661,3808,2932712.3,0
+Harina de Maíz,656705,21528,4443,0,401687
+Germen de Maíz,29462,0,7,0,0
+Fécula de Maíz,26461,22594,669,15801.8,32584.2
+Tortilla,2878437,0,0,0,2878437
+Salvado de Maíz,53210,16476,904,0,0
+Gluten de Maíz,17126,0,0,0,0
+Avena y productos derivados,0,50566,13817,0,36421
+Avena,0,3299,11,0,2960
+Avena Molida,0,26674,7791,0,18883
+Sorgo y productos derivados,35000,12,1,0,10843
+Sorgo,35000,12,1,10155.8,687
+Harina de Sorgo,9648,0,0,0,9648
+Salvado de Sorgo,915,0,0,0,0
+Arroz (equivalente elaborado),78957,173861,1040,0,237242
+Arroz en Cáscara,78957,160516,0,224936.3,0
+Arroz Elaborado,155896,9290,728,0,164458
+Arroz Quebrado,81703,16361,0,0,28386
+Arroz Descascarado,1782,59,0,0,1841
+"Arroz, Almidón",654,0,0,0,0
+Salvado de Arroz,17817,0,0,0,0
+"Arroz, Gluten",17,0,0,0,17
+Raíces feculentas,624089,17036,65049,11975,314834
+Papas y productos derivados,617375,16854,64886,11975,308452
+Papas,617375,16854,64886,60636.4,260042
+Papas Congeladas,24205,0,0,0,24205
+Tapioca de Papas,7963,0,0,0,7963
+Yuca y productos derivados,4754,182,163,0,4540
+Yuca (Mandioca),4754,0,163,3955.9,444
+Yuca Seca,791,73,0,0,847
+Almidón Yuca,436,0,0,0,0
+Tapioca de Yuca,494,0,0,0,494
+Camotes,1960,0,0,0,1842
+Batatas (Camotes),1960,0,0,0,1842
+Cultivos azucareros,25429764,0,0,24145176,0
+Caña de Azúcar,25429764,0,0,24145176.5,0
+Azúcar y edulcorantes,4276684,247455,1781546,0,2231209
+Azúcar no centrifugado,100,0,21,0,79
+Azúcar sin refinar (equivalente),2462808,42508,1398966,0,595071
+Azúcar Centrif en Bruto,2462808,0,498007,1876874.5,0
+Azúcar Refinada,1754690,15,793198,44565,521150
+Dulces de Azúcar,44565,39726,49109,0,35182
+"Edulcorantes, otros",1811676,204947,381012,0,1635611
+Glucosa y Dextrosa,17382,0,0,0,17382
+Melazas,998871,3499,436052,74304.7,0
+Bebidas no Alcohólicas,1794294,204947,381012,0,1618229
+Miel,2100,0,1547,0,448
+Legumbres,169000,43079,1200,0,172616
+Frijoles,112665,42620,1193,0,122522
+Frijoles Secos,112665,42620,1193,0,122522.1
+"Legumbres, otros y productos derivados",56335,459,7,0,50094
+Habas Secas,30717,0,0,0,27645
+Garbanzos,0,192,1,0,191
+Lentejas,0,267,6,0,227.2
+Legumbres Secas nep,25618,0,0,1188.6,20842
+Harina de Legumbres,832,0,0,0,832
+Salvado de Legumbres Sec,357,0,0,0,0
+Nueces de árbol,154161,10,32,0,287612
+Nueces y productos derivados,154161,10,32,0,287612
+Almendras,0,0,0,0,0
+Acajú,133782,0,0,0,133782
+"Frutos Secos, nep",20379,0,0,0,19360
+Almendras sin Cáscara,328,0,0,0,328
+Acaju sin Cáscara,41700,3,10,0,41693
+Cultivos oleaginosos,4051258,40916,25243,3671276,59654
+Soja,36000,0,0,15810,0
+Maní descascarado (equivalente),10526,19457,565,7320,42936
+Maní con Cáscara,10526,2,20,0,9529
+Maní sin Cáscara,5021,6986,9,5119,6879
+Maníes Preparados,5006,6474,364,0,11116
+Manteca de Maní,4842,0,0,0,4842
+Semillas de girasol,0,0,0,0,0
+Cocos (incluida la copra),12141,367,3384,0,8248
+Cocos,12141,367,3384,0,8248
+Semillas de ajonjolí,14651,21092,21294,3079,8470
+Semilla de ajonjolí,14651,21092,21294,3112,8470
+Almendra de palma,3977940,0,0,3645066,0
+Palma Aceitera,3977940,0,0,3645066.3,0
+Almendras de Palma,239449,47294,15,190856.6,0
+Aceites vegetales,1087094,158379,626205,0,206712
+Aceite de soja,2947,112676,7737,0,99538
+Aceite de maní,2150,2,59,0,2092
+Aceite de girasol,0,7048,2208,0,4840
+Aceite de semilla de algodón,20,2,0,0,22
+Aceite de Algodón,20,2,0,0,22
+Aceite de almendra de palma,86000,2558,55612,0,8887
+Aceite de Almendras Palm,86000,2558,55612,0,8887
+Aceite de palma,990000,33810,560507,0,83356
+Aceite de semillas de ajonjolí,1556,0,0,0,1556
+Aceite de ajonjolí,1556,0,0,0,1556
+Aceite de oliva,0,2008,20,0,1787
+Aceite de germen de maíz,4421,275,62,0,4634
+Manteca de Cacao,5019,463,10,1779.5,0
+Hortalizas,2619929,30435,856291,2962,1494322
+Tomates y productos derivados,526035,466,62925,0,404595
+Tomates,526035,466,62925,4203.1,396189
+Jugo de Tomate,2732,0,0,0,2732
+Pasta de Tomates,1319,0,0,0,1319
+Cebollas,191156,19165,28540,2962,161911
+Cebollas Secas,191156,19165,28540,3044.4,161910.6
+"Hortalizas, otros",1902738,10804,764826,0,927817
+Espárragos,61,55,91,0,25
+Coles,90879,54,78598,2412.5,5613
+Coliflores,50026,1,36082,0,8441
+Lechugas,110430,75,46146,0,49993
+Espinacas,554,0,450,0,104
+Alcachofas,8,0,8,0,0
+Sandías,162000,4399,146914,0,4457
+Cantalupos&otros Melones,536029,807,356108,0,110939
+Pimientos Frescos,89678,227,18638,0,61377
+Pepinos y Pepinillos,4261,129,3847,0,543
+Berenjenas,2000,0,1468,0,532
+"Calabazas,todas clases",417151,55,5474,0,365839
+Ocro,6337,0,0,0,6147
+Frijoles Verdes,50390,0,0,0,44343
+Guisantes Verdes,39673,0,0,0,34912
+Habas Verdes,29354,0,0,0,25538
+Zanahorias,122051,7,67898,0,39513
+Ajos,31911,0,0,0,28082
+Otras Legumbres Aliaceas,2000,0,1987,0,13
+Setas y Hongos,884,11,886,0,9
+Hortalizas Frescas nep,157060,0,0,67030,69612
+Algarrobas,1,0,1,0,0
+Maíz Dulce Congelado,0,50,0,0,50
+Hortalizas en Vinagre,2740,0,0,0,2740
+"Maíz Dulce, Preparado",0,3274,153,0,3121
+Sucedaneos del Café,19173,0,0,0,19173
+Hortalizas Conserv Otras,1930,0,0,0,1930
+Hortalizas Congeladas,60327,0,0,0,60327
+Frutas (excluido el vino),7745420,154627,3054724,37303,3905803
+"Naranjas, mandarinas",76824,41233,12878,0,113306
+Naranjas,76824,35663,114,0,99999
+Jugo de Naranjas,11031,910,6740,0,5201
+Tang.Mand.Clement.Satsma,0,3879,238,0,3641
+"Limones, limas y productos derivados",118547,236,7801,0,95540
+Limones y Limas,118547,236,7801,0,95540
+Toronjas y productos derivados,0,227,3,0,224
+Toronjas y Pomelos,0,227,3,0,224
+Frutos cítricos n.c.p. y productos derivados,65713,0,331,11269,45539
+Cítricos nep,65713,0,331,11300.5,45538.5
+Jugo de Cítricos nep,1991,0,0,0,1991
+Bananos,3115662,18347,2506871,9794,255105
+Plátanos,1062450,1934,295686,0,663237
+Plátanos y otros,1062450,1934,295686,0,663237.4
+Manzanas y productos derivados,17385,54465,44476,6556,15902
+Manzanas,17385,44002,500,40748.3,15228
+Jugo Manzana no Concentr,21196,6487,27265,0,418
+Piñas y productos derivados,953911,5454,114568,0,740446
+Piñas,953911,77,23021,300715,439454
+Jugo de Piña,46092,487,9674,0,36905
+Jugo de Piña Concentrado,26830,469,6785,0,20514
+Piñas en Lata,5532,62,1869,0,3725
+Uvas y productos derivados (excluido el vino),20830,18378,327,0,36067
+Uvas,20830,14339,229,0,32126
+"Frutas, otros",2314098,14353,71784,9684,1940437
+Peras,0,4167,106,0,4061
+Cerezas Agrias,2,0,2,0,0
+Cerezas,0,60,4,0,56
+Melocotones y Nectarinas,57184,1794,1086,0,50225
+Ciruelas,2703,486,2163,0,1026
+Ciruelas Secas,0,660,55,0,605
+Fresas,16355,37,8081,0,6180
+Bayas nep,5263,224,173,0,5314
+Higos,12,16,18,0,10
+Pasas,0,1076,26,0,1050
+Mangos,274613,541,18556,0,220828
+Aguacates,81411,2768,11243,0,56942
+Kiwi,0,1022,13,0,1009
+Papayas,1769898,95,29065,0,1510829
+Frutas Frescas nep,104869,94,1093,10923.7,79301.3
+Frutas Tropicales Secas,1788,886,1,0,2673
+Frutas Secas,43,41467,36,0,41474
+Preparados de Frutas,69424,5531,30768,0,44187
+Estimulantes,239836,14272,190483,3108,43143
+Café y productos derivados,224860,456,189920,0,35396
+Café Verde,224860,112,189369,2843.8,32759.3
+Café Tostado,2275,275,441,0,2109
+Cacao en grano y productos derivados,14436,13817,563,3108,7230
+Cacao en Grano,14436,6425,358,13996.3,0
+Pasta de Cacao,11197,0,0,10677.4,519.6
+Cacao en Polvo,5659,3134,87,1344.4,2790
+Chocolate y Otros Prep,14682,13273,6051,0,21904
+Té (incluido el mate),540,0,0,0,518
+Té,540,0,0,0,518
+"Té verde (sin fermentar), té negro (fermentado) y té parcialmente fermentado, en envases inmediatos con un contenido inferior o igual a 3 kg",114,0,0,0,114
+Especias,48937,2674,415,0,34511
+Pimienta,904,0,0,0,868
+Pimienta Negra y Blanca,904,0,0,0,868
+Pimienta de Jamaica,0,1808,302,0,1506
+"Pimentón,Pimienta Gorda",0,1808,302,0,1506
+Clavo de olor,0,36,25,0,11
+"Especias, otras",48033,830,88,0,32126
+Canela,0,790,75,0,715
+Nuez Moscada,45263,40,13,0,29437
+"Semillas Anís,Bad,Hinojo",2196,0,0,0,1493
+Jengibre,150,0,0,0,150
+Especias nep,424,0,0,0,331
+Bebidas alcohólicas,601493,71052,48144,0,359419
+Cerveza,270968,62283,25764,0,307487
+Cerveza de Cebada,270968,62283,25764,0,307487
+"Bebidas, fermentadas",5249,0,0,0,5249
+Bebidas Ferm. Exc Vino,5249,0,0,0,5249
+Bebidas Alc Destiladas,60294,8769,22380,0,46683
+"Alcohol, no alimentario",264982,0,0,0,0
+Alcohol Uso no Alimentar,264982,0,0,0,0
+Carne,809130,67429,2843,0,830941
+Carne de vacuno,289181,27880,1392,0,307909
+Carne de Vaca y Ternera,289181,483,0,288491.3,0
+Carne de Bovino Deshues,230793,21918,1114,5269.7,246327.3
+Salchichas Carne Vacuna,4217,130,0,0,4347
+Carne de cerdo,65855,38831,675,0,100833
+Cerdo de carnicería,43165,22097,13,6731,58518
+Salchichas de Cerdo,6731,415,415,0,6731
+Carne de aves de corral,454094,717,775,0,422199
+Carne de Pollo,454094,717,775,0,422199
+Despojos,31434,21270,335,0,49683
+"Despojos, comestibles",31434,21270,335,0,49683
+Despojos Comest Vacunos,24703,1301,0,0,23924
+Despojos Comestibl Cerdo,6731,842,1,0,6966
+Despojos Hígado de Pollo,0,19127,334,0,18793
+Grasas animales,21014,8105,0,0,15171
+Grasas de origen animal crudas,13909,5879,0,0,5840
+Grasas de Vacunos,13909,39,0,0,0
+Manteca de Cerdo,2598,0,0,0,2598
+Grasa de Aves derretida,0,4725,0,0,4725
+"Mantequilla, ghee",1838,1474,0,0,3312
+"Mantequilla, Leche Vaca",1838,1474,0,0,3312
+Nata,5267,752,0,0,6019
+Crema/Nata Fresca,5267,752,0,0,6019
+Leche (excluida la mantequilla),857634,85679,1474,118568,818754
+"Leche Vaca,Entera,Fresca",840724,34323,609,227989.4,642870.6
+Leche de Vaca Desnatada,33011,5673,0,0,15387
+"Leche Vaca,Entera,Seca",0,13637,166,0,13336.3
+"Leche Vaca,desn. Polvo",0,6658,80,0,6315
+Yogur Concentrado o no,8600,19,1,0,8618
+Queso (Leche Ent. Vaca),15545,6833,115,0,22263
+Queso Elaborado,0,23280,403,0,22877
+Helados y Hielo Comestib,16910,4906,20116,0,1700
+Huevos,281268,1113,2462,0,267342
+Huevos de Gallina,281268,771,1141,0,266588
+"Huevos,excluidos Gallina",0,106,0,0,106
+Huevos Líquidos Gallina,1466,200,1118,0,548

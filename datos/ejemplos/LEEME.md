@@ -18,5 +18,5 @@ del INE ni de ninguna institución y no describen a personas reales.
   `envio_hechos_transito.csv`. No aparece en la pantalla.
 
 - `tasas_extraccion_ficticias.csv`: tabla **ficticia** de utilización y tasas de extracción para probar
-  la calculadora de derivados de la Hoja de Balance de Alimentos. Los productos y los porcentajes son
-  inventados para mostrar el formato; las tasas reales las define el INE.
+  la opción «Probar con otra tabla» de la calculadora de derivados. Los productos y los porcentajes son
+  inventados para mostrar el formato. La calculadora usa por omisión tasas reales (FAO, sección Guatemala).

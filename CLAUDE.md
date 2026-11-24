@@ -126,6 +126,12 @@ imprimible desde precios publicados, parámetro `sin` = direcciones apartadas po
 presentaciones: tabla al final de `docs/01-necesidades-ine.md`. No hechos: catálogo del Manual de
 Características del IPC (no es público), ICC, edades y comparación entre censos.
 
+Agregado después (v0.12.1): arreglo del clic en el mapa (`lienzo.focus` con `preventScroll`; prueba
+`.faro/pruebas/clic_real_mapa.js`, que usa clic REAL: correrla siempre que se toque el mapa). HBA con
+datos reales: `tasas_extraccion_fao_guatemala.csv` (FAO TCF) + `faro hba` → `hba_2024_cuentas.csv`;
+`GET /api/balance`. Regla reafirmada por el equipo: nada inventado en el portal; lo sintético solo como
+archivo de muestra que el usuario decide cargar.
+
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar
    `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del municipio,

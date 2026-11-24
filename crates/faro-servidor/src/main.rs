@@ -253,7 +253,7 @@ async fn main() -> Result<(), String> {
         .route("/api/publicados", get(api_publicados))
         .route("/api/informe_precio", get(api_informe_precio))
         .route("/informe-precio", get(|| async { Html(include_str!("../web/informe_precio.html")) }))
-        .route("/api/balance", post(api_balance))
+        .route("/api/balance", post(api_balance).get(api_balance_oficial))
         .route("/api/buscar_lugar", get(api_buscar_lugar))
         .route("/api/publicados.csv", get(api_publicados_csv))
         .route("/api/municipio/:codigo", get(api_municipio))
@@ -1244,9 +1244,9 @@ async fn sembrar_precios(bd: &Client, ruta: &std::path::Path) -> Result<usize, S
         let precios: Vec<f64> = lote.iter().map(|f| f["precio_q"].parse().unwrap_or(0.0)).collect();
         let listas: Vec<Option<f64>> = lote.iter().map(|f| f.get("precio_lista_q").and_then(|p| p.parse().ok())).collect();
         bd.execute(
-            "INSERT INTO precios_observados (tarea, rubro, proveedor, producto, marca, precio, url, termino, ean, precio_lista, observado)
-             SELECT $1, r, t, p, m, x, u, c, e, l, d::date FROM unnest($2::text[], $3::text[], $4::text[], $5::text[], $6::float8[], $7::text[], $8::text[], $9::text[], $10::float8[], $11::text[]) AS f(r, t, p, m, x, u, c, e, l, d)",
-            &[&LEVANTAMIENTO, &col("rubro"), &col("tienda"), &col("producto"), &col("marca"), &precios, &col("url"), &col("categoria_tienda"), &col("codigo_barras"), &listas, &col("fecha_consulta")],
+            "INSERT INTO precios_observados (tarea, rubro, proveedor, producto, marca, precio, url, termino, ean, precio_lista, observado, imagen)
+             SELECT $1, r, t, p, m, x, u, c, e, l, d::date, i FROM unnest($2::text[], $3::text[], $4::text[], $5::text[], $6::float8[], $7::text[], $8::text[], $9::text[], $10::float8[], $11::text[], $12::text[]) AS f(r, t, p, m, x, u, c, e, l, d, i)",
+            &[&LEVANTAMIENTO, &col("rubro"), &col("tienda"), &col("producto"), &col("marca"), &precios, &col("url"), &col("categoria_tienda"), &col("codigo_barras"), &listas, &col("fecha_consulta"), &col("imagen")],
         )
         .await
         .map_err(|e| e.to_string())?;
@@ -1282,9 +1282,9 @@ async fn muestrear_y_guardar(e: &Compartido, tarea: &faro_fuentes::muestreo::Tar
         let precios: Vec<f64> = lote.iter().map(|o| o.precio).collect();
         let listas: Vec<Option<f64>> = lote.iter().map(|o| o.precio_lista).collect();
         e.bd.execute(
-            "INSERT INTO precios_observados (tarea, rubro, proveedor, producto, marca, precio, unidad, url, termino, ean, precio_lista)
-             SELECT $1, $2, $3, * FROM unnest($4::text[], $5::text[], $6::float8[], $7::text[], $8::text[], $9::text[], $10::text[], $11::float8[])",
-            &[&tarea.id, &tarea.rubro, &tarea.proveedor, &col(|o| &o.producto), &col(|o| &o.marca), &precios, &col(|o| &o.unidad), &col(|o| &o.url), &col(|o| &o.termino), &col(|o| &o.ean), &listas],
+            "INSERT INTO precios_observados (tarea, rubro, proveedor, producto, marca, precio, unidad, url, termino, ean, precio_lista, imagen)
+             SELECT $1, $2, $3, * FROM unnest($4::text[], $5::text[], $6::float8[], $7::text[], $8::text[], $9::text[], $10::text[], $11::float8[], $12::text[])",
+            &[&tarea.id, &tarea.rubro, &tarea.proveedor, &col(|o| &o.producto), &col(|o| &o.marca), &precios, &col(|o| &o.unidad), &col(|o| &o.url), &col(|o| &o.termino), &col(|o| &o.ean), &listas, &col(|o| &o.imagen)],
         )
         .await
         .map_err(interno)?;
@@ -1465,6 +1465,36 @@ async fn api_balance(Query(q): Query<HashMap<String, String>>, cuerpo: String) -
         None => None,
     };
     Ok(Json(json!({ "primarios": primarios, "filas": tasas.len(), "balance": balance })))
+}
+
+/// Calculadora con las tasas de extracción de FAO para Guatemala, contrastadas con las cuentas de
+/// la Hoja de Balance de Alimentos 2024 del INE (producción del derivado ÷ primario procesado).
+async fn api_balance_oficial(Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
+    use faro_homologa::normalizar::basico;
+    let dir = std::path::PathBuf::from(var("FARO_ESTANDAR", "datos/estandar"));
+    let texto = std::fs::read_to_string(dir.join("tasas_extraccion_fao_guatemala.csv")).map_err(|_| pedido("este servidor no tiene la tabla de tasas de FAO"))?;
+    let tasas = faro_territorio::balance::leer_tasas(texto.as_bytes()).map_err(interno)?;
+    let detalle: Vec<HashMap<String, String>> = csv::Reader::from_reader(texto.as_bytes()).deserialize().flatten().collect();
+    // Cuentas del INE: alimento -> (producción, procesado).
+    let cuentas: HashMap<String, (String, Option<f64>, Option<f64>)> = csv::Reader::from_path(var("FARO_HBA", "datos/referencia/hba_2024_cuentas.csv")).map(|mut l| l.deserialize::<HashMap<String, String>>().flatten()
+        .filter_map(|f| Some((basico(f.get("alimento")?), (f.get("alimento")?.clone(), f.get("produccion_t")?.parse().ok(), f.get("procesado_t")?.parse().ok())))).collect()).unwrap_or_default();
+    let primarios: Vec<Value> = faro_territorio::balance::primarios(&tasas).into_iter().map(|p| { let c = cuentas.get(&basico(&p)); json!({ "primario": p, "procesado_ine_t": c.and_then(|c| c.2).filter(|x| *x > 0.0) }) }).collect();
+    let Some(producto) = q.get("producto").filter(|p| !p.is_empty()) else {
+        return Ok(Json(json!({ "primarios": primarios, "filas": tasas.len() })));
+    };
+    let procesado_ine = cuentas.get(&basico(producto)).and_then(|c| c.2).filter(|x| *x > 0.0);
+    let cantidad: f64 = q.get("cantidad").and_then(|c| c.replace(',', "").parse().ok()).or(procesado_ine).ok_or_else(|| pedido("escriba la cantidad del producto primario que se procesa"))?;
+    let balance = faro_territorio::balance::calcular(&tasas, producto, cantidad).map_err(pedido)?;
+    // Al lado de cada derivado, lo que el INE publicó para 2024 y la tasa que resulta de sus propias cifras.
+    let contraste: Vec<Value> = balance.derivados.iter().map(|d| {
+        let fila = detalle.iter().find(|f| f.get("derivado") == Some(&d.derivado) && f.get("primario").is_some_and(|p| p.eq_ignore_ascii_case(&balance.primario)));
+        let nombre_ine = fila.and_then(|f| f.get("derivado_en_hba_ine")).filter(|n| !n.is_empty()).cloned().unwrap_or_else(|| d.derivado.clone());
+        let ine = cuentas.get(&basico(&nombre_ine));
+        let produccion = ine.and_then(|c| c.1).filter(|x| *x > 0.0);
+        json!({ "derivado": d.derivado, "relacion": fila.and_then(|f| f.get("relacion")), "nombre_ine": ine.map(|c| c.0.clone()), "produccion_ine_t": produccion,
+                "tasa_implicita_ine_pct": produccion.zip(procesado_ine).map(|(p, x)| (p / x * 1000.0).round() / 10.0) })
+    }).collect();
+    Ok(Json(json!({ "primarios": primarios, "filas": tasas.len(), "balance": balance, "procesado_ine_t": procesado_ine, "contraste": contraste })))
 }
 
 /// Busca departamentos, municipios y lugares poblados por nombre o código (para ir a ellos en el mapa).

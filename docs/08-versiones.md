@@ -2,6 +2,13 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.12.1 · 24-nov-2026
+- Corrección: el clic sobre un municipio (y, en ventanas bajas, sobre departamentos y lugares) no
+  abría la ficha, porque al tomar el foco el mapa la página se desplazaba. Ahora hay una prueba
+  de clic real en cuatro tamaños de ventana.
+- La calculadora de derivados usa datos reales: tasas de extracción de Guatemala de la FAO,
+  contrastadas con las cuentas de la Hoja de Balance de Alimentos 2024 del INE (`faro hba`).
+
 ## v0.12.0 · 24-nov-2026
 Tres peticiones de las presentaciones del lanzamiento:
 - Dirección de Precios e Índices de Referencia: informe de precio de referencia imprimible a partir

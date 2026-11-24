@@ -72,6 +72,14 @@ CREATE TABLE IF NOT EXISTS precios_observados (
 -- Código de barras y precio de lista: los publica el catálogo completo de la tienda.
 ALTER TABLE precios_observados ADD COLUMN IF NOT EXISTS ean TEXT NOT NULL DEFAULT '';
 ALTER TABLE precios_observados ADD COLUMN IF NOT EXISTS precio_lista DOUBLE PRECISION;
+ALTER TABLE precios_observados ADD COLUMN IF NOT EXISTS imagen TEXT NOT NULL DEFAULT '';
+-- Huella visual de la foto de un producto: forma (64 bits) y color (cuadrícula 4x4, 48 valores).
+CREATE TABLE IF NOT EXISTS huellas_foto (
+    imagen    TEXT PRIMARY KEY,
+    forma     BIGINT,
+    color     REAL[],
+    calculada TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 CREATE INDEX IF NOT EXISTS precios_observados_url ON precios_observados (proveedor, url, observado DESC);
 CREATE INDEX IF NOT EXISTS precios_observados_rubro ON precios_observados (rubro, proveedor, producto, observado DESC);
 

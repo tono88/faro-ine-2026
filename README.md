@@ -103,8 +103,10 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
     imprimible con media, mediana y moda, el precio recomendado según la regla de la Dirección de
     Precios, las fuentes con su enlace y la metodología; la persona aparta lo que no es comparable
     y el informe se recalcula (`/informe-precio`).
-19f. **Hoja de Balance de Alimentos: derivados.** Calculadora que aplica la tabla de utilización y
-    tasas de extracción a un producto primario y avisa de lo que no cuadra (`balance.rs`).
+19f. **Hoja de Balance de Alimentos: derivados.** Calculadora con las tasas de extracción de
+    Guatemala publicadas por la FAO (35 derivados de 19 productos), contrastadas con las cuentas de
+    la HBA 2024 del INE: con sus propias cifras, el trigo da 72.0 % de harina (FAO: 72) y la caña
+    10.2 % de azúcar (FAO: 10). Admite cargar otra tabla (`faro hba`, `balance.rs`).
 19g. **Buscador de territorio.** Sobre el mapa: departamento, municipio o lugar poblado por nombre,
     nombre común o código; lleva a su ficha o a su punto.
 20. **Canasta básica.** Precio promedio del INE de 34 productos, con su serie, junto a los

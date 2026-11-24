@@ -105,6 +105,13 @@ y cómo repetirlo.
     es que las columnas del archivo estén corridas o mal rotuladas. El portal ahora lo señala como
     pista junto a cada código inexistente; la confirmación requiere el archivo real o una consulta a RENAP.
 
+10e. **Las tasas de extracción de la FAO para Guatemala siguen describiendo lo que el INE publica.**
+    Con las cuentas de la Hoja de Balance de Alimentos 2024 (producción del derivado ÷ primario
+    procesado): harina de trigo 72.0 % (FAO: 72), salvado de trigo 22.0 % (22), café tostado 80.0 %
+    (80), azúcar en bruto 10.2 % (10), melazas 4.1 % (3.9), salvado de arroz 7.9 % (8). La que más
+    se aparta es el arroz elaborado: 69.3 % frente a 62. Las tasas de la FAO son de 1992–1996.
+    Repetir: `faro hba` y la sección "Hoja de balance: derivados".
+
 ## Operadores de campo (necesidad planteada por la Gerencia)
 
 11. **Asignación con la menor distancia total posible**, calculada de forma exacta. Con el ejemplo

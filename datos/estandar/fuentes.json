@@ -80,6 +80,32 @@
    "cita": "Secretaría de Seguridad Alimentaria y Nutricional (SESAN), Sistema de Información Nacional de Seguridad Alimentaria y Nutricional (SIINSAN). (2024). Retardo en talla, Censo 2024: clasificación de municipios según prevalencia (V Censo Nacional de Talla en Escolares) [conjunto de datos]. SIINSAN. https://portal.siinsan.gob.gt/wp-content/uploads/VULNERABILIDAD_DC_MUNICIPAL_QUINTO_CENSO_2024_2.xlsx Consultado el 24 de noviembre de 2026."
   },
   {
+   "id": "ine-hba-2024",
+   "autor": "Instituto Nacional de Estadística (INE)",
+   "anio": "2026",
+   "titulo": "Hoja de Balance de Alimentos (HBA), actualización 2024: cuentas de utilización y suministro",
+   "tipo": "conjunto de datos",
+   "editor": "Portal de datos abiertos del INE",
+   "url": "https://datos.ine.gob.gt/dataset/hoja-de-balance-de-alimentos-hba-actualizacion-2024",
+   "licencia": "el conjunto no declara licencia",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Producción y cantidad procesada por alimento, para contrastar las tasas de extracción (datos/referencia/hba_2024_cuentas.csv).",
+   "cita": "Instituto Nacional de Estadística (INE). (2026). Hoja de Balance de Alimentos (HBA), actualización 2024: cuentas de utilización y suministro [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/dataset/hoja-de-balance-de-alimentos-hba-actualizacion-2024 Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "fao-tcf",
+   "autor": "Organización de las Naciones Unidas para la Alimentación y la Agricultura (FAO)",
+   "anio": "2000",
+   "titulo": "Technical Conversion Factors for Agricultural Commodities (sección Guatemala, págs. 222–225)",
+   "tipo": "documento",
+   "editor": "FAO, División de Estadística",
+   "url": "https://www.fao.org/fileadmin/templates/ess/documents/methodology/tcf.pdf",
+   "licencia": "términos de uso de FAO: reproducción para fines no comerciales citando la fuente",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Tasas de extracción de Guatemala para la calculadora de derivados (datos/estandar/tasas_extraccion_fao_guatemala.csv).",
+   "cita": "Organización de las Naciones Unidas para la Alimentación y la Agricultura (FAO). (2000). Technical Conversion Factors for Agricultural Commodities (sección Guatemala, págs. 222–225) [documento]. FAO, División de Estadística. https://www.fao.org/fileadmin/templates/ess/documents/methodology/tcf.pdf Consultado el 24 de noviembre de 2026."
+  },
+  {
    "id": "muestreo",
    "autor": "FARO (muestreo automático)",
    "anio": "2026",

@@ -13,9 +13,13 @@ const { chromium } = require('playwright');
   await p.fill('#buscalugar', 'chama conop'); await p.waitForSelector('#buscalista li[data-i]'); await p.click('#buscalista li[data-i]'); await p.waitForSelector('.leaflet-popup-content', { timeout: 15000 });
   console.log('lugar:', (await t('.leaflet-popup-content')).slice(0, 120), '| nivel', await p.evaluate(() => nivel));
   // Calculadora
-  await p.click('nav button[data-s=balance]'); await p.click('#hbaejemplo'); await p.waitForSelector('#thba tbody tr td b');
-  await p.selectOption('#hbaproducto', 'Fruta ficticia B'); await p.waitForTimeout(700); await p.fill('#hbacantidad', '2500'); await p.click('#hbacalcular'); await p.waitForTimeout(700);
-  console.log('balance:', await t('#hbatarjetas'), '|', (await t('#thba tbody')).slice(0, 90), '|', await t('#hbaavisos')); await p.screenshot({ path: `${dir}/61-balance.png` });
+  await p.click('nav button[data-s=balance]'); await p.waitForSelector('#thba tbody tr td b');
+  console.log('balance (FAO, trigo):', (await t('#hbainfo')).slice(0, 150), '|', (await t('#thba tbody')).slice(0, 150));
+  await p.selectOption('#hbaproducto', 'Caña de azúcar'); await p.waitForTimeout(900); console.log('caña:', (await t('#thba tbody tr:first-child')).slice(0, 110)); await p.screenshot({ path: `${dir}/61-balance.png` });
+  // Tabla propia (archivo de muestra con utilización)
+  const muestra = await (await ctx.request.get(process.argv[2] + '/ejemplos/tasas_extraccion_ficticias.csv')).text();
+  await p.setInputFiles('#hbatabla', { name: 'muestra.csv', mimeType: 'text/csv', buffer: Buffer.from(muestra) }); await p.waitForTimeout(1200);
+  console.log('tabla propia:', (await t('#hbainfo')).slice(0, 60), '|', await t('#hbatarjetas')); await p.click('#hbaoficial'); await p.waitForTimeout(900);
   // Informe
   await p.click('nav button[data-s=rubros]'); await p.waitForSelector('#trubros tbody tr td a', { timeout: 20000 }); await p.selectOption('#rubrosel', 'tecnologia'); await p.waitForTimeout(1500);
   await p.fill('#rubroq', 'laptop 8gb 256gb'); await p.click('#rubrobuscar'); await p.waitForTimeout(1500);

@@ -55,7 +55,7 @@
   #aviso.mal { background:var(--mal); }
   /* Mapa */
   .mapa-zona { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; }
-  #lienzo { height:min(78vh, 760px); min-height:520px; border:1px solid var(--borde); border-radius:var(--radio); background:#eef3f8; }
+  #lienzo { height:min(calc(100vh - 270px), 760px); min-height:420px; border:1px solid var(--borde); border-radius:var(--radio); background:#eef3f8; }
   .mapa-lado { display:flex; flex-direction:column; gap:12px; }
   .mapa-lado .panel { margin:0; padding:14px; }
   .opcion { display:flex; gap:8px; align-items:flex-start; margin:6px 0; font-weight:400; font-size:14px; } .opcion input { margin-top:4px; }
@@ -389,23 +389,24 @@
   </section>
 
   <section id="balance">
-    <div class="titulo"><h2>Hoja de Balance de Alimentos: calculadora de derivados</h2><p>A partir de la cantidad de un producto primario calcula cuánto se destina a cada derivado y cuánto derivado resulta, aplicando la tabla de utilización y tasas de extracción. Avisa cuando la utilización no suma 100 % o una tasa pasa de 100 %. Las tasas las define el INE: aquí solo se aplican, siempre igual.</p></div>
+    <div class="titulo"><h2>Hoja de Balance de Alimentos: calculadora de derivados</h2><p>A partir de la cantidad de un producto primario que se procesa, calcula cuánto derivado resulta con las <b>tasas de extracción de Guatemala publicadas por la FAO</b>, y pone al lado lo que el INE publicó en las cuentas de la Hoja de Balance de Alimentos 2024, para ver si la tasa sigue vigente.</p></div>
     <div class="panel">
-      <div class="filtros"><div><label for="hbatabla">Tabla de tasas (CSV: primario, derivado, utilizacion_pct, tasa_extraccion_pct)</label><input type="file" id="hbatabla" accept=".csv">
-          <p class="nota" style="margin:4px 0 0"><a href="/ejemplos/tasas_extraccion_ficticias.csv">Descargar un ejemplo (ficticio)</a> · <a href="#" id="hbaejemplo">usar el ejemplo ficticio</a></p></div>
-        <div><label for="hbaproducto">Producto primario</label><select id="hbaproducto" disabled><option>cargue una tabla</option></select></div>
-        <div><label for="hbacantidad">Cantidad del primario (toneladas métricas)</label><input type="number" id="hbacantidad" min="0" step="any" value="1000"></div>
-        <div><button class="accion" id="hbacalcular" disabled>Calcular</button></div></div>
+      <div class="filtros">
+        <div><label for="hbaproducto">Producto primario</label><select id="hbaproducto"></select></div>
+        <div><label for="hbacantidad">Cantidad que se procesa (toneladas métricas)</label><input type="number" id="hbacantidad" min="0" step="any"></div>
+        <div><button class="accion" id="hbacalcular">Calcular</button></div></div>
       <p class="nota" id="hbainfo" style="margin-top:12px"></p>
       <div class="tarjetas" id="hbatarjetas"></div>
       <div class="tabla"><table id="thba"></table></div>
       <div id="hbaavisos"></div>
-      <details class="como"><summary>Cómo se calcula</summary><ul>
-        <li><b>Destinado</b> = cantidad del primario × utilización ÷ 100.</li>
-        <li><b>Derivado</b> = destinado × tasa de extracción ÷ 100.</li>
-        <li>Si la utilización suma menos de 100 %, el resto queda «sin destinar» (otros usos que la tabla no detalla); si suma más, se avisa porque se estaría usando más producto del que hay.</li>
-        <li>El archivo de ejemplo es ficticio: muestra el formato, no tasas reales.</li></ul></details>
+      <details class="como"><summary>De dónde salen las tasas y cómo se calcula</summary><ul>
+        <li><b>Tasas</b>: FAO, <i>Technical Conversion Factors for Agricultural Commodities</i>, sección Guatemala (págs. 222–225): promedios nacionales de 1992–1996 informados por el país; el documento se declara provisional. Están en <code>datos/estandar/tasas_extraccion_fao_guatemala.csv</code>, con una columna que dice si el producto primario aparece en la fuente justo antes del derivado o se dedujo del nombre.</li>
+        <li><b>Derivado</b> = cantidad procesada × tasa de extracción ÷ 100. La fuente no trae porcentajes de utilización, así que cada derivado se calcula sobre toda la cantidad: los que salen juntos del mismo proceso (harina y salvado) se obtienen a la vez; los que son usos alternativos (queso o leche en polvo) no se suman.</li>
+        <li><b>Contraste con el INE</b>: producción del derivado ÷ cantidad del primario «procesado», ambas de las cuentas de utilización y suministro de la HBA 2024 (portal de datos abiertos del INE). Es un cálculo de FARO con cifras del INE, no una tasa que el INE publique. Solo se muestra cuando el nombre del producto coincide.</li>
+        <li>La cantidad que aparece al elegir un producto es la que el INE reporta como procesada en 2024, cuando existe; puede cambiarla.</li></ul></details>
     </div>
+    <div class="panel"><h2>Probar con otra tabla</h2><p class="nota">Si el INE tiene tasas más recientes, o porcentajes de utilización por derivado, se cargan aquí y el cálculo los aplica. Formato (CSV): <code>primario, derivado, tasa_extraccion_pct</code> y, opcional, <code>utilizacion_pct</code>. No se guarda en el servidor. <a href="/ejemplos/tasas_extraccion_ficticias.csv">Archivo de muestra para probar el formato</a> (sus productos y porcentajes son ficticios).</p>
+      <input type="file" id="hbatabla" accept=".csv" aria-label="Tabla propia de tasas"> <button class="accion chico suave" id="hbaoficial" hidden>Volver a las tasas de FAO</button></div>
   </section>
 
   <section id="muestreos">
@@ -885,6 +886,9 @@ $('#detalle').addEventListener('close', () => clearInterval(animacion));
 async function iniciarMapa() {
   if (mapa) { mapa.invalidateSize(); return; }
   mapa = L.map('lienzo', {zoomSnap:.25, attributionControl:true}).setView([15.7, -90.3], 7.25);
+  // Al hacer clic, el mapa toma el foco; sin esto el navegador desplaza la página para mostrarlo
+  // entero y el clic termina sobre otro polígono (y no abre la ficha).
+  { const lienzo = mapa.getContainer(), enfocar = lienzo.focus.bind(lienzo); lienzo.focus = () => enfocar({preventScroll: true}); }
   // Las capas que se encienden a mano van en paneles propios, siempre encima de los polígonos del nivel.
   mapa.createPane('encima').style.zIndex = 440; mapa.createPane('puntos').style.zIndex = 450;
   // Botón para volver a la vista de todo el país.
@@ -1046,24 +1050,30 @@ $('#tmuestreos').onchange = async e => { const c = e.target, id = c.dataset.m ||
 $('#tmuestreos').onclick = async e => { const b = e.target.closest('button[data-e]'); if (!b) return; b.disabled = true; b.textContent = 'Consultando…';
   try { const r = await api('/api/muestreos/' + encodeURIComponent(b.dataset.e) + '/ejecutar', {method:'POST'}); aviso(r.en_curso ? 'Corrida iniciada: tarda unos minutos y sigue aunque cambie de sección.' : `${num(r.precios)} precios guardados.`); } catch (x) { aviso(x.message, true); } muestreos(); };
 // ---- Hoja de balance: derivados ----
-let hbaTexto = '';
-async function hbaCargar(texto) {
-  const r = await api('/api/balance', {method:'POST', headers:{'content-type':'text/csv'}, body: texto}); hbaTexto = texto;
-  $('#hbaproducto').innerHTML = r.primarios.map(p => `<option>${esc(p)}</option>`).join(''); $('#hbaproducto').disabled = false; $('#hbacalcular').disabled = false;
-  $('#hbainfo').textContent = `Tabla cargada: ${num(r.filas)} tasa(s) para ${num(r.primarios.length)} producto(s) primario(s). No se guarda en el servidor.`; await hbaCalcular();
+let hbaTexto = '', hbaPrimarios = [];
+function hbaPedir(producto, cantidad) { const p = new URLSearchParams(producto ? {producto, cantidad: cantidad ?? ''} : {});
+  return hbaTexto ? api('/api/balance?' + p, {method:'POST', headers:{'content-type':'text/csv'}, body: hbaTexto}) : api('/api/balance?' + p); }
+async function hbaIniciar() {
+  const r = await hbaPedir(); hbaPrimarios = r.primarios.map(p => typeof p === 'string' ? {primario: p} : p);
+  $('#hbaproducto').innerHTML = hbaPrimarios.map(p => `<option>${esc(p.primario)}</option>`).join(''); $('#hbaoficial').hidden = !hbaTexto;
+  hbaElegir(); await hbaCalcular();
 }
+function hbaElegir() { const p = hbaPrimarios.find(x => x.primario === $('#hbaproducto').value); $('#hbacantidad').value = p && p.procesado_ine_t ? p.procesado_ine_t : 1000; }
 async function hbaCalcular() {
-  if (!hbaTexto) return;
-  const r = await api('/api/balance?' + new URLSearchParams({producto: $('#hbaproducto').value, cantidad: $('#hbacantidad').value}), {method:'POST', headers:{'content-type':'text/csv'}, body: hbaTexto}), b = r.balance, t = x => num(x) + ' t';
-  $('#hbatarjetas').innerHTML = [[t(b.cantidad), `de ${esc(b.primario)}`], [num(b.utilizacion_total_pct) + ' %', 'utilización total'], [t(b.derivados.reduce((s, d) => s + d.cantidad, 0)), 'de derivados en total'], [t(b.sin_destinar), 'sin destinar a derivados']].map(([v, e]) => `<div class="tarjeta"><b>${v}</b><small>${e}</small></div>`).join('');
-  tabla('#thba', [{t:'Derivado', f:d => `<b>${esc(d.derivado)}</b>`}, {t:'Utilización (%)', num:1, f:d => num(d.utilizacion_pct)}, {t:'Destinado (t)', num:1, f:d => num(d.destinado)}, {t:'Tasa de extracción (%)', num:1, f:d => num(d.tasa_extraccion_pct)}, {t:'Derivado (t)', num:1, f:d => `<b>${num(d.cantidad)}</b>`},
-    {t:'Parte del primario', f:d => `<div class="barra" title="${num(d.utilizacion_pct)} %"><i style="width:${Math.min(100, d.utilizacion_pct)}%;background:var(--azul)"></i></div>`}], b.derivados, 'Sin derivados.');
-  $('#hbaavisos').innerHTML = b.avisos.length ? `<p class="nota" style="color:var(--alerta);margin-top:10px"><b>Por revisar:</b> ${b.avisos.map(esc).join('; ')}.</p>` : '<p class="nota" style="color:var(--ok);margin-top:10px">La utilización suma 100 % y ninguna tasa pasa de 100 %.</p>';
+  const r = await hbaPedir($('#hbaproducto').value, $('#hbacantidad').value), b = r.balance, t = x => num(x) + ' t', con = b.utilizacion_total_pct != null, ct = r.contraste || [];
+  $('#hbainfo').innerHTML = hbaTexto ? `Usando <b>su tabla</b>: ${num(r.filas)} tasa(s). No se guarda en el servidor.` : `Tasas de la FAO para Guatemala: ${num(r.filas)} derivados de ${num(hbaPrimarios.length)} productos primarios.` + (r.procesado_ine_t ? ` El INE reporta <b>${t(r.procesado_ine_t)}</b> de ${esc(b.primario)} procesadas en 2024.` : ` Las cuentas 2024 del INE no traen cantidad procesada de ${esc(b.primario)}: no hay contraste.`);
+  $('#hbatarjetas').innerHTML = [[t(b.cantidad), `de ${esc(b.primario)} procesadas`], [num(b.derivados.length), 'derivados en la tabla']].concat(con ? [[num(b.utilizacion_total_pct) + ' %', 'utilización total'], [t(b.sin_destinar), 'sin destinar a derivados']] : []).map(([v, e]) => `<div class="tarjeta"><b>${v}</b><small>${e}</small></div>`).join('');
+  const c = d => ct.find(x => x.derivado === d.derivado) || {};
+  tabla('#thba', [{t:'Derivado', f:d => `<b>${esc(d.derivado)}</b>${c(d).relacion && !/justo antes/.test(c(d).relacion) ? `<br><small class="pista">${esc(c(d).relacion)}</small>` : ''}`}].concat(con ? [{t:'Utilización (%)', num:1, f:d => num(d.utilizacion_pct)}, {t:'Destinado (t)', num:1, f:d => num(d.destinado)}] : [])
+    .concat([{t:'Tasa de extracción (%)', num:1, f:d => num(d.tasa_extraccion_pct)}, {t:'Derivado calculado (t)', num:1, f:d => `<b>${num(d.cantidad)}</b>`}])
+    .concat(hbaTexto ? [] : [{t:'Producción INE 2024 (t)', num:1, f:d => c(d).produccion_ine_t == null ? '<small>sin dato con ese nombre</small>' : num(c(d).produccion_ine_t)},
+      {t:'Tasa que resulta de las cifras del INE (%)', num:1, f:d => { const x = c(d).tasa_implicita_ine_pct; if (x == null) return ''; const dif = Math.abs(x - d.tasa_extraccion_pct); return `<span class="etq ${dif <= 2 ? 'ok' : dif <= 8 ? 'alerta' : 'mal'}">${num(x)} %</span><br><small>${dif <= 2 ? 'coincide con FAO' : `difiere ${num(dif)} puntos`}</small>`; }}]), b.derivados, 'Sin derivados.');
+  $('#hbaavisos').innerHTML = b.avisos.length ? `<p class="nota" style="margin-top:10px"><b>Tenga en cuenta:</b> ${b.avisos.map(esc).join('; ')}.</p>` : '';
 }
-$('#hbatabla').onchange = async e => { const a = e.target.files[0]; if (a) hbaCargar(await a.text()).catch(x => aviso(x.message, true)); };
-$('#hbaejemplo').onclick = async e => { e.preventDefault(); hbaCargar(await (await fetch('/ejemplos/tasas_extraccion_ficticias.csv')).text()).catch(x => aviso(x.message, true)); };
+$('#hbatabla').onchange = async e => { const a = e.target.files[0]; if (!a) return; const antes = hbaTexto; hbaTexto = await a.text(); hbaIniciar().catch(x => { hbaTexto = antes; aviso(x.message, true); }); };
+$('#hbaoficial').onclick = () => { hbaTexto = ''; $('#hbatabla').value = ''; hbaIniciar().catch(x => aviso(x.message, true)); };
 $('#hbacalcular').onclick = () => hbaCalcular().catch(x => aviso(x.message, true));
-$('#hbaproducto').onchange = () => $('#hbacalcular').click();
+$('#hbaproducto').onchange = () => { hbaElegir(); $('#hbacalcular').click(); };
 $('#hbacantidad').onkeydown = e => { if (e.key === 'Enter') $('#hbacalcular').click(); };
 // ---- Precios por rubro ----
 const NOMBRE_RUBRO = {supermercado:'Supermercado', tecnologia:'Tecnología y electrodomésticos', farmacia:'Farmacia', ferreteria:'Ferretería y hogar', hogar:'Hogar y librería', vehiculos:'Motocicletas y transporte', construccion:'Materiales de construcción', alimentos:'Canasta básica (búsqueda)'};
@@ -1203,7 +1213,7 @@ async function alimentaria() {
     {t:'Con retardo en talla (%)', num:1, f:f => `<div class="barra" style="min-width:70px"><i style="width:${f.retardo_en_talla_pct}%;background:var(--mal)"></i></div><b>${esc(f.retardo_en_talla_pct)} %</b>`},
     {t:'Vulnerabilidad nutricional', f:f => `<span class="etq ${/alta/.test(f.vulnerabilidad) ? 'mal' : f.vulnerabilidad === 'moderada' ? 'alerta' : 'ok'}">${esc(f.vulnerabilidad)}</span>`}], r.talla || [], 'Este servidor no tiene cargado el censo de talla (se genera con "faro talla").');
 }
-const cargar = {balance: async () => {}, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
+const cargar = {balance: hbaIniciar, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 // Enlaces internos del tipo <a href="#seccion"> llevan a esa sección del menú.
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const b = a && document.querySelector(`nav button[data-s="${a.getAttribute('href').slice(1)}"]`); if (b) { e.preventDefault(); b.click(); } });

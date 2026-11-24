@@ -171,6 +171,26 @@ enum Comando {
         #[arg(long, default_value = "datos/catalogo_precios/precios_referencia_ine.csv")]
         salida: PathBuf,
     },
+    /// Cuentas de utilización y suministro de la Hoja de Balance de Alimentos del INE, en una tabla limpia.
+    Hba {
+        /// Libro "cuentas de utilización y suministro (CUS)" (faro fuentes descargar hoja-de-balance-de-alimentos-hba-actualizacion-2024).
+        #[arg(long)]
+        cuentas: PathBuf,
+        #[arg(long, default_value = "datos/referencia/hba_2024_cuentas.csv")]
+        salida: PathBuf,
+    },
+    /// Calibra la comparación por foto: mide la huella visual en pares de productos con el mismo
+    /// código de barras en dos tiendas y en pares de productos distintos, y dice qué umbral separa mejor.
+    Fotos {
+        /// Tabla de precios publicados con columnas tienda, codigo_barras e imagen.
+        #[arg(long, default_value = "datos/referencia/precios_publicados.csv")]
+        entrada: PathBuf,
+        /// Pares de cada tipo que se miden.
+        #[arg(long, default_value_t = 300)]
+        pares: usize,
+        #[arg(long, default_value = "datos/referencia/fotos_calibracion.csv")]
+        salida: PathBuf,
+    },
     /// Precios promedio de la canasta básica alimentaria publicados por el INE, en una tabla limpia.
     Canasta {
         /// CSV "Precios promedio ... CBA" (faro fuentes descargar precios-promedio-canasta-basica-alimentaria).
@@ -292,6 +312,35 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
     let comando = match cli.comando {
         Comando::Fuentes { portal, manifiesto, accion } => return fuentes(&portal, &manifiesto, accion),
         Comando::Referencias { entrada, salida } => return referencias(&entrada, &salida),
+        Comando::Hba { cuentas, salida } => {
+            use faro_homologa::normalizar::basico;
+            let filas = faro_homologa::lectura::leer_crudo(&cuentas)?;
+            let pos = filas.iter().position(|f| f.first().is_some_and(|c| basico(c) == "alimentos")).ok_or(format!("{}: no parece el libro de cuentas de la HBA", cuentas.display()))?;
+            let enc: Vec<String> = filas[pos].iter().map(|c| basico(c)).collect();
+            let col = |n: &str| enc.iter().position(|c| c.starts_with(n)).ok_or(format!("{}: falta la columna {n}", cuentas.display()));
+            let columnas = [col("produccion")?, col("importaciones")?, col("exportaciones")?, col("procesado")?, col("alimentos tm")?];
+            if let Some(d) = salida.parent() {
+                std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+            }
+            let mut tabla = csv::Writer::from_path(&salida).map_err(|e| e.to_string())?;
+            tabla.write_record(["alimento", "produccion_t", "importaciones_t", "exportaciones_t", "procesado_t", "alimentos_t"]).map_err(|e| e.to_string())?;
+            let mut vistos = std::collections::HashSet::new();
+            let mut n = 0;
+            for f in filas.iter().skip(pos + 1) {
+                let nombre = f.first().map(|c| c.trim()).unwrap_or("");
+                // Un mismo alimento aparece en su grupo y en el resumen: se deja la primera vez.
+                if nombre.is_empty() || !vistos.insert(basico(nombre)) {
+                    continue;
+                }
+                let valor = |i: usize| f.get(i).and_then(|c| c.trim().parse::<f64>().ok()).map(|x| format!("{}", (x * 10.0).round() / 10.0)).unwrap_or_default();
+                tabla.write_record(std::iter::once(nombre.to_string()).chain(columnas.iter().map(|i| valor(*i)))).map_err(|e| e.to_string())?;
+                n += 1;
+            }
+            tabla.flush().map_err(|e| e.to_string())?;
+            println!("{n} alimentos y grupos escritos en {}", salida.display());
+            return Ok(ExitCode::SUCCESS);
+        }
+        Comando::Fotos { entrada, pares, salida } => return calibrar_fotos(&entrada, pares, &salida).map(|_| ExitCode::SUCCESS),
         Comando::Canasta { entrada, salida } => {
             const MESES: [&str; 12] = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
             // El archivo trae descripciones con comas sin comillas ("Café tostado, molido"): los tres
@@ -478,7 +527,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
+        Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
     }
 }
 
@@ -1186,4 +1235,74 @@ fn recibir(catalogo: &Catalogo, memoria: &Memoria, ruta_sol: &Path, entrada: &Pa
     }
     println!("lugares resueltos: {:.1} % · {} valor(es) distintos por revisar -> {}", rec.porcentaje_resuelto(), rec.pendientes.len(), salida.join("pendientes.csv").display());
     Ok(if r.aceptado() && rec.pendientes.is_empty() { ExitCode::SUCCESS } else { ExitCode::from(2) })
+}
+
+/// Mide la huella visual en pares que se sabe que son el mismo producto (mismo código de barras
+/// en dos tiendas con fotos distintas) y en pares de productos distintos, y resume cuántos pares
+/// aceptaría cada umbral. La selección es fija (sin azar): mismas entradas, mismos pares.
+fn calibrar_fotos(entrada: &std::path::Path, pares: usize, salida: &std::path::Path) -> Result<(), String> {
+    use faro_fuentes::foto;
+    use std::collections::{BTreeMap, HashMap};
+    let filas: Vec<HashMap<String, String>> = csv::Reader::from_path(entrada).map_err(|e| format!("{}: {e}", entrada.display()))?.deserialize().collect::<Result<_, _>>().map_err(|e| e.to_string())?;
+    let dato = |f: &HashMap<String, String>, k: &str| f.get(k).cloned().unwrap_or_default();
+    // Por código de barras: (tienda, foto). Solo cuentan los códigos de 12 dígitos o más (los cortos son internos).
+    let mut por_codigo: BTreeMap<String, Vec<(String, String)>> = BTreeMap::new();
+    for f in &filas {
+        let (codigo, imagen) = (dato(f, "codigo_barras"), dato(f, "imagen"));
+        if codigo.len() >= 12 && imagen.starts_with("https://") {
+            por_codigo.entry(codigo).or_default().push((dato(f, "tienda"), imagen));
+        }
+    }
+    // Pares iguales: mismo código, tiendas distintas y fotos distintas (si la foto es el mismo archivo no enseña nada).
+    let archivo = |u: &str| u.rsplit('/').next().unwrap_or("").split('?').next().unwrap_or("").to_string();
+    let mut iguales: Vec<(String, String, String)> = Vec::new();
+    for (codigo, lista) in &por_codigo {
+        if let Some((a, b)) = lista.iter().flat_map(|a| lista.iter().map(move |b| (a, b))).find(|(a, b)| a.0 < b.0 && archivo(&a.1) != archivo(&b.1)) {
+            iguales.push((codigo.clone(), a.1.clone(), b.1.clone()));
+        }
+    }
+    if iguales.is_empty() {
+        return Err("la tabla no tiene productos con el mismo código de barras y fotos distintas en dos tiendas".into());
+    }
+    // Se toman repartidos a lo largo de la lista, y los pares distintos emparejan cada uno con el siguiente.
+    let paso = (iguales.len() / pares.max(1)).max(1);
+    let iguales: Vec<_> = iguales.into_iter().step_by(paso).take(pares).collect();
+    let distintos: Vec<(String, String, String)> = iguales.iter().zip(iguales.iter().cycle().skip(1)).map(|(a, b)| (format!("{} / {}", a.0, b.0), a.1.clone(), b.2.clone())).collect();
+    let agente = foto::agente();
+    let mut huellas: HashMap<String, Option<foto::Huella>> = HashMap::new();
+    let mut medir = |a: &str, b: &str| -> Option<(u32, f32)> {
+        for u in [a, b] {
+            if !huellas.contains_key(u) {
+                huellas.insert(u.to_string(), foto::huella_de_url(&agente, u));
+                std::thread::sleep(std::time::Duration::from_millis(150));
+            }
+        }
+        Some(foto::distancia(huellas[a].as_ref()?, huellas[b].as_ref()?))
+    };
+    if let Some(d) = salida.parent() {
+        std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+    }
+    let mut tabla = csv::Writer::from_path(salida).map_err(|e| e.to_string())?;
+    tabla.write_record(["tipo", "codigo_barras", "foto_a", "foto_b", "bits_forma", "diferencia_color"]).map_err(|e| e.to_string())?;
+    let mut medidas: Vec<(bool, u32, f32)> = Vec::new();
+    for (igual, lista) in [(true, &iguales), (false, &distintos)] {
+        for (codigo, a, b) in lista {
+            if let Some((bits, color)) = medir(a, b) {
+                tabla.write_record([if igual { "mismo_producto" } else { "productos_distintos" }, codigo, a, b, &bits.to_string(), &format!("{color:.4}")]).map_err(|e| e.to_string())?;
+                medidas.push((igual, bits, color));
+            }
+        }
+    }
+    tabla.flush().map_err(|e| e.to_string())?;
+    let (n_ig, n_di) = (medidas.iter().filter(|m| m.0).count(), medidas.iter().filter(|m| !m.0).count());
+    println!("Pares medidos: {n_ig} del mismo producto (mismo código de barras, tiendas y fotos distintas) y {n_di} de productos distintos.");
+    println!("{:>10} {:>10} {:>24} {:>26}", "bits <=", "color <=", "mismo producto aceptado", "distintos aceptados (error)");
+    for bits in [6u32, 8, 10, 12, 14, 16] {
+        for color in [0.05f32, 0.08, 0.12] {
+            let acepta = |igual: bool| medidas.iter().filter(|m| m.0 == igual && m.1 <= bits && m.2 <= color).count();
+            println!("{bits:>10} {color:>10.2} {:>17} ({:>4.1} %) {:>18} ({:>4.1} %)", acepta(true), 100.0 * acepta(true) as f64 / n_ig.max(1) as f64, acepta(false), 100.0 * acepta(false) as f64 / n_di.max(1) as f64);
+        }
+    }
+    println!("Detalle par por par: {}", salida.display());
+    Ok(())
 }

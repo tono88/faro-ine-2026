@@ -103,6 +103,8 @@ pub struct Oferta {
     pub ean: String,
     /// Precio de lista (antes de oferta), si es distinto del precio.
     pub precio_lista: Option<f64>,
+    /// Dirección de la foto del producto, si la tienda la publica.
+    pub imagen: String,
 }
 
 /// Interpreta la respuesta de la búsqueda pública de un catálogo VTEX. Solo toma productos con
@@ -128,6 +130,7 @@ pub fn ofertas_vtex(respuesta: &Value, termino: &str) -> Vec<Oferta> {
                 termino: termino.to_string(),
                 ean: articulo["ean"].as_str().map(|e| e.trim()).filter(|e| e.len() >= 8 && e.chars().all(|c| c.is_ascii_digit())).unwrap_or("").to_string(),
                 precio_lista: oferta["ListPrice"].as_f64().filter(|l| *l > precio),
+                imagen: articulo["images"][0]["imageUrl"].as_str().unwrap_or("").to_string(),
             })
         })
         .collect()
@@ -169,8 +172,14 @@ pub fn oferta_de_jsonld(html: &str, url: &str) -> Option<Oferta> {
             Value::Object(o) => o.get("name").map(texto).unwrap_or_default(),
             otro => texto(otro),
         };
+        let imagen = match &p["image"] {
+            Value::String(u) => u.clone(),
+            Value::Array(a) => a.first().map(|x| x.as_str().map(String::from).or_else(|| x["url"].as_str().map(String::from)).unwrap_or_default()).unwrap_or_default(),
+            Value::Object(o) => o.get("url").and_then(|u| u.as_str()).unwrap_or("").to_string(),
+            _ => String::new(),
+        };
         let ean = ["gtin13", "gtin", "gtin12", "gtin8"].iter().map(|k| texto(&p[*k])).find(|e| e.len() >= 8 && e.chars().all(|c| c.is_ascii_digit())).unwrap_or_default();
-        Some(Oferta { producto: texto(&p["name"]), marca, precio, unidad: String::new(), url: url.to_string(), termino: texto(&p["category"]), ean, precio_lista: None }).filter(|o| !o.producto.is_empty())
+        Some(Oferta { producto: texto(&p["name"]), marca, precio, unidad: String::new(), url: url.to_string(), termino: texto(&p["category"]), ean, precio_lista: None, imagen }).filter(|o| !o.producto.is_empty())
     })
 }
 
@@ -187,12 +196,14 @@ pub fn ofertas_de_listado_magento(html: &str) -> Vec<Oferta> {
     static PRECIO: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
     let enlace = ENLACE.get_or_init(|| regex::Regex::new(r#"(?is)class="product-item-link"\s+href="([^"]+)"[^>]*>(.*?)</a>"#).expect("patrón válido"));
     let precio = PRECIO.get_or_init(|| regex::Regex::new(r#"data-price-amount="([0-9.]+)""#).expect("patrón válido"));
+    static FOTO: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let foto = FOTO.get_or_init(|| regex::Regex::new(r#"(?is)<img[^>]*class="product-image-photo"[^>]*?\ssrc="([^"]+)""#).expect("patrón válido"));
     // Cada producto es un bloque; dentro, el primer precio es el final.
     html.split("product-item-info").skip(1).filter_map(|bloque| {
         let e = enlace.captures(bloque)?;
         let p: f64 = precio.captures(bloque)?[1].parse().ok().filter(|x| *x > 0.0)?;
         let nombre = e[2].replace("&quot;", "\"").replace("&amp;", "&").replace("&#039;", "'").split_whitespace().collect::<Vec<_>>().join(" ");
-        Some(Oferta { producto: nombre, marca: String::new(), precio: p, unidad: String::new(), url: e[1].to_string(), termino: String::new(), ean: String::new(), precio_lista: None }).filter(|o| !o.producto.is_empty())
+        Some(Oferta { producto: nombre, marca: String::new(), precio: p, unidad: String::new(), url: e[1].to_string(), termino: String::new(), ean: String::new(), precio_lista: None, imagen: foto.captures(bloque).map(|c| c[1].to_string()).unwrap_or_default() }).filter(|o| !o.producto.is_empty())
     }).collect()
 }
 
@@ -212,6 +223,7 @@ pub fn ofertas_shopify(respuesta: &Value, base: &str) -> Vec<Oferta> {
             termino: p["product_type"].as_str().unwrap_or("").to_string(),
             ean: if codigo.len() >= 8 && codigo.chars().all(|c| c.is_ascii_digit()) { codigo.to_string() } else { String::new() },
             precio_lista: numero(&v["compare_at_price"]).filter(|l| *l > precio),
+            imagen: p["images"][0]["src"].as_str().unwrap_or("").to_string(),
         })
     }).collect()
 }
@@ -241,6 +253,7 @@ pub fn ofertas_woocommerce(respuesta: &Value) -> Vec<Oferta> {
             termino: p["categories"][0]["name"].as_str().unwrap_or("").replace("&amp;", "&"),
             ean: String::new(),
             precio_lista: numero(&precios["regular_price"]).filter(|l| *l > precio),
+            imagen: p["images"][0]["src"].as_str().unwrap_or("").to_string(),
         })
     }).collect()
 }
@@ -436,7 +449,7 @@ mod pruebas {
         )
         .unwrap();
         let o = ofertas_vtex(&r, "cemento");
-        assert_eq!(o, vec![Oferta { producto: "CEMENTO UGC 42.5KG".into(), marca: "Cementos Progreso".into(), precio: 83.04, unidad: "un".into(), url: "https://tienda.example/cemento-ugc/p".into(), termino: "cemento".into(), ean: String::new(), precio_lista: None }]);
+        assert_eq!(o, vec![Oferta { producto: "CEMENTO UGC 42.5KG".into(), marca: "Cementos Progreso".into(), precio: 83.04, unidad: "un".into(), url: "https://tienda.example/cemento-ugc/p".into(), termino: "cemento".into(), ean: String::new(), precio_lista: None, imagen: String::new() }]);
         let con_codigo: Value = serde_json::from_str(r#"[{"productName":"Arroz 1 kg","brand":"M","link":"https://t.example/a/p","items":[{"ean":"7401234567890","measurementUnit":"un","sellers":[{"commertialOffer":{"Price":9.5,"ListPrice":11.0,"AvailableQuantity":3}}]}]}]"#).unwrap();
         let o = &ofertas_vtex(&con_codigo, "Abarrotes")[0];
         assert_eq!((o.ean.as_str(), o.precio_lista), ("7401234567890", Some(11.0)));

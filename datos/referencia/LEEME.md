@@ -163,3 +163,12 @@ tienda lo publica), código de barras (si lo publica), categoría en la tienda, 
 y fecha de consulta. Son precios publicados en páginas públicas, no cotizaciones ni precios en tienda
 física. El servidor los carga al arrancar (tarea `levantamiento-inicial`) y los reemplaza si esta tabla cambia; los muestreos
 posteriores se guardan aparte y permiten ver cambios. Tareas y lecturas: `datos/estandar/muestreos.toml`.
+
+## `hba_2024_cuentas.csv`
+
+Cuentas de utilización y suministro de la Hoja de Balance de Alimentos 2024 del INE, en una tabla
+limpia: alimento, producción, importaciones, exportaciones, procesado y alimentos (toneladas métricas).
+Se genera con `faro hba --cuentas <libro CUS>` (conjunto `hoja-de-balance-de-alimentos-hba-actualizacion-2024`
+del portal de datos abiertos). Sirve para contrastar las tasas de extracción de la FAO
+(`datos/estandar/tasas_extraccion_fao_guatemala.csv`, transcritas de las páginas 222–225 del documento,
+con la columna `relacion` que dice si el primario aparece en la fuente o se dedujo del nombre).
