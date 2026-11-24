@@ -2,6 +2,15 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.16.2 · 24-nov-2026
+- Red vial: tipo y superficie de cada vía. El dato ya venía en el archivo de OpenStreetMap y solo
+  se usaba para armar el grafo. Ahora `faro vial` suma por municipio los kilómetros de vías
+  principales, secundarias, locales, de terracería y senderos, y cuántos tienen la superficie
+  anotada (`red_vial_tipos_municipio.csv`), y prepara la capa de carreteras
+  (`red_vial_principal.geojson`). En el portal: capa «Carreteras» en el mapa, cuatro indicadores
+  nuevos y tablas por tipo, por superficie y por municipio en «Red vial».
+- README: «Los problemas que atiende», uno por necesidad planteada por el INE.
+
 ## v0.16.1 · 24-nov-2026
 - Identidad del proyecto: logotipo (faro con su luz), lema «Que cada dato llegue a puerto», misión,
   visión, objetivos, valores, colores y voz (`docs/25-identidad.md`, `docs/identidad/`). En el

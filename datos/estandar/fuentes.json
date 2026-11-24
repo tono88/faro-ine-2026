@@ -167,7 +167,7 @@
    "url": "https://data.humdata.org/dataset/hotosm_gtm_roads",
    "licencia": "ODbL 1.0",
    "consultado": "24 de noviembre de 2026",
-   "uso": "Red de caminos tratada como grafo: lugares sin conexión y enlaces probables.",
+   "uso": "Red vial como grafo: lugares poblados sin conexión y enlaces probables; kilómetros de vía por tipo y superficie en cada municipio y capa de carreteras del mapa.",
    "cita": "Colaboradores de OpenStreetMap; Humanitarian OpenStreetMap Team. (2026). Guatemala Roads (OpenStreetMap Export), corte del 3 de noviembre de 2026 [conjunto de datos]. Humanitarian Data Exchange (HDX). https://data.humdata.org/dataset/hotosm_gtm_roads Consultado el 24 de noviembre de 2026."
   },
   {

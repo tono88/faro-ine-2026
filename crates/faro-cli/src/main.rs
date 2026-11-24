@@ -1617,7 +1617,90 @@ fn vial(catalogo: &Catalogo, carreteras: &Path, p: faro_territorio::vial::Parame
     }
     std::fs::write(salida.join("red_vial_contexto.geojson"), serde_json::to_string(&serde_json::json!({ "type": "FeatureCollection", "features": tramos })).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
     println!("{} tramos de camino alrededor de los enlaces -> red_vial_contexto.geojson", tramos.len());
+    // ---- Tipo y superficie de las vías, por municipio ----
+    // El archivo trae, para cada vía, su tipo (siempre), su superficie (cuando alguien la anotó) y el
+    // municipio donde está. Aquí se suman los kilómetros por clase y se prepara la capa de carreteras.
+    let campo = |zip: &mut zip::ZipArchive<std::fs::File>, c: &str| -> Result<Vec<String>, String> { faro_territorio::shp::leer_campo(zip.by_name(&n_dbf).map_err(|e| en(e.to_string()))?, c).map_err(en) };
+    let (superficies, pcodes, nombres_muni, nombres_via) = (campo(&mut zip, "surface")?, campo(&mut zip, "adm2_pcode")?, campo(&mut zip, "adm2_name")?, campo(&mut zip, "name")?);
+    let clase_de = |t: &str| -> Option<usize> {
+        let t = t.trim_end_matches("_link");
+        match t {
+            "motorway" | "trunk" | "primary" => Some(0),
+            "secondary" | "tertiary" => Some(1),
+            "residential" | "living_street" | "unclassified" | "service" | "road" => Some(2),
+            "track" => Some(3),
+            _ if SENDEROS.contains(&t) => Some(4),
+            _ => None,
+        }
+    };
+    const CLASES: [&str; 5] = ["principal", "secundaria", "local", "terraceria", "sendero"];
+    // 0 = pavimentada, 1 = sin pavimentar, 2 = nadie anotó la superficie.
+    let superficie_de = |v: &str| match v.split([':', ';']).next().unwrap_or("") {
+        "asphalt" | "concrete" | "paved" | "paving_stones" | "sett" | "cobblestone" | "unhewn_cobblestone" | "bricks" | "metal" | "chipseal" => 0usize,
+        "unpaved" | "dirt" | "ground" | "compacted" | "gravel" | "fine_gravel" | "earth" | "sand" | "mud" | "grass" | "pebblestone" | "rock" | "soil" => 1,
+        _ => 2,
+    };
+    const SUPERFICIES: [&str; 3] = ["pavimentada", "sin_pavimentar", "sin_dato"];
+    let largo_km = |partes: &Vec<Vec<(f64, f64)>>| -> f64 {
+        partes.iter().flat_map(|p| p.windows(2)).map(|w| { let (a, b) = (w[0], w[1]); let (la, lb) = (a.1.to_radians(), b.1.to_radians()); let h = ((lb - la) / 2.0).sin().powi(2) + la.cos() * lb.cos() * ((b.0 - a.0).to_radians() / 2.0).sin().powi(2); 2.0 * 6371.0088 * h.sqrt().min(1.0).asin() }).sum()
+    };
+    // El código de municipio del archivo viene de la capa de límites, que trae dos códigos
+    // intercambiados: se acepta solo si su nombre coincide con el del catálogo; si no, se busca el
+    // nombre dentro del departamento y se toma cuando hay uno solo. Lo demás queda sin municipio.
+    let clave = faro_homologa::normalizar::clave;
+    let mut ubicados: std::collections::HashMap<(String, String), Option<String>> = std::collections::HashMap::new();
+    let mut municipio_de = |pcode: &str, nombre: &str| -> Option<String> {
+        ubicados.entry((pcode.to_string(), nombre.to_string())).or_insert_with(|| {
+            let codigo = pcode.strip_prefix("GT")?;
+            let coincide = |l: &faro_homologa::Lugar| clave(&l.nombre) == clave(nombre) || l.alias.split('|').any(|a| !a.is_empty() && clave(a) == clave(nombre));
+            if catalogo.por_codigo(codigo).is_some_and(|l| l.nivel == Nivel::Municipio && coincide(l)) {
+                return Some(codigo.to_string());
+            }
+            let mut candidatos = catalogo.de_nivel(Nivel::Municipio, codigo.get(..2)).filter(|l| coincide(l));
+            match (candidatos.next(), candidatos.next()) { (Some(l), None) => Some(l.codigo.clone()), _ => None }
+        }).clone()
+    };
+    // municipio -> km por clase (5) y, de las vías para vehículos, km por superficie (3).
+    let mut por_municipio: std::collections::BTreeMap<String, [f64; 8]> = std::collections::BTreeMap::new();
+    let (mut pais, mut sin_municipio_km, mut carreteras_geo) = ([0.0f64; 8], 0.0, Vec::new());
+    for (i, partes) in lineas.iter().enumerate() {
+        let Some(clase) = clase_de(&tipos[i]).filter(|_| !NO_SON_CAMINO.contains(&tipos[i].as_str())) else { continue };
+        let (km, sup) = (largo_km(partes), superficie_de(&superficies[i]));
+        let sumar = |v: &mut [f64; 8]| { v[clase] += km; if clase < 4 { v[5 + sup] += km; } };
+        sumar(&mut pais);
+        match municipio_de(&pcodes[i], &nombres_muni[i]) {
+            Some(m) => sumar(por_municipio.entry(m).or_default()),
+            None => sin_municipio_km += km,
+        }
+        // Capa para el mapa: solo carreteras principales y secundarias, con el trazo simplificado (unos 30 m).
+        if clase <= 1 {
+            for parte in partes.iter().filter(|p| p.len() > 1) {
+                let simple = faro_territorio::geo::simplificar(parte, 0.0003);
+                let mut propiedades = serde_json::json!({ "clase": CLASES[clase], "tipo": tipos[i], "superficie": SUPERFICIES[sup] });
+                if !nombres_via[i].is_empty() { propiedades["nombre"] = serde_json::json!(nombres_via[i]); }
+                carreteras_geo.push(serde_json::json!({ "type": "Feature", "properties": propiedades, "geometry": { "type": "LineString", "coordinates": simple.iter().map(|(x, y)| [(x * 1e4).round() / 1e4, (y * 1e4).round() / 1e4]).collect::<Vec<_>>() } }));
+            }
+        }
+    }
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(salida.join("red_vial_tipos_municipio.csv")).map_err(texto)?;
+    w.write_record(["municipio", "km_principal", "km_secundaria", "km_local", "km_terraceria", "km_sendero", "km_vehiculos", "km_pavimentada", "km_sin_pavimentar", "km_superficie_sin_dato"]).map_err(texto)?;
+    for (m, v) in &por_municipio {
+        let mut fila = vec![m.clone()];
+        fila.extend(v[..5].iter().map(|x| format!("{x:.2}")));
+        fila.push(format!("{:.2}", v[..4].iter().sum::<f64>()));
+        fila.extend(v[5..].iter().map(|x| format!("{x:.2}")));
+        w.write_record(&fila).map_err(texto)?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    std::fs::write(salida.join("red_vial_principal.geojson"), serde_json::to_string(&serde_json::json!({ "type": "FeatureCollection", "features": carreteras_geo })).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    let vehiculos: f64 = pais[..4].iter().sum();
+    println!("Tipos de vía: principal {:.0} km · secundaria {:.0} km · local {:.0} km · terracería {:.0} km · senderos {:.0} km", pais[0], pais[1], pais[2], pais[3], pais[4]);
+    println!("Superficie (de {vehiculos:.0} km para vehículos): pavimentada {:.0} km · sin pavimentar {:.0} km · sin dato {:.0} km ({:.0} %)", pais[5], pais[6], pais[7], 100.0 * pais[7] / vehiculos.max(1e-9));
+    println!("{} municipios con vías · {sin_municipio_km:.0} km sin municipio asignado · {} tramos de carretera -> red_vial_principal.geojson", por_municipio.len(), carreteras_geo.len());
+    let por_clase: serde_json::Map<String, serde_json::Value> = CLASES.iter().zip(&pais[..5]).map(|(c, v)| (c.to_string(), serde_json::json!((v * 10.0).round() / 10.0))).collect();
+    let por_superficie: serde_json::Map<String, serde_json::Value> = SUPERFICIES.iter().zip(&pais[5..]).map(|(c, v)| (c.to_string(), serde_json::json!((v * 10.0).round() / 10.0))).collect();
     let resumen = serde_json::json!({
+        "km_por_clase": por_clase, "km_por_superficie": por_superficie, "km_sin_municipio": (sin_municipio_km * 10.0).round() / 10.0,
         "vias_leidas": tipos.len(), "vias_usadas": usadas, "con_senderos": con_senderos, "km": red.km_total(), "tramos": red.componentes(), "km_red_principal": red.km_principal(),
         "cerca_m": p.cerca_m, "max_enlace_km": p.max_enlace_km, "lugares": lugares.len(), "conectados": cuenta(Conexion::Conectado), "tramo_suelto": cuenta(Conexion::TramoSuelto), "sin_camino": cuenta(Conexion::SinCamino),
         "enlaces": enlaces.len(), "enlaces_km": enlaces.iter().map(|e| e.km).sum::<f64>(),

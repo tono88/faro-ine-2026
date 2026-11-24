@@ -1140,6 +1140,9 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
         let (desde, hasta) = poblacion.anios().unwrap_or((2018, 2030));
         let hoy = 2026.clamp(desde, hasta);
         let censo_ind = leer_censo_indicadores(dir);
+        // Kilómetros de vía por tipo y superficie (`faro vial`): municipio -> columna -> km.
+        let vias: HashMap<String, HashMap<String, f64>> = csv::Reader::from_path(dir.join("red_vial_tipos_municipio.csv")).map(|mut l| l.deserialize::<HashMap<String, String>>().flatten()
+            .filter_map(|f| Some((f.get("municipio")?.clone(), f.iter().filter_map(|(k, v)| Some((k.clone(), v.parse().ok()?))).collect()))).collect()).unwrap_or_default();
         // Uso del suelo construido en 2020 (GHSL): municipio -> (hectáreas construidas, hectáreas no residenciales).
         let uso: HashMap<String, (f64, f64)> = csv::Reader::from_path(dir.join("uso_construido_municipio.csv")).map(|mut l| l.deserialize::<HashMap<String, String>>().flatten().filter(|f| f.get("anio").is_some_and(|a| a == "2020"))
             .filter_map(|f| Some((f.get("municipio")?.clone(), (f.get("construido_ha")?.parse().ok()?, f.get("no_residencial_ha")?.parse().ok()?)))).collect()).unwrap_or_default();
@@ -1164,6 +1167,20 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
             p["retardo_en_talla_pct"] = json!(talla.get(&codigo).and_then(|f| f.get("retardo_en_talla_pct")?.parse::<f64>().ok()));
             p["vulnerabilidad_nutricional"] = json!(talla.get(&codigo).and_then(|f| f.get("vulnerabilidad")));
             p["escolares_evaluados"] = json!(talla.get(&codigo).and_then(|f| f.get("escolares_evaluados")?.parse::<f64>().ok()));
+            if let Some(v) = vias.get(&codigo) {
+                let km = |k: &str| v.get(k).copied().unwrap_or(0.0);
+                let uno = |x: f64| (x * 10.0).round() / 10.0;
+                let con_dato = km("km_pavimentada") + km("km_sin_pavimentar");
+                p["vias_km"] = json!(uno(km("km_vehiculos")));
+                p["vias_principales_km"] = json!(uno(km("km_principal") + km("km_secundaria")));
+                p["vias_terraceria_km"] = json!(uno(km("km_terraceria")));
+                p["vias_pavimentadas_km"] = json!(uno(km("km_pavimentada")));
+                p["vias_con_superficie_km"] = json!(uno(con_dato));
+                // Dos porcentajes distintos: cuánta red tiene la superficie anotada, y de esa, cuánta está pavimentada.
+                p["vias_superficie_anotada_pct"] = json!((km("km_vehiculos") > 0.0).then(|| uno(100.0 * con_dato / km("km_vehiculos"))));
+                p["vias_pavimentadas_pct"] = json!((con_dato > 0.0).then(|| uno(100.0 * km("km_pavimentada") / con_dato)));
+                p["vias_km_por_mil_hab"] = json!(p["poblacion_actual"].as_f64().filter(|h| *h > 0.0).map(|h| (km("km_vehiculos") / h * 100_000.0).round() / 100.0));
+            }
             if let Some((total, nres)) = uso.get(&codigo) {
                 p["no_residencial_ha_2020"] = json!(nres);
                 p["residencial_ha_2020"] = json!(((total - nres).max(0.0) * 100.0).round() / 100.0);
@@ -1234,6 +1251,8 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
         ("censo_talla_municipio.csv", "text/csv; charset=utf-8", "Retardo en talla en escolares por municipio, Censo de Talla 2024", "Porcentaje de escolares con retardo en talla (desnutrición crónica), escolares evaluados y categoría de vulnerabilidad nutricional, con código INE.", "SESAN, SIINSAN: V Censo Nacional de Talla en Escolares, 2024.", "publicación oficial; cite la fuente"),
         ("cif_departamentos.csv", "text/csv; charset=utf-8", "Inseguridad alimentaria aguda por departamento (CIF), octubre 2026 – febrero 2027", "Personas en cada fase de la CIF, fase del área y Fase 3 o superior, con código INE del departamento.", "SESAN y Grupo Técnico de la CIF Guatemala, actualización publicada el 19-nov-2026 y corregida el 20-nov-2026.", "publicación oficial; cite la fuente"),
         ("departamentos.geojson", GEOJSON, "Departamentos", "22 departamentos con código INE, para mapas a menor detalle.", "CONRED / OCHA (COD-AB Guatemala).", "CC BY-IGO"),
+        ("red_vial_principal.geojson", GEOJSON, "Carreteras principales y secundarias, con tipo y superficie", "Trazo simplificado de las vías de mayor jerarquía (troncales, primarias, secundarias y terciarias) con su clase, su tipo original, su nombre y si la superficie anotada es pavimentada, sin pavimentar o no tiene dato.", "© colaboradores de OpenStreetMap (HOT/HDX), corte del 3-nov-2026.", "ODbL 1.0"),
+        ("red_vial_tipos_municipio.csv", "text/csv; charset=utf-8", "Kilómetros de vía por tipo y superficie, por municipio", "Kilómetros de vías principales, secundarias, locales, de terracería y senderos, y de las vías para vehículos, cuántos son pavimentados, sin pavimentar o no tienen la superficie anotada. Con código INE.", "FARO, a partir de © colaboradores de OpenStreetMap (HOT/HDX), corte del 3-nov-2026.", "ODbL 1.0"),
         ("red_vial_contexto.geojson", GEOJSON, "Caminos mapeados alrededor de los enlaces probables", "Tramos de camino a 1.5 km de cada enlace propuesto; indica si pertenecen a la red principal o a un tramo suelto.", "© colaboradores de OpenStreetMap (HOT/HDX), corte del 3-nov-2026.", "ODbL 1.0"),
         ("censo2018_indicadores_municipio.csv", "text/csv; charset=utf-8", "Condiciones de vida por municipio, Censo 2018", "Alfabetismo, nivel educativo, actividad económica, uso de celular, computadora e internet, pueblo de pertenencia, agua, servicio sanitario, alumbrado, combustible para cocinar, eliminación de la basura, tenencia de la vivienda y materiales de pared, techo y piso: conteos con su denominador, por municipio.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadros A5, A9, A11, A12, A13, B1, B2, B3, B4, B6, C2 y C3).", "datos abiertos del INE; cite la fuente"),
         ("censo2018_techos_lugar_poblado.csv", "text/csv; charset=utf-8", "Material del techo por lugar poblado, Censo 2018", "Viviendas particulares por material predominante del techo (concreto, lámina, asbesto cemento, teja, paja o palma, desecho) en cada lugar poblado.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadro C2).", "datos abiertos del INE; cite la fuente"),

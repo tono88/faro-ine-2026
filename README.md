@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.16.1.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.16.2.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -68,7 +68,7 @@ Todas salen de datos reales procesados durante el evento y se pueden comprobar e
 | **82 → 14** columnas: lo que entra y lo que sale del archivo de defunciones, sin datos personales | **20,036** lugares poblados del Censo 2018, verificados código por código |
 | **93,297 ha** construidas en 2020 (eran 30,722 en 1975), para los 340 municipios | **707** lugares poblados sin conexión vial y **83** enlaces que probablemente faltan |
 | **85,907** precios publicados por 18 tiendas, leídos por el propio portal | **16,291** productos comparables entre supermercados por su código de barras |
-| **26** indicadores por municipio en el mapa y los tableros | **93** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
+| **29** indicadores por municipio en el mapa y los tableros | **93** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
 
 ## Qué hace
 
@@ -95,7 +95,7 @@ Secciones: *Recibir envío*, *Revisar pendientes*, *Equivalencias*, *Resultados 
 
 ### 2. Territorio
 
-- **Mapa en tres niveles** (departamento, municipio, lugar poblado) con 26 indicadores, buscador,
+- **Mapa en tres niveles** (departamento, municipio, lugar poblado) con 29 indicadores, buscador,
   ficha y reporte imprimible por municipio.
 - **Censo 2018**: población, hogares y viviendas por lugar poblado; pirámide de edades; quince
   indicadores de condiciones de vida por municipio (alfabetismo, internet, agua, drenaje,
@@ -109,6 +109,9 @@ Secciones: *Recibir envío*, *Revisar pendientes*, *Equivalencias*, *Resultados 
   (`faro uso-suelo`).
 - **Red vial como grafo**: lugares poblados que no quedan conectados y el enlace más corto que
   probablemente falta (`faro vial`).
+- **Tipo y superficie de las vías**: kilómetros por municipio de carreteras principales,
+  secundarias, locales y de terracería, y cuánta red tiene la superficie anotada; las carreteras
+  se ven en el mapa con su tipo y nombre.
 - **Seguridad alimentaria**: inseguridad alimentaria aguda por departamento y desnutrición crónica
   en escolares por municipio (SESAN).
 
@@ -150,7 +153,7 @@ rubro*, *Hoja de balance*, *Muestreos automáticos*.
   visualizaciones, panel de propiedades, deshacer y arrastrar. Los **filtros** (territorio y
   condiciones) se aplican a todo el tablero. Un tablero nace como **borrador** y se **publica**: lo
   publicado lo ve cualquier visitante, con su enlace, y puede mover los filtros sin cambiarlo.
-- **19 capas publicadas** en GeoJSON y CSV con dirección estable (`/capas`), para un SIG o un portal.
+- **21 capas publicadas** en GeoJSON y CSV con dirección estable (`/capas`), para un SIG o un portal.
 - **Procedencia.** Cada descarga queda con dirección, fecha, licencia y huella (`faro fuentes`).
 - **Cada etapa se repite fuera del portal** con su guion (`scripts/reproducir/`).
 - **Antes y ahora**: qué se tenía, qué hace FARO y cómo escala, punto por punto.
@@ -381,7 +384,9 @@ entregables/            documento técnico en PDF y capturas
   precio es «extremo», qué conteo se protege, a qué distancia una visita está «lejos». Deben
   fijarlos las unidades responsables.
 - **Distancias en línea recta.** La asignación de operadores y las rutas no usan tiempo de viaje.
-- **La red vial mide el mapa**: un hueco puede ser un camino sin dibujar o un paso en lancha.
+- **La red vial mide el mapa**: un hueco puede ser un camino sin dibujar o un paso en lancha. El
+  tipo de vía está en todas, pero la superficie solo en 38 % de la red; no es el inventario oficial
+  de la Dirección General de Caminos.
 - **Crecimiento urbano a 100 m y cada cinco años.** GHSL mide superficie construida, no viviendas.
   Landsat no distingue techos: para eso hace falta imagen de dron o de menos de un metro.
 - **El clasificador de fotos se probó con 16 fotos.** Es una prueba de humo; hay que medirlo con

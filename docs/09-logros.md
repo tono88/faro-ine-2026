@@ -43,6 +43,16 @@ y cómo repetirlo.
    Detalle: [`datos/referencia/LEEME.md`](../datos/referencia/LEEME.md). Repetir: `faro vial`.
    Fuente: © colaboradores de OpenStreetMap (ODbL), corte del 3-nov-2026.
 
+6a. **El tipo de cada vía ya estaba en el archivo; la superficie, solo en parte.** De 144,846 km de
+   vías para vehículos: 5,533 km principales, 15,496 km secundarias, 89,916 km locales y 33,901 km
+   de terracería. La superficie está anotada en 38 % de la red; de esa parte, 21 % es pavimentada.
+   El 62 % restante no se puede clasificar: es trabajo de mapeo pendiente, y el portal lo dice
+   municipio por municipio en vez de suponerlo. El código de municipio del archivo se aceptó solo
+   cuando su nombre coincide con el catálogo (la capa de origen trae dos códigos intercambiados);
+   quedaron 430 km sin asignar. Se buscó una capa de vías en el Registro de Información Catastral
+   (RIC) y en la Dirección General de Caminos: no se halló ninguna de descarga abierta.
+   Repetir: `faro vial`.
+
 ## Límites, crecimiento urbano y mapa
 
 7. **La capa oficial de límites trae intercambiados los códigos de Sanarate y Sansare**, y dos

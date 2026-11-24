@@ -204,6 +204,13 @@ encabezado de `index.html` (también como icono de pestaña); misión, visión, 
 `docs/25-identidad.md`, README y bloque `.identidad` de «Acerca». Ámbar `#f5a623` = color propio de
 FARO. Si cambia el texto de misión/visión/objetivos, cambiarlo en los tres sitios.
 
+Agregado después (v0.16.2): `faro vial` también escribe `red_vial_tipos_municipio.csv` (km por clase
+y superficie; campos `highway`, `surface`, `adm2_pcode`, `adm2_name` del .dbf; el municipio se acepta
+solo si nombre y código coinciden con el catálogo) y `red_vial_principal.geojson` (4.8 MB). Mapa:
+`#capavias`; indicadores `vias_*`; sección «Red vial»: `#tvialtipos`, `#tvialsup`, `#tvialmuni`.
+Superficie anotada solo en 38 % de la red: nunca presentar «% pavimentado» sin decirlo. RIC y
+Dirección General de Caminos: no se halló capa abierta de vías (búsqueda del 24-nov).
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)

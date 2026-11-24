@@ -42,7 +42,7 @@ respaldo en las preguntas.
 - 85,907 precios de 18 tiendas; 16 mil productos comparables por código de barras; 3 de cada 4 diferencias grandes son ofertas.
 - Tasas de extracción de la FAO que coinciden con la Hoja de Balance 2024 del INE (trigo: 72 %).
 - 1,020 proyecciones comprobadas contra lo ocurrido; 6 tamaños de pantalla × 24 secciones; 20 hallazgos de seguridad, 16 corregidos.
-- 26 indicadores por municipio, quince de ellos del Censo 2018 (alfabetismo 81.5 %, internet 29.3 %, piso de tierra 26.5 %).
+- 29 indicadores por municipio, quince de ellos del Censo 2018 (alfabetismo 81.5 %, internet 29.3 %, piso de tierra 26.5 %).
 - 93,297 hectáreas construidas en 2020; solo 1.6 % es no residencial.
 - Curvas de población contra el INE: error mediano de 1.05 % (exponencial) y 0.17 % (logística) a cinco años.
 - Clasificador de fotos: 11 aciertos, 0 errores y 5 no concluyentes en 16 fachadas.

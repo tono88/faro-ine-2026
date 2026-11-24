@@ -57,4 +57,5 @@
 | Un modelo distinto de la recta para población y crecimiento | Hecho: tasa constante junto a la recta (superficie construida) y, para población después de 2030, exponencial a corto plazo y logística a largo plazo |
 | Análisis de conformidad legal y protección estadística | Hecho: `docs/23`; conteos menores que 3 protegidos |
 | Apartado comparativo de qué se tenía, qué mejora y cómo escala | Hecho: sección «Antes y ahora» (23 puntos) y `docs/22` |
-| Más indicadores | Hecho: quince del Censo 2018 y uno de uso del suelo (26 en total) |
+| Más indicadores | Hecho: quince del Censo 2018, uno de uso del suelo y tres de vías (29 en total) |
+| Mapeo y tipo de carretera | Hecho con lo que ya se tenía: tipo de vía en toda la red y superficie donde está anotada (38 %), por municipio y en el mapa. No se halló una capa abierta del RIC ni de la Dirección General de Caminos |

@@ -5,7 +5,20 @@
   "enlaces": 83,
   "enlaces_km": 51.33342922839239,
   "km": 144866.15555829922,
+  "km_por_clase": {
+    "local": 89916.2,
+    "principal": 5532.7,
+    "secundaria": 15496.3,
+    "sendero": 5673.3,
+    "terraceria": 33901.2
+  },
+  "km_por_superficie": {
+    "pavimentada": 11456.2,
+    "sin_dato": 89217.4,
+    "sin_pavimentar": 44172.8
+  },
   "km_red_principal": 140570.01761487298,
+  "km_sin_municipio": 429.8,
   "lugares": 19723,
   "max_enlace_km": 5.0,
   "sin_camino": 544,

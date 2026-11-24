@@ -99,6 +99,17 @@
     },
     {
       "area": "Territorio",
+      "tema": "Tipo y superficie de cada carretera",
+      "antes": "No había a la mano una tabla por municipio de cuántos kilómetros de vía hay, de qué tipo y con qué superficie.",
+      "origen": "Pedido del equipo el 24-nov-2026",
+      "ahora": "El dato ya venía en el archivo de caminos y no se usaba. FARO suma los kilómetros por tipo y por superficie en cada municipio y dibuja las carreteras en el mapa. Dice también cuánta red no tiene la superficie anotada.",
+      "cifra": "144,846 km",
+      "cifra_de": "de vías para vehículos clasificadas; solo 38 % tiene la superficie anotada en el mapa",
+      "ver": "vial",
+      "escala": "El 62 % sin superficie es una lista de trabajo para mapear. El inventario oficial de la Dirección General de Caminos entraría por la misma vía cuando se comparta."
+    },
+    {
+      "area": "Territorio",
       "tema": "El censo al alcance de cada delegación",
       "antes": "Se pidió una herramienta con datos del censo por municipio y lugar poblado.",
       "origen": "DIEC · Coordinación Regional (DCR)",
@@ -224,7 +235,7 @@
       "antes": "Se pidieron tableros dinámicos con herramientas de licencia libre.",
       "origen": "DIEC · DESA",
       "ahora": "Se escribe qué se quiere ver y el portal arma el tablero. Se edita en un lienzo, se filtra por territorio y condiciones, y se publica con un enlace que abre cualquiera.",
-      "cifra": "26",
+      "cifra": "29",
       "cifra_de": "indicadores y 8 tipos de pieza, sin programa de pago",
       "ver": "tableros",
       "escala": "Todo indicador que entra al mapa queda disponible en los tableros."
@@ -235,7 +246,7 @@
       "antes": "El evento exige un prototipo funcional y reproducible, con fuentes citadas.",
       "origen": "Lineamientos del Datatón INE 2026",
       "ahora": "Cada descarga deja su procedencia (dirección, fecha, licencia y huella), cada etapa tiene su guion y los resultados salen como capas con dirección estable para un SIG o un portal.",
-      "cifra": "19",
+      "cifra": "21",
       "cifra_de": "capas publicadas en GeoJSON y CSV, cada una con su fuente y licencia",
       "ver": "capas",
       "escala": "Las capas se pueden registrar tal cual en el portal de datos abiertos del INE (CKAN)."

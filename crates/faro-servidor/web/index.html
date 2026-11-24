@@ -252,6 +252,8 @@
         </div>
         <div class="panel">
           <h2>Capas</h2>
+          <label class="opcion"><input type="checkbox" id="capavias"> Carreteras principales y secundarias, por tipo y superficie</label>
+          <p class="nota" id="leyendavias" hidden style="margin:2px 0 6px 26px"><b style="color:#b3261e">━</b> principal · <b style="color:#c77700">━</b> secundaria · <b style="color:#c77700">┅</b> sin pavimentar · <b style="color:#8a96a3">━</b> superficie sin anotar. Toque una vía para ver su nombre y tipo.</p>
           <label class="opcion"><input type="checkbox" id="capaenlaces"> Enlaces viales que probablemente faltan, con los caminos ya mapeados a su alrededor</label>
           <label class="opcion"><input type="checkbox" id="capalugares"> Lugares poblados sin conexión vial</label>
           <label class="opcion"><input type="checkbox" id="capahuella"> Huella construida, bloques de 1 km (satélite)</label>
@@ -420,6 +422,12 @@
       <p class="nota">Cruza los 19,723 lugares poblados con coordenadas del Censo 2018 con los caminos de OpenStreetMap, tratados como un grafo: los caminos que comparten un punto forman un tramo; el mayor es la red principal. Mide el mapa, no el terreno: un hueco puede ser un camino sin dibujar, un paso en lancha o un vado. Sirve para decidir qué verificar primero. <span id="vialinfo"></span></p>
       <div class="tarjetas" id="vialtarjetas"></div>
       <div class="tabla"><table id="tvialdep"></table></div>
+    </div>
+    <div class="panel"><h2>Tipo y superficie de las vías</h2>
+      <p class="nota">El mismo archivo trae, para cada vía, su tipo y —cuando alguien lo anotó— su superficie. El tipo está en todas; la superficie, en una parte. Por eso se dan dos cifras separadas: cuánta red tiene la superficie anotada y, de esa, cuánta está pavimentada. No es un inventario oficial: el de la red a cargo del Estado lo lleva la Dirección General de Caminos. <span id="vialtiposnota"></span></p>
+      <div class="filtros"><div class="tabla" style="flex:1 1 320px"><table id="tvialtipos"></table></div><div class="tabla" style="flex:1 1 320px"><table id="tvialsup"></table></div></div>
+      <p style="margin:10px 0 0"><button class="accion chico" id="vialvermapa">Ver las carreteras en el mapa</button></p>
+      <h3>Por municipio</h3><div class="tabla"><table id="tvialmuni"></table></div>
     </div>
     <div class="panel"><h2>Enlaces que probablemente faltan en el mapa</h2><p class="nota">Para cada tramo suelto con lugares poblados, el hueco más corto hasta la red principal. Primero los que más lugares conectan por kilómetro.</p><div class="tabla"><table id="tvialenl"></table></div></div>
     <div class="panel"><h2>Lugares sin camino mapeado cerca</h2><p class="nota">Lugares del censo sin ninguna vía para vehículos a la distancia indicada de su centroide. Primero los más lejanos.</p><div class="tabla"><table id="tvialsin"></table></div><p class="proc" data-proc="red_vial"></p></div>
@@ -851,6 +859,14 @@ async function redVial() {
   $('#vialinfo').textContent = `Vías ${x.con_senderos ? 'incluyendo senderos' : 'para vehículos'}; un lugar "tiene camino" si hay una vía a ${num(x.cerca_m)} m o menos; se proponen enlaces de hasta ${num(x.max_enlace_km)} km.`;
   $('#vialtarjetas').innerHTML = [[num(x.km) + ' km', 'de vías en el mapa'], [num(100 * x.km_red_principal / x.km) + ' %', 'en la red principal'], [num(x.tramos), 'tramos no unidos entre sí'], [num(x.tramo_suelto), 'lugares en un tramo suelto'], [num(x.sin_camino), 'lugares sin camino mapeado'], [num(x.enlaces), 'enlaces probables (' + num(x.enlaces_km) + ' km)']]
     .map(([v, t]) => `<div class="tarjeta"><b>${esc(v)}</b><small>${esc(t)}</small></div>`).join('');
+  if (x.km_por_clase) { const c = x.km_por_clase, s = x.km_por_superficie, veh = c.principal + c.secundaria + c.local + c.terraceria, anotada = s.pavimentada + s.sin_pavimentar;
+    tabla('#tvialtipos', [{t:'Tipo de vía', f:f => `<b>${f[0]}</b><br><small>${f[1]}</small>`}, {t:'Kilómetros', num:1, f:f => num(f[2])}, {t:'De la red para vehículos', num:1, f:f => f[3] ? num(100 * f[2] / veh) + ' %' : '—'}],
+      [['Principal', 'autopistas, troncales y primarias', c.principal, 1], ['Secundaria', 'secundarias y terciarias', c.secundaria, 1], ['Local', 'calles, caminos vecinales y de servicio', c.local, 1], ['Terracería', 'caminos rurales para vehículos', c.terraceria, 1], ['Senderos', 'a pie; no cuentan en la red para vehículos', c.sendero, 0]], '');
+    tabla('#tvialsup', [{t:'Superficie anotada', f:f => `<b>${f[0]}</b>`}, {t:'Kilómetros', num:1, f:f => num(f[1])}, {t:'De la red para vehículos', num:1, f:f => num(100 * f[1] / veh) + ' %'}], [['Pavimentada (asfalto, concreto, adoquín)', s.pavimentada], ['Sin pavimentar (tierra, balasto, grava)', s.sin_pavimentar], ['Sin anotar en el mapa', s.sin_dato]], '');
+    $('#vialtiposnota').textContent = `En el país, ${num(100 * anotada / veh)} % de la red tiene la superficie anotada; de esa parte, ${num(100 * s.pavimentada / anotada)} % está pavimentada.`;
+    const g = await geoDeMunicipios(), ms = g.features.map(f => f.properties).filter(p => p.vias_km != null).sort((a, b) => b.vias_km - a.vias_km);
+    tabla('#tvialmuni', [{t:'Municipio', f:p => `<b>${esc(p.nombre)}</b>, ${esc(p.departamento)} <small>${esc(p.codigo)}</small>`}, {t:'Vías para vehículos (km)', num:1, f:p => num(p.vias_km)}, {t:'Principales y secundarias (km)', num:1, f:p => num(p.vias_principales_km)}, {t:'Terracería (km)', num:1, f:p => num(p.vias_terraceria_km)},
+      {t:'Km por mil habitantes', num:1, f:p => p.vias_km_por_mil_hab == null ? '' : num(p.vias_km_por_mil_hab)}, {t:'Superficie anotada', num:1, f:p => p.vias_superficie_anotada_pct == null ? '' : num(p.vias_superficie_anotada_pct) + ' %'}, {t:'Pavimentado, de lo anotado', num:1, f:p => p.vias_pavimentadas_pct == null ? '<small>sin dato</small>' : num(p.vias_pavimentadas_pct) + ' %'}], ms, 'Sin datos.'); }
   tabla('#tvialdep', [{t:'Departamento', f:f => `${esc(f.codigo)} ${esc(f.nombre)}`}, {t:'Lugares poblados (cantidad)', num:1, f:f => num(f.lugares)}, {t:'En tramo suelto (lugares)', num:1, f:f => num(f.tramo_suelto)}, {t:'Sin camino mapeado (lugares)', num:1, f:f => num(f.sin_camino)},
     {t:'Por revisar', num:1, f:f => f.lugares ? `${num(100 * (f.tramo_suelto + f.sin_camino) / f.lugares)} %` : ''}], r.departamentos.slice().sort((a, b) => (b.tramo_suelto + b.sin_camino) - (a.tramo_suelto + a.sin_camino)), 'Sin datos.');
   tabla('#tvialenl', [{t:'Dónde', f:f => `${esc(f.lugares[0]?.municipio)}, ${esc(f.lugares[0]?.departamento)}`}, {t:'Hueco', num:1, f:f => enMapa(f.desde[0], f.desde[1], f.km < 1 ? num(f.km * 1000) + ' m' : num(f.km) + ' km')},
@@ -870,6 +886,10 @@ const INDICADORES = [
   {id:'cif_pct', t:'Inseguridad alimentaria: % en Fase 3 o superior (dato del departamento)', f:p => p.cif_fase3_o_superior_pct_departamento, u:'%', nota:() => 'CIF, SESAN, octubre 2026 – febrero 2027. El dato es del departamento: todos sus municipios muestran el mismo valor.', tonos:'naranja'},
   {id:'proveedores_construccion', t:'Proveedores de construcción perfilados', f:p => p.proveedores_construccion, u:'proveedores', nota:() => 'Negocios de materiales de construcción con ubicación reconocida, del levantamiento en páginas públicas.', tonos:'azul'},
   {id:'sin_conexion', t:'Lugares poblados sin conexión vial', f:p => p.lugares_en_tramo_suelto + p.lugares_sin_camino, u:'lugares', nota:() => 'Lugares del censo sin camino mapeado a 500 m o en un tramo suelto (OpenStreetMap).', tonos:'naranja'},
+  {id:'vias_km', t:'Vías para vehículos en el mapa', f:p => p.vias_km, u:'km', nota:() => 'Kilómetros de carreteras, calles y caminos de terracería dibujados en OpenStreetMap (sin senderos). Mide el mapa, no el terreno.', tonos:'azul', dec:1},
+  {id:'vias_km_por_mil_hab', t:'Vías para vehículos por cada mil habitantes', f:p => p.vias_km_por_mil_hab, u:'km', nota:() => 'Kilómetros de vía en el mapa entre la población proyectada por el INE. Un valor bajo puede ser poca red o poco mapa.', tonos:'azul', dec:2},
+  {id:'vias_superficie_anotada_pct', t:'Red vial con la superficie anotada en el mapa', f:p => p.vias_superficie_anotada_pct, u:'%', nota:() => 'Parte de las vías para vehículos en que alguien anotó si es asfalto, concreto, tierra… Donde es bajo, no se puede decir cuánto está pavimentado: es trabajo de mapeo pendiente.', tonos:'naranja', dec:1},
+  {id:'vias_pavimentadas_pct', t:'Vías pavimentadas, entre las que tienen superficie anotada', f:p => p.vias_pavimentadas_pct, u:'%', nota:() => 'Solo cuenta las vías con superficie anotada (en el país, 38 % de la red). No es el porcentaje pavimentado de toda la red.', tonos:'verde', dec:1},
   {id:'no_residencial_pct_2020', t:'Superficie construida no residencial 2020 (satélite)', f:p => p.no_residencial_pct_2020, u:'%', nota:() => 'Parte de lo construido que GHSL clasifica como no residencial (industria, comercio y servicios en edificios grandes). El resto se toma como residencial. GHSL GHS-BUILT-S R2023A, componente NRES, 100 m.', tonos:'naranja', dec:1},
   {id:'censo_alfabetismo_pct', t:'Alfabetismo, 7 años o más (Censo 2018)', f:p => p.censo_alfabetismo_pct, u:'%', nota:() => 'Personas de 7 años o más que saben leer y escribir. INE, Censo 2018, cuadro A11.', tonos:'verde', dec:1},
   {id:'censo_internet_pct', t:'Personas que usan internet (Censo 2018)', f:p => p.censo_internet_pct, u:'%', nota:() => 'Personas de 7 años o más que declararon usar internet. INE, Censo 2018, cuadro A12.', tonos:'azul', dec:1},
@@ -928,6 +948,9 @@ function resumenDepartamento(codigo, nombre, ms) {
     proveedores_construccion: suma(ms, 'proveedores_construccion'), lugares_poblados: suma(ms, 'lugares_poblados'), lugares_en_tramo_suelto: suma(ms, 'lugares_en_tramo_suelto'), lugares_sin_camino: suma(ms, 'lugares_sin_camino'),
     lugares_dentro_de_su_limite_pct: redondo(ponderado(ms, 'lugares_dentro_de_su_limite_pct', 'lugares_poblados'), 1),
     no_residencial_ha_2020: redondo(suma(ms, 'no_residencial_ha_2020'), 1), residencial_ha_2020: redondo(suma(ms, 'residencial_ha_2020'), 1), no_residencial_pct_2020: c20 ? redondo(100 * suma(ms, 'no_residencial_ha_2020') / c20, 1) : null,
+    vias_km: redondo(suma(ms, 'vias_km'), 1), vias_principales_km: redondo(suma(ms, 'vias_principales_km'), 1), vias_terraceria_km: redondo(suma(ms, 'vias_terraceria_km'), 1), vias_pavimentadas_km: redondo(suma(ms, 'vias_pavimentadas_km'), 1), vias_con_superficie_km: redondo(suma(ms, 'vias_con_superficie_km'), 1),
+    vias_superficie_anotada_pct: suma(ms, 'vias_km') ? redondo(100 * suma(ms, 'vias_con_superficie_km') / suma(ms, 'vias_km'), 1) : null, vias_pavimentadas_pct: suma(ms, 'vias_con_superficie_km') ? redondo(100 * suma(ms, 'vias_pavimentadas_km') / suma(ms, 'vias_con_superficie_km'), 1) : null,
+    vias_km_por_mil_hab: suma(ms, 'poblacion_actual') ? redondo(1000 * suma(ms, 'vias_km') / suma(ms, 'poblacion_actual'), 2) : null,
     // Censo 2018: cada porcentaje se pondera con su propio denominador (personas, hogares o viviendas).
     censo_alfabetismo_pct: redondo(ponderado(ms, 'censo_alfabetismo_pct', 'censo_pob7'), 1), censo_internet_pct: redondo(ponderado(ms, 'censo_internet_pct', 'censo_pob7'), 1),
     censo_agua_en_vivienda_pct: redondo(ponderado(ms, 'censo_agua_en_vivienda_pct', 'censo_hogares'), 1), censo_drenaje_pct: redondo(ponderado(ms, 'censo_drenaje_pct', 'censo_hogares'), 1),
@@ -1193,6 +1216,14 @@ async function iniciarMapa() {
 }
 async function capaOpcional(marcada, actual, crear) { if (!mapa) return actual; if (!marcada) { if (actual) mapa.removeLayer(actual); return actual; } if (!actual) actual = await crear(); actual.addTo(mapa); return actual; }
 $('#indicador').onchange = pintarMapa;
+// Carreteras por tipo y superficie. Grosor = jerarquía; color = clase; trazo continuo = pavimentada,
+// punteado = sin pavimentar, gris = nadie anotó la superficie en el mapa.
+let capaVias;
+const NOMBRE_VIA = {motorway:'Autopista', trunk:'Troncal', primary:'Primaria', secondary:'Secundaria', tertiary:'Terciaria'}, NOMBRE_SUPERFICIE = {pavimentada:'pavimentada', sin_pavimentar:'sin pavimentar', sin_dato:'superficie sin anotar en el mapa'};
+$('#capavias').onchange = async e => { capaVias = await capaOpcional(e.target.checked, capaVias, async () => { const g = await (await fetch('/capas/red_vial_principal.geojson')).json(), lienzoVias = L.canvas({padding:.3, pane:'encima'});
+  return L.geoJSON(g, {renderer: lienzoVias, style: f => { const p = f.properties, pri = p.clase === 'principal'; return {color: p.superficie === 'sin_dato' ? '#8a96a3' : pri ? '#b3261e' : '#c77700', weight: pri ? 3 : 1.6, opacity:.95, dashArray: p.superficie === 'sin_pavimentar' ? '5 5' : null}; },
+    onEachFeature: (f, c) => c.bindPopup(`<b>${esc(f.properties.nombre || 'Vía sin nombre en el mapa')}</b><br>${esc(NOMBRE_VIA[f.properties.tipo.replace('_link', '')] || f.properties.tipo)} · ${NOMBRE_SUPERFICIE[f.properties.superficie]}<br><small>© colaboradores de OpenStreetMap</small>`)}); });
+  $('#leyendavias').hidden = !e.target.checked; };
 $('#capaenlaces').onchange = async e => { capaEnlaces = await capaOpcional(e.target.checked, capaEnlaces, async () => {
   const [enl, ctx] = await Promise.all([fetch('/capas/red_vial_enlaces.geojson').then(x => x.json()), fetch('/capas/red_vial_contexto.geojson').then(x => x.ok ? x.json() : {type:'FeatureCollection', features:[]})]);
   // Primero los caminos ya mapeados (gris oscuro: red principal; morado: tramo suelto); encima, el enlace propuesto.
@@ -1780,6 +1811,7 @@ $('#subirtabla').onclick = async () => {
   try { const r = await api('/api/equivalencias/tabla', {method:'POST', headers:{'content-type':'text/csv'}, body: await a.text()});
     $('#tablares').textContent = `${num(r.grabadas)} equivalencia(s) grabada(s).` + (r.rechazadas.length ? `\n${r.rechazadas.length} fila(s) rechazada(s):\n` + r.rechazadas.slice(0, 15).join('\n') : ''); memoria(); estado(); }
   catch (x) { aviso(x.message, true); } };
+$('#vialvermapa').onclick = async () => { document.querySelector('nav button[data-s=mapa]').click(); await iniciarMapa(); $('#capavias').checked = true; await $('#capavias').onchange({target: $('#capavias')}); setTimeout(() => mapa.invalidateSize(), 80); };
 // ---- Enlace vial: verlo en el mapa ----
 $('#tvialenl').onclick = async e => { const b = e.target.closest('button[data-ver]'); if (!b) return; const [lon, lat] = b.dataset.ver.split(',').map(Number);
   document.querySelector('nav button[data-s=mapa]').click(); await iniciarMapa();

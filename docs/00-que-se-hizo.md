@@ -111,9 +111,9 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 | Pruebas automáticas | 93 |
 | Comandos de `faro` | 29 |
 | Secciones de la pantalla | 24 |
-| Indicadores por municipio | 26 |
+| Indicadores por municipio | 29 |
 | Tareas de muestreo de precios | 26 |
 | Precios publicados en el levantamiento | 85,907 (18 tiendas, 6 rubros) |
-| Capas publicadas | 19 |
+| Capas publicadas | 21 |
 | Fuentes citadas | 34 |
 | Hallazgos documentados | [33](09-logros.md) |
