@@ -3,6 +3,9 @@
 | | |
 |---|---|
 | **Nombre** | FARO · recepción y homologación de registros administrativos |
+| **Lema** | Que cada dato llegue a puerto |
+| **Equipo** | La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval |
+| **Misión** | Dar al INE una forma única, verificable y respetuosa de las personas para pedir, recibir y entender los registros de otras instituciones, y convertirlos en estadística útil. Identidad completa: `docs/25-identidad.md` |
 | **Categoría** | 2 · Tecnológica y ciencias de datos (Datatón INE 2026) |
 | **Qué es** | Herramienta web y de línea de comandos para que el INE pida, reciba y homologue registros de otras instituciones, y los aproveche junto a sus datos abiertos de territorio y precios |
 | **Problema que atiende** | Las instituciones no tienen un estándar para compartir datos con fines estadísticos; el mismo lugar o producto llega escrito de muchas formas |

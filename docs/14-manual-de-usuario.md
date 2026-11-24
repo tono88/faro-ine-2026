@@ -1,5 +1,7 @@
 # Manual de usuario
 
+*FARO · Que cada dato llegue a puerto.*
+
 FARO reúne en una sola pantalla lo que hoy está repartido en correos, hojas de cálculo y portales:
 **pedir y recibir registros de otras instituciones, entenderlos sin adivinar, y aprovecharlos junto a
 los datos del propio INE**. Se abre en el navegador (<http://localhost:8082>), funciona en laptop,

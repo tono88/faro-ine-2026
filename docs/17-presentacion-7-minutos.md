@@ -1,5 +1,8 @@
 # Presentación ante el jurado (7 minutos + 3 de preguntas)
 
+Equipo **La Sociedad de Almas** · lema: **«Que cada dato llegue a puerto.»** Abrir y cerrar con él.
+Misión, visión y objetivos: [`25-identidad.md`](25-identidad.md).
+
 ## El mensaje en una frase
 
 **FARO hace que el INE reciba de cualquier institución datos que puede usar el mismo día, sin

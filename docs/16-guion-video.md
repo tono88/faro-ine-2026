@@ -1,5 +1,7 @@
 # Guion del video (2 a 3 minutos)
 
+Equipo: La Sociedad de Almas. Abrir con el logotipo y cerrar con el lema: **«Que cada dato llegue a puerto.»**
+
 Idea central: **FARO convierte archivos dispares en datos oficiales, sin adivinar, y lo demuestra.**
 Formato: captura de pantalla con voz. Todas las cifras salen del portal o de `docs/09-logros.md`.
 

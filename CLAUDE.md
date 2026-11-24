@@ -198,6 +198,12 @@ Agregado después (v0.16.0), todo probado con servidor nativo + Chromium y en co
 - En esta nube: `dockerd` y la base temporal `pgtmp` se caen entre turnos; `scratchpad/reiniciar.sh`
   recompila y levanta el servidor nativo en 8095. La construcción de Docker con tract tarda más.
 
+Agregado después (v0.16.1): identidad. Equipo «La Sociedad de Almas»; lema «Que cada dato llegue a
+puerto»; logotipo en `docs/identidad/*.svg` (icono, horizontal claro y oscuro) y en línea en el
+encabezado de `index.html` (también como icono de pestaña); misión, visión, objetivos y valores en
+`docs/25-identidad.md`, README y bloque `.identidad` de «Acerca». Ámbar `#f5a623` = color propio de
+FARO. Si cambia el texto de misión/visión/objetivos, cambiarlo en los tres sitios.
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)

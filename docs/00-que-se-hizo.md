@@ -3,6 +3,9 @@
 Descripción breve de lo construido durante el Datatón INE 2026 (23–24 de noviembre), en el orden
 en que una persona del INE lo usaría. Cada punto dice dónde verlo.
 
+**FARO · Que cada dato llegue a puerto.** Proyecto del equipo La Sociedad de Almas. Misión, visión,
+objetivos e identidad: [`25-identidad.md`](25-identidad.md).
+
 ## 1. Pedir, recibir y homologar registros administrativos
 
 - **Solicitud de datos.** El INE declara una vez qué necesita de cada institución. Hay solicitudes

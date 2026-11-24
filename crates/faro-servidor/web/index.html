@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FARO · Recepción y homologación de registros</title>
+<title>FARO · Que cada dato llegue a puerto</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwMDUxYjMiLz4KICA8cGF0aCBkPSJNMjYgMjEgNSAxMnYxN3oiIGZpbGw9IiNmNWE2MjMiIG9wYWNpdHk9Ii45Ii8+CiAgPHBhdGggZD0iTTM4IDIxIDU5IDEydjE3eiIgZmlsbD0iI2Y1YTYyMyIgb3BhY2l0eT0iLjkiLz4KICA8cGF0aCBkPSJNMzIgOGw4IDhIMjR6IiBmaWxsPSIjZmZmIi8+CiAgPHJlY3QgeD0iMjYiIHk9IjE2IiB3aWR0aD0iMTIiIGhlaWdodD0iOCIgcng9IjEiIGZpbGw9IiNmZmQyN2EiLz4KICA8cGF0aCBkPSJNMjcgMjZoMTBsNCAyOEgyM3oiIGZpbGw9IiNmZmYiLz4KICA8cGF0aCBkPSJNMjYuMSAzNGgxMS44bC45IDZIMjUuMnoiIGZpbGw9IiM0ZDlhZTEiLz4KICA8cGF0aCBkPSJNMjQuNCA0NmgxNS4ybC42IDRIMjMuOHoiIGZpbGw9IiM0ZDlhZTEiLz4KICA8cmVjdCB4PSIxOCIgeT0iNTQiIHdpZHRoPSIyOCIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==">
+<meta name="description" content="FARO: portal para que el INE pida, reciba y homologue registros administrativos, y los aproveche junto al censo, el territorio y los precios.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/vendor/leaflet.css">
@@ -15,7 +17,9 @@
   body { margin:0; font:15px/1.55 "Noto Sans", "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--tinta); background:var(--fondo); display:grid; grid-template-columns:248px 1fr; grid-template-rows:auto 1fr; }
   header { grid-column:1 / -1; background:#fff; border-bottom:3px solid var(--azul); padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
   header .marca { display:flex; align-items:center; gap:10px; }
-  header .marca i { width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg, var(--azul), var(--celeste)); display:grid; place-items:center; color:#fff; font-style:normal; font-weight:700; }
+  header .marca svg { width:36px; height:36px; display:block; } header > span b { color:var(--azul-oscuro); }
+  .identidad { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-top:12px; } .identidad > div { border:1px solid var(--borde); border-top:3px solid var(--azul); border-radius:var(--radio); padding:12px 14px; } .identidad h3 { margin:0 0 6px; font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--azul); } .identidad p { margin:0; } .identidad ol { margin:0; padding-left:18px; } .identidad li { margin:3px 0; }
+  .lema { display:flex; align-items:center; gap:14px; flex-wrap:wrap; } .lema svg { width:64px; height:64px; flex:none; } .lema b { display:block; font-size:22px; color:var(--azul-oscuro); line-height:1.2; } .lema span { color:var(--gris); }
   header h1 { font-size:20px; margin:0; color:var(--azul-oscuro); letter-spacing:.3px; }
   header span { color:var(--gris); font-size:13px; }
   header .acceso { margin-left:auto; display:flex; gap:8px; align-items:center; font-size:13px; color:var(--gris); }
@@ -163,7 +167,7 @@
   }
   /* Teléfonos: una columna, ficha como hoja inferior, objetivos táctiles de 44 px y texto que no obliga a hacer zoom. */
   @media (max-width: 700px) {
-    header { padding:8px 12px; gap:8px; flex-wrap:nowrap; } header > span { display:none; } header h1 { font-size:18px; } header .marca i { width:30px; height:30px; }
+    header { padding:8px 12px; gap:8px; flex-wrap:nowrap; } header > span { display:none; } header h1 { font-size:18px; } header .marca svg { width:30px; height:30px; }
     header .acceso { gap:6px; min-width:0; } header .acceso .quien small, header .acceso .rol { display:none; } #menu { min-width:44px; min-height:44px; font-size:18px; }
     nav { inset:63px 0 0 0; padding-bottom:60px; } nav button { min-height:44px; font-size:16px; }
     main { padding:12px 10px 60px; } .titulo h2 { font-size:19px; } .titulo p { font-size:14px; }
@@ -193,8 +197,8 @@
 <body>
 <header>
   <button id="menu" aria-label="Abrir el menú" aria-expanded="false">☰</button>
-  <div class="marca"><i aria-hidden="true">F</i><div><h1>FARO</h1></div></div>
-  <span>Registros administrativos, territorio y precios · prototipo para el Datatón INE 2026</span>
+  <div class="marca"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0051b3"/><path d="M26 21 5 12v17z" fill="#f5a623" opacity=".9"/><path d="M38 21 59 12v17z" fill="#f5a623" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffd27a"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#4d9ae1"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#4d9ae1"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><h1>FARO</h1></div></div>
+  <span><b>Que cada dato llegue a puerto.</b> Registros administrativos, territorio y precios · Datatón INE 2026</span>
   <div class="acceso" id="acceso"><button class="accion" id="entrar" style="margin:0">Iniciar sesión</button></div>
 </header>
 <nav aria-label="Secciones">
@@ -600,6 +604,16 @@
 
   <section id="acerca">
     <div class="titulo"><h2>Acerca de FARO y sus fuentes</h2><p>Qué es, qué hace hoy y de dónde sale cada dato.</p></div>
+    <div class="panel">
+      <div class="lema"><svg viewBox="0 0 64 64" role="img" aria-label="Logotipo de FARO"><rect width="64" height="64" rx="14" fill="#0051b3"/><path d="M26 21 5 12v17z" fill="#f5a623" opacity=".9"/><path d="M38 21 59 12v17z" fill="#f5a623" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffd27a"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#4d9ae1"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#4d9ae1"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><b>Que cada dato llegue a puerto.</b><span>FARO · un proyecto del equipo La Sociedad de Almas para el Datatón INE 2026</span></div></div>
+      <div class="identidad">
+        <div><h3>Misión</h3><p>Dar al INE una forma única, verificable y respetuosa de las personas para pedir, recibir y entender los registros de otras instituciones, y convertirlos en estadística útil junto al censo, el territorio y los precios.</p></div>
+        <div><h3>Visión</h3><p>Un Sistema Estadístico Nacional en el que cada institución entrega sus datos una sola vez, en un formato común, y el país los aprovecha el mismo día, con la confianza de que nada se adivinó y todo se puede comprobar.</p></div>
+        <div><h3>Objetivos</h3><ol><li>Un estándar para pedir y recibir registros administrativos.</li><li>Homologar sin adivinar y recordar cada decisión.</li><li>Proteger a las personas: solo agregados, sin datos personales.</li><li>Unir registros, censo, territorio y precios en un mismo mapa.</li><li>Que todo resultado tenga fuente y se pueda repetir.</li><li>Funcionar con software libre, en un servidor del INE.</li></ol></div>
+        <div><h3>Valores</h3><ol><li><b>No adivinar.</b> Ante la duda, pregunta.</li><li><b>No inventar.</b> Todo dato tiene fuente y fecha.</li><li><b>Decir los límites.</b> Lo que falta también se escribe.</li><li><b>Cuidar a las personas.</b> El dato sirve a la gente, no al revés.</li></ol></div>
+      </div>
+      <p class="nota">Por qué un faro: no mueve los barcos ni decide su rumbo; les da una referencia fija para llegar. FARO hace lo mismo con los datos que cada institución ya tiene.</p>
+    </div>
     <div class="panel"><h2>Qué es</h2>
       <p>FARO es una herramienta para que el INE <b>pida, reciba y homologue</b> registros administrativos de otras instituciones, y para aprovechar junto a ellos los datos abiertos del propio INE y del territorio. Parte de una regla: <b>el sistema no adivina</b>. Asigna un código solo cuando no hay duda; lo demás lo propone, lo decide una persona y queda aprendido.</p>
       <h2 style="margin-top:14px">De dónde salen las conclusiones</h2>

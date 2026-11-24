@@ -2,6 +2,12 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.16.1 · 24-nov-2026
+- Identidad del proyecto: logotipo (faro con su luz), lema «Que cada dato llegue a puerto», misión,
+  visión, objetivos, valores, colores y voz (`docs/25-identidad.md`, `docs/identidad/`). En el
+  portal: logotipo en el encabezado y en la pestaña, y bloque de identidad en «Acerca y fuentes».
+  Equipo: La Sociedad de Almas.
+
 ## v0.16.0 · 24-nov-2026
 - **Diseñador de tableros** rehecho: lienzo con paleta de visualizaciones y de datos, panel de
   propiedades, deshacer y rehacer, arrastrar para ordenar, anchos, y dos piezas nuevas (dispersión

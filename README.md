@@ -1,7 +1,9 @@
-# FARO · Datatón INE 2026
+<p align="center"><img src="docs/identidad/faro-logo.svg" alt="FARO · Que cada dato llegue a puerto" width="420"></p>
 
-Categoría 2: Tecnológica y ciencias de datos.
-Equipo: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.16.0.
+# FARO · Que cada dato llegue a puerto
+
+Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.16.1.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -12,6 +14,27 @@ territorio y los precios. Corre completo en una computadora, con software libre.
 [hallazgos con datos reales](docs/09-logros.md) ·
 [manual de usuario](docs/14-manual-de-usuario.md) ·
 [conformidad legal](docs/23-conformidad-legal.md)
+
+## Misión, visión y objetivos
+
+**Misión.** Dar al INE una forma única, verificable y respetuosa de las personas para pedir, recibir
+y entender los registros de otras instituciones, y convertirlos en estadística útil junto al censo,
+el territorio y los precios.
+
+**Visión.** Un Sistema Estadístico Nacional en el que cada institución entrega sus datos una sola
+vez, en un formato común, y el país los aprovecha el mismo día, con la confianza de que nada se
+adivinó y todo se puede comprobar.
+
+**Objetivos.**
+
+1. Un estándar para pedir y recibir registros administrativos.
+2. Homologar sin adivinar y recordar cada decisión.
+3. Proteger a las personas: solo agregados, sin datos personales.
+4. Unir registros, censo, territorio y precios en un mismo mapa.
+5. Que todo resultado tenga fuente y se pueda repetir.
+6. Funcionar con software libre, en un servidor del INE.
+
+Logotipo, colores, tipografía y voz: [`docs/25-identidad.md`](docs/25-identidad.md).
 
 ## El problema
 
@@ -334,7 +357,8 @@ entregables/            documento técnico en PDF y capturas
 | [09 Logros y hallazgos](docs/09-logros.md) | [22 Antes y ahora](docs/22-antes-y-ahora.md) |
 | [10 Imágenes satelitales y uso del suelo](docs/10-imagenes-satelitales.md) | [23 Conformidad legal y protección estadística](docs/23-conformidad-legal.md) |
 | [11 Fuentes y citas](docs/11-fuentes-y-citas.md) | [24 Clasificador de fotos](docs/24-clasificador-de-fotos.md) |
-| [12 Flujo de proceso](docs/12-proceso.md) | [Documento técnico (PDF)](entregables/FARO-documento-tecnico.pdf) |
+| [12 Flujo de proceso](docs/12-proceso.md) | [25 Identidad: logotipo, lema, misión y visión](docs/25-identidad.md) |
+| [Documento técnico (PDF)](entregables/FARO-documento-tecnico.pdf) | |
 
 ## Limitaciones
 
