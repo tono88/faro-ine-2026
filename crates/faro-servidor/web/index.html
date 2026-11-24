@@ -595,6 +595,7 @@
     <div class="panel"><h2>Registros administrativos: de la solicitud a la estadística</h2><div class="flujo" id="flujo1"></div></div>
     <div class="panel"><h2>Fuentes abiertas: del portal a la capa publicada</h2><p class="nota">El mismo cuidado para los datos que FARO toma de fuera: nada entra sin fuente, fecha y huella, y nada se cruza sin verificarlo contra el catálogo oficial.</p><div class="flujo" id="flujo2"></div></div>
     <div class="panel"><h2>Precios: de la canasta oficial al precio de referencia</h2><div class="flujo" id="flujo3"></div></div>
+    <div class="panel"><h2>Trabajo de campo: de la ruta a la visita comprobada</h2><p class="nota">Nada rechaza una visita por sí solo: el portal junta evidencias independientes y avisa cuando no coinciden.</p><div class="flujo" id="flujo4"></div></div>
   </section>
 
   <section id="acerca">
@@ -1275,6 +1276,16 @@ async function proceso() {
     {quien:'Analista del INE', clase:'decision', t:'Revisar', d:'Decide los productos dudosos; su decisión queda aprendida.'},
     {quien:'FARO (automático)', t:'Calcular', d:'Un precio por proveedor en la unidad oficial; media si son parecidos, mediana si hay extremos; avisa si faltan fuentes directas.'},
     {quien:'Usuarios y portal', clase:'fin', t:'Precio de referencia', d:'Con sus fuentes, el método usado y los antecedentes ya emitidos por el INE.', n:num(x.precios_referencia_ine), u:'antecedentes del INE'},
+  ]);
+  flujo('#flujo4', ['Coordinación', 'FARO (automático)', 'Operador de campo', 'Usuarios y portal'], [
+    {quien:'Coordinación', t:'Armar la ruta', d:'Elige al operador y los lugares poblados del censo que debe visitar, y pega la dirección del formulario de la encuesta.', n:num(x.rutas_de_campo), u:'rutas'},
+    {quien:'FARO (automático)', t:'Ordenar las paradas', d:'Propone el orden que acorta el recorrido y comprueba que el formulario esté en un servicio admitido.', n:num(x.paradas_de_campo), u:'paradas'},
+    {quien:'Operador de campo', t:'Llegar y registrar', d:'En su teléfono ve la ruta. Al llegar, el teléfono entrega la posición y el operador toma una foto de la fachada.', n:num(x.visitas_de_campo), u:'visitas registradas'},
+    {quien:'FARO (automático)', t:'Clasificar la foto', d:'Un modelo de escenas dice si parece vivienda, comercio u otra cosa. La foto se descarta: no se guarda.'},
+    {quien:'FARO (automático)', t:'Cruzar la visita', d:'Compara la posición con el punto del lugar poblado, con lo construido en ese kilómetro según el satélite y con el techo que declaró el censo.'},
+    {quien:'Operador de campo', t:'Llenar la encuesta', d:'Se abre el formulario con el lugar, la posición y el número de visita ya escritos.'},
+    {quien:'Coordinación', clase:'decision', t:'Revisar lo marcado', d:'Decide qué hacer con las visitas que no coinciden: lejos del punto, foto de comercio o zona sin construcción.', n:num(x.visitas_por_revisar), u:'visitas por revisar'},
+    {quien:'Usuarios y portal', clase:'fin', t:'Unir visitas y respuestas', d:'La tabla de visitas se une con las respuestas del formulario por el número de visita.'},
   ]);
 }
 const HECHO = [

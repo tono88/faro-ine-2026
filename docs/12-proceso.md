@@ -71,3 +71,28 @@ flowchart LR
   C -- otra medida --> X[no se compara]
   D --> E --> F([6. Precio de referencia<br/>con fuentes, método y antecedentes])
 ```
+
+## Trabajo de campo: de la ruta a la visita comprobada
+
+```mermaid
+flowchart LR
+  A[1. Armar la ruta<br/>operador, lugares poblados,<br/>formulario] --> B[2. Ordenar las paradas<br/>recorrido corto;<br/>formulario admitido]
+  B --> C[3. Llegar y registrar<br/>posición del teléfono<br/>y foto de la fachada]
+  C --> D[4. Clasificar la foto<br/>vivienda, comercio u otro;<br/>la foto se descarta]
+  D --> E[5. Cruzar la visita<br/>posición, foto,<br/>satélite y censo]
+  E --> F[6. Llenar la encuesta<br/>formulario ya lleno]
+  E -- no coincide --> G{7. Revisar lo marcado}
+  F --> H([8. Unir visitas y respuestas<br/>por número de visita])
+  G --> H
+```
+
+| Etapa | Entra | Qué se hace | Sale | Dónde queda |
+|---|---|---|---|---|
+| 1. Armar la ruta | Operador, municipio, lugares poblados | La coordinación elige y pega la dirección del formulario | Ruta | Base de datos |
+| 2. Ordenar las paradas | Coordenadas del catálogo | Vecino más cercano y mejora 2-opt; se valida el servicio del formulario | Paradas en orden y kilómetros | Base de datos |
+| 3. Llegar y registrar | Teléfono del operador | Entrega la posición con su precisión; foto reducida a 640 px | Visita | Base de datos (sin la foto) |
+| 4. Clasificar la foto | Foto | Modelo de escenas en el servidor | Clase y confianza | Base de datos |
+| 5. Cruzar la visita | Posición, clase, bloque de 1 km, techo del lugar | Reglas simples y a la vista | «Coherente», «conviene revisar» o «sin datos», con razones | Base de datos |
+| 6. Llenar la encuesta | Dirección del formulario con marcadores | Se llenan lugar, posición y número de visita | Enlace | Microsoft Forms del INE |
+| 7. Revisar lo marcado | Visitas con dudas | **Decisión de una persona** | — | Pantalla de coordinación |
+| 8. Unir visitas y respuestas | Tabla de visitas y respuestas del formulario | Se cruzan por el número de visita | Tabla unida | Fuera de FARO |

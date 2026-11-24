@@ -1465,7 +1465,8 @@ async fn api_proceso(State(e): State<Compartido>) -> Res<Json<Value>> {
             "SELECT (SELECT count(*) FROM envios), (SELECT coalesce(sum(filas),0)::bigint FROM envios), (SELECT coalesce(sum(problemas),0)::bigint FROM envios),
                     (SELECT count(*) FROM (SELECT 1 FROM pendientes WHERE NOT resuelto AND envio_id IN (SELECT id FROM envios_vigentes) GROUP BY columna, nivel, contexto, valor) p),
                     (SELECT count(*) FROM equivalencias) + (SELECT count(*) FROM equivalencias_valor), (SELECT coalesce(sum(n),0)::bigint FROM hechos),
-                    (SELECT count(*) FROM conjuntos_ine), (SELECT count(DISTINCT institucion) FROM envios)",
+                    (SELECT count(*) FROM conjuntos_ine), (SELECT count(DISTINCT institucion) FROM envios),
+                    (SELECT count(*) FROM rutas_campo), (SELECT count(*) FROM paradas_campo), (SELECT count(*) FROM visitas_campo), (SELECT count(*) FROM visitas_campo WHERE coherencia = 'revisar')",
             &[],
         )
         .await
@@ -1475,6 +1476,7 @@ async fn api_proceso(State(e): State<Compartido>) -> Res<Json<Value>> {
         "equivalencias": f.get::<_, i64>(4), "registros_agregados": f.get::<_, i64>(5), "conjuntos_ine": f.get::<_, i64>(6), "instituciones": f.get::<_, i64>(7),
         "lugares_en_catalogo": e.catalogo.len(), "capas": e.catalogo_capas.len(), "fuentes": e.fuentes["fuentes"].as_array().map_or(0, Vec::len),
         "municipios_con_poblacion": e.poblacion.municipios().len(), "articulos_ipmc": e.construccion.articulos.len(), "precios_referencia_ine": e.referencias.len(),
+        "rutas_de_campo": f.get::<_, i64>(8), "paradas_de_campo": f.get::<_, i64>(9), "visitas_de_campo": f.get::<_, i64>(10), "visitas_por_revisar": f.get::<_, i64>(11),
     })))
 }
 
