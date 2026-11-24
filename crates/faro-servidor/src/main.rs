@@ -1,5 +1,6 @@
 //! Servidor de FARO: una sola aplicación que recibe envíos, muestra lo pendiente, guarda las
 //! equivalencias confirmadas y se mantiene al día con el portal del INE.
+mod campo;
 mod tablero;
 
 use axum::extract::{DefaultBodyLimit, Multipart, Path as Ruta, Query, State};
@@ -60,6 +61,12 @@ struct Estado {
     token: Option<String>,
     sal: Option<String>,
     portal: String,
+    /// Uso del suelo por bloque de 1 km (GHSL 2020): (longitud, latitud, ha construidas, ha no residenciales).
+    uso_bloques: Vec<(f64, f64, f64, f64)>,
+    /// Material de techo más frecuente por lugar poblado (Censo 2018): código -> (material, % de viviendas).
+    techo_lugar: HashMap<String, (String, f64)>,
+    /// Servicios de formularios admitidos para la encuesta de campo (FARO_FORMULARIOS).
+    formularios: Vec<String>,
 }
 type Compartido = Arc<Estado>;
 
@@ -159,6 +166,9 @@ async fn main() -> Result<(), String> {
     }
     let estado = Arc::new(Estado {
         bd,
+        uso_bloques: csv::Reader::from_path(dir_referencia.join("uso_construido_bloques.csv")).map(|mut l| l.records().flatten().filter_map(|f| Some((f.get(1)?.parse().ok()?, f.get(2)?.parse().ok()?, f.get(3)?.parse().ok()?, f.get(4)?.parse().ok()?))).collect()).unwrap_or_default(),
+        techo_lugar: leer_techo_lugar(&dir_referencia),
+        formularios: var("FARO_FORMULARIOS", "forms.office.com,forms.microsoft.com,forms.cloud.microsoft,forms.office365.us").split(',').map(|x| x.trim().to_lowercase()).filter(|x| !x.is_empty()).collect(),
         vial,
         referencias: csv::Reader::from_path(var("FARO_REFERENCIAS_INE", "datos/catalogo_precios/precios_referencia_ine.csv")).map(|mut l| l.deserialize().flatten().collect()).unwrap_or_default(),
         cif: cif.clone(),
@@ -264,6 +274,11 @@ async fn main() -> Result<(), String> {
         .route("/api/tableros/:id", get(api_tablero).post(api_tablero_guardar_id).delete(api_tablero_borrar))
         .route("/api/tableros/:id/publicar", post(api_tablero_publicar))
         .route("/api/bitacora", get(api_bitacora))
+        .route("/api/campo", get(api_campo))
+        .route("/api/campo/rutas", post(api_campo_ruta))
+        .route("/api/campo/rutas/:id", axum::routing::delete(api_campo_ruta_borrar))
+        .route("/api/campo/visitas", post(api_campo_visita))
+        .route("/api/campo/visitas.csv", get(api_campo_visitas_csv))
         .route("/api/cif", get(|State(e): State<Compartido>| async move {
             let mut talla: Vec<Value> = e.talla.values().map(|f| { let mut v = json!(f); v["departamento"] = json!(f.get("municipio").and_then(|m| e.catalogo.por_codigo(&m[..2])).map(|d| d.nombre.clone())); v }).collect();
             talla.sort_by(|a, b| b["retardo_en_talla_pct"].as_str().and_then(|x| x.parse::<f64>().ok()).unwrap_or(0.0).total_cmp(&a["retardo_en_talla_pct"].as_str().and_then(|x| x.parse::<f64>().ok()).unwrap_or(0.0)));
@@ -328,7 +343,8 @@ async fn seguridad(pedido: axum::extract::Request, siguiente: axum::middleware::
     c.insert("x-content-type-options", HeaderValue::from_static("nosniff"));
     c.insert("x-frame-options", HeaderValue::from_static("DENY"));
     c.insert("referrer-policy", HeaderValue::from_static("no-referrer"));
-    c.insert("permissions-policy", HeaderValue::from_static("geolocation=(), camera=(), microphone=()"));
+    // La posición y la cámara solo las puede pedir el propio portal (registro de visitas de campo); nadie más.
+    c.insert("permissions-policy", HeaderValue::from_static("geolocation=(self), camera=(self), microphone=()"));
     // Los guiones y estilos van dentro de la propia página (por eso 'unsafe-inline'); de fuera solo
     // se admiten la tipografía, las teselas del mapa base y las fotos de productos, por https.
     c.insert("content-security-policy", HeaderValue::from_static("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"));
@@ -343,7 +359,8 @@ async fn autorizar(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
         if s.debe_cambiar {
             return Err(Fallo(StatusCode::FORBIDDEN, "antes de hacer cambios debe cambiar su contraseña inicial en «Mi perfil»".into()));
         }
-        return if s.rol == "consulta" { Err(Fallo(StatusCode::FORBIDDEN, "su usuario es de consulta: no puede hacer cambios".into())) } else { Ok(s) };
+        // Los operadores de campo solo registran visitas (eso se autoriza aparte, en `operador_de_campo`).
+        return if s.rol == "consulta" || s.rol == "operador" { Err(Fallo(StatusCode::FORBIDDEN, format!("su usuario es de {}: no puede hacer cambios en esta parte", if s.rol == "consulta" { "consulta" } else { "campo" }))) } else { Ok(s) };
     }
     // La clave de servicio se compara por su huella y recorriendo todos los bytes (tiempo constante).
     let igual = |a: &str, b: &str| { use sha2::{Digest, Sha256}; let (x, y) = (Sha256::digest(a.as_bytes()), Sha256::digest(b.as_bytes())); x.iter().zip(y.iter()).fold(0u8, |d, (p, q)| d | (p ^ q)) == 0 };
@@ -1021,6 +1038,18 @@ fn leer_censo_lugar(dir: &std::path::Path) -> HashMap<String, Vec<i64>> {
 }
 
 /// Indicadores del Censo 2018 por municipio (`faro censo-indicadores`): código -> cifra -> valor.
+/// Techo más frecuente en cada lugar poblado (Censo 2018, cuadro C2): código -> (material, % de las viviendas).
+fn leer_techo_lugar(dir: &std::path::Path) -> HashMap<String, (String, f64)> {
+    const MATERIALES: [(&str, &str); 6] = [("techo_concreto", "concreto"), ("techo_lamina", "lámina metálica"), ("techo_asbesto_cemento", "asbesto cemento"), ("techo_teja", "teja"), ("techo_paja_palma", "paja o palma"), ("techo_desecho", "material de desecho")];
+    let Ok(mut lector) = csv::Reader::from_path(dir.join("censo2018_techos_lugar_poblado.csv")) else { return HashMap::new() };
+    lector.deserialize::<HashMap<String, String>>().flatten().filter_map(|f| {
+        let n = |k: &str| f.get(k).and_then(|v| v.parse::<f64>().ok()).unwrap_or(0.0);
+        let total = n("viviendas_particulares");
+        let (columna, nombre) = MATERIALES.iter().copied().max_by(|a, b| n(a.0).total_cmp(&n(b.0)))?;
+        (total > 0.0 && n(columna) > 0.0).then(|| (f.get("codigo").cloned().unwrap_or_default(), (nombre.to_string(), 100.0 * n(columna) / total)))
+    }).collect()
+}
+
 fn leer_censo_indicadores(dir: &std::path::Path) -> HashMap<String, HashMap<String, f64>> {
     let Ok(mut lector) = csv::Reader::from_path(dir.join("censo2018_indicadores_municipio.csv")) else { return HashMap::new() };
     lector.deserialize::<HashMap<String, String>>().flatten().filter_map(|f| Some((f.get("municipio")?.clone(), f.iter().filter_map(|(k, v)| Some((k.clone(), v.parse().ok()?))).collect()))).collect()
@@ -2058,7 +2087,7 @@ struct Sesion {
     secciones: Option<Vec<String>>,
 }
 
-const ROLES: [&str; 3] = ["admin", "analista", "consulta"];
+const ROLES: [&str; 4] = ["admin", "analista", "consulta", "operador"];
 const HORAS_DE_SESION: i64 = 12;
 
 fn huella_de_clave(clave: &str) -> Result<String, String> {
@@ -2114,7 +2143,7 @@ fn umbral_de_celda() -> i64 {
 
 /// ¿Quien consulta puede ver los conteos exactos? Solo analistas y administradores con sesión.
 async fn ve_conteos_exactos(e: &Estado, cabeceras: &HeaderMap) -> bool {
-    matches!(sesion_de(e, cabeceras).await, Ok(Some(s)) if s.rol != "consulta")
+    matches!(sesion_de(e, cabeceras).await, Ok(Some(s)) if s.rol == "admin" || s.rol == "analista")
 }
 
 /// Fallos seguidos de ingreso por usuario y hasta cuándo queda bloqueado.
@@ -2316,7 +2345,7 @@ async fn api_usuario_cambiar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, c
 // ---------------------------------------------------------------------------------------------
 
 /// Secciones del portal que un grupo puede tener.
-const SECCIONES: [&str; 22] = ["mapa", "proceso", "tableros", "recibir", "pendientes", "memoria", "resultados", "crecimiento", "vial", "operadores", "alimentaria", "construccion", "precios", "canasta", "rubros", "balance", "muestreos", "ine", "capas", "acerca", "perfil", "usuarios"];
+const SECCIONES: [&str; 23] = ["mapa", "proceso", "tableros", "recibir", "pendientes", "memoria", "resultados", "crecimiento", "vial", "operadores", "campo", "alimentaria", "construccion", "precios", "canasta", "rubros", "balance", "muestreos", "ine", "capas", "acerca", "perfil", "usuarios"];
 
 async fn api_grupos(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     solo_admin(&e, &cabeceras).await?;
@@ -2384,6 +2413,239 @@ async fn api_tablero_interpretar(State(e): State<Compartido>, Json(s): Json<Soli
         return Err(pedido("escriba la solicitud en una frase (hasta 500 caracteres)"));
     }
     Ok(Json(json!({ "interpretacion": tablero::interpretar(&s.texto, &e.catalogo), "indicadores": indicadores_de_tablero(), "tipos": tablero::TIPOS })))
+}
+
+// ---- Trabajo de campo ----
+
+/// Quien registra visitas: cualquier usuario con sesión cuyo grupo incluya «campo» (los operadores),
+/// además de coordinadores y administradores. La contraseña inicial bloquea también aquí.
+async fn operador_de_campo(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
+    let s = con_sesion(e, cabeceras).await?;
+    if s.debe_cambiar {
+        return Err(Fallo(StatusCode::FORBIDDEN, "antes de registrar visitas debe cambiar su contraseña inicial en «Mi perfil»".into()));
+    }
+    if s.rol == "consulta" || (s.rol != "admin" && s.secciones.as_ref().is_some_and(|v| !v.iter().any(|x| x == "campo" || x == "operadores"))) {
+        return Err(Fallo(StatusCode::FORBIDDEN, "su usuario no tiene acceso al trabajo de campo".into()));
+    }
+    Ok(s)
+}
+
+/// ¿Coordina el trabajo de campo? (crea rutas y ve las visitas de todos): administradores y
+/// analistas cuyo grupo incluye la sección «operadores».
+fn coordina_campo(s: &Sesion) -> bool {
+    s.rol == "admin" || (s.rol == "analista" && s.secciones.as_ref().is_none_or(|v| v.iter().any(|x| x == "operadores")))
+}
+
+/// Rutas con sus paradas y la última visita de cada una. Un operador ve las suyas; quien coordina, todas.
+async fn api_campo(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let s = operador_de_campo(&e, &cabeceras).await?;
+    let coordina = coordina_campo(&s);
+    let rutas = e.bd.query("SELECT r.id, r.nombre, r.operador_id, u.nombre, r.formulario <> '', r.largo_km, to_char(r.creada, 'YYYY-MM-DD'), r.creada_por FROM rutas_campo r JOIN usuarios u ON u.id = r.operador_id WHERE $1 OR r.operador_id = $2 ORDER BY r.id DESC LIMIT 200", &[&coordina, &s.id]).await.map_err(interno)?;
+    let ids: Vec<i64> = rutas.iter().map(|f| f.get(0)).collect();
+    let paradas = e
+        .bd
+        .query(
+            "SELECT p.id, p.ruta_id, p.orden, p.lugar, p.nombre, p.longitud, p.latitud, v.id, to_char(v.cuando, 'YYYY-MM-DD HH24:MI'), v.distancia_m, v.foto_clase, v.foto_confianza, v.coherencia, v.cruce, (SELECT count(*) FROM visitas_campo x WHERE x.parada_id = p.id)
+             FROM paradas_campo p LEFT JOIN LATERAL (SELECT * FROM visitas_campo v WHERE v.parada_id = p.id ORDER BY v.id DESC LIMIT 1) v ON TRUE WHERE p.ruta_id = ANY($1) ORDER BY p.ruta_id, p.orden",
+            &[&ids],
+        )
+        .await
+        .map_err(interno)?;
+    let de_ruta = |id: i64| -> Vec<Value> {
+        paradas.iter().filter(|p| p.get::<_, i64>(1) == id).map(|p| {
+            let lugar: String = p.get(3);
+            json!({ "id": p.get::<_, i64>(0), "orden": p.get::<_, i32>(2), "nombre": p.get::<_, String>(4), "longitud": p.get::<_, f64>(5), "latitud": p.get::<_, f64>(6),
+                "municipio": e.catalogo.por_codigo(lugar.get(..4).unwrap_or("")).map(|l| l.nombre.clone()), "techo": e.techo_lugar.get(&lugar).map(|(m, pct)| json!({ "material": m, "pct": (pct * 10.0).round() / 10.0 })), "lugar": lugar,
+                "visitas": p.get::<_, i64>(14), "visita": p.get::<_, Option<i64>>(7).map(|v| json!({ "id": v, "cuando": p.get::<_, Option<String>>(8), "distancia_m": p.get::<_, Option<f32>>(9), "foto_clase": p.get::<_, Option<String>>(10), "foto_confianza": p.get::<_, Option<f32>>(11), "coherencia": p.get::<_, Option<String>>(12), "cruce": p.get::<_, Option<Value>>(13) })) })
+        }).collect()
+    };
+    let operadores = if coordina {
+        e.bd.query("SELECT u.id, u.nombre, u.usuario, u.rol, g.nombre FROM usuarios u LEFT JOIN grupos g ON g.id = u.grupo_id WHERE u.activo AND (u.rol = 'operador' OR 'campo' = ANY(g.secciones)) ORDER BY u.nombre", &[]).await.map_err(interno)?
+            .iter().map(|f| json!({ "id": f.get::<_, i64>(0), "nombre": f.get::<_, String>(1), "usuario": f.get::<_, String>(2), "grupo": f.get::<_, Option<String>>(4) })).collect()
+    } else {
+        Vec::new()
+    };
+    Ok(Json(json!({ "coordina": coordina, "operadores": operadores, "formularios_admitidos": e.formularios, "clasificador": clasificador_de_fotos().map(|c| c.descripcion()),
+        "reglas": { "cerca_m": campo::CERCA_M, "lejos_m": campo::LEJOS_M, "confianza_minima": campo::CONFIANZA_MINIMA },
+        "rutas": rutas.iter().map(|f| { let id: i64 = f.get(0); json!({ "id": id, "nombre": f.get::<_, String>(1), "operador_id": f.get::<_, i64>(2), "operador": f.get::<_, String>(3), "con_formulario": f.get::<_, bool>(4), "largo_km": f.get::<_, f32>(5), "creada": f.get::<_, String>(6), "creada_por": f.get::<_, String>(7), "paradas": de_ruta(id) }) }).collect::<Vec<_>>() })))
+}
+
+#[derive(Deserialize)]
+struct RutaNueva {
+    nombre: String,
+    operador_id: i64,
+    #[serde(default)]
+    formulario: String,
+    /// Códigos de lugar poblado del INE (siete dígitos).
+    lugares: Vec<String>,
+}
+
+/// Crea una ruta: valida el formulario, toma las coordenadas del catálogo y ordena las paradas.
+async fn api_campo_ruta(State(e): State<Compartido>, cabeceras: HeaderMap, Json(r): Json<RutaNueva>) -> Res<Json<Value>> {
+    let quien = autorizar_en(&e, &cabeceras, "operadores").await?;
+    let nombre = r.nombre.trim();
+    if nombre.is_empty() || nombre.chars().count() > 120 {
+        return Err(pedido("la ruta necesita un nombre de hasta 120 caracteres"));
+    }
+    campo::formulario_admitido(r.formulario.trim(), &e.formularios).map_err(pedido)?;
+    if r.lugares.is_empty() || r.lugares.len() > 80 {
+        return Err(pedido("una ruta lleva entre 1 y 80 paradas"));
+    }
+    let existe = e.bd.query_opt("SELECT 1 FROM usuarios u LEFT JOIN grupos g ON g.id = u.grupo_id WHERE u.id = $1 AND u.activo AND (u.rol = 'operador' OR 'campo' = ANY(g.secciones))", &[&r.operador_id]).await.map_err(interno)?;
+    if existe.is_none() {
+        return Err(pedido("ese usuario no es un operador de campo activo"));
+    }
+    // Solo lugares poblados del catálogo y con coordenadas: el sistema no inventa dónde queda un lugar.
+    let mut paradas: Vec<(&faro_homologa::Lugar, (f64, f64))> = Vec::new();
+    for codigo in &r.lugares {
+        let l = e.catalogo.por_codigo(codigo.trim()).filter(|l| l.nivel == Nivel::LugarPoblado).ok_or_else(|| pedido(format!("{codigo}: no es un lugar poblado del catálogo")))?;
+        let (Some(lon), Some(lat)) = (l.longitud, l.latitud) else { return Err(pedido(format!("{} ({codigo}) no tiene coordenadas en el catálogo", l.nombre))) };
+        if !paradas.iter().any(|(x, _)| x.codigo == l.codigo) {
+            paradas.push((l, (lon, lat)));
+        }
+    }
+    let puntos: Vec<(f64, f64)> = paradas.iter().map(|p| p.1).collect();
+    let orden = campo::ordenar_ruta(&puntos);
+    let km = campo::largo_m(&puntos, &orden) / 1000.0;
+    let id: i64 = e.bd.query_one("INSERT INTO rutas_campo (nombre, operador_id, formulario, largo_km, creada_por) VALUES ($1,$2,$3,$4,$5) RETURNING id", &[&nombre, &r.operador_id, &r.formulario.trim(), &(km as f32), &quien.nombre]).await.map_err(interno)?.get(0);
+    for (n, i) in orden.iter().enumerate() {
+        let (l, (lon, lat)) = &paradas[*i];
+        e.bd.execute("INSERT INTO paradas_campo (ruta_id, orden, lugar, nombre, longitud, latitud) VALUES ($1,$2,$3,$4,$5,$6)", &[&id, &(n as i32 + 1), &l.codigo, &l.nombre, lon, lat]).await.map_err(interno)?;
+    }
+    bitacora(&e, &quien.nombre, "ruta_de_campo_creada", &format!("n.º {id}: {nombre} ({} paradas)", paradas.len())).await;
+    Ok(Json(json!({ "id": id, "paradas": paradas.len(), "largo_km": (km * 10.0).round() / 10.0 })))
+}
+
+async fn api_campo_ruta_borrar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let quien = autorizar_en(&e, &cabeceras, "operadores").await?;
+    let n = e.bd.execute("DELETE FROM rutas_campo WHERE id = $1", &[&id]).await.map_err(interno)?;
+    if n == 0 {
+        return Err(pedido("no existe esa ruta"));
+    }
+    bitacora(&e, &quien.nombre, "ruta_de_campo_borrada", &format!("n.º {id}")).await;
+    Ok(Json(json!({ "borrada": id })))
+}
+
+#[derive(Deserialize)]
+struct VisitaNueva {
+    parada_id: i64,
+    longitud: Option<f64>,
+    latitud: Option<f64>,
+    precision_m: Option<f64>,
+    /// Foto en JPEG o PNG, codificada en base64 (sin el prefijo «data:»). No se guarda.
+    #[serde(default)]
+    foto: String,
+    #[serde(default)]
+    notas: String,
+}
+
+/// Registra una visita: posición del teléfono, foto (se clasifica y se descarta) y cruce con el
+/// satélite y el censo. Devuelve el resultado y la dirección del formulario ya llena.
+async fn api_campo_visita(State(e): State<Compartido>, cabeceras: HeaderMap, Json(v): Json<VisitaNueva>) -> Res<Json<Value>> {
+    let quien = operador_de_campo(&e, &cabeceras).await?;
+    let p = e.bd.query_opt("SELECT p.lugar, p.nombre, p.longitud, p.latitud, r.operador_id, r.formulario, r.id FROM paradas_campo p JOIN rutas_campo r ON r.id = p.ruta_id WHERE p.id = $1", &[&v.parada_id]).await.map_err(interno)?.ok_or_else(|| pedido("no existe esa parada"))?;
+    if p.get::<_, i64>(4) != quien.id && !coordina_campo(&quien) {
+        return Err(Fallo(StatusCode::FORBIDDEN, "esa parada es de la ruta de otro operador".into()));
+    }
+    let (lugar, nombre): (String, String) = (p.get(0), p.get(1));
+    // La posición vale solo si es un punto real del planeta; lo demás se toma como «sin posición».
+    let posicion = v.longitud.zip(v.latitud).filter(|(lon, lat)| lon.is_finite() && lat.is_finite() && lon.abs() <= 180.0 && lat.abs() <= 90.0);
+    let precision = v.precision_m.filter(|x| x.is_finite() && *x >= 0.0 && *x < 100_000.0);
+    let distancia = posicion.map(|pos| campo::distancia_m(pos, (p.get(2), p.get(3))));
+    // Bloque de 1 km más cercano a la posición: vale si su centro está a menos de 750 m (dentro del bloque o pegado a él).
+    let bloque = posicion.and_then(|pos| e.uso_bloques.iter().map(|b| (campo::distancia_m(pos, (b.0, b.1)), b)).filter(|(d, _)| *d <= 750.0).min_by(|a, b| a.0.total_cmp(&b.0)).map(|(_, b)| *b));
+    let mut foto = None;
+    let mut foto_detalle = Value::Null;
+    if !v.foto.is_empty() {
+        if v.foto.len() > 4_000_000 {
+            return Err(pedido("la foto es demasiado grande: envíela reducida (el portal la reduce solo antes de enviarla)"));
+        }
+        let bytes = de_base64(&v.foto).ok_or_else(|| pedido("la foto no llegó bien codificada"))?;
+        match clasificador_de_fotos() {
+            Some(c) => {
+                // La clasificación ocupa procesador: se hace fuera del hilo que atiende las demás consultas.
+                let r = tokio::task::spawn_blocking(move || c.clasificar(&bytes)).await.map_err(interno)?.map_err(pedido)?;
+                foto = Some((r.clase.clone(), r.confianza));
+                foto_detalle = json!(r);
+            }
+            None => foto_detalle = json!({ "aviso": "el clasificador de fotos no está instalado en este servidor: la foto no se evaluó" }),
+        }
+    }
+    let evidencia = campo::Evidencia { distancia_m: distancia, precision_m: precision, foto: foto.clone(), construido_ha: bloque.map(|b| b.2), no_residencial_ha: bloque.map(|b| b.3), hay_satelite: !e.uso_bloques.is_empty(), techo: e.techo_lugar.get(&lugar).cloned() };
+    let cruce = campo::cruzar(&evidencia);
+    let notas: String = v.notas.trim().chars().take(500).collect();
+    let fila = e
+        .bd
+        .query_one(
+            "INSERT INTO visitas_campo (parada_id, operador, longitud, latitud, precision_m, distancia_m, foto_clase, foto_confianza, coherencia, cruce, notas) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id, to_char(cuando, 'YYYY-MM-DD\"T\"HH24:MI')",
+            &[&v.parada_id, &quien.nombre, &posicion.map(|x| x.0), &posicion.map(|x| x.1), &precision.map(|x| x as f32), &distancia.map(|x| x as f32), &foto.as_ref().map(|f| f.0.clone()), &foto.as_ref().map(|f| f.1), &cruce.coherencia, &json!({ "cruce": cruce, "foto": foto_detalle }), &notas],
+        )
+        .await
+        .map_err(interno)?;
+    let (id, cuando): (i64, String) = (fila.get(0), fila.get(1));
+    let plantilla: String = p.get(5);
+    let formulario = (!plantilla.is_empty()).then(|| campo::enlace_formulario(&plantilla, &[("visita", id.to_string()), ("lugar", lugar.clone()), ("nombre", nombre.clone()), ("municipio", lugar.get(..4).unwrap_or("").to_string()),
+        ("latitud", posicion.map(|x| format!("{:.6}", x.1)).unwrap_or_default()), ("longitud", posicion.map(|x| format!("{:.6}", x.0)).unwrap_or_default()), ("precision", precision.map(|x| format!("{x:.0}")).unwrap_or_default()), ("operador", quien.usuario.clone()), ("fecha", cuando.clone())]));
+    bitacora(&e, &quien.nombre, "visita_de_campo", &format!("visita n.º {id} en {nombre} ({lugar}): {}", cruce.coherencia)).await;
+    Ok(Json(json!({ "id": id, "cuando": cuando, "distancia_m": distancia.map(|d| d.round()), "cruce": cruce, "foto": foto_detalle, "formulario": formulario })))
+}
+
+/// Visitas en CSV, para unirlas con las respuestas del formulario por el número de visita.
+async fn api_campo_visitas_csv(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Response> {
+    autorizar_en(&e, &cabeceras, "operadores").await?;
+    let filas = e.bd.query("SELECT v.id, to_char(v.cuando, 'YYYY-MM-DD HH24:MI'), r.nombre, v.operador, p.orden, p.lugar, p.nombre, v.latitud, v.longitud, v.precision_m, v.distancia_m, v.foto_clase, v.foto_confianza, v.coherencia, v.cruce->'cruce'->'dudas', v.notas FROM visitas_campo v JOIN paradas_campo p ON p.id = v.parada_id JOIN rutas_campo r ON r.id = p.ruta_id ORDER BY v.id", &[]).await.map_err(interno)?;
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_writer(Vec::new());
+    w.write_record(["visita", "cuando", "ruta", "operador", "parada", "lugar_poblado", "nombre", "latitud", "longitud", "precision_m", "distancia_al_punto_m", "foto_clase", "foto_confianza", "coherencia", "dudas", "notas"]).map_err(interno)?;
+    let t = |x: Option<f64>, d: usize| x.map(|v| format!("{v:.d$}")).unwrap_or_default();
+    for f in &filas {
+        let dudas = f.get::<_, Option<Value>>(14).and_then(|d| d.as_array().map(|a| a.iter().filter_map(|x| x.as_str()).collect::<Vec<_>>().join("; "))).unwrap_or_default();
+        w.write_record([f.get::<_, i64>(0).to_string(), f.get(1), f.get(2), f.get(3), f.get::<_, i32>(4).to_string(), f.get(5), f.get(6), t(f.get(7), 6), t(f.get(8), 6), t(f.get::<_, Option<f32>>(9).map(f64::from), 0), t(f.get::<_, Option<f32>>(10).map(f64::from), 0),
+            f.get::<_, Option<String>>(11).unwrap_or_default(), t(f.get::<_, Option<f32>>(12).map(f64::from), 2), f.get(13), dudas, f.get(15)]).map_err(interno)?;
+    }
+    let cuerpo = w.into_inner().map_err(interno)?;
+    use axum::http::header;
+    Ok(([(header::CONTENT_TYPE, "text/csv; charset=utf-8"), (header::CONTENT_DISPOSITION, "attachment; filename=\"visitas_de_campo.csv\"")], cuerpo).into_response())
+}
+
+/// Decodifica base64 estándar (con o sin relleno). Se escribe aquí para no sumar una dependencia por una sola función.
+fn de_base64(texto: &str) -> Option<Vec<u8>> {
+    let mut salida = Vec::with_capacity(texto.len() * 3 / 4);
+    let (mut acumulado, mut bits) = (0u32, 0u32);
+    for c in texto.bytes().filter(|c| !c.is_ascii_whitespace() && *c != b'=') {
+        let v = match c { b'A'..=b'Z' => c - b'A', b'a'..=b'z' => c - b'a' + 26, b'0'..=b'9' => c - b'0' + 52, b'+' | b'-' => 62, b'/' | b'_' => 63, _ => return None };
+        acumulado = (acumulado << 6) | v as u32;
+        bits += 6;
+        if bits >= 8 {
+            bits -= 8;
+            salida.push((acumulado >> bits) as u8);
+            acumulado &= (1 << bits) - 1;
+        }
+    }
+    Some(salida)
+}
+
+/// Clasificador de fotos de fachada, si el modelo está instalado. Se carga una sola vez.
+fn clasificador_de_fotos() -> Option<&'static Clasificador> {
+    static UNICO: std::sync::OnceLock<Option<Clasificador>> = std::sync::OnceLock::new();
+    UNICO.get_or_init(Clasificador::cargar).as_ref()
+}
+
+/// Resultado de clasificar una foto.
+#[derive(Debug, Clone, serde::Serialize)]
+struct FotoClasificada {
+    /// "vivienda", "comercio" u "otro".
+    clase: String,
+    confianza: f32,
+    /// Las escenas más probables según el modelo, con su probabilidad.
+    escenas: Vec<(String, f32)>,
+}
+
+/// Todavía sin modelo instalado: `cargar` devuelve `None` y las visitas se registran sin evaluar la foto.
+struct Clasificador;
+impl Clasificador {
+    fn cargar() -> Option<Self> { None }
+    fn descripcion(&self) -> String { String::new() }
+    fn clasificar(&self, _foto: &[u8]) -> Result<FotoClasificada, String> { Err("sin modelo".into()) }
 }
 
 /// Deja constancia de una acción en la bitácora. Si la escritura falla no se interrumpe la acción:

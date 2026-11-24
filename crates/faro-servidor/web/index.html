@@ -39,7 +39,7 @@
   .panel { background:#fff; border:1px solid var(--borde); border-radius:var(--radio); padding:18px; margin-bottom:16px; box-shadow:0 1px 2px rgba(7,48,107,.04); }
   h2 { font-size:17px; margin:0 0 8px; color:var(--azul-oscuro); } p.nota { color:var(--gris); font-size:14px; margin:6px 0 12px; max-width:95ch; }
   label { display:block; font-weight:600; margin:10px 0 4px; font-size:14px; }
-  select, input[type=text], input[type=password], input[type=number], input[type=file] { width:100%; max-width:520px; padding:8px 10px; font:inherit; border:1px solid #8a96a3; border-radius:7px; background:#fff; color:var(--tinta); }
+  select, input[type=text], input[type=password], input[type=number], input[type=file], input[type=search], input[type=url] { width:100%; max-width:520px; padding:8px 10px; font:inherit; border:1px solid #8a96a3; border-radius:7px; background:#fff; color:var(--tinta); }
   button.accion { background:var(--azul); color:#fff; border:0; border-radius:7px; padding:9px 16px; font:inherit; font-weight:600; cursor:pointer; margin-top:12px; }
   button.accion:hover { background:var(--azul-oscuro); }
   button.accion:disabled { opacity:.5; cursor:wait; } button.chico { padding:4px 10px; margin:0 4px 4px 0; font-size:14px; font-weight:500; }
@@ -97,6 +97,12 @@
   .pieza svg { width:100%; height:auto; display:block; } .pieza .tabla { max-height:340px; }
   .barrah { display:grid; grid-template-columns:minmax(90px, 34%) 1fr auto; gap:8px; align-items:center; font-size:13px; margin:3px 0; } .barrah i { display:block; height:14px; border-radius:3px; background:var(--azul); min-width:2px; } .barrah span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .barrah b { font-variant-numeric:tabular-nums; }
   @media (max-width: 1100px) { .tablero { grid-template-columns:repeat(2, minmax(0, 1fr)); } } @media (max-width: 700px) { .tablero { grid-template-columns:1fr; } .pieza, .pieza.tarjeta { grid-column:span 1; } }
+  .paradas { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px; margin-bottom:16px; }
+  .parada { background:#fff; border:1px solid var(--borde); border-left:5px solid #c2c9d2; border-radius:var(--radio); padding:12px 14px; display:flex; flex-direction:column; gap:4px; } .parada.coherente { border-left-color:var(--ok); } .parada.revisar { border-left-color:#f5a623; } .parada.sin_datos { border-left-color:var(--celeste); }
+  .parada h3 { margin:0; font-size:15px; color:var(--azul-oscuro); } .parada small { color:var(--gris); } .parada .acc { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; } .parada .acc .accion { margin:0; text-decoration:none; }
+  .marca-parada { background:#07306b; color:#fff; border:2px solid #fff; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font:700 12px "Noto Sans", sans-serif; box-shadow:0 1px 4px rgba(0,0,0,.4); } .marca-parada.coherente { background:#1a7f4b; } .marca-parada.revisar { background:#c77700; } .marca-parada.sin_datos { background:#4d9ae1; }
+  .veredicto { border-radius:8px; padding:10px 12px; margin:10px 0; font-size:14px; } .veredicto.coherente { background:#e8f6ee; border:1px solid #b5e0c7; } .veredicto.revisar { background:#fff7e6; border:1px solid #f3d9a4; } .veredicto.sin_datos { background:var(--cielo); border:1px solid #cfe1f7; } .veredicto ul { margin:4px 0 0; padding-left:18px; } .veredicto b.t { font-size:15px; }
+  #campovisita { max-width:560px; width:calc(100% - 24px); } #cvvista img { max-width:100%; max-height:200px; border-radius:8px; margin-top:8px; display:block; }
   .galeria { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:12px; }
   .tarj-tab { border:1px solid var(--borde); border-top:3px solid var(--celeste); border-radius:var(--radio); background:#fff; padding:12px 14px; display:flex; flex-direction:column; gap:6px; } .tarj-tab.borrador { border-top-color:#c2c9d2; }
   .tarj-tab h3 { margin:0; font-size:15px; color:var(--azul-oscuro); } .tarj-tab small { color:var(--gris); } .tarj-tab p { margin:0; font-size:13px; } .tarj-tab .acc { margin-top:auto; padding-top:6px; display:flex; flex-wrap:wrap; gap:6px; } .tarj-tab .acc button { margin:0; }
@@ -105,7 +111,7 @@
   .barra-fil { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; background:var(--cielo); border:1px solid #cfe1f7; border-radius:var(--radio); padding:8px 10px; margin-bottom:10px; font-size:13.5px; } .barra-fil label { margin:0; font-weight:600; display:inline-flex; align-items:center; gap:6px; } .barra-fil select, .barra-fil input { padding:5px 8px; max-width:220px; } .barra-fil button { margin:0; }
   .barra-fil .cond { display:inline-flex; flex-wrap:wrap; align-items:center; gap:4px; background:#fff; border:1px solid #cfe1f7; border-radius:10px; padding:3px 4px 3px 6px; } .barra-fil .cond input { width:96px; } .barra-fil .cond button { border:0; background:none; cursor:pointer; color:var(--gris); min-width:28px; min-height:28px; font-size:14px; }
   .estudio { display:grid; grid-template-columns:232px minmax(0, 1fr) 272px; gap:12px; align-items:start; } .estudio.vista { grid-template-columns:minmax(0, 1fr); } .vista .solo-edicion, .barra-est.vista .solo-edicion { display:none; }
-  .est-lado { background:#fff; border:1px solid var(--borde); border-radius:var(--radio); padding:10px 12px; position:sticky; top:62px; max-height:calc(100vh - 140px); overflow:auto; font-size:13.5px; } .est-lado h3 { font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--gris); margin:14px 0 6px; } .est-lado label { margin:10px 0 3px; font-size:13px; } .est-lado input, .est-lado select, .est-lado textarea { max-width:none; width:100%; } .est-lado input[type=search] { padding:7px 10px; border:1px solid #8a96a3; border-radius:7px; font:inherit; }
+  .est-lado { background:#fff; border:1px solid var(--borde); border-radius:var(--radio); padding:10px 12px; position:sticky; top:62px; max-height:calc(100vh - 140px); overflow:auto; font-size:13.5px; } .est-lado h3 { font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--gris); margin:14px 0 6px; } .est-lado label { margin:10px 0 3px; font-size:13px; } .est-lado input, .est-lado select, .est-lado textarea { max-width:none; width:100%; }
   .pieza svg.alto { max-height:380px; }
   .viz { display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; } .viz button { border:1px solid var(--borde); background:#fff; border-radius:8px; padding:6px 2px 4px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; font:inherit; font-size:10.5px; color:var(--gris); min-height:52px; } .viz button svg { width:24px; height:24px; } .viz button:hover, .viz button[aria-pressed=true] { border-color:var(--azul); background:var(--cielo); color:var(--azul-oscuro); }
   .datos-ind { list-style:none; margin:6px 0 0; padding:0; max-height:240px; overflow:auto; } .datos-ind button { width:100%; text-align:left; border:0; background:none; font:inherit; font-size:13px; padding:6px; border-radius:6px; cursor:pointer; color:var(--tinta, #1f2a37); } .datos-ind button:hover { background:var(--cielo); } .datos-ind button[aria-pressed=true] { background:var(--cielo); font-weight:600; color:var(--azul-oscuro); } .datos-ind small { color:var(--gris); }
@@ -153,7 +159,7 @@
     nav { inset:63px 0 0 0; padding-bottom:60px; } nav button { min-height:44px; font-size:16px; }
     main { padding:12px 10px 60px; } .titulo h2 { font-size:19px; } .titulo p { font-size:14px; }
     .panel { padding:12px; } .tarjetas { grid-template-columns:1fr 1fr; gap:8px; } .tarjeta { padding:9px 10px; } .tarjeta b { font-size:19px; }
-    select, input[type=text], input[type=password], input[type=number], input[type=file] { font-size:16px; max-width:none; }
+    select, input[type=text], input[type=password], input[type=number], input[type=file], input[type=search], input[type=url] { font-size:16px; max-width:none; }
     button.accion { min-height:44px; } button.chico { min-height:36px; }
     table { font-size:13px; } th, td { padding:6px 7px; } small, td small, th small, .tarjeta small, .mini small, .pieza small { font-size:12px; } .barrah { font-size:12.5px; } .tabla { max-height:62vh; -webkit-overflow-scrolling:touch; }
     #lienzo { height:58vh; min-height:340px; }
@@ -196,6 +202,7 @@
   <button data-s="crecimiento">Población y crecimiento</button>
   <button data-s="vial">Red vial</button>
   <button data-s="operadores">Operadores de campo</button>
+  <button data-s="campo" class="de-campo" hidden>Mi ruta de campo</button>
   <button data-s="alimentaria">Seguridad alimentaria</button>
   <h3>Precios</h3>
   <button data-s="construccion">Materiales de construcción</button>
@@ -349,6 +356,42 @@
       <div class="tabla" style="margin-top:12px"><table id="tasig"></table></div>
       <p class="proc" data-proc="operadores"></p>
     </div>
+    <div class="panel con-sesion" id="campocoord" hidden>
+      <h2>Rutas de campo y visitas</h2>
+      <p class="nota">Cada operador entra con su usuario, ve su ruta en «Mi ruta de campo» y registra cada visita: el teléfono entrega la posición, la foto del lugar se clasifica y se descarta, y se abre la encuesta con el lugar y la posición ya escritos. Aquí se arman las rutas y se revisan las visitas. Las paradas son lugares poblados del Censo 2018; el orden lo propone el portal para acortar el recorrido (en línea recta, no por carretera).</p>
+      <div class="filtros">
+        <div style="flex:2 1 240px"><label for="crnombre">Nombre de la ruta</label><input type="text" id="crnombre" maxlength="120" placeholder="Por ejemplo: Encuesta de hogares, Sololá, semana 48" style="max-width:none"></div>
+        <div><label for="croperador">Operador</label><select id="croperador"></select></div>
+        <div><label for="crdep">Departamento</label><select id="crdep"></select></div>
+        <div><label for="crmun">Municipio</label><select id="crmun" disabled></select></div>
+      </div>
+      <label for="crform">Dirección del formulario de la encuesta (opcional)</label><input type="url" id="crform" maxlength="1500" placeholder="https://forms.office.com/r/…?r1={lugar}&amp;r2={latitud}&amp;r3={longitud}" style="max-width:none">
+      <details class="como"><summary>Cómo conectar Microsoft Forms</summary><ol>
+        <li>En Microsoft Forms abra la encuesta, menú «…» → <b>Obtener dirección URL rellenada previamente</b> (o «Get Pre-filled URL»).</li>
+        <li>Escriba en las preguntas de control un texto que reconozca (por ejemplo LUGAR, LATITUD, LONGITUD, VISITA) y copie el enlace.</li>
+        <li>Péguelo aquí y cambie cada texto por su marcador: <code>{lugar}</code> (código INE del lugar poblado), <code>{nombre}</code>, <code>{municipio}</code>, <code>{latitud}</code>, <code>{longitud}</code>, <code>{precision}</code> (metros), <code>{operador}</code>, <code>{fecha}</code> y <code>{visita}</code> (número de la visita en FARO).</li>
+        <li>Al registrar la visita, el operador recibe el enlace ya lleno. Las respuestas de Forms traen el número de visita, así que se unen con la tabla de visitas de FARO (botón «Descargar visitas»).</li></ol>
+        <p class="nota">FARO no lee las respuestas del formulario: para eso haría falta una cuenta de Microsoft 365 del INE. Servicios admitidos: <span id="crservicios"></span> (se cambian con <code>FARO_FORMULARIOS</code>).</p></details>
+      <label>Paradas: lugares poblados del municipio <span class="nota" id="crcuenta"></span></label>
+      <input type="search" id="crbuscar" placeholder="Filtrar por nombre" aria-label="Filtrar lugares poblados" style="max-width:320px"> <button class="accion chico suave" id="crtodos" type="button">Marcar los que se ven</button> <button class="accion chico suave" id="crninguno" type="button">Quitar todos</button>
+      <div class="casillas" id="crlugares" style="max-height:220px;overflow:auto;border:1px solid var(--borde);border-radius:8px;margin-top:6px"><span class="nota">Elija un municipio.</span></div>
+      <button class="accion" id="crcrear">Crear ruta</button> <a class="accion suave" id="crcsv" href="/api/campo/visitas.csv" style="text-decoration:none;display:inline-block">Descargar visitas (CSV)</a>
+      <h3>Rutas</h3><div class="tabla"><table id="trutas"></table></div>
+      <h3>Visitas registradas</h3><div class="tabla"><table id="tvisitas"></table></div>
+      <p class="nota" id="crmodelo"></p>
+    </div>
+  </section>
+  <section id="campo">
+    <div class="titulo"><h2>Mi ruta de campo</h2><p>Sus paradas en orden, el registro de cada visita con la posición del teléfono y una foto del lugar, y el enlace a la encuesta. El portal cruza la visita con lo que ve el satélite y con el censo, y dice si todo coincide o si conviene revisarla.</p></div>
+    <div class="aviso-suave" id="campoinseguro" hidden>Esta página se abrió sin conexión segura (HTTPS): los teléfonos no entregan la posición a páginas sin HTTPS. Puede registrar la visita, pero quedará marcada «sin posición». Pida a quien administra el portal que lo publique con HTTPS.</div>
+    <div class="panel">
+      <div class="filtros" style="align-items:flex-end"><div style="flex:1 1 260px"><label for="camporuta" style="margin-top:0">Ruta</label><select id="camporuta" style="max-width:none"></select></div>
+        <div><button class="accion chico suave" id="campoubicar" style="margin:0">Ver dónde estoy</button></div></div>
+      <div class="tarjetas" id="campotarjetas" style="margin-top:12px"></div>
+      <div id="campomapa" style="height:340px;border-radius:var(--radio);border:1px solid var(--borde);margin-top:12px" role="img" aria-label="Mapa de la ruta"></div>
+      <p class="nota" id="camponota"></p>
+    </div>
+    <div id="campoparadas" class="paradas"></div>
   </section>
 
   <section id="vial">
@@ -448,7 +491,7 @@
     <div class="panel"><h2>Crear usuario</h2>
       <label for="uusuario">Usuario (para entrar)</label><input type="text" id="uusuario" autocomplete="off" style="max-width:320px">
       <label for="unombre">Nombre</label><input type="text" id="unombre" autocomplete="off">
-      <label for="urol">Rol</label><select id="urol" style="max-width:320px"><option value="analista">Analista</option><option value="consulta">Consulta</option><option value="admin">Administrador</option></select>
+      <label for="urol">Rol</label><select id="urol" style="max-width:320px"><option value="analista">Analista</option><option value="consulta">Consulta</option><option value="operador">Operador de campo</option><option value="admin">Administrador</option></select>
       <label for="uclave">Contraseña inicial (al menos 10 caracteres, con letras y números o signos; deberá cambiarla al entrar)</label><input type="password" id="uclave" autocomplete="new-password" style="max-width:320px">
       <button class="accion" id="ucrear">Crear usuario</button></div>
   </section>
@@ -556,6 +599,19 @@
     <label for="iclave">Contraseña</label><input type="password" id="iclave" autocomplete="current-password" required>
     <p class="nota" id="ingerror" style="color:var(--mal);min-height:1.2em" aria-live="polite"></p>
     <button class="accion" type="submit" style="margin-top:0">Entrar</button></form></dialog>
+<dialog id="campovisita" aria-labelledby="cvtitulo"><button class="cerrar" aria-label="Cerrar" onclick="this.closest('dialog').close()">×</button>
+  <h2 id="cvtitulo" style="margin-right:30px">Registrar visita</h2>
+  <p class="nota" id="cvlugar" style="margin-top:0"></p>
+  <div id="cvpaso">
+    <h3>1 · Posición</h3><p id="cvpos" class="nota" aria-live="polite">Pidiendo la posición al dispositivo…</p><button class="accion chico suave" id="cvreintentar" type="button">Volver a pedir la posición</button>
+    <h3>2 · Foto del lugar (opcional)</h3>
+    <p class="nota" style="margin-top:0">Fotografíe la fachada, sin personas. La foto se reduce en su teléfono, se clasifica en el servidor (vivienda, comercio u otra cosa) y se descarta: no se guarda.</p>
+    <input type="file" id="cvfoto" accept="image/*" capture="environment" aria-label="Foto del lugar"><div id="cvvista"></div>
+    <h3>3 · Observación (opcional)</h3><textarea id="cvnotas" rows="2" maxlength="500" placeholder="Sin nombres ni datos de personas" aria-label="Observación"></textarea>
+    <p style="margin:12px 0 0"><button class="accion" id="cvregistrar" type="button">Registrar visita</button></p>
+  </div>
+  <div id="cvresultado" aria-live="polite"></div>
+</dialog>
 <dialog id="detalle" aria-labelledby="dettitulo"><button class="cerrar" aria-label="Cerrar" onclick="this.closest('dialog').close()">×</button><div id="detcuerpo"></div></dialog>
 <div id="aviso" role="status"></div>
 <script src="/vendor/leaflet.js"></script>
@@ -1424,6 +1480,99 @@ $('#tabpublicados').onclick = clicGaleria; $('#tabborradores').onclick = clicGal
 // Enlace directo a un tablero: /#tablero=12 abre la vista publicada.
 async function abrirDeEnlace() { const m = /^#tablero=(\d+)$/.exec(location.hash); if (!m) return false; document.querySelector('nav button[data-s=tableros]').click(); try { await abrirGuardado(m[1], false); } catch (x) { aviso(x.message, true); } return true; }
 window.addEventListener('hashchange', abrirDeEnlace);
+// ---- Trabajo de campo: ruta del operador, registro de visitas y coordinación ----
+// La posición la entrega el propio teléfono (API de geolocalización del navegador) en el momento de
+// registrar la visita; la foto se reduce aquí mismo antes de enviarla y el servidor no la guarda.
+let campoDatos = null, campoMapa = null, campoCapa = null, campoYo = null, cvParada = null, cvPos = null, cvFoto = '';
+const NOMBRE_CRUCE = {coherente:'Coherente', revisar:'Conviene revisar', sin_datos:'Sin datos para cruzar'};
+const metros = d => d == null ? '—' : d < 1000 ? num(Math.round(d)) + ' m' : num(d / 1000) + ' km';
+const rutaActual = () => campoDatos && campoDatos.rutas.find(r => String(r.id) === $('#camporuta').value);
+async function campo() {
+  campoDatos = await api('/api/campo'); $('#campoinseguro').hidden = window.isSecureContext;
+  const sel = $('#camporuta'), antes = sel.value; sel.innerHTML = campoDatos.rutas.map(r => `<option value="${r.id}">${esc(r.nombre)}${campoDatos.coordina ? ' · ' + esc(r.operador) : ''}</option>`).join(''); if (antes && campoDatos.rutas.some(r => String(r.id) === antes)) sel.value = antes;
+  pintarRuta();
+}
+function pintarRuta() {
+  const r = rutaActual(), cont = $('#campoparadas');
+  if (!r) { $('#campotarjetas').innerHTML = ''; cont.innerHTML = '<div class="panel"><p class="nota" style="margin:0">Todavía no tiene una ruta asignada. Las rutas las arma quien coordina el trabajo de campo, en «Operadores de campo».</p></div>'; $('#camponota').textContent = ''; if (campoCapa) campoCapa.clearLayers(); return; }
+  const hechas = r.paradas.filter(p => p.visita), revisar = hechas.filter(p => p.visita.coherencia === 'revisar').length;
+  $('#campotarjetas').innerHTML = [[r.paradas.length, 'paradas'], [hechas.length, 'visitadas'], [revisar, 'por revisar'], [num(r.largo_km) + ' km', 'recorrido en línea recta']].map(([n, t]) => `<div class="tarjeta"><b>${n}</b><small>${t}</small></div>`).join('');
+  $('#camponota').textContent = `Ruta de ${r.operador}, creada el ${r.creada} por ${r.creada_por}. ${r.con_formulario ? 'Tiene formulario: al registrar cada visita se abre la encuesta con el lugar y la posición ya escritos.' : 'No tiene formulario asociado.'}`;
+  cont.innerHTML = r.paradas.map(p => { const v = p.visita, c = v ? v.coherencia : '';
+    return `<div class="parada ${c}"><h3>${p.orden}. ${esc(p.nombre)}</h3><small>${esc(p.municipio || '')} · lugar poblado ${esc(p.lugar)}${p.techo ? ` · techo más frecuente: ${esc(p.techo.material)} (${num(p.techo.pct)} %)` : ''}</small>
+      ${v ? `<span><span class="etq">${NOMBRE_CRUCE[c] || c}</span> <small>${esc(v.cuando)} · ${v.distancia_m == null ? 'sin posición' : 'a ' + metros(v.distancia_m) + ' del punto'}${v.foto_clase ? ` · foto: ${esc(v.foto_clase)} (${num(v.foto_confianza * 100)} %)` : ''}${p.visitas > 1 ? ` · ${p.visitas} visitas` : ''}</small></span>${v.cruce && v.cruce.cruce.dudas.length ? `<small style="color:var(--alerta)">${v.cruce.cruce.dudas.map(esc).join(' · ')}</small>` : ''}` : '<small>Pendiente de visitar.</small>'}
+      <div class="acc"><button class="accion chico" data-visitar="${p.id}">${v ? 'Registrar otra visita' : 'Registrar visita'}</button><a class="accion chico suave" target="_blank" rel="noopener" href="https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&amp;route=${campoYo ? campoYo[0] + ',' + campoYo[1] : ''};${p.latitud},${p.longitud}">Cómo llegar</a></div></div>`; }).join('');
+  mapaDeRuta(r);
+}
+function mapaDeRuta(r) {
+  if (!campoMapa) { campoMapa = L.map('campomapa', {zoomControl: true, attributionControl: true}); L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '© OpenStreetMap'}).addTo(campoMapa); campoCapa = L.layerGroup().addTo(campoMapa); }
+  campoCapa.clearLayers(); const pts = r.paradas.map(p => [p.latitud, p.longitud]);
+  L.polyline(pts, {color: '#0051b3', weight: 3, opacity: .7, dashArray: '6 6'}).addTo(campoCapa);
+  r.paradas.forEach(p => L.marker([p.latitud, p.longitud], {icon: L.divIcon({className: '', html: `<div class="marca-parada ${p.visita ? p.visita.coherencia : ''}">${p.orden}</div>`, iconSize: [26, 26], iconAnchor: [13, 13]}), title: p.nombre}).bindPopup(`<b>${p.orden}. ${esc(p.nombre)}</b><br>${p.visita ? esc(NOMBRE_CRUCE[p.visita.coherencia] || '') : 'Pendiente'}`).addTo(campoCapa));
+  if (campoYo) L.circleMarker(campoYo, {radius: 8, color: '#fff', weight: 2, fillColor: '#e0561b', fillOpacity: 1}).bindPopup('Usted está aquí').addTo(campoCapa);
+  setTimeout(() => { campoMapa.invalidateSize(); if (pts.length) campoMapa.fitBounds(L.latLngBounds(campoYo ? [...pts, campoYo] : pts).pad(.2), {maxZoom: 15}); }, 60);
+}
+// Pide la posición al dispositivo. Devuelve {lat, lon, precision} o lanza un mensaje claro.
+function pedirPosicion() { return new Promise((bien, mal) => {
+  if (!window.isSecureContext) return mal(new Error('la página no usa HTTPS: el dispositivo no entrega la posición'));
+  if (!navigator.geolocation) return mal(new Error('este dispositivo no ofrece la posición'));
+  navigator.geolocation.getCurrentPosition(p => bien({lat: p.coords.latitude, lon: p.coords.longitude, precision: p.coords.accuracy}),
+    e => mal(new Error(e.code === 1 ? 'no dio permiso para usar la posición' : e.code === 3 ? 'el dispositivo tardó demasiado en dar la posición' : 'no se pudo obtener la posición')), {enableHighAccuracy: true, timeout: 20000, maximumAge: 0}); }); }
+$('#camporuta').onchange = pintarRuta;
+$('#campoubicar').onclick = async () => { try { const p = await pedirPosicion(); campoYo = [p.lat, p.lon]; pintarRuta(); aviso(`Posición recibida (± ${num(Math.round(p.precision))} m).`); } catch (x) { aviso('Sin posición: ' + x.message + '.', true); } };
+async function posicionDeVisita() { const r = rutaActual(), p = r && r.paradas.find(x => x.id === cvParada); $('#cvpos').textContent = 'Pidiendo la posición al dispositivo…';
+  try { cvPos = await pedirPosicion(); campoYo = [cvPos.lat, cvPos.lon]; const d = p ? distanciaM([cvPos.lon, cvPos.lat], [p.longitud, p.latitud]) : null;
+    $('#cvpos').innerHTML = `<b>${cvPos.lat.toFixed(5)}, ${cvPos.lon.toFixed(5)}</b> (± ${num(Math.round(cvPos.precision))} m)${d == null ? '' : ' · a ' + metros(d) + ' del punto del lugar poblado'}`; }
+  catch (x) { cvPos = null; $('#cvpos').innerHTML = `<span style="color:var(--alerta)">Sin posición: ${esc(x.message)}.</span> Puede registrar la visita igual; quedará marcada para revisar.`; } }
+const distanciaM = (a, b) => { const R = 6371008.8, r = Math.PI / 180, dlat = (b[1] - a[1]) * r, dlon = (b[0] - a[0]) * r, h = Math.sin(dlat / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin(dlon / 2) ** 2; return 2 * R * Math.asin(Math.min(1, Math.sqrt(h))); };
+$('#campoparadas').onclick = e => { const b = e.target.closest('button[data-visitar]'); if (!b) return; const r = rutaActual(), p = r.paradas.find(x => x.id === +b.dataset.visitar); cvParada = p.id; cvPos = null; cvFoto = '';
+  $('#cvlugar').textContent = `${p.orden}. ${p.nombre}, ${p.municipio || ''} · lugar poblado ${p.lugar}`; $('#cvfoto').value = ''; $('#cvvista').innerHTML = ''; $('#cvnotas').value = ''; $('#cvresultado').innerHTML = ''; $('#cvpaso').hidden = false; $('#cvregistrar').disabled = false;
+  $('#campovisita').showModal(); posicionDeVisita(); };
+$('#cvreintentar').onclick = posicionDeVisita;
+// La foto se reduce a 640 px de lado mayor antes de salir del teléfono: pesa poco y no lleva los metadatos del original.
+$('#cvfoto').onchange = async e => { const f = e.target.files[0]; cvFoto = ''; $('#cvvista').innerHTML = ''; if (!f) return;
+  try { const im = await createImageBitmap(f), k = Math.min(1, 640 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+    const url = c.toDataURL('image/jpeg', .82); cvFoto = url.split(',')[1]; $('#cvvista').innerHTML = `<img src="${url}" alt="Foto que se enviará"><small class="nota">${c.width} × ${c.height} px · ${num(Math.round(cvFoto.length * .75 / 1024))} KB</small>`; }
+  catch { aviso('No se pudo leer esa foto.', true); } };
+$('#cvregistrar').onclick = async () => { $('#cvregistrar').disabled = true;
+  try { const r = await api('/api/campo/visitas', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({parada_id: cvParada, latitud: cvPos && cvPos.lat, longitud: cvPos && cvPos.lon, precision_m: cvPos && cvPos.precision, foto: cvFoto, notas: $('#cvnotas').value})}), c = r.cruce, lista = (t, xs) => xs.length ? `<div><b>${t}</b><ul>${xs.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
+    $('#cvpaso').hidden = true;
+    $('#cvresultado').innerHTML = `<div class="veredicto ${c.coherencia}"><b class="t">Visita n.º ${r.id}: ${NOMBRE_CRUCE[c.coherencia]}</b>${lista('Coincide', c.a_favor)}${lista('Conviene revisar', c.dudas)}${lista('Contexto', c.notas)}</div>
+      ${r.foto && r.foto.escenas ? `<p class="nota">Lo que el modelo ve en la foto: ${r.foto.escenas.map(([n, p]) => `${esc(n)} ${num(p * 100)} %`).join(' · ')}. La foto ya se descartó.</p>` : r.foto && r.foto.aviso ? `<p class="nota">${esc(r.foto.aviso)}.</p>` : ''}
+      ${r.formulario ? `<p><a class="accion" id="cvabrir" target="_blank" rel="noopener" href="${esc(r.formulario)}" style="text-decoration:none;display:inline-block">Abrir la encuesta</a></p><p class="nota">Se abre con el lugar, la posición y el número de visita ya escritos.</p>` : '<p class="nota">Esta ruta no tiene formulario asociado.</p>'}`;
+    campo().catch(() => {}); }
+  catch (x) { aviso(x.message, true); $('#cvregistrar').disabled = false; } };
+// Coordinación: armar rutas y revisar visitas (dentro de «Operadores de campo»).
+let crLugares = [], crMarcados = new Set();
+async function campoCoordinar() {
+  const panel = $('#campocoord'); if (!yo || yo.rol === 'consulta' || yo.rol === 'operador') { panel.hidden = true; return; }
+  let d; try { d = await api('/api/campo'); } catch { panel.hidden = true; return; } panel.hidden = !d.coordina; if (!d.coordina) return; campoDatos = d;
+  $('#croperador').innerHTML = d.operadores.map(o => `<option value="${o.id}">${esc(o.nombre)} (${esc(o.usuario)})</option>`).join('') || '<option value="">No hay operadores: créelos en «Usuarios» con el rol Operador de campo</option>';
+  $('#crservicios').textContent = d.formularios_admitidos.join(', ');
+  $('#crmodelo').textContent = d.clasificador ? 'Clasificador de fotos instalado: ' + d.clasificador + '. Su resultado nunca decide: solo marca la visita para que alguien la revise.' : 'El clasificador de fotos no está instalado en este servidor: las visitas se registran y se cruzan con la posición, el satélite y el censo, pero la foto no se evalúa.';
+  if (!$('#crdep').options.length) { const g = await geoDeMunicipios(), deps = [...new Map(g.features.map(f => [f.properties.departamento_codigo, f.properties.departamento])).entries()].sort((a, b) => a[1].localeCompare(b[1])); $('#crdep').innerHTML = '<option value="">Elija…</option>' + deps.map(([c, n]) => `<option value="${esc(c)}">${esc(n)}</option>`).join(''); }
+  const visitadas = r => r.paradas.filter(p => p.visita).length;
+  tabla('#trutas', [{t:'Ruta', f:r => `<b>${esc(r.nombre)}</b><br><small>creada el ${esc(r.creada)} por ${esc(r.creada_por)}</small>`}, {t:'Operador', f:r => esc(r.operador)}, {t:'Paradas (cantidad)', num:1, f:r => num(r.paradas.length)}, {t:'Visitadas (cantidad)', num:1, f:r => num(visitadas(r))},
+    {t:'Por revisar (cantidad)', num:1, f:r => num(r.paradas.filter(p => p.visita && p.visita.coherencia === 'revisar').length)}, {t:'Recorrido (km)', num:1, f:r => num(r.largo_km)}, {t:'Formulario', f:r => r.con_formulario ? 'sí' : 'no'},
+    {t:'', f:r => `<button class="accion chico suave" data-verruta="${r.id}">Ver</button><button class="accion chico suave" data-borrarruta="${r.id}">Borrar</button>`}], d.rutas, 'Todavía no hay rutas.');
+  const visitas = d.rutas.flatMap(r => r.paradas.filter(p => p.visita).map(p => ({r, p, v: p.visita}))).sort((a, b) => b.v.id - a.v.id);
+  tabla('#tvisitas', [{t:'Visita', f:x => 'n.º ' + x.v.id}, {t:'Cuándo', f:x => esc(x.v.cuando)}, {t:'Operador', f:x => esc(x.r.operador)}, {t:'Lugar poblado', f:x => `${esc(x.p.nombre)}<br><small>${esc(x.p.municipio || '')} · ${esc(x.p.lugar)}</small>`},
+    {t:'Distancia al punto', num:1, f:x => metros(x.v.distancia_m)}, {t:'Foto', f:x => x.v.foto_clase ? `${esc(x.v.foto_clase)} (${num(x.v.foto_confianza * 100)} %)` : '—'},
+    {t:'Resultado', f:x => `<span class="etq">${NOMBRE_CRUCE[x.v.coherencia] || esc(x.v.coherencia)}</span>${x.v.cruce && x.v.cruce.cruce.dudas.length ? `<small class="pista">${x.v.cruce.cruce.dudas.map(esc).join(' · ')}</small>` : ''}`}], visitas, 'Todavía no hay visitas registradas.');
+}
+function pintarLugaresRuta() { const b = basicoJs($('#crbuscar').value), ver = crLugares.filter(l => !b || basicoJs(l.nombre).includes(b));
+  $('#crlugares').innerHTML = ver.map(l => `<label><input type="checkbox" value="${esc(l.codigo)}" ${crMarcados.has(l.codigo) ? 'checked' : ''}> ${esc(l.nombre)}</label>`).join('') || '<span class="nota">Ningún lugar con ese nombre.</span>'; $('#crcuenta').textContent = `(${crMarcados.size} marcadas de ${crLugares.length})`; }
+$('#crdep').onchange = async () => { const g = await geoDeMunicipios(), ms = g.features.map(f => f.properties).filter(p => p.departamento_codigo === $('#crdep').value).sort((a, b) => a.nombre.localeCompare(b.nombre)); $('#crmun').disabled = !ms.length; $('#crmun').innerHTML = '<option value="">Elija…</option>' + ms.map(p => `<option value="${esc(p.codigo)}">${esc(p.nombre)}</option>`).join(''); };
+$('#crmun').onchange = async () => { crMarcados = new Set(); crLugares = $('#crmun').value ? await api('/api/catalogo/lugar_poblado?padre=' + encodeURIComponent($('#crmun').value)) : []; crLugares.sort((a, b) => a.nombre.localeCompare(b.nombre)); pintarLugaresRuta(); };
+$('#crbuscar').oninput = pintarLugaresRuta;
+$('#crlugares').onchange = e => { if (e.target.value) { e.target.checked ? crMarcados.add(e.target.value) : crMarcados.delete(e.target.value); $('#crcuenta').textContent = `(${crMarcados.size} marcadas de ${crLugares.length})`; } };
+$('#crtodos').onclick = () => { document.querySelectorAll('#crlugares input').forEach(c => crMarcados.add(c.value)); pintarLugaresRuta(); }; $('#crninguno').onclick = () => { crMarcados = new Set(); pintarLugaresRuta(); };
+$('#crcrear').onclick = async () => { if (!crMarcados.size) return aviso('Marque al menos un lugar poblado.', true); if (crMarcados.size > 80) return aviso('Una ruta lleva hasta 80 paradas: divida el municipio en varias rutas.', true);
+  try { const r = await api('/api/campo/rutas', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({nombre: $('#crnombre').value, operador_id: +$('#croperador').value, formulario: $('#crform').value.trim(), lugares: [...crMarcados]})});
+    aviso(`Ruta creada: ${r.paradas} paradas, ${num(r.largo_km)} km en línea recta.`); crMarcados = new Set(); pintarLugaresRuta(); $('#crnombre').value = ''; campoCoordinar(); } catch (x) { aviso(x.message, true); } };
+$('#trutas').onclick = async e => { const v = e.target.closest('button[data-verruta]'), b = e.target.closest('button[data-borrarruta]');
+  try { if (v) { document.querySelector('nav button[data-s=campo]').click(); await campo(); $('#camporuta').value = v.dataset.verruta; pintarRuta(); }
+    if (b && confirm('¿Borrar esta ruta? Se borran también sus visitas registradas.')) { await api('/api/campo/rutas/' + b.dataset.borrarruta, {method:'DELETE'}); aviso('Ruta borrada.'); campoCoordinar(); } } catch (x) { aviso(x.message, true); } };
 // ---- Hoja de balance: derivados ----
 let hbaTexto = '', hbaPrimarios = [];
 function hbaPedir(producto, cantidad) { const p = new URLSearchParams(producto ? {producto, cantidad: cantidad ?? ''} : {});
@@ -1558,7 +1707,7 @@ $('#tvialenl').onclick = async e => { const b = e.target.closest('button[data-ve
   $('#lienzo').scrollIntoView({block:'center'}); };
 // ---- Sesión ----
 let yo = null;
-const ROL = {admin:'Administrador', analista:'Analista', consulta:'Consulta'};
+const ROL = {admin:'Administrador', analista:'Analista', consulta:'Consulta', operador:'Operador de campo'};
 function pintarSesion() {
   $('#acceso').innerHTML = yo ? `<span class="quien"><span><b>${esc(yo.nombre)}</b> · ${esc(ROL[yo.rol] || yo.rol)}</span><button class="accion chico suave" id="salir" style="margin:0">Cerrar sesión</button></span>` : '<button class="accion" id="entrar" style="margin:0">Iniciar sesión</button>';
   document.querySelectorAll('.con-sesion').forEach(x => x.hidden = !yo); document.querySelectorAll('.solo-admin').forEach(x => x.hidden = !(yo && yo.rol === 'admin'));
@@ -1567,6 +1716,8 @@ function pintarSesion() {
   const permitidas = yo && yo.rol !== 'admin' && yo.secciones ? new Set(yo.secciones) : null;
   document.querySelectorAll('nav > button[data-s]').forEach(b => { if (!b.classList.contains('con-sesion') && !b.classList.contains('solo-admin')) b.hidden = !!permitidas && !permitidas.has(b.dataset.s); });
   $('#menurubros').hidden = !!permitidas && !permitidas.has('rubros');
+  // «Mi ruta de campo» pide sesión y que el grupo incluya el trabajo de campo (o su coordinación).
+  document.querySelector('nav button[data-s=campo]').hidden = !yo || yo.rol === 'consulta' || (!!permitidas && !permitidas.has('campo') && !permitidas.has('operadores'));
   document.querySelectorAll('nav h3').forEach(h => { let x = h.nextElementSibling, alguno = false; while (x && x.tagName !== 'H3') { if (x.tagName === 'BUTTON' && !x.hidden) alguno = true; x = x.nextElementSibling; } if (!h.classList.contains('con-sesion')) h.hidden = !alguno; });
   if (permitidas && !permitidas.has(document.querySelector('section.activa')?.id)) document.querySelector('nav > button[data-s]:not([hidden])')?.click();
 }
@@ -1583,7 +1734,7 @@ async function perfil() { if (!yo) return; $('#perfilinfo').textContent = `Usuar
 $('#pguardar').onclick = async () => { try { await api('/api/perfil', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({nombre: $('#pnombre').value})}); await verSesion(); aviso('Nombre guardado.'); } catch (x) { aviso(x.message, true); } };
 $('#pclave').onclick = async () => { if ($('#pnueva').value !== $('#pnueva2').value) return aviso('Las dos contraseñas nuevas no coinciden.', true);
   try { await api('/api/perfil', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({clave_actual: $('#pactual').value, clave_nueva: $('#pnueva').value})}); ['#pactual', '#pnueva', '#pnueva2'].forEach(c => $(c).value = ''); await verSesion(); aviso('Contraseña cambiada.'); } catch (x) { aviso(x.message, true); } };
-const NOMBRE_SECCION = {mapa:'Mapa', proceso:'Proceso', tableros:'Tableros', recibir:'Recibir envío', pendientes:'Revisar pendientes', memoria:'Equivalencias', resultados:'Resultados y avance', crecimiento:'Población y crecimiento', vial:'Red vial', operadores:'Operadores de campo', alimentaria:'Seguridad alimentaria', construccion:'Materiales de construcción', precios:'Precios de referencia', canasta:'Canasta básica', rubros:'Precios por rubro', balance:'Hoja de balance', muestreos:'Muestreos automáticos', ine:'Portal del INE', capas:'Capas publicadas', acerca:'Acerca y fuentes', perfil:'Mi perfil'};
+const NOMBRE_SECCION = {mapa:'Mapa', proceso:'Proceso', tableros:'Tableros', campo:'Mi ruta de campo', recibir:'Recibir envío', pendientes:'Revisar pendientes', memoria:'Equivalencias', resultados:'Resultados y avance', crecimiento:'Población y crecimiento', vial:'Red vial', operadores:'Operadores de campo', alimentaria:'Seguridad alimentaria', construccion:'Materiales de construcción', precios:'Precios de referencia', canasta:'Canasta básica', rubros:'Precios por rubro', balance:'Hoja de balance', muestreos:'Muestreos automáticos', ine:'Portal del INE', capas:'Capas publicadas', acerca:'Acerca y fuentes', perfil:'Mi perfil'};
 let grupos = [], grupoEditado = null, seccionesPosibles = [];
 function formGrupo(g) { grupoEditado = g ? g.id : null; $('#grupoform').hidden = false; $('#gnombre').value = g ? g.nombre : ''; $('#gdesc').value = g ? g.descripcion : '';
   $('#gsecciones').innerHTML = seccionesPosibles.filter(x => x !== 'usuarios' && x !== 'perfil').map(x => `<label><input type="checkbox" value="${x}" ${!g || g.secciones.includes(x) ? 'checked' : ''}> ${esc(NOMBRE_SECCION[x] || x)}</label>`).join(''); $('#gnombre').focus(); }
@@ -1622,7 +1773,7 @@ async function alimentaria() {
     {t:'Con retardo en talla (%)', num:1, f:f => `<div class="barra" style="min-width:70px"><i style="width:${f.retardo_en_talla_pct}%;background:var(--mal)"></i></div><b>${esc(f.retardo_en_talla_pct)} %</b>`},
     {t:'Vulnerabilidad nutricional', f:f => `<span class="etq ${/alta/.test(f.vulnerabilidad) ? 'mal' : f.vulnerabilidad === 'moderada' ? 'alerta' : 'ok'}">${esc(f.vulnerabilidad)}</span>`}], r.talla || [], 'Este servidor no tiene cargado el censo de talla (se genera con "faro talla").');
 }
-const cargar = {tableros, balance: hbaIniciar, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
+const cargar = {tableros, balance: hbaIniciar, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: campoCoordinar, campo};
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 // Enlaces internos del tipo <a href="#seccion"> llevan a esa sección del menú.
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const b = a && document.querySelector(`nav button[data-s="${a.getAttribute('href').slice(1)}"]`); if (b) { e.preventDefault(); b.click(); } });

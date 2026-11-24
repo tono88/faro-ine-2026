@@ -217,3 +217,46 @@ CREATE TABLE IF NOT EXISTS bitacora (
     detalle TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS bitacora_cuando ON bitacora (cuando DESC);
+
+-- Trabajo de campo. Una ruta es de un operador y lleva paradas (lugares poblados del censo) en orden.
+CREATE TABLE IF NOT EXISTS rutas_campo (
+    id          BIGSERIAL PRIMARY KEY,
+    nombre      TEXT NOT NULL,
+    operador_id BIGINT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    -- Dirección del formulario de la encuesta (Microsoft Forms u otro admitido), con marcadores {lugar}, {latitud}...
+    formulario  TEXT NOT NULL DEFAULT '',
+    largo_km    REAL NOT NULL DEFAULT 0,
+    creada_por  TEXT NOT NULL,
+    creada      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS paradas_campo (
+    id       BIGSERIAL PRIMARY KEY,
+    ruta_id  BIGINT NOT NULL REFERENCES rutas_campo(id) ON DELETE CASCADE,
+    orden    INT NOT NULL,
+    lugar    TEXT NOT NULL,
+    nombre   TEXT NOT NULL,
+    longitud DOUBLE PRECISION NOT NULL,
+    latitud  DOUBLE PRECISION NOT NULL
+);
+CREATE INDEX IF NOT EXISTS paradas_campo_ruta ON paradas_campo (ruta_id, orden);
+-- Cada visita guarda la posición que entregó el teléfono y el resultado del cruce. La foto NO se
+-- guarda: se clasifica en memoria y se descarta (puede traer personas, placas o direcciones).
+CREATE TABLE IF NOT EXISTS visitas_campo (
+    id          BIGSERIAL PRIMARY KEY,
+    parada_id   BIGINT NOT NULL REFERENCES paradas_campo(id) ON DELETE CASCADE,
+    operador    TEXT NOT NULL,
+    cuando      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    longitud    DOUBLE PRECISION,
+    latitud     DOUBLE PRECISION,
+    precision_m REAL,
+    distancia_m REAL,
+    foto_clase  TEXT,
+    foto_confianza REAL,
+    coherencia  TEXT NOT NULL,
+    cruce       JSONB NOT NULL,
+    notas       TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS visitas_campo_parada ON visitas_campo (parada_id);
+INSERT INTO grupos (nombre, descripcion, secciones) VALUES
+  ('Operadores de campo', 'Encuestadores: ven su ruta, registran cada visita con su posición y abren la encuesta', '{mapa,campo,acerca,perfil}')
+ON CONFLICT (nombre) DO NOTHING;
