@@ -31,7 +31,9 @@ pub struct Umbrales {
 
 impl Default for Umbrales {
     fn default() -> Self {
-        Umbrales { max_bits: 10, max_color: 0.08 }
+        // Calibrado el 24-nov-2026 con 300 pares de igual código de barras y 300 de productos distintos:
+        // con estos valores no se aceptó ningún par de productos distintos (docs/13-fotos.md).
+        Umbrales { max_bits: 18, max_color: 0.16 }
     }
 }
 

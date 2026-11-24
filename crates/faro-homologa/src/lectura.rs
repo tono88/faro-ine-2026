@@ -71,6 +71,13 @@ pub fn leer_crudo(ruta: &Path) -> Result<Vec<Vec<String>>, String> {
     Ok(rango.rows().map(|f| f.iter().map(celda).collect()).collect())
 }
 
+/// Una hoja de un Excel tal cual, por su nombre (libros con una hoja por nivel geográfico).
+pub fn leer_hoja_cruda(ruta: &Path, hoja: &str) -> Result<Vec<Vec<String>>, String> {
+    let mut libro = calamine::open_workbook_auto(ruta).map_err(|e| format!("{}: {e}", ruta.display()))?;
+    let rango = libro.worksheet_range(hoja).map_err(|e| format!("{}: hoja {hoja}: {e}", ruta.display()))?;
+    Ok(rango.rows().map(|f| f.iter().map(celda).collect()).collect())
+}
+
 /// Lee un envío. `hoja`: nombre de la hoja, "todas" para unirlas, o `None` para la primera.
 /// `esperados`: nombres y alias de las columnas pedidas (para ubicar el encabezado).
 pub fn leer(ruta: &Path, hoja: Option<&str>, esperados: &[String]) -> Result<Tabla, String> {

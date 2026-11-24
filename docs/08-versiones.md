@@ -2,6 +2,14 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.13.0 · 24-nov-2026
+- Censo 2018 por lugar poblado (población, sexo, grandes grupos de edad, área, hogares y viviendas
+  de 20,036 lugares): en el mapa, la ficha, el buscador y como capa (`faro censo-lugares`).
+- Pirámide de edad y sexo por municipio con las proyecciones del INE (`faro edades`).
+- Comparación por foto en el informe de precio de referencia: miniaturas, huella visual propia
+  (forma y color) y umbrales calibrados con productos de igual código de barras (`faro fotos`).
+  El levantamiento de precios se rehízo guardando la dirección de cada foto (85,907 precios).
+
 ## v0.12.1 · 24-nov-2026
 - Corrección: el clic sobre un municipio (y, en ventanas bajas, sobre departamentos y lugares) no
   abría la ficha, porque al tomar el foco el mapa la página se desplazaba. Ahora hay una prueba
@@ -23,7 +31,7 @@ Tres peticiones de las presentaciones del lanzamiento:
 - Catálogos a tope: se recorren las subcategorías (sin el límite de 2,500 por consulta) y todas
   las categorías de los supermercados. Lecturas nuevas para tiendas Shopify y WooCommerce.
   Tiendas nuevas: Farmacias Batres, Intelaf, Click, iShop, Macrosistemas, Kalea y Ferco (26 tareas).
-- Levantamiento ampliado: 85,856 precios de 18 tiendas; 16,314 productos de supermercado con el
+- Levantamiento ampliado: 85,907 precios de 18 tiendas; 16,291 productos de supermercado con el
   mismo código de barras en dos o más tiendas. El servidor lo recarga solo si la tabla cambia.
 - Mapa: botón para volver a todo el país; vista aislada de un departamento o de un municipio;
   las capas encendidas a mano quedan siempre encima. "Ver en el mapa" (red vial) enciende la capa

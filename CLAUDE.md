@@ -108,7 +108,7 @@ estilos para teléfono (`@media (max-width: 700px)`). Suma, Super del Barrio y M
 catálogo en línea; PriceSmart pide navegador con sesión. Memoria técnica y guiones de prueba: `.faro/`.
 
 Agregado después (v0.11.0): `vtex-catalogo` baja a subcategorías; lecturas `shopify` y `woocommerce`;
-`max_consultas` por tarea; 26 tareas; levantamiento de 85,856 precios (18 tiendas), que el servidor
+`max_consultas` por tarea; 26 tareas; levantamiento de 85,907 precios (18 tiendas), que el servidor
 recarga si el CSV cambia. Mapa: `aislar()`, `verTodo()`, paneles `encima` y `puntos`, botón `#volverpais`.
 Canasta: `graficaGrande()`. Pendientes: `pista_de_codigo()` con `datos/estandar/paises_ine.csv`
 (diccionario de estadísticas vitales del INE). Resultados: `cobertura()` por departamento.
@@ -131,6 +131,13 @@ Agregado después (v0.12.1): arreglo del clic en el mapa (`lienzo.focus` con `pr
 datos reales: `tasas_extraccion_fao_guatemala.csv` (FAO TCF) + `faro hba` → `hba_2024_cuentas.csv`;
 `GET /api/balance`. Regla reafirmada por el equipo: nada inventado en el portal; lo sintético solo como
 archivo de muestra que el usuario decide cargar.
+
+Agregado después (v0.13.0): `faro censo-lugares` → `censo2018_lugar_poblado.csv`; `faro edades` →
+`poblacion_municipio_edades.csv`; `piramide()` y bloque de censo en la ficha; fotos:
+`crates/faro-fuentes/src/foto.rs` (huella de forma + color, crate `image`), columna `imagen`, tabla
+`huellas_foto`, parámetro `como` del informe, `faro fotos` (calibración; resultado en `docs/13-fotos.md`:
+0 falsos, 9.7 % de aciertos con fotos distintas). El servidor necesita internet para bajar fotos.
+Sin fuente descargable: censos 2002/1994 por municipio (PDF escaneado; microdatos tras Radware).
 
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar

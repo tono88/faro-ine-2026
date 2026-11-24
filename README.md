@@ -86,9 +86,9 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
     públicos de tiendas Shopify y WooCommerce. Se encienden y se les cambia
     la frecuencia desde la pantalla (`datos/estandar/muestreos.toml`, 26 tareas).
 19a. **Precios por rubro.** Supermercado, ferretería, tecnología, hogar, farmacia y vehículos:
-    85,856 precios publicados por 18 tiendas (levantamiento del 24-nov-2026, en
+    85,907 precios publicados por 18 tiendas (levantamiento del 24-nov-2026, en
     `datos/referencia/precios_publicados.csv`). Búsqueda con media, mediana y moda; el **mismo
-    producto entre tiendas por su código de barras** (16,314 productos de supermercado), alertas de
+    producto entre tiendas por su código de barras** (16,291 productos de supermercado), alertas de
     **cambios atípicos** entre muestreos, tiendas informantes y descarga en CSV.
 19b. **Mapa en tres niveles, con vista aislada.** Departamentos (cifras sumadas de sus municipios,
     tasas recalculadas), municipios y lugares poblados del censo (aldeas, caseríos, cantones). Se
@@ -107,6 +107,16 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
     Guatemala publicadas por la FAO (35 derivados de 19 productos), contrastadas con las cuentas de
     la HBA 2024 del INE: con sus propias cifras, el trigo da 72.0 % de harina (FAO: 72) y la caña
     10.2 % de azúcar (FAO: 10). Admite cargar otra tabla (`faro hba`, `balance.rs`).
+19h. **Censo 2018 por lugar poblado.** Población por sexo y edad, área urbana y rural, hogares y
+    viviendas de los 20,036 lugares poblados (cuadros A1, B8 y C1 del INE; `faro censo-lugares`):
+    en el globo de cada punto, en la ficha del municipio, en el buscador y como capa publicada.
+19i. **Edad y sexo por municipio.** Pirámide de población de cada municipio con las proyecciones
+    del INE (2018, 2026 y 2030; `faro edades`), verificada contra los totales ya publicados.
+19j. **Comparación por foto.** En el informe de precio se ve la foto de cada producto y se puede
+    dejar solo los que se ven como uno de referencia o comparten su código de barras. La huella
+    visual se calcula en el propio servidor y sus umbrales están calibrados con datos reales
+    ([`docs/13-fotos.md`](docs/13-fotos.md)): no confunde productos distintos, pero reconoce poco
+    cuando cada tienda tomó su propia foto.
 19g. **Buscador de territorio.** Sobre el mapa: departamento, municipio o lugar poblado por nombre,
     nombre común o código; lleva a su ficha o a su punto.
 20. **Canasta básica.** Precio promedio del INE de 34 productos, con su serie, junto a los

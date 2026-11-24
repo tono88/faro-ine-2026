@@ -54,6 +54,44 @@ pub fn resumir(filas: &[Vec<String>]) -> Result<Vec<PoblacionAnual>, String> {
         .collect()
 }
 
+/// Población de un municipio en un año, por sexo y grupo quinquenal de edad.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct PoblacionEdad {
+    pub municipio: String,
+    pub anio: i32,
+    /// Edad inicial del grupo (0, 5, ... 70); el último agrupa de 70 en adelante, como el libro.
+    pub edad_desde: u32,
+    pub hombres: i64,
+    pub mujeres: i64,
+}
+
+/// Agrupa las edades simples del libro de proyecciones en grupos de cinco años, para los años pedidos.
+pub fn resumir_edades(filas: &[Vec<String>], anios: &[i32]) -> Result<Vec<PoblacionEdad>, String> {
+    let pos_enc = filas.iter().take(20).position(|f| f.iter().any(|c| c.trim().eq_ignore_ascii_case("MUPIO"))).ok_or("no parece el libro de proyecciones: falta la columna MUPIO")?;
+    let enc: Vec<String> = filas[pos_enc].iter().map(|c| c.trim().to_uppercase()).collect();
+    let col = |n: &str| enc.iter().position(|c| c == n).ok_or(format!("falta la columna {n}"));
+    let (i_muni, i_sexo, i_edad) = (col("MUPIO")?, col("SEXO")?, col("EDAD")?);
+    let columnas: Vec<(usize, i32)> = anios.iter().map(|a| col(&a.to_string()).map(|i| (i, *a))).collect::<Result<_, _>>()?;
+    let mut suma: BTreeMap<(String, i32, u32), [i64; 2]> = BTreeMap::new();
+    for (n, f) in filas.iter().enumerate().skip(pos_enc + 1) {
+        let celda = |i: usize| f.get(i).map(|c| c.trim()).unwrap_or("");
+        if celda(i_muni).is_empty() {
+            continue;
+        }
+        let sexo: usize = celda(i_sexo).parse().ok().filter(|s| *s <= 2).ok_or(format!("fila {}: SEXO no es 0, 1 ni 2", n + 1))?;
+        if sexo == 0 {
+            continue; // el total de ambos sexos se obtiene sumando
+        }
+        let edad: u32 = celda(i_edad).parse().map_err(|_| format!("fila {}: EDAD no es un número: {:?}", n + 1, celda(i_edad)))?;
+        let grupo = (edad / 5 * 5).min(70);
+        for &(i, anio) in &columnas {
+            let v: f64 = celda(i).parse().map_err(|_| format!("fila {}: {anio} no es un número", n + 1))?;
+            suma.entry((format!("{:0>4}", celda(i_muni)), anio, grupo)).or_default()[sexo - 1] += v.round() as i64;
+        }
+    }
+    Ok(suma.into_iter().map(|((municipio, anio, edad_desde), [hombres, mujeres])| PoblacionEdad { municipio, anio, edad_desde, hombres, mujeres }).collect())
+}
+
 /// Códigos de municipio y su nombre según el diccionario que acompaña al libro (hoja de
 /// variables: una sección `MUPIO` con filas `código, etiqueta`).
 pub fn diccionario_municipios(filas: &[Vec<String>]) -> BTreeMap<String, String> {
@@ -237,6 +275,15 @@ mod pruebas {
             s(&["1", "102", "1", "0", "4", "5"]),
             s(&["1", "102", "2", "0", "6", "5"]),
         ]
+    }
+
+    #[test]
+    fn agrupa_edades_simples_en_quinquenios() {
+        let libro: Vec<Vec<String>> = [["DEPTO", "MUPIO", "SEXO", "EDAD", "2018", "2026"], ["01", "0101", "0", "0", "30", "0"], ["01", "0101", "1", "0", "10", "11"], ["01", "0101", "1", "4", "5", "6"], ["01", "0101", "2", "3", "7", "8"], ["01", "0101", "1", "70", "2", "3"], ["01", "0101", "2", "69", "1", "1"]]
+            .iter().map(|f| f.iter().map(|c| c.to_string()).collect()).collect();
+        let e = resumir_edades(&libro, &[2018]).unwrap();
+        assert_eq!(e.iter().map(|x| (x.edad_desde, x.hombres, x.mujeres)).collect::<Vec<_>>(), vec![(0, 15, 7), (65, 0, 1), (70, 2, 0)]);
+        assert!(resumir_edades(&libro, &[1999]).is_err());
     }
 
     #[test]

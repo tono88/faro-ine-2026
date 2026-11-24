@@ -27,6 +27,10 @@ struct Estado {
     vial: Value,
     /// Retardo en talla en escolares por municipio (Censo de Talla, SESAN): código -> fila.
     talla: HashMap<String, HashMap<String, String>>,
+    /// Censo 2018 por lugar poblado: código -> [población, hombres, mujeres, 0–14, 15–64, 65+, urbana, rural, hogares, viviendas, ocupadas].
+    censo_lugar: HashMap<String, Vec<i64>>,
+    /// Población por municipio, año y grupo quinquenal: código -> [(año, edad desde, hombres, mujeres)].
+    edades: HashMap<String, Vec<(i32, u32, i64, i64)>>,
     /// Inseguridad alimentaria aguda por departamento (CIF, SESAN).
     cif: Vec<HashMap<String, String>>,
     /// Catálogo de países del diccionario de estadísticas vitales del INE: código -> nombre.
@@ -157,6 +161,16 @@ async fn main() -> Result<(), String> {
         referencias: csv::Reader::from_path(var("FARO_REFERENCIAS_INE", "datos/catalogo_precios/precios_referencia_ine.csv")).map(|mut l| l.deserialize().flatten().collect()).unwrap_or_default(),
         cif: cif.clone(),
         talla: talla.clone(),
+        censo_lugar: leer_censo_lugar(&dir_referencia),
+        edades: {
+            let mut m: HashMap<String, Vec<(i32, u32, i64, i64)>> = HashMap::new();
+            if let Ok(mut l) = csv::Reader::from_path(dir_referencia.join("poblacion_municipio_edades.csv")) {
+                for p in l.deserialize::<faro_territorio::poblacion::PoblacionEdad>().flatten() {
+                    m.entry(p.municipio).or_default().push((p.anio, p.edad_desde, p.hombres, p.mujeres));
+                }
+            }
+            m
+        },
         paises: csv::Reader::from_path(var("FARO_PAISES", "datos/estandar/paises_ine.csv")).map(|mut l| l.deserialize::<(String, String)>().flatten().collect()).unwrap_or_default(),
         tareas: faro_fuentes::muestreo::cargar_tareas(&PathBuf::from(var("FARO_MUESTREOS", "datos/estandar/muestreos.toml"))).unwrap_or_else(|e| {
             eprintln!("AVISO: sin tareas de muestreo ({e}).");
@@ -864,6 +878,12 @@ fn cargar_vial(dir: &std::path::Path, catalogo: &Catalogo) -> Result<Value, Stri
 
 /// Prepara las capas geográficas: municipios con sus indicadores, enlaces viales probables y
 /// lugares sin conexión. Si falta un insumo, esa capa simplemente no se publica.
+/// Censo 2018 por lugar poblado (`faro censo-lugares`): código -> cifras, en el orden de las columnas.
+fn leer_censo_lugar(dir: &std::path::Path) -> HashMap<String, Vec<i64>> {
+    let Ok(mut lector) = csv::Reader::from_path(dir.join("censo2018_lugar_poblado.csv")) else { return HashMap::new() };
+    lector.records().flatten().filter_map(|f| Some((f.get(0)?.to_string(), f.iter().skip(1).map(|c| c.parse().unwrap_or(0)).collect()))).collect()
+}
+
 fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion, vial: &Value, construido: &BTreeMap<String, Vec<faro_territorio::Punto>>, construccion: &Construccion, cif: &[HashMap<String, String>], talla: &HashMap<String, HashMap<String, String>>) -> (HashMap<String, (&'static str, String)>, Vec<Value>) {
     const GEOJSON: &str = "application/geo+json; charset=utf-8";
     let mut capas = HashMap::new();
@@ -969,9 +989,18 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
             publicar(archivo, tipo, texto, titulo, detalle, fuente, licencia);
         }
     }
-    let puntos: Vec<Value> = catalogo.de_nivel(Nivel::LugarPoblado, None).filter(|l| l.longitud.is_some()).map(|l| json!({ "type": "Feature", "properties": { "codigo": l.codigo, "nombre": l.nombre, "municipio": l.padre }, "geometry": { "type": "Point", "coordinates": [l.longitud, l.latitud] } })).collect();
+    let censo = leer_censo_lugar(dir);
+    let dato = |codigo: &str, i: usize| censo.get(codigo).and_then(|c| c.get(i)).copied();
+    let puntos: Vec<Value> = catalogo.de_nivel(Nivel::LugarPoblado, None).filter(|l| l.longitud.is_some()).map(|l| json!({ "type": "Feature", "properties": { "codigo": l.codigo, "nombre": l.nombre, "municipio": l.padre,
+        "poblacion_2018": dato(&l.codigo, 0), "hogares_2018": dato(&l.codigo, 8), "viviendas_2018": dato(&l.codigo, 9) }, "geometry": { "type": "Point", "coordinates": [l.longitud, l.latitud] } })).collect();
+    if let Ok(texto) = std::fs::read_to_string(dir.join("censo2018_lugar_poblado.csv")) {
+        publicar("censo2018_lugar_poblado.csv", "text/csv; charset=utf-8", texto, "Censo 2018 por lugar poblado", "Población por sexo y grandes grupos de edad, área urbana y rural, hogares y viviendas de 20,036 lugares poblados, con código INE.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018, cuadros A1, B8 y C1 por lugar poblado.", "CC BY");
+    }
+    if let Ok(texto) = std::fs::read_to_string(dir.join("poblacion_municipio_edades.csv")) {
+        publicar("poblacion_municipio_edades.csv", "text/csv; charset=utf-8", texto, "Población por municipio, sexo y grupo de edad (2018, 2026, 2030)", "Hombres y mujeres por grupo quinquenal de edad en cada municipio, con el código INE ya corregido.", "INE, Estimaciones y proyecciones de población 2015–2030.", "ODC-BY");
+    }
     if !puntos.is_empty() {
-        publicar("lugares_poblados.geojson", GEOJSON, json!({ "type": "FeatureCollection", "features": puntos }).to_string(), "Lugares poblados del Censo 2018", "19,723 lugares poblados con código INE y centroide.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018.", "CC BY");
+        publicar("lugares_poblados.geojson", GEOJSON, json!({ "type": "FeatureCollection", "features": puntos }).to_string(), "Lugares poblados del Censo 2018", "19,723 lugares poblados con código INE, centroide y población, hogares y viviendas del censo.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018.", "CC BY");
     }
     if let Ok(texto) = std::fs::read_to_string(dir.join("superficie_construida_municipio.csv")) {
         publicar("superficie_construida_municipio.csv", "text/csv; charset=utf-8", texto, "Superficie construida por municipio, 1975–2020", "Hectáreas construidas vistas por satélite, cada cinco años, por municipio con código INE.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A (100 m).", "CC BY 4.0");
@@ -1441,16 +1470,66 @@ async fn api_informe_precio(State(e): State<Compartido>, Query(q): Query<HashMap
     // Productos que la persona apartó por no ser comparables (direcciones separadas por coma).
     let excluidos: Vec<String> = q.get("sin").map(|t| t.split('|').filter(|u| !u.is_empty()).map(String::from).collect()).unwrap_or_default();
     let filas = e.bd.query(
-        "SELECT proveedor, producto, marca, precio, ean, url, to_char(observado, 'YYYY-MM-DD') FROM
+        "SELECT proveedor, producto, marca, precio, ean, url, to_char(observado, 'YYYY-MM-DD'), imagen FROM
            (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados ORDER BY rubro, proveedor, url, observado DESC) u
          WHERE ($1 = '' OR rubro = $1) AND ($2 = '' OR proveedor = $2) AND translate(lower(producto), 'áéíóúüñ', 'aeiouun') LIKE ALL($3::text[]) AND NOT (url = ANY($4::text[])) ORDER BY precio LIMIT 300",
         &[&rubro, &proveedor, &palabras, &excluidos]).await.map_err(interno)?;
-    let cotizaciones: Vec<faro_territorio::precios::Cotizacion> = filas.iter().map(|f| faro_territorio::precios::Cotizacion { producto: texto.clone(), precio: f.get(3), fuente: f.get(0), tipo_fuente: "secundaria".into(), unidad: String::new() }).collect();
+    // Huella visual de cada foto (se calcula una vez y queda guardada).
+    let imagenes: Vec<String> = filas.iter().map(|f| f.get::<_, String>(7)).filter(|u| !u.is_empty()).collect();
+    let huellas = huellas_de(&e, &imagenes).await?;
+    let umbrales = faro_fuentes::foto::Umbrales::default();
+    let se_parecen = |a: &str, b: &str| huellas.get(a).zip(huellas.get(b)).is_some_and(|(x, y)| faro_fuentes::foto::se_ven_iguales(x, y, &umbrales));
+    // Si la persona eligió un producto de referencia, se dejan solo los que se ven como él o
+    // comparten su código de barras.
+    let referencia = q.get("como").filter(|u| !u.is_empty()).and_then(|u| filas.iter().find(|f| &f.get::<_, String>(5) == u));
+    let total_antes = filas.len();
+    let conservadas: Vec<&tokio_postgres::Row> = match referencia {
+        None => filas.iter().collect(),
+        Some(r) => {
+            let (ean_r, img_r): (String, String) = (r.get(4), r.get(7));
+            filas.iter().filter(|f| f.get::<_, String>(5) == r.get::<_, String>(5) || (!ean_r.is_empty() && f.get::<_, String>(4) == ean_r) || se_parecen(&img_r, &f.get::<_, String>(7))).collect()
+        }
+    };
+    let cotizaciones: Vec<faro_territorio::precios::Cotizacion> = conservadas.iter().map(|f| faro_territorio::precios::Cotizacion { producto: texto.clone(), precio: f.get(3), fuente: f.get(0), tipo_fuente: "secundaria".into(), unidad: String::new() }).collect();
     let p = faro_territorio::precios::Parametros::default();
     let analisis = (!cotizaciones.is_empty()).then(|| faro_territorio::precios::analizar(&texto, &cotizaciones.iter().collect::<Vec<_>>(), &p));
-    let tiendas: std::collections::BTreeSet<String> = filas.iter().map(|f| f.get::<_, String>(0)).collect();
-    Ok(Json(json!({ "producto": texto, "rubro": rubro, "tienda": proveedor, "parametros": p, "analisis": analisis, "tiendas": tiendas, "excluidos": excluidos.len(),
-        "fuentes": filas.iter().map(|f| json!({ "tienda": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "marca": f.get::<_, String>(2), "precio": f.get::<_, f64>(3), "codigo_barras": f.get::<_, String>(4), "url": f.get::<_, String>(5), "fecha": f.get::<_, String>(6) })).collect::<Vec<_>>() })))
+    let tiendas: std::collections::BTreeSet<String> = conservadas.iter().map(|f| f.get::<_, String>(0)).collect();
+    let filtro_foto = referencia.map(|r| json!({ "referencia": r.get::<_, String>(1), "tienda": r.get::<_, String>(0), "url": r.get::<_, String>(5), "conservados": conservadas.len(), "descartados": total_antes - conservadas.len(), "con_huella": huellas.contains_key(&r.get::<_, String>(7)) }));
+    Ok(Json(json!({ "producto": texto, "rubro": rubro, "tienda": proveedor, "parametros": p, "analisis": analisis, "tiendas": tiendas, "excluidos": excluidos.len(), "filtro_foto": filtro_foto, "umbrales_foto": umbrales,
+        "fuentes": conservadas.iter().map(|f| { let img: String = f.get(7);
+            // Cuántas otras fuentes de este informe se ven como ésta: ayuda a elegir la referencia.
+            let parecidas = conservadas.iter().filter(|g| g.get::<_, String>(5) != f.get::<_, String>(5) && se_parecen(&img, &g.get::<_, String>(7))).count();
+            json!({ "tienda": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "marca": f.get::<_, String>(2), "precio": f.get::<_, f64>(3), "codigo_barras": f.get::<_, String>(4), "url": f.get::<_, String>(5), "fecha": f.get::<_, String>(6),
+                    "imagen": img, "con_huella": huellas.contains_key(&img), "parecidas": parecidas }) }).collect::<Vec<_>>() })))
+}
+
+/// Huellas visuales de las fotos pedidas: las guardadas y, de las que faltan, hasta 150 por
+/// consulta (descarga con pausa; el resto se calcula en la siguiente).
+async fn huellas_de(e: &Compartido, imagenes: &[String]) -> Res<HashMap<String, faro_fuentes::foto::Huella>> {
+    let mut huellas: HashMap<String, faro_fuentes::foto::Huella> = HashMap::new();
+    let mut intentadas: std::collections::HashSet<String> = std::collections::HashSet::new();
+    for f in e.bd.query("SELECT imagen, forma, color FROM huellas_foto WHERE imagen = ANY($1::text[])", &[&imagenes]).await.map_err(interno)? {
+        intentadas.insert(f.get(0));
+        if let (Some(forma), Some(color)) = (f.get::<_, Option<i64>>(1), f.get::<_, Option<Vec<f32>>>(2)) {
+            huellas.insert(f.get(0), faro_fuentes::foto::Huella { forma: forma as u64, color });
+        }
+    }
+    let faltan: Vec<String> = imagenes.iter().filter(|u| !intentadas.contains(*u)).cloned().collect::<std::collections::BTreeSet<_>>().into_iter().take(150).collect();
+    if faltan.is_empty() {
+        return Ok(huellas);
+    }
+    let nuevas = tokio::task::spawn_blocking(move || {
+        let agente = faro_fuentes::foto::agente();
+        faltan.into_iter().map(|u| { let h = faro_fuentes::foto::huella_de_url(&agente, &u); std::thread::sleep(std::time::Duration::from_millis(60)); (u, h) }).collect::<Vec<_>>()
+    }).await.map_err(interno)?;
+    for (u, h) in nuevas {
+        // También se anota la foto que no se pudo leer, para no pedirla de nuevo en cada consulta.
+        e.bd.execute("INSERT INTO huellas_foto (imagen, forma, color) VALUES ($1, $2, $3) ON CONFLICT (imagen) DO NOTHING", &[&u, &h.as_ref().map(|x| x.forma as i64), &h.as_ref().map(|x| x.color.clone())]).await.map_err(interno)?;
+        if let Some(h) = h {
+            huellas.insert(u, h);
+        }
+    }
+    Ok(huellas)
 }
 
 /// Calculadora de derivados de la Hoja de Balance de Alimentos: el cuerpo es la tabla de tasas (CSV).
@@ -1520,7 +1599,7 @@ async fn api_buscar_lugar(State(e): State<Compartido>, Query(q): Query<HashMap<S
             // Primero lo que coincide exacto o empieza igual; luego por nivel.
             let nombre_nivel = ["departamento", "municipio", "lugar"][orden as usize];
             let cercania = if nombre == texto || l.codigo == texto { 0 } else if nombre.starts_with(&texto) { 1 } else { 2 };
-            hallados.push((cercania, hallados.len(), json!({ "nivel": nombre_nivel, "codigo": l.codigo, "nombre": l.nombre, "donde": donde, "municipio": if orden == 2 { l.padre.clone() } else { String::new() }, "lon": l.longitud, "lat": l.latitud })));
+            hallados.push((cercania, hallados.len(), json!({ "nivel": nombre_nivel, "codigo": l.codigo, "nombre": l.nombre, "donde": donde, "municipio": if orden == 2 { l.padre.clone() } else { String::new() }, "poblacion_2018": e.censo_lugar.get(&l.codigo).map(|c| c[0]), "lon": l.longitud, "lat": l.latitud })));
         }
     }
     let total = hallados.len();
@@ -1577,6 +1656,19 @@ async fn api_canasta(State(e): State<Compartido>) -> Res<Json<Value>> {
 // ---------------------------------------------------------------------------------------------
 
 /// Todo lo que FARO sabe de un municipio, para la ficha del mapa y el reporte.
+/// Censo 2018 de un municipio, sumando sus lugares poblados, y sus lugares más grandes.
+fn censo_del_municipio(e: &Estado, codigo: &str) -> Option<Value> {
+    let lugares: Vec<(&faro_homologa::catalogo::Lugar, &Vec<i64>)> = e.catalogo.de_nivel(Nivel::LugarPoblado, Some(codigo)).filter_map(|l| Some((l, e.censo_lugar.get(&l.codigo)?))).collect();
+    if lugares.is_empty() {
+        return None;
+    }
+    let suma = |i: usize| lugares.iter().map(|(_, c)| c.get(i).copied().unwrap_or(0)).sum::<i64>();
+    let mut mayores = lugares.clone();
+    mayores.sort_by_key(|(_, c)| std::cmp::Reverse(c[0]));
+    Some(json!({ "lugares": lugares.len(), "poblacion": suma(0), "hombres": suma(1), "mujeres": suma(2), "edad_0_14": suma(3), "edad_15_64": suma(4), "edad_65_mas": suma(5), "urbana": suma(6), "rural": suma(7), "hogares": suma(8), "viviendas": suma(9), "viviendas_ocupadas": suma(10),
+        "mayores": mayores.iter().take(8).map(|(l, c)| json!({ "codigo": l.codigo, "nombre": l.nombre, "poblacion": c[0], "hogares": c[8], "viviendas": c[9] })).collect::<Vec<_>>() }))
+}
+
 async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>) -> Res<Json<Value>> {
     let l = e.catalogo.por_codigo(&codigo).filter(|l| l.nivel == Nivel::Municipio).ok_or_else(|| pedido(format!("{codigo} no es un municipio")))?;
     let (desde, hasta) = e.poblacion.anios().unwrap_or((2018, 2030));
@@ -1600,6 +1692,8 @@ async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>) 
         "puesto_poblacion": puesto(&|m| e.poblacion.total(m, hoy).map(|v| v as f64)), "puesto_crecimiento": puesto(&|m| e.poblacion.cambio(m, 2018, hasta).map(|c| c.tasa_anual_pct)),
         "construido": serie.iter().map(|p| json!([p.anio, (p.edificaciones * 10.0).round() / 10.0])).collect::<Vec<_>>(), "construido_analisis": analisis,
         "lugares_poblados": e.catalogo.de_nivel(Nivel::LugarPoblado, Some(&codigo)).count(), "sin_conexion": sin_conexion,
+        "censo_2018": censo_del_municipio(&e, &codigo),
+        "edades": e.edades.get(&codigo).map(|v| v.iter().map(|(a, d, h, m)| json!([a, d, h, m])).collect::<Vec<_>>()),
         "proveedores": e.construccion.proveedores.iter().filter(|p| p.get("municipio_codigo").map(String::as_str) == Some(codigo.as_str())).filter_map(|p| p.get("nombre")).collect::<Vec<_>>(),
         "registros": registros.iter().map(|f| json!({ "solicitud": f.get::<_, String>(0), "total": f.get::<_, i64>(1) })).collect::<Vec<_>>(),
         "talla": e.talla.get(&codigo),

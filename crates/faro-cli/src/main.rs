@@ -171,6 +171,36 @@ enum Comando {
         #[arg(long, default_value = "datos/catalogo_precios/precios_referencia_ine.csv")]
         salida: PathBuf,
     },
+    /// Población, hogares y viviendas del Censo 2018 por lugar poblado, en una tabla (cuadros A1, B8 y C1 del INE).
+    CensoLugares {
+        /// Cuadro A1 (población por sexo, edad y área), conjunto censo-2018-lugares-poblados.
+        #[arg(long)]
+        a1: PathBuf,
+        /// Cuadro B8 (hogares).
+        #[arg(long)]
+        b8: PathBuf,
+        /// Cuadro C1 (viviendas).
+        #[arg(long)]
+        c1: PathBuf,
+        #[arg(long, default_value = "datos/referencia/censo2018_lugar_poblado.csv")]
+        salida: PathBuf,
+    },
+    /// Población por municipio, sexo y grupo quinquenal de edad (proyecciones del INE), para las pirámides.
+    Edades {
+        /// Libro de proyecciones por municipio, sexo y edad.
+        #[arg(long)]
+        entrada: PathBuf,
+        #[arg(long)]
+        diccionario: PathBuf,
+        /// Años que se guardan.
+        #[arg(long, value_delimiter = ',', default_value = "2018,2026,2030")]
+        anios: Vec<i32>,
+        /// Tabla ya publicada de totales, para comprobar que las edades suman lo mismo.
+        #[arg(long, default_value = "datos/referencia/poblacion_municipio.csv")]
+        totales: PathBuf,
+        #[arg(long, default_value = "datos/referencia/poblacion_municipio_edades.csv")]
+        salida: PathBuf,
+    },
     /// Cuentas de utilización y suministro de la Hoja de Balance de Alimentos del INE, en una tabla limpia.
     Hba {
         /// Libro "cuentas de utilización y suministro (CUS)" (faro fuentes descargar hoja-de-balance-de-alimentos-hba-actualizacion-2024).
@@ -492,6 +522,90 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         Comando::Construccion { precios, reglas, articulos, salida } => construccion(&memoria, &precios, &reglas, &articulos, &salida),
         Comando::Limites { entrada, tolerancia, salida } => limites(&catalogo, &entrada, tolerancia, &salida),
         Comando::Vial { carreteras, cerca_m, max_enlace_km, con_senderos, salida } => vial(&catalogo, &carreteras, faro_territorio::vial::Parametros { cerca_m, max_enlace_km }, con_senderos, &salida),
+        Comando::CensoLugares { a1, b8, c1, salida } => {
+            use std::collections::BTreeMap;
+            let numero = |c: Option<&String>| c.and_then(|x| x.trim().parse::<f64>().ok()).map(|x| x.round() as i64).unwrap_or(0);
+            // Cada hoja trae el código del lugar en la quinta columna y los datos desde la séptima.
+            let leer = |ruta: &PathBuf, hoja: &str, titulo: &str| -> Result<Vec<Vec<String>>, String> {
+                let filas = faro_homologa::lectura::leer_hoja_cruda(ruta, hoja)?;
+                let pos = filas.iter().position(|f| f.get(4).is_some_and(|c| c.trim() == "Código") && f.get(6).is_some_and(|c| faro_homologa::normalizar::basico(c).starts_with(titulo))).ok_or(format!("{}: la hoja {hoja} no tiene el encabezado esperado ({titulo})", ruta.display()))?;
+                Ok(filas.into_iter().skip(pos + 2).filter(|f| f.get(4).is_some_and(|c| c.trim().parse::<u32>().is_ok())).collect())
+            };
+            let codigo = |f: &Vec<String>| format!("{:0>7}", f[4].trim());
+            let poblacion = leer(&a1, "A1_3", "poblacion total")?;
+            let hogares: BTreeMap<String, i64> = leer(&b8, "B8_3", "total de hogares")?.iter().map(|f| (codigo(f), numero(f.get(6)))).collect();
+            let viviendas: BTreeMap<String, (i64, i64)> = leer(&c1, "C1_3", "total de viviendas")?.iter().map(|f| (codigo(f), (numero(f.get(6)), numero(f.get(16))))).collect();
+            if let Some(d) = salida.parent() {
+                std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+            }
+            let mut tabla = csv::Writer::from_path(&salida).map_err(|e| e.to_string())?;
+            tabla.write_record(["codigo", "poblacion", "hombres", "mujeres", "edad_0_14", "edad_15_64", "edad_65_mas", "urbana", "rural", "hogares", "viviendas", "viviendas_ocupadas"]).map_err(|e| e.to_string())?;
+            let (mut total, mut fuera, mut descuadres) = (0i64, Vec::new(), 0);
+            for f in &poblacion {
+                let c = codigo(f);
+                if catalogo.por_codigo(&c).is_none_or(|l| l.nivel != Nivel::LugarPoblado) {
+                    fuera.push(c.clone());
+                }
+                let n = |i: usize| numero(f.get(i));
+                let edades: Vec<i64> = (9..30).map(n).collect();
+                let (ninos, adultos, mayores): (i64, i64, i64) = (edades[..3].iter().sum(), edades[3..13].iter().sum(), edades[13..].iter().sum());
+                // Dos comprobaciones por fila: sexo y edades deben sumar el total publicado.
+                if n(7) + n(8) != n(6) || ninos + adultos + mayores != n(6) {
+                    descuadres += 1;
+                }
+                total += n(6);
+                let (v, vo) = viviendas.get(&c).copied().unwrap_or((0, 0));
+                tabla.write_record([c.clone(), n(6).to_string(), n(7).to_string(), n(8).to_string(), ninos.to_string(), adultos.to_string(), mayores.to_string(), n(30).to_string(), n(31).to_string(), hogares.get(&c).copied().unwrap_or(0).to_string(), v.to_string(), vo.to_string()]).map_err(|e| e.to_string())?;
+            }
+            tabla.flush().map_err(|e| e.to_string())?;
+            println!("{} lugares poblados; población censada {total}; hogares {}; viviendas {}.", poblacion.len(), hogares.values().sum::<i64>(), viviendas.values().map(|v| v.0).sum::<i64>());
+            println!("Códigos que no están en el catálogo: {}. Filas donde sexo o edades no suman el total: {descuadres}.", fuera.len());
+            println!("Escrito en {}", salida.display());
+            if !fuera.is_empty() || descuadres > 0 {
+                return Err(format!("la tabla no cuadra con el catálogo o consigo misma (por ejemplo {:?})", fuera.first()));
+            }
+            Ok(ExitCode::SUCCESS)
+        }
+        Comando::Edades { entrada, diccionario, anios, totales, salida } => {
+            let h = Homologador::new(&catalogo, &memoria);
+            let libro = faro_homologa::lectura::leer_crudo(&entrada)?;
+            let mut filas = faro_territorio::poblacion::resumir_edades(&libro, &anios)?;
+            // Los códigos que no existen se ubican por el nombre que les da el diccionario del libro,
+            // con coincidencia exacta y única dentro de su departamento (igual que `faro poblacion`).
+            let nombres = faro_territorio::poblacion::diccionario_municipios(&faro_homologa::lectura::leer_crudo(&diccionario)?);
+            let mut movidos = std::collections::BTreeMap::new();
+            for p in filas.iter_mut().filter(|p| catalogo.por_codigo(&p.municipio).is_none_or(|l| l.nivel != Nivel::Municipio)) {
+                if !movidos.contains_key(&p.municipio) {
+                    let nombre = nombres.get(&p.municipio).ok_or(format!("{}: el diccionario no lo nombra", p.municipio))?;
+                    let r = h.homologar(nombre, Nivel::Municipio, Some(&p.municipio[..2]));
+                    movidos.insert(p.municipio.clone(), r.codigo.filter(|_| r.estado.resuelto()).ok_or(format!("{} ({nombre}): no coincide con un único municipio", p.municipio))?);
+                }
+                p.municipio = movidos[&p.municipio].clone();
+            }
+            filas.sort_by(|a, b| (&a.municipio, a.anio, a.edad_desde).cmp(&(&b.municipio, b.anio, b.edad_desde)));
+            // Comprobación contra la tabla de totales ya publicada.
+            let publicados: std::collections::HashMap<(String, i32), (i64, i64)> = faro_territorio::poblacion::leer(&totales)?.into_iter().map(|p| ((p.municipio, p.anio), (p.hombres, p.mujeres))).collect();
+            let mut sumas: std::collections::BTreeMap<(String, i32), (i64, i64)> = std::collections::BTreeMap::new();
+            for p in &filas {
+                let s = sumas.entry((p.municipio.clone(), p.anio)).or_default();
+                *s = (s.0 + p.hombres, s.1 + p.mujeres);
+            }
+            let distintos = sumas.iter().filter(|(k, v)| publicados.get(*k) != Some(*v)).count();
+            if let Some(d) = salida.parent() {
+                std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+            }
+            let mut w = csv::Writer::from_path(&salida).map_err(|e| e.to_string())?;
+            for p in &filas {
+                w.serialize(p).map_err(|e| e.to_string())?;
+            }
+            w.flush().map_err(|e| e.to_string())?;
+            println!("{} filas ({} municipios × {} años × 15 grupos de edad); {} códigos reubicados; municipios-año cuya suma difiere de la tabla de totales: {distintos}.", filas.len(), sumas.len() / anios.len().max(1), anios.len(), movidos.len());
+            println!("Escrito en {}", salida.display());
+            if distintos > 0 {
+                return Err("las edades no suman los totales publicados".into());
+            }
+            Ok(ExitCode::SUCCESS)
+        }
         Comando::Poblacion { entrada, diccionario, salida } => {
             let h = Homologador::new(&catalogo, &memoria);
             let es_municipio = |m: &str| catalogo.por_codigo(m).is_some_and(|l| l.nivel == Nivel::Municipio);

@@ -157,7 +157,7 @@ vulnerabilidad muy alta, 90 en alta, 89 en moderada y 71 en baja.
 ## `precios_publicados.csv`
 
 Levantamiento de precios publicados en línea, hecho por los muestreos del portal el 24-nov-2026:
-85,856 precios de 18 tiendas en seis rubros (supermercado, ferretería, tecnología, hogar, farmacia,
+85,907 precios de 18 tiendas en seis rubros (supermercado, ferretería, tecnología, hogar, farmacia,
 vehículos). Columnas: rubro, tienda, producto, marca, precio en quetzales, precio de lista (si la
 tienda lo publica), código de barras (si lo publica), categoría en la tienda, dirección de la página
 y fecha de consulta. Son precios publicados en páginas públicas, no cotizaciones ni precios en tienda
@@ -172,3 +172,15 @@ Se genera con `faro hba --cuentas <libro CUS>` (conjunto `hoja-de-balance-de-ali
 del portal de datos abiertos). Sirve para contrastar las tasas de extracción de la FAO
 (`datos/estandar/tasas_extraccion_fao_guatemala.csv`, transcritas de las páginas 222–225 del documento,
 con la columna `relacion` que dice si el primario aparece en la fuente o se dedujo del nombre).
+
+## `censo2018_lugar_poblado.csv` y `poblacion_municipio_edades.csv`
+
+- `censo2018_lugar_poblado.csv`: Censo 2018 por lugar poblado (20,036 filas): población, hombres,
+  mujeres, tres grandes grupos de edad, urbana, rural, hogares, viviendas y viviendas ocupadas.
+  Sale de los cuadros A1, B8 y C1 del conjunto `censo-2018-lugares-poblados` del INE con
+  `faro censo-lugares`, que comprueba que cada código exista en el catálogo y que sexo y edades sumen el total.
+- `poblacion_municipio_edades.csv`: hombres y mujeres por grupo quinquenal de edad (0–4 … 70 y más)
+  en cada municipio para 2018, 2026 y 2030, de las proyecciones del INE, con `faro edades`. Reubica
+  los 16 códigos inexistentes igual que `faro poblacion` y comprueba que sume los totales publicados.
+- `fotos_calibracion.csv`: pares de fotos medidos por `faro fotos` (ver `docs/13-fotos.md`).
+- `precios_publicados.csv` trae ahora la columna `imagen` (dirección de la foto publicada).

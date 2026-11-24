@@ -84,13 +84,13 @@ y cómo repetirlo.
 
 ## Precios publicados por rubro
 
-10a. **85,856 precios publicados por 18 tiendas en seis rubros, leídos por el propio portal** el
-    24-nov-2026 (supermercado 63,920; ferretería 9,167; tecnología 7,886; hogar 2,574; farmacia
-    2,198; vehículos 111). Cada precio guarda la dirección de su página y la fecha.
+10a. **85,907 precios publicados por 18 tiendas en seis rubros, leídos por el propio portal** el
+    24-nov-2026 (supermercado 63,879; ferretería 9,355; tecnología 8,024; hogar 2,708; farmacia
+    1,861; vehículos 80). Cada precio guarda la dirección de su página y la fecha.
 10b. **El código de barras permite comparar el mismo producto entre tiendas sin interpretar nombres.**
-    En supermercados, 16,314 productos aparecen con el mismo código en dos o más tiendas y 1,750 en
-    las cuatro (Walmart, Paiz, Maxi Despensa, La Torre). En 6,569 el precio es idéntico; la
-    diferencia mediana entre la tienda más cara y la más barata es 1.6 %, y en 2,764 productos es
+    En supermercados, 16,291 productos aparecen con el mismo código en dos o más tiendas y 1,740 en
+    las cuatro (Walmart, Paiz, Maxi Despensa, La Torre). En 6,580 el precio es idéntico; la
+    diferencia mediana entre la tienda más cara y la más barata es 1.6 %, y en 2,756 productos es
     de 15 % o más. Es la misma regla del núcleo —coincidencia exacta o decide una persona—
     aplicada a precios.
     Tabla: [`datos/referencia/precios_publicados.csv`](../datos/referencia/precios_publicados.csv).
@@ -111,6 +111,24 @@ y cómo repetirlo.
     (80), azúcar en bruto 10.2 % (10), melazas 4.1 % (3.9), salvado de arroz 7.9 % (8). La que más
     se aparta es el arroz elaborado: 69.3 % frente a 62. Las tasas de la FAO son de 1992–1996.
     Repetir: `faro hba` y la sección "Hoja de balance: derivados".
+
+10f. **La foto sola no basta para decir que dos productos son el mismo; el código de barras sí.**
+    Medido con 300 productos de igual código de barras y fotos distintas en dos tiendas: la huella
+    visual no aceptó ningún par de productos distintos, pero solo reconoció 29 de los 300 iguales
+    (9.7 %). Sirve para detectar la misma imagen reutilizada, no el mismo producto fotografiado de
+    otra forma. Detalle y tabla de umbrales: [`13-fotos.md`](13-fotos.md).
+
+## Población y censo
+
+10g. **El INE ya publica el Censo 2018 por lugar poblado, y cuadra con el catálogo.** Los cuadros
+    A1, B8 y C1 traen 20,036 lugares cuyos códigos coinciden uno a uno con el catálogo de FARO:
+    14,901,286 personas, 3,275,931 hogares y 3,943,085 viviendas; en todas las filas, sexo y edades
+    suman el total. Las edades por municipio de las proyecciones suman exactamente los totales ya
+    publicados en los 340 municipios y 3 años revisados.
+10h. **No hay una fuente descargable para comparar con censos anteriores.** El Censo 2002 por
+    municipio está publicado como PDF escaneado (sin texto) y sus microdatos están tras una
+    protección contra descargas automáticas; del Censo 1994 no se halló nada descargable. Esa
+    comparación queda pendiente y no se aproximó con otras fuentes.
 
 ## Operadores de campo (necesidad planteada por la Gerencia)
 

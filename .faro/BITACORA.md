@@ -82,3 +82,10 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - Presentaciones releídas (texto extraído de los .pptx): propuestas por dirección y su estado en `docs/01-necesidades-ine.md`.
 - Guion: `.faro/pruebas/informe_balance_buscador.js`. El informe abre en pestaña nueva (`ctx.waitForEvent('page')`).
 - Nombres de WooCommerce traen entidades numéricas: `sin_entidades()`.
+
+## Bloques v0.12.1 y v0.13.0 (24-nov, noche)
+- FALLO GRAVE que las pruebas no vieron: el clic real sobre el mapa no abría la ficha (el foco del mapa desplazaba `main`). Las pruebas llamaban `ficha()` por código. Ahora `clic_real_mapa.js` usa ratón real en 4 tamaños: correrla siempre.
+- Levantamiento con fotos: `/tmp/cadena.sh` encadena tareas por sitio; ~1 h en total. Exportar con `\copy` filtrando `tarea <> 'levantamiento-inicial'` e incluyendo `imagen`. El CSV pesa 26 MB.
+- `www.ine.gob.gt` activa protección anti-bots (Radware) tras ~10 solicitudes; `datos.ine.gob.gt` no.
+- Calibración de fotos: los pares útiles son La Torre vs Walmart (Walmart/Paiz/Maxi comparten archivo de foto).
+- FAO TCF: sección Guatemala en págs. 222–225 (234–237 del PDF); el primario se deduce del orden de filas.
