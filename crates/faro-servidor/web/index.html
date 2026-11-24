@@ -724,7 +724,7 @@ async function pendientes() {
   // Aviso: cuántos pendientes vienen de envíos analizados con reglas que ya cambiaron.
   const viejos = filas.filter(f => f.reglas_anteriores), nenv = [...new Set(viejos.flatMap(f => f.envios))].sort((a, b) => a - b);
   $('#pendviejos').hidden = !viejos.length;
-  $('#pendviejos').innerHTML = viejos.length ? `<b>${num(viejos.length)} de estos ${num(filas.length)} valores son observaciones viejas</b>: vienen de ${nenv.length === 1 ? 'el envío n.º ' : 'los envíos n.º '}${nenv.join(', ')}, que se ${nenv.length === 1 ? 'analizó' : 'analizaron'} con una versión anterior de las reglas de su solicitud. El archivo original no se guarda, así que no se pueden reanalizar aquí: <a href="#recibir">vuelva a subir ${nenv.length === 1 ? 'ese archivo' : 'esos archivos'}</a> y el envío nuevo reemplazará al anterior con las reglas de hoy.` : '';
+  $('#pendviejos').innerHTML = viejos.length ? `<b>${num(viejos.length)} de ${filas.length === 1 ? 'este' : 'estos'} ${num(filas.length)} ${filas.length === 1 ? 'valor es una observación vieja' : 'valores son observaciones viejas'}</b>: ${viejos.length === 1 ? 'viene' : 'vienen'} ${nenv.length === 1 ? 'del envío n.º ' : 'de los envíos n.º '}${nenv.join(', ')}, que se ${nenv.length === 1 ? 'analizó' : 'analizaron'} con una versión anterior de las reglas de su solicitud. El archivo original no se guarda, así que no se pueden reanalizar aquí: <a href="#recibir">vuelva a subir ${nenv.length === 1 ? 'ese archivo' : 'esos archivos'}</a> y el envío nuevo reemplazará al anterior con las reglas de hoy.` : '';
 }
 // Las listas del catálogo se piden la primera vez que se usa cada una.
 const listas = {};

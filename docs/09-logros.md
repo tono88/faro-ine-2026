@@ -182,6 +182,9 @@ y cómo repetirlo.
 10q. **Los pendientes que «sobraban» eran de reglas anteriores.** Como el archivo original no se
     guarda, un envío analizado antes de un cambio de reglas conserva sus observaciones viejas. El
     portal ahora lo dice en cada pendiente y en cada envío, y basta volver a subir el archivo.
+    Al probarlo apareció un fallo propio: la huella de las reglas cambiaba entre lecturas de la
+    misma solicitud (sus tablas no tienen orden fijo) y todo envío salía marcado. Se corrigió
+    ordenando las claves, con una prueba que lee la solicitud veinte veces.
 
 ## Operadores de campo (necesidad planteada por la Gerencia)
 

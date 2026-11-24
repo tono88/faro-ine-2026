@@ -414,7 +414,38 @@ async fn memoria(e: &Estado) -> Res<Memoria> {
 /// corte, valores sin dato...). Sirve para saber si un envío se analizó con las reglas de hoy.
 fn huella_de_reglas(sol: &Solicitud) -> String {
     use sha2::{Digest, Sha256};
-    Sha256::digest(serde_json::to_string(sol).unwrap_or_default().as_bytes()).iter().take(6).map(|b| format!("{b:02x}")).collect()
+    // La solicitud trae tablas sin orden fijo (las equivalencias de cada columna): escrita tal cual,
+    // la misma solicitud daría huellas distintas. Por eso se escribe con las claves ordenadas.
+    fn ordenado(v: &Value) -> String {
+        match v {
+            Value::Object(m) => {
+                let mut claves: Vec<&String> = m.keys().collect();
+                claves.sort();
+                format!("{{{}}}", claves.iter().map(|k| format!("{k:?}:{}", ordenado(&m[*k]))).collect::<Vec<_>>().join(","))
+            }
+            Value::Array(a) => format!("[{}]", a.iter().map(ordenado).collect::<Vec<_>>().join(",")),
+            otro => otro.to_string(),
+        }
+    }
+    let texto = serde_json::to_value(sol).map(|v| ordenado(&v)).unwrap_or_default();
+    Sha256::digest(texto.as_bytes()).iter().take(6).map(|b| format!("{b:02x}")).collect()
+}
+
+#[cfg(test)]
+mod pruebas_de_reglas {
+    use super::*;
+
+    #[test]
+    fn la_misma_solicitud_da_siempre_la_misma_huella() {
+        // PNC declara equivalencias (una tabla sin orden fijo): cada lectura la arma en otro orden.
+        let ruta = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../datos/solicitudes/pnc-detenidos-v1.toml");
+        let huellas: std::collections::HashSet<String> = (0..20).map(|_| huella_de_reglas(&Solicitud::cargar(&ruta).unwrap())).collect();
+        assert_eq!(huellas.len(), 1, "la huella cambió entre lecturas de la misma solicitud");
+        // Y cambia cuando cambia una regla.
+        let mut otra = Solicitud::cargar(&ruta).unwrap();
+        otra.columnas[0].alias.push("OTRO NOMBRE".into());
+        assert!(!huellas.contains(&huella_de_reglas(&otra)));
+    }
 }
 
 fn solicitudes(e: &Estado) -> Result<Vec<Solicitud>, String> {

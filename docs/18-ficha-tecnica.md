@@ -17,7 +17,7 @@
 | **Reproducibilidad** | Cada tabla derivada tiene un comando `faro …` y un procedimiento descargable; las descargas quedan en un manifiesto con fecha y huella SHA-256 |
 | **Verificación** | Estadística (`docs/19`), de interfaz en laptop de 15.6", tableta y celular (`docs/20`) y de seguridad (`docs/21`), las tres con informe regenerable |
 | **Acceso** | Usuarios con rol (administrador, analista, consulta, operador de campo) y grupo por secciones; contraseñas con Argon2; bitácora de acciones |
-| **Pruebas** | 92 pruebas automáticas (`cargo test`) y recorridos de la pantalla en Chromium, incluidos teléfono con posición simulada y clic real en el mapa |
+| **Pruebas** | 93 pruebas automáticas (`cargo test`) y recorridos de la pantalla en Chromium, incluidos teléfono con posición simulada y clic real en el mapa |
 | **Datos personales** | Ninguno en el repositorio; los archivos reales se procesan en un temporal y no se guardan |
 | **Limitaciones conocidas** | Ver la tabla de estado en `docs/01-necesidades-ine.md` y los avisos de cada sección |
 | **Repositorio** | <https://github.com/tono88/faro-ine-2026> (historial desde el 23-nov-2026) |

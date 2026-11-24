@@ -30,7 +30,7 @@ Todas salen de datos reales procesados durante el evento y se pueden comprobar e
 | **82 → 14** columnas: lo que entra y lo que sale del archivo de defunciones, sin datos personales | **20,036** lugares poblados del Censo 2018, verificados código por código |
 | **93,297 ha** construidas en 2020 (eran 30,722 en 1975), para los 340 municipios | **707** lugares poblados sin conexión vial y **83** enlaces que probablemente faltan |
 | **85,907** precios publicados por 18 tiendas, leídos por el propio portal | **16,291** productos comparables entre supermercados por su código de barras |
-| **26** indicadores por municipio en el mapa y los tableros | **92** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
+| **26** indicadores por municipio en el mapa y los tableros | **93** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
 
 ## Qué hace
 
@@ -246,7 +246,7 @@ DATABASE_URL="host=localhost user=faro password=... dbname=faro" FARO_TOKEN=... 
 
 ## Cómo se comprueba
 
-- **`cargo test`**: 92 pruebas de las reglas (homologación, recepción, curvas, rutas, cruce de visitas).
+- **`cargo test`**: 93 pruebas de las reglas (homologación, recepción, curvas, rutas, cruce de visitas).
 - **`faro verificar`** vuelve a calcular las cifras y escribe [`docs/19`](docs/19-verificacion-estadistica.md):
   consistencia de las tablas, prueba hacia atrás de las proyecciones, curvas de población,
   intervalos de confianza, umbrales de precios.

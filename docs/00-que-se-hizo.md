@@ -105,7 +105,7 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 | | |
 |---|---|
-| Pruebas automáticas | 92 |
+| Pruebas automáticas | 93 |
 | Comandos de `faro` | 29 |
 | Secciones de la pantalla | 24 |
 | Indicadores por municipio | 26 |
