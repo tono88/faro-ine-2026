@@ -20,6 +20,7 @@ pub const INDICADORES: &[(&str, &str, &str, &[&str])] = &[
     ("sin_conexion", "Lugares poblados sin conexión vial", "lugares", &["sin conexion", "sin camino", "red vial", "caminos", "carreteras", "aislados", "conexion vial", "incomunicados"]),
     ("lugares_poblados", "Lugares poblados del censo", "lugares", &["lugares poblados", "aldeas", "caserios", "comunidades", "cantones"]),
     ("proveedores_construccion", "Proveedores de construcción perfilados", "proveedores", &["proveedores", "ferreterias", "materiales de construccion"]),
+    ("no_residencial_pct_2020", "Superficie construida no residencial 2020 (satélite)", "%", &["no residencial", "uso del suelo", "uso de suelo", "industrial", "comercial", "zonas industriales"]),
     ("censo_alfabetismo_pct", "Alfabetismo (Censo 2018)", "%", &["alfabetismo", "analfabetismo", "saben leer", "leer y escribir", "educacion"]),
     ("censo_internet_pct", "Personas que usan internet (Censo 2018)", "%", &["internet", "conectividad", "brecha digital", "tecnologia"]),
     ("censo_agua_en_vivienda_pct", "Hogares con agua por tubería en la vivienda (Censo 2018)", "%", &["agua", "agua potable", "agua entubada", "tuberia"]),
@@ -32,7 +33,7 @@ pub const INDICADORES: &[(&str, &str, &str, &[&str])] = &[
     ("censo_maya_pct", "Población que se identifica como maya (Censo 2018)", "%", &["maya", "pueblo maya", "pueblos indigenas", "indigena"]),
 ];
 
-pub const TIPOS: &[&str] = &["tarjeta", "barras", "tabla", "mapa", "piramide", "serie"];
+pub const TIPOS: &[&str] = &["tarjeta", "barras", "tabla", "mapa", "dispersion", "piramide", "serie", "texto"];
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Territorio {
@@ -57,6 +58,24 @@ pub struct Pieza {
     /// "desc" (los mayores primero) o "asc".
     #[serde(default = "desc")]
     pub orden: String,
+    /// Ancho en columnas del lienzo (1 a 4); 0 deja el ancho habitual de ese tipo de pieza.
+    #[serde(default)]
+    pub ancho: u8,
+    /// Segundo indicador: el eje vertical de la dispersión.
+    #[serde(default)]
+    pub indicador2: String,
+    /// Contenido de una pieza de texto (una nota de quien arma el tablero).
+    #[serde(default)]
+    pub texto: String,
+}
+
+/// Condición sobre un indicador: deja solo los municipios que la cumplen.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Filtro {
+    pub indicador: String,
+    /// "min" (ese valor o más) o "max" (ese valor o menos).
+    pub op: String,
+    pub valor: f64,
 }
 fn diez() -> usize { 10 }
 fn desc() -> String { "desc".into() }
@@ -66,6 +85,21 @@ pub struct Tablero {
     pub titulo: String,
     pub territorio: Territorio,
     pub piezas: Vec<Pieza>,
+    /// Condiciones que se aplican a todas las piezas, además del territorio.
+    #[serde(default)]
+    pub filtros: Vec<Filtro>,
+    /// Texto corto que acompaña al título cuando el tablero se publica.
+    #[serde(default)]
+    pub descripcion: String,
+}
+
+/// Qué partes de la frase se reconocieron de verdad (y no se pusieron por omisión). Sirve para
+/// aplicar un pedido sobre un tablero que ya existe sin pisar lo que la frase no mencionó.
+#[derive(Debug, Default, Serialize)]
+pub struct Reconocido {
+    pub territorio: bool,
+    pub indicadores: bool,
+    pub tipos: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -75,6 +109,7 @@ pub struct Interpretacion {
     pub entendido: Vec<String>,
     /// Avisos: lo que se supuso o no se pudo atender.
     pub avisos: Vec<String>,
+    pub reconocido: Reconocido,
 }
 
 fn contiene(texto: &str, frase: &str) -> bool {
@@ -84,7 +119,7 @@ fn contiene(texto: &str, frase: &str) -> bool {
 /// Convierte una solicitud en lenguaje corriente en la definición de un tablero.
 pub fn interpretar(solicitud: &str, catalogo: &Catalogo) -> Interpretacion {
     let texto = basico(solicitud);
-    let (mut entendido, mut avisos) = (Vec::new(), Vec::new());
+    let (mut entendido, mut avisos, mut reconocido) = (Vec::new(), Vec::new(), Reconocido::default());
 
     // 1. Territorio: el nombre más largo del catálogo que aparezca como palabras completas.
     let mut territorio = Territorio { nivel: "pais".into(), codigo: String::new(), nombre: "Guatemala".into() };
@@ -105,6 +140,8 @@ pub fn interpretar(solicitud: &str, catalogo: &Catalogo) -> Interpretacion {
             }
         }
     }
+    // "todo el país" dicho con palabras también cuenta como territorio pedido.
+    reconocido.territorio = territorio.nivel != "pais" || ["todo el pais", "a nivel nacional", "nivel pais", "nacional", "toda guatemala", "republica"].iter().any(|p| contiene(&texto, p));
     entendido.push(match territorio.nivel.as_str() { "pais" => "Territorio: todo el país".to_string(), n => format!("Territorio: {n} de {} (código {})", territorio.nombre, territorio.codigo) });
 
     // 2. Indicadores, en el orden en que aparecen en la frase.
@@ -118,6 +155,7 @@ pub fn interpretar(solicitud: &str, catalogo: &Catalogo) -> Interpretacion {
     if indicadores.contains(&"construido_crecimiento_anual_pct") && texto.matches("construid").count() + texto.matches("urban").count() <= 1 {
         indicadores.retain(|i| *i != "construido_ha_2020");
     }
+    reconocido.indicadores = !indicadores.is_empty();
     if indicadores.is_empty() {
         avisos.push("No reconocí ningún indicador en la frase: puse la población. Puede cambiarlo en cada pieza.".into());
         indicadores.push("poblacion_actual");
@@ -135,11 +173,12 @@ pub fn interpretar(solicitud: &str, catalogo: &Catalogo) -> Interpretacion {
     let mut tipos: Vec<&str> = Vec::new();
     for (tipo, palabras) in [("tarjeta", &["tarjeta", "tarjetas", "total", "totales", "resumen", "cifras", "cifra", "indicadores clave"][..]), ("mapa", &["mapa", "mapas", "cartografia"][..]),
         ("barras", &["barras", "grafica", "graficas", "grafico", "graficos", "ranking", "comparar", "comparacion", "comparativo", "top", "mayores", "menores", "primeros"][..]),
-        ("tabla", &["tabla", "tablas", "lista", "listado", "detalle"][..]), ("piramide", &["piramide", "edades", "edad", "sexo"][..]), ("serie", &["serie", "evolucion", "historico", "historia", "tendencia", "a lo largo"][..])] {
+        ("tabla", &["tabla", "tablas", "lista", "listado", "detalle"][..]), ("dispersion", &["dispersion", "relacion entre", "relacion", "correlacion", "contra", "versus", "vs", "cruce", "cruzar"][..]), ("piramide", &["piramide", "edades", "edad", "sexo"][..]), ("serie", &["serie", "evolucion", "historico", "historia", "tendencia", "a lo largo"][..])] {
         if pide(palabras) {
             tipos.push(tipo);
         }
     }
+    reconocido.tipos = !tipos.is_empty();
     if tipos.is_empty() {
         tipos = vec!["tarjeta", "barras", "mapa"];
         avisos.push("No se pidió un tipo de pieza: puse tarjetas, barras y mapa.".into());
@@ -147,7 +186,7 @@ pub fn interpretar(solicitud: &str, catalogo: &Catalogo) -> Interpretacion {
     entendido.push(format!("Piezas: {}{}", tipos.join(", "), if tipos.iter().any(|t| *t == "barras" || *t == "tabla") { format!(" · {n} filas, {} primero", if asc { "los menores" } else { "los mayores" }) } else { String::new() }));
 
     let mut piezas: Vec<Pieza> = Vec::new();
-    let pieza = |tipo: &str, indicador: &str| Pieza { tipo: tipo.into(), indicador: indicador.into(), titulo: String::new(), n, orden: orden.into() };
+    let pieza = |tipo: &str, indicador: &str| Pieza { tipo: tipo.into(), indicador: indicador.into(), titulo: String::new(), n, orden: orden.into(), ancho: 0, indicador2: String::new(), texto: String::new() };
     if tipos.contains(&"tarjeta") {
         piezas.extend(indicadores.iter().map(|i| pieza("tarjeta", i)));
     }
@@ -155,6 +194,13 @@ pub fn interpretar(solicitud: &str, catalogo: &Catalogo) -> Interpretacion {
         if tipos.contains(&tipo) {
             // Un mapa o una gráfica por indicador (hasta tres), para no llenar la pantalla.
             piezas.extend(indicadores.iter().take(3).map(|i| pieza(tipo, i)));
+        }
+    }
+    if tipos.contains(&"dispersion") {
+        // La dispersión cruza los dos primeros indicadores de la frase.
+        match indicadores.as_slice() {
+            [a, b, ..] => piezas.push(Pieza { indicador2: (*b).into(), ancho: 2, ..pieza("dispersion", a) }),
+            _ => avisos.push("Para la dispersión hacen falta dos indicadores en la frase (por ejemplo: «relación entre desnutrición e internet»).".into()),
         }
     }
     for tipo in ["piramide", "serie"] {
@@ -170,7 +216,10 @@ pub fn interpretar(solicitud: &str, catalogo: &Catalogo) -> Interpretacion {
         avisos.push("En un solo municipio las barras, la tabla y el mapa lo comparan con los demás municipios de su departamento.".into());
     }
     let titulo = format!("{} · {}", indicadores.iter().take(2).map(|i| nombre_de(i).split(" (").next().unwrap_or("")).collect::<Vec<_>>().join(" y "), territorio.nombre);
-    Interpretacion { tablero: Tablero { titulo, territorio, piezas }, entendido, avisos }
+    if piezas.is_empty() {
+        piezas.extend(indicadores.iter().map(|i| pieza("tarjeta", i)));
+    }
+    Interpretacion { tablero: Tablero { titulo, territorio, piezas, filtros: Vec::new(), descripcion: String::new() }, entendido, avisos, reconocido }
 }
 
 /// Revisa una definición que llega del editor: tipos e indicadores conocidos y tamaños razonables.
@@ -195,11 +244,24 @@ pub fn validar(t: &Tablero, catalogo: &Catalogo) -> Result<(), String> {
         if !TIPOS.contains(&p.tipo.as_str()) {
             return Err(format!("tipo de pieza no admitido: {}", p.tipo));
         }
-        if !INDICADORES.iter().any(|i| i.0 == p.indicador) {
+        let conocido = |id: &str| INDICADORES.iter().any(|i| i.0 == id);
+        // La pieza de texto no lleva indicador; la dispersión lleva dos.
+        if p.tipo != "texto" && !conocido(&p.indicador) {
             return Err(format!("indicador no conocido: {}", p.indicador));
         }
-        if !(1..=50).contains(&p.n) || !matches!(p.orden.as_str(), "asc" | "desc") || p.titulo.chars().count() > 120 {
+        if p.tipo == "dispersion" && !conocido(&p.indicador2) {
+            return Err("la dispersión necesita un segundo indicador conocido".into());
+        }
+        if !(1..=50).contains(&p.n) || !matches!(p.orden.as_str(), "asc" | "desc") || p.titulo.chars().count() > 120 || p.ancho > 4 || p.texto.chars().count() > 1200 {
             return Err("una pieza tiene valores fuera de rango".into());
+        }
+    }
+    if t.filtros.len() > 6 || t.descripcion.chars().count() > 400 {
+        return Err("el tablero admite hasta 6 filtros y una descripción de hasta 400 caracteres".into());
+    }
+    for f in &t.filtros {
+        if !INDICADORES.iter().any(|i| i.0 == f.indicador) || !matches!(f.op.as_str(), "min" | "max") || !f.valor.is_finite() {
+            return Err("un filtro no es válido: lleva un indicador conocido, «min» o «max» y un número".into());
         }
     }
     Ok(())
@@ -251,5 +313,28 @@ mod tests {
         malo = i.tablero.clone();
         malo.territorio = Territorio { nivel: "municipio".into(), codigo: "9999".into(), nombre: "x".into() };
         assert!(validar(&malo, &c).is_err());
+        // Un filtro con un operador desconocido o un indicador inventado no se guarda.
+        malo = i.tablero.clone();
+        malo.filtros = vec![Filtro { indicador: "poblacion_actual".into(), op: "entre".into(), valor: 1.0 }];
+        assert!(validar(&malo, &c).is_err());
+        malo.filtros = vec![Filtro { indicador: "poblacion_actual".into(), op: "min".into(), valor: 50_000.0 }];
+        validar(&malo, &c).unwrap();
+    }
+
+    #[test]
+    fn un_pedido_sobre_un_tablero_existente_dice_que_reconocio() {
+        let c = catalogo();
+        // Solo el territorio: quien llama cambia el filtro y deja las piezas como están.
+        let i = interpretar("ahora solo Sololá", &c);
+        assert!(i.reconocido.territorio && !i.reconocido.indicadores && !i.reconocido.tipos);
+        // Solo piezas: el territorio del tablero abierto no se toca.
+        let i = interpretar("agrega una tabla de internet", &c);
+        assert!(!i.reconocido.territorio && i.reconocido.indicadores && i.reconocido.tipos);
+        // La dispersión cruza los dos indicadores de la frase.
+        let i = interpretar("relación entre desnutrición e internet a nivel nacional", &c);
+        assert!(i.reconocido.territorio);
+        let d = i.tablero.piezas.iter().find(|p| p.tipo == "dispersion").unwrap();
+        assert_eq!((d.indicador.as_str(), d.indicador2.as_str()), ("retardo_en_talla_pct", "censo_internet_pct"));
+        validar(&i.tablero, &c).unwrap();
     }
 }

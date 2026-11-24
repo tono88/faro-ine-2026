@@ -141,6 +141,20 @@ enum Comando {
         #[arg(long, default_value = "datos/referencia/superficie_construida_municipio.csv")]
         salida: PathBuf,
     },
+    /// Uso del suelo construido: superficie residencial y no residencial por municipio y por bloque
+    /// de 1 km, con las dos capas de GHSL (total y componente no residencial, NRES).
+    UsoSuelo {
+        /// Carpeta con los zip de la superficie construida total (los mismos de `faro construido`).
+        #[arg(long, default_value = "datos/crudo/ghsl-built-s")]
+        total: PathBuf,
+        /// Carpeta con los zip del componente no residencial (faro fuentes url ... --fuente ghsl-built-s-nres).
+        #[arg(long, default_value = "datos/crudo/ghsl-built-s-nres")]
+        no_residencial: PathBuf,
+        #[arg(long, default_value = "datos/referencia/municipios.geojson")]
+        municipios: PathBuf,
+        #[arg(long, default_value = "datos/referencia/uso_construido_municipio.csv")]
+        salida: PathBuf,
+    },
     /// Catálogo de artículos del IPMC (INE) con su índice más reciente y la variación en doce meses.
     Ipmc {
         /// Libro mensual más reciente del IPMC (faro fuentes descargar indice-de-precios-de-materiales-de-construccion-ipmc).
@@ -420,6 +434,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             return Ok(ExitCode::SUCCESS);
         }
         Comando::Construido { mosaicos, municipios, salida } => return construido(&mosaicos, &municipios, &salida),
+        Comando::UsoSuelo { total, no_residencial, municipios, salida } => return uso_suelo(&total, &no_residencial, &municipios, &salida),
         Comando::Precios { cotizaciones, cv_parecidos, salida } => {
             use faro_territorio::precios;
             let p = precios::Parametros { cv_parecidos_pct: cv_parecidos, ..Default::default() };
@@ -736,7 +751,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Comando::Verificar { .. } | Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
+        Comando::Verificar { .. } | Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::UsoSuelo { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
     }
 }
 
@@ -1168,6 +1183,86 @@ fn construido(dir: &Path, ruta_municipios: &Path, salida: &Path) -> Result<ExitC
     }
     w.flush().map_err(|e| e.to_string())?;
     println!("{escritos} bloques de 1 km con construcción -> {}", ruta_b.display());
+    Ok(ExitCode::SUCCESS)
+}
+
+/// Residencial y no residencial. GHSL publica dos capas con la misma cuadrícula: la superficie
+/// construida total y la parte no residencial (NRES). La residencial es la diferencia. Se suman por
+/// municipio (2000 y 2020) y por bloque de 1 km (2020), que es lo que se cruza con una visita de campo.
+fn uso_suelo(dir_total: &Path, dir_nres: &Path, ruta_municipios: &Path, salida: &Path) -> Result<ExitCode, String> {
+    use faro_territorio::construido::{self, Mosaico};
+    use faro_territorio::geo::Poligono;
+    use std::collections::BTreeMap;
+    const ANIOS: [i32; 2] = [2000, 2020];
+    let g: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(ruta_municipios).map_err(|e| format!("{}: {e}", ruta_municipios.display()))?).map_err(|e| e.to_string())?;
+    let anillo = |v: &serde_json::Value| -> Vec<(f64, f64)> { v.as_array().map(|pts| pts.iter().filter_map(|p| Some((p.get(0)?.as_f64()?, p.get(1)?.as_f64()?))).collect()).unwrap_or_default() };
+    let municipios: Vec<(String, Vec<Poligono>)> = g["features"].as_array().ok_or("la capa de municipios no tiene figuras")?.iter().map(|f| {
+        let poligonos: Vec<Poligono> = f["geometry"]["coordinates"].as_array().map(|ps| ps.iter().map(|p| p.as_array().map(|a| a.iter().map(anillo).collect()).unwrap_or_default()).collect()).unwrap_or_default();
+        (f["properties"]["codigo"].as_str().unwrap_or("").to_string(), construido::proyectar(&poligonos))
+    }).collect();
+    // (municipio, año) -> [m² totales, m² no residenciales]; bloque de 2020 -> lo mismo.
+    let mut suma: BTreeMap<(usize, i32), [f64; 2]> = BTreeMap::new();
+    let mut bloques: BTreeMap<(usize, i64, i64), [f64; 2]> = BTreeMap::new();
+    let mut leidos = [0usize; 2];
+    for (capa, dir) in [(0usize, dir_total), (1, dir_nres)] {
+        for e in std::fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))?.flatten() {
+            let n = e.file_name().to_string_lossy().to_string();
+            // Cada carpeta lleva una sola capa: se descarta el archivo que no corresponde.
+            if !n.ends_with(".zip") || n.contains("_NRES_") != (capa == 1) {
+                continue;
+            }
+            let Some(anio) = n.split("_E").nth(1).and_then(|r| r.get(..4)).and_then(|a| a.parse::<i32>().ok()).filter(|a| ANIOS.contains(a)) else { continue };
+            let r = leer_mosaico(&e.path())?;
+            let m = Mosaico { ancho: r.ancho, alto: r.alto, x0: r.x0, y0: r.y0, paso: r.paso, celdas: &r.celdas, sin_dato: r.sin_dato };
+            for (i, (_, poligonos)) in municipios.iter().enumerate() {
+                construido::recorrer(&m, poligonos, &mut |x, y, v| {
+                    if v > 0 {
+                        suma.entry((i, anio)).or_default()[capa] += v as f64;
+                        if anio == 2020 {
+                            bloques.entry((i, (x / 1000.0).floor() as i64, (y / 1000.0).floor() as i64)).or_default()[capa] += v as f64;
+                        }
+                    }
+                });
+            }
+            leidos[capa] += 1;
+        }
+    }
+    if leidos[0] == 0 || leidos[1] == 0 {
+        return Err(format!("faltan mosaicos: {} de superficie total en {} y {} no residenciales en {} (épocas 2000 y 2020)", leidos[0], dir_total.display(), leidos[1], dir_nres.display()));
+    }
+    // Comprobación: lo no residencial es una parte de lo construido; nunca puede superarlo.
+    let excedidos = suma.values().filter(|v| v[1] > v[0] * 1.001 + 1.0).count();
+    if excedidos > 0 {
+        return Err(format!("{excedidos} municipio(s) con más superficie no residencial que construida: las dos capas no corresponden a la misma versión"));
+    }
+    if let Some(d) = salida.parent() {
+        std::fs::create_dir_all(d).map_err(|e| e.to_string())?;
+    }
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(salida).map_err(|e| e.to_string())?;
+    w.write_record(["municipio", "anio", "construido_ha", "no_residencial_ha", "residencial_ha", "no_residencial_pct"]).map_err(|e| e.to_string())?;
+    for ((i, anio), v) in &suma {
+        w.write_record([municipios[*i].0.clone(), anio.to_string(), format!("{:.2}", v[0] / 1e4), format!("{:.2}", v[1] / 1e4), format!("{:.2}", (v[0] - v[1]).max(0.0) / 1e4), if v[0] > 0.0 { format!("{:.1}", 100.0 * v[1] / v[0]) } else { String::new() }]).map_err(|e| e.to_string())?;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    for anio in ANIOS {
+        let (t, n) = suma.iter().filter(|((_, a), _)| *a == anio).fold((0.0, 0.0), |(t, n), (_, v)| (t + v[0], n + v[1]));
+        println!("{anio}: {:.0} ha construidas · {:.0} ha no residenciales ({:.1} %) · {:.0} ha residenciales", t / 1e4, n / 1e4, 100.0 * n / t.max(1.0), (t - n) / 1e4);
+    }
+    println!("{} municipios × {} épocas -> {}", municipios.len(), ANIOS.len(), salida.display());
+    let ruta_b = salida.with_file_name("uso_construido_bloques.csv");
+    let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(&ruta_b).map_err(|e| e.to_string())?;
+    w.write_record(["municipio", "longitud", "latitud", "construido_ha_2020", "no_residencial_ha_2020"]).map_err(|e| e.to_string())?;
+    let mut escritos = 0;
+    for ((i, bx, by), v) in &bloques {
+        if v[0] < 5000.0 {
+            continue;
+        }
+        let (lon, lat) = construido::mollweide_inversa((*bx as f64 + 0.5) * 1000.0, (*by as f64 + 0.5) * 1000.0);
+        w.write_record([municipios[*i].0.clone(), format!("{lon:.4}"), format!("{lat:.4}"), format!("{:.1}", v[0] / 1e4), format!("{:.1}", v[1].min(v[0]) / 1e4)]).map_err(|e| e.to_string())?;
+        escritos += 1;
+    }
+    w.flush().map_err(|e| e.to_string())?;
+    println!("{escritos} bloques de 1 km con al menos media hectárea construida -> {}", ruta_b.display());
     Ok(ExitCode::SUCCESS)
 }
 

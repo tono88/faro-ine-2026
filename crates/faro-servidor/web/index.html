@@ -97,7 +97,26 @@
   .pieza svg { width:100%; height:auto; display:block; } .pieza .tabla { max-height:340px; }
   .barrah { display:grid; grid-template-columns:minmax(90px, 34%) 1fr auto; gap:8px; align-items:center; font-size:13px; margin:3px 0; } .barrah i { display:block; height:14px; border-radius:3px; background:var(--azul); min-width:2px; } .barrah span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .barrah b { font-variant-numeric:tabular-nums; }
   @media (max-width: 1100px) { .tablero { grid-template-columns:repeat(2, minmax(0, 1fr)); } } @media (max-width: 700px) { .tablero { grid-template-columns:1fr; } .pieza, .pieza.tarjeta { grid-column:span 1; } }
-  @media print { header, nav, #aviso-clave, #tableros > .titulo, #tableros > .panel { display:none !important; } body { display:block; background:#fff; } main { overflow:visible; padding:0; } .pieza { break-inside:avoid; } } small.pista { display:block; max-width:300px; margin-top:4px; color:var(--alerta); line-height:1.35; }
+  .galeria { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:12px; }
+  .tarj-tab { border:1px solid var(--borde); border-top:3px solid var(--celeste); border-radius:var(--radio); background:#fff; padding:12px 14px; display:flex; flex-direction:column; gap:6px; } .tarj-tab.borrador { border-top-color:#c2c9d2; }
+  .tarj-tab h3 { margin:0; font-size:15px; color:var(--azul-oscuro); } .tarj-tab small { color:var(--gris); } .tarj-tab p { margin:0; font-size:13px; } .tarj-tab .acc { margin-top:auto; padding-top:6px; display:flex; flex-wrap:wrap; gap:6px; } .tarj-tab .acc button { margin:0; }
+  .barra-est { position:sticky; top:0; z-index:5; display:flex; flex-wrap:wrap; align-items:center; gap:8px; background:#fff; border:1px solid var(--borde); border-radius:var(--radio); padding:8px 10px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,40,90,.08), 0 -22px 0 var(--fondo); } .barra-est button { margin:0; }
+  .barra-est #tabtitulo { flex:1 1 220px; max-width:none; font-size:17px; font-weight:600; border:1px solid transparent; background:transparent; padding:6px 8px; color:var(--azul-oscuro); } .barra-est #tabtitulo:hover, .barra-est #tabtitulo:focus { border-color:#8a96a3; background:#fff; } .barra-est #tabtitulo:read-only { border-color:transparent; background:transparent; }
+  .barra-fil { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; background:var(--cielo); border:1px solid #cfe1f7; border-radius:var(--radio); padding:8px 10px; margin-bottom:10px; font-size:13.5px; } .barra-fil label { margin:0; font-weight:600; display:inline-flex; align-items:center; gap:6px; } .barra-fil select, .barra-fil input { padding:5px 8px; max-width:220px; } .barra-fil button { margin:0; }
+  .barra-fil .cond { display:inline-flex; flex-wrap:wrap; align-items:center; gap:4px; background:#fff; border:1px solid #cfe1f7; border-radius:10px; padding:3px 4px 3px 6px; } .barra-fil .cond input { width:96px; } .barra-fil .cond button { border:0; background:none; cursor:pointer; color:var(--gris); min-width:28px; min-height:28px; font-size:14px; }
+  .estudio { display:grid; grid-template-columns:232px minmax(0, 1fr) 272px; gap:12px; align-items:start; } .estudio.vista { grid-template-columns:minmax(0, 1fr); } .vista .solo-edicion, .barra-est.vista .solo-edicion { display:none; }
+  .est-lado { background:#fff; border:1px solid var(--borde); border-radius:var(--radio); padding:10px 12px; position:sticky; top:62px; max-height:calc(100vh - 140px); overflow:auto; font-size:13.5px; } .est-lado h3 { font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--gris); margin:14px 0 6px; } .est-lado label { margin:10px 0 3px; font-size:13px; } .est-lado input, .est-lado select, .est-lado textarea { max-width:none; width:100%; } .est-lado input[type=search] { padding:7px 10px; border:1px solid #8a96a3; border-radius:7px; font:inherit; }
+  .pieza svg.alto { max-height:380px; }
+  .viz { display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; } .viz button { border:1px solid var(--borde); background:#fff; border-radius:8px; padding:6px 2px 4px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; font:inherit; font-size:10.5px; color:var(--gris); min-height:52px; } .viz button svg { width:24px; height:24px; } .viz button:hover, .viz button[aria-pressed=true] { border-color:var(--azul); background:var(--cielo); color:var(--azul-oscuro); }
+  .datos-ind { list-style:none; margin:6px 0 0; padding:0; max-height:240px; overflow:auto; } .datos-ind button { width:100%; text-align:left; border:0; background:none; font:inherit; font-size:13px; padding:6px; border-radius:6px; cursor:pointer; color:var(--tinta, #1f2a37); } .datos-ind button:hover { background:var(--cielo); } .datos-ind button[aria-pressed=true] { background:var(--cielo); font-weight:600; color:var(--azul-oscuro); } .datos-ind small { color:var(--gris); }
+  .lienzo { min-height:300px; align-content:start; } .lienzo.editando { background-image:radial-gradient(#cfd8e3 1px, transparent 1px); background-size:18px 18px; border-radius:var(--radio); padding:10px; }
+  .lienzo.editando .pieza { cursor:pointer; position:relative; } .lienzo.editando .pieza:hover { outline:2px dashed var(--celeste); outline-offset:1px; } .lienzo.editando .pieza.sel { outline:2px solid var(--azul); outline-offset:1px; box-shadow:0 4px 14px rgba(0,81,179,.18); } .lienzo .pieza.arrastre { opacity:.4; } .lienzo .pieza.destino { outline:2px solid #f5a623 !important; }
+  .pz-herr { position:absolute; top:-15px; right:8px; display:none; background:var(--azul-oscuro); border-radius:8px; padding:2px; z-index:2; } .pieza.sel .pz-herr { display:flex; } .pz-herr button { border:0; background:none; color:#fff; min-width:30px; height:30px; cursor:pointer; border-radius:6px; font-size:14px; } .pz-herr button:hover { background:rgba(255,255,255,.22); }
+  .tablero .pieza.a1 { grid-column:span 1; } .tablero .pieza.a2 { grid-column:span 2; } .tablero .pieza.a3 { grid-column:span 3; } .tablero .pieza.a4 { grid-column:1 / -1; } .pieza.nota-texto p { margin:0; white-space:pre-wrap; font-size:14px; }
+  .seg { display:inline-flex; border:1px solid #8a96a3; border-radius:7px; overflow:hidden; } .seg button { border:0; border-right:1px solid #d5dbe3; background:#fff; padding:6px 10px; font:inherit; font-size:13px; cursor:pointer; min-height:32px; } .seg button:last-child { border-right:0; } .seg button[aria-pressed=true] { background:var(--azul); color:#fff; }
+  @media (max-width: 1100px) { .estudio { grid-template-columns:minmax(0, 1fr); } .est-lado { position:static; max-height:none; } .tablero .pieza.a3 { grid-column:span 2; } .barra-est { position:static; } }
+  @media (max-width: 700px) { .tablero .pieza.a1, .tablero .pieza.a2, .tablero .pieza.a3, .tablero .pieza.a4 { grid-column:span 1; } .barra-fil select, .barra-fil input { max-width:100%; } .viz { grid-template-columns:repeat(8, minmax(56px, 1fr)); overflow-x:auto; } }
+  @media print { header, nav, #aviso-clave, #tableros > .titulo, #tabgaleria, .barra-est, .barra-fil, .est-lado, .pz-herr, #tabentendido { display:none !important; } body { display:block; background:#fff; } main { overflow:visible; padding:0; } .estudio { display:block; } .lienzo.editando { background:none; padding:0; } .pieza { break-inside:avoid; outline:0 !important; box-shadow:none !important; } } small.pista { display:block; max-width:300px; margin-top:4px; color:var(--alerta); line-height:1.35; }
   button.ampliar { border:1px solid transparent; background:none; padding:2px 4px; border-radius:6px; cursor:zoom-in; font:inherit; text-align:right; display:block; } button.ampliar:hover { border-color:var(--celeste); background:var(--cielo); } button.ampliar small { color:var(--azul); font-size:11px; }
   #volverpais { font-size:18px; line-height:30px; text-decoration:none; color:var(--azul-oscuro); }
   .filtros { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:flex-end; } .filtros > div { flex:1 1 180px; min-width:0; } .filtros label { margin-top:0; } .filtros .accion { margin-top:0; }
@@ -218,6 +237,7 @@
           <div id="huellactl" hidden style="margin:2px 0 8px 24px"><input type="range" id="huellaanio" min="0" max="9" value="9" style="width:100%" aria-label="Época de la huella construida"><div style="display:flex;justify-content:space-between;align-items:center"><b id="huellaetq">2020</b><button class="accion chico suave" id="huellaplay" style="margin:0">▶ Animar</button></div><div class="rampa"><span>poco</span><i></i><span>100 ha por km²</span></div></div>
           <label class="opcion"><input type="checkbox" id="capapoblados"> Lugares poblados del censo (19,723)</label>
           <label class="opcion"><input type="checkbox" id="capabase"> Mapa base de OpenStreetMap (requiere internet)</label>
+          <label class="opcion"><input type="checkbox" id="capasat"> Foto satelital Sentinel-2, 2016 (requiere internet)</label>
         </div>
         <div class="panel"><h2>Ficha del municipio</h2><p class="nota" style="margin:0">Toque un municipio: su ficha se abre sobre el mapa, con sus cifras, dos gráficas, la animación de su crecimiento y un reporte para imprimir.</p><p class="proc" data-proc="limites" style="margin:8px 0 0"></p></div>
       </div>
@@ -376,24 +396,43 @@
   </section>
 
   <section id="tableros">
-    <div class="titulo"><h2>Tableros a pedido</h2><p>Escriba qué quiere ver, con sus palabras, y el portal arma el tablero: reconoce el territorio, los indicadores y el tipo de pieza. No usa ningún modelo: son reglas a la vista, y le dice qué entendió. Después puede editarlo pieza por pieza, guardarlo y compartirlo.</p></div>
-    <div class="panel">
-      <label for="tabtexto" style="margin-top:0">¿Qué tablero necesita?</label>
-      <textarea id="tabtexto" rows="2" maxlength="500" placeholder="Por ejemplo: mapa y tabla de desnutrición y población en Sololá, los 5 municipios más altos"></textarea>
-      <div class="ejemplos" id="tabejemplos"></div>
-      <button class="accion" id="tabarmar">Armar tablero</button> <button class="accion suave" id="tabvacio">Empezar uno en blanco</button>
+    <div class="titulo"><h2>Tableros</h2><p>Arme un tablero escribiendo qué quiere ver o colocando piezas en el lienzo, fíltrelo por territorio y por condiciones, y publíquelo: los tableros publicados los ve cualquier visitante del portal, sin cuenta, con su propio enlace. No interviene ningún modelo: la frase se interpreta con reglas a la vista y el portal dice qué entendió.</p></div>
+    <div id="tabgaleria">
+      <div class="panel">
+        <label for="tabtexto" style="margin-top:0">¿Qué tablero necesita?</label>
+        <textarea id="tabtexto" rows="2" maxlength="500" placeholder="Por ejemplo: mapa y tabla de desnutrición y población en Sololá, los 5 municipios más altos"></textarea>
+        <div class="ejemplos" id="tabejemplos"></div>
+        <button class="accion" id="tabarmar">Armar tablero</button> <button class="accion suave" id="tabvacio">Empezar uno en blanco</button>
+      </div>
+      <div class="panel"><h2>Publicados</h2><p class="nota" style="margin-top:0">Están a la vista de cualquier visitante. Cada uno tiene un enlace que se puede compartir, y quien lo abre puede mover los filtros sin cambiar lo publicado.</p><div class="galeria" id="tabpublicados"></div></div>
+      <div class="panel con-sesion" hidden><h2>Borradores</h2><p class="nota" style="margin-top:0">Un tablero recién guardado es un borrador: solo lo ven su autor y los administradores hasta que se publica.</p><div class="galeria" id="tabborradores"></div></div>
+    </div>
+    <div id="tabestudio" hidden>
+      <div class="barra-est" role="toolbar" aria-label="Acciones del tablero">
+        <button class="accion chico suave" id="tabvolver">← Tableros</button>
+        <input type="text" id="tabtitulo" maxlength="120" aria-label="Título del tablero">
+        <span class="etq" id="tabestado"></span>
+        <button class="accion chico suave solo-edicion" id="tabdeshacer" title="Deshacer (Ctrl+Z)" aria-label="Deshacer">↶</button>
+        <button class="accion chico suave solo-edicion" id="tabrehacer" title="Rehacer (Ctrl+Y)" aria-label="Rehacer">↷</button>
+        <button class="accion chico suave" id="tabmodo">Vista previa</button>
+        <button class="accion chico solo-edicion" id="tabguardar">Guardar</button>
+        <button class="accion chico solo-edicion" id="tabpublicar">Publicar</button>
+        <button class="accion chico suave" id="tabenlace">Copiar enlace</button>
+        <button class="accion chico suave" id="tabimprimir">Imprimir</button>
+      </div>
+      <div class="barra-fil" id="tabfiltros" aria-label="Filtros del tablero"></div>
       <div id="tabentendido"></div>
+      <div class="estudio" id="tabcuerpo">
+        <aside class="est-lado solo-edicion" aria-label="Visualizaciones y datos">
+          <h3 style="margin-top:0">Visualizaciones</h3><div class="viz" id="tabviz"></div><p class="nota" style="margin:6px 0 0">Un clic la agrega al lienzo.</p>
+          <h3>Datos</h3><input type="search" id="tabbuscar" placeholder="Buscar indicador" aria-label="Buscar indicador" style="max-width:none;width:100%"><ul class="datos-ind" id="tabdatos"></ul>
+          <h3>Pídalo con palabras</h3><textarea id="tabpedido" rows="2" maxlength="300" placeholder="Ej.: solo Quiché · agrega un mapa de internet" aria-label="Pedir un cambio con palabras"></textarea>
+          <button class="accion chico" id="tabaplicar">Aplicar a este tablero</button>
+        </aside>
+        <div id="tabvista" class="tablero lienzo" aria-live="polite"></div>
+        <aside class="est-lado solo-edicion" id="tabprops" aria-label="Propiedades"></aside>
+      </div>
     </div>
-    <div class="panel" id="tabeditor" hidden>
-      <h2>Editar</h2>
-      <div class="filtros"><div style="flex:2 1 280px"><label for="tabtitulo">Título</label><input type="text" id="tabtitulo" maxlength="120" style="max-width:none"></div>
-        <div><label for="tabnivel">Territorio</label><select id="tabnivel"><option value="pais">Todo el país</option><option value="departamento">Un departamento</option><option value="municipio">Un municipio</option></select></div>
-        <div><label for="tablugar">Cuál</label><select id="tablugar" disabled></select></div></div>
-      <div class="tabla" style="margin-top:12px;max-height:none"><table id="tabpiezas"></table></div>
-      <p style="margin:10px 0 0"><button class="accion chico suave" id="tabagregar">+ Agregar pieza</button> <button class="accion chico" id="tabguardar">Guardar tablero</button> <button class="accion chico suave" id="tabimprimir">Imprimir</button> <span class="nota" id="tabestado"></span></p>
-    </div>
-    <div id="tabvista" class="tablero" aria-live="polite"></div>
-    <div class="panel"><h2>Tableros guardados</h2><div class="tabla"><table id="ttableros"></table></div></div>
   </section>
 
   <section id="usuarios">
@@ -540,7 +579,7 @@ const etq = e => `<span class="etq ${({exacto:'ok',memoria:'ok',sugerido:'alerta
 let solicitudes = [];
 
 async function estado() {
-  const e = await api('/api/estado');
+  const e = await api('/api/estado'); UMBRAL = e.umbral_de_celda ?? 3;
   $('#tarjetas').innerHTML = [['envios','envíos recibidos'],['filas','filas procesadas'],['pendientes','valores por revisar'],['equivalencias','equivalencias aprendidas'],['conjuntos_ine','conjuntos del INE vigilados'],['lugares_en_catalogo','lugares en el catálogo']]
     .map(([k,t]) => `<div class="tarjeta"><b>${num(e[k])}</b><small>${t}</small></div>`).join('');
   $('#npend').hidden = !e.pendientes; $('#npend').textContent = e.pendientes;
@@ -727,6 +766,7 @@ const INDICADORES = [
   {id:'cif_pct', t:'Inseguridad alimentaria: % en Fase 3 o superior (dato del departamento)', f:p => p.cif_fase3_o_superior_pct_departamento, u:'%', nota:() => 'CIF, SESAN, octubre 2026 – febrero 2027. El dato es del departamento: todos sus municipios muestran el mismo valor.', tonos:'naranja'},
   {id:'proveedores_construccion', t:'Proveedores de construcción perfilados', f:p => p.proveedores_construccion, u:'proveedores', nota:() => 'Negocios de materiales de construcción con ubicación reconocida, del levantamiento en páginas públicas.', tonos:'azul'},
   {id:'sin_conexion', t:'Lugares poblados sin conexión vial', f:p => p.lugares_en_tramo_suelto + p.lugares_sin_camino, u:'lugares', nota:() => 'Lugares del censo sin camino mapeado a 500 m o en un tramo suelto (OpenStreetMap).', tonos:'naranja'},
+  {id:'no_residencial_pct_2020', t:'Superficie construida no residencial 2020 (satélite)', f:p => p.no_residencial_pct_2020, u:'%', nota:() => 'Parte de lo construido que GHSL clasifica como no residencial (industria, comercio y servicios en edificios grandes). El resto se toma como residencial. GHSL GHS-BUILT-S R2023A, componente NRES, 100 m.', tonos:'naranja', dec:1},
   {id:'censo_alfabetismo_pct', t:'Alfabetismo, 7 años o más (Censo 2018)', f:p => p.censo_alfabetismo_pct, u:'%', nota:() => 'Personas de 7 años o más que saben leer y escribir. INE, Censo 2018, cuadro A11.', tonos:'verde', dec:1},
   {id:'censo_internet_pct', t:'Personas que usan internet (Censo 2018)', f:p => p.censo_internet_pct, u:'%', nota:() => 'Personas de 7 años o más que declararon usar internet. INE, Censo 2018, cuadro A12.', tonos:'azul', dec:1},
   {id:'censo_agua_en_vivienda_pct', t:'Hogares con agua por tubería en la vivienda (Censo 2018)', f:p => p.censo_agua_en_vivienda_pct, u:'%', nota:() => 'Hogares cuya fuente principal de agua es tubería dentro de la vivienda. INE, Censo 2018, cuadro B2.', tonos:'azul', dec:1},
@@ -740,7 +780,9 @@ const INDICADORES = [
   {id:'limites', t:'Lugares del censo dentro del límite municipal', f:p => p.lugares_dentro_de_su_limite_pct, u:'%', nota:() => 'Porcentaje de lugares poblados que caen dentro del polígono de su municipio. Bajo = el límite y el censo no coinciden.', tonos:'verde'},
 ];
 const TONOS = {azul:['#e8f1fb','#b9d6f5','#7fb3ea','#3f86d6','#0051b3'], naranja:['#fff3e0','#ffd8a8','#ffb061','#f08a24','#b85c00'], verde:['#fdecea','#f9c9a8','#f3e48e','#a8d58a','#3c9a5f']};
-let mapa, capaMuni, capaEnlaces, capaLugares, capaBase, geoMuni, registros = {};
+let mapa, capaMuni, capaEnlaces, capaLugares, capaBase, capaSat, geoMuni, registros = {};
+// ¿Hay un fondo (calles o foto satelital) bajo los polígonos? Si lo hay, se pintan translúcidos.
+const hayBase = () => [capaBase, capaSat].some(c => c && mapa.hasLayer(c));
 // Nivel territorial del mapa: departamento, municipio o lugar poblado.
 let nivel = 'municipio', capaDep, geoDep, registrosDep = {}, capaNivelLugar, lugarDe = null;
 // Vista aislada: solo un departamento (con sus municipios) o solo un municipio; lo demás se atenúa.
@@ -776,6 +818,7 @@ function resumenDepartamento(codigo, nombre, ms) {
     cif_fase3_o_superior_pct_departamento: ms[0]?.cif_fase3_o_superior_pct_departamento, cif_fase_area_departamento: ms[0]?.cif_fase_area_departamento,
     proveedores_construccion: suma(ms, 'proveedores_construccion'), lugares_poblados: suma(ms, 'lugares_poblados'), lugares_en_tramo_suelto: suma(ms, 'lugares_en_tramo_suelto'), lugares_sin_camino: suma(ms, 'lugares_sin_camino'),
     lugares_dentro_de_su_limite_pct: redondo(ponderado(ms, 'lugares_dentro_de_su_limite_pct', 'lugares_poblados'), 1),
+    no_residencial_ha_2020: redondo(suma(ms, 'no_residencial_ha_2020'), 1), residencial_ha_2020: redondo(suma(ms, 'residencial_ha_2020'), 1), no_residencial_pct_2020: c20 ? redondo(100 * suma(ms, 'no_residencial_ha_2020') / c20, 1) : null,
     // Censo 2018: cada porcentaje se pondera con su propio denominador (personas, hogares o viviendas).
     censo_alfabetismo_pct: redondo(ponderado(ms, 'censo_alfabetismo_pct', 'censo_pob7'), 1), censo_internet_pct: redondo(ponderado(ms, 'censo_internet_pct', 'censo_pob7'), 1),
     censo_agua_en_vivienda_pct: redondo(ponderado(ms, 'censo_agua_en_vivienda_pct', 'censo_hogares'), 1), censo_drenaje_pct: redondo(ponderado(ms, 'censo_drenaje_pct', 'censo_hogares'), 1),
@@ -871,7 +914,7 @@ function indicadorActual() {
 function pintarMapa() {
   if (!capaMuni) return;
   if (nivel === 'lugar') {
-    capaMuni.setStyle(f => dentro(f.properties) ? {fillColor:'#eef3f8', fillOpacity: capaBase && mapa.hasLayer(capaBase) ? .15 : 1, color:'#9fb3c8', weight:.7} : FUERA);
+    capaMuni.setStyle(f => dentro(f.properties) ? {fillColor:'#eef3f8', fillOpacity: hayBase() ? .15 : 1, color:'#9fb3c8', weight:.7} : FUERA);
     const sueltos = suma(geoMuni.features.map(f => f.properties), 'lugares_en_tramo_suelto'), sin = suma(geoMuni.features.map(f => f.properties), 'lugares_sin_camino');
     $('#leyenda').innerHTML = `<span><i style="background:${COLOR_CONEXION.conectado}"></i>con conexión a la red vial mapeada</span><span><i style="background:${COLOR_CONEXION.tramo_suelto}"></i>en un tramo suelto (${num(sueltos)})</span><span><i style="background:${COLOR_CONEXION.sin_camino}"></i>sin camino mapeado a 500 m (${num(sin)})</span>`;
     $('#indnota').textContent = 'Cada punto es un lugar poblado del Censo 2018 (aldea, caserío, cantón, colonia…) en su centroide; el censo no publica su polígono. El tamaño del punto crece con su población censada. Toque un punto para ver su población, hogares, viviendas, código y conexión vial.';
@@ -882,7 +925,7 @@ function pintarMapa() {
   const visibles = nivel === 'municipio' && aislado?.tipo === 'departamento' ? geo.features.filter(f => dentro(f.properties)) : geo.features; // las clases se calculan con lo que se está viendo
   const ind = indicadorActual(), c = cortes(visibles.map(f => ind.f(f.properties))), tonos = TONOS[ind.tonos].slice(-(c.length + 1));
   const color = v => v == null || !isFinite(v) ? '#f1f3f5' : tonos[c.filter(x => v >= x).length];
-  capa.setStyle(f => nivel === 'municipio' && !dentro(f.properties) ? FUERA : ({fillColor: color(ind.f(f.properties)), fillOpacity: capaBase && mapa.hasLayer(capaBase) ? .65 : 1, color:'#fff', weight: nivel === 'departamento' ? 1 : .6}));
+  capa.setStyle(f => nivel === 'municipio' && !dentro(f.properties) ? FUERA : ({fillColor: color(ind.f(f.properties)), fillOpacity: hayBase() ? (capaSat && mapa.hasLayer(capaSat) ? .45 : .65) : 1, color:'#fff', weight: nivel === 'departamento' ? 1 : .6}));
   const n = x => Number(x).toLocaleString('es-GT', {maximumFractionDigits: ind.dec ?? 0});
   const rangos = c.length ? [c[0] <= 1 && (ind.dec ?? 0) === 0 ? '0' : `menos de ${n(c[0])}`].concat(c.map((x, i) => i + 1 < c.length ? `${n(x)} a ${n(c[i + 1])}` : `${n(x)} o más`)) : ['sin datos'];
   $('#leyenda').innerHTML = rangos.map((t, i) => `<span><i style="background:${tonos[i] || '#f1f3f5'}"></i>${esc(t)} ${esc(ind.u)}</span>`).join('') + '<span><i style="background:#f1f3f5"></i>sin dato</span>';
@@ -947,6 +990,12 @@ $('#ficha').onclick = e => { if (e.target.closest('.cerrar')) $('#ficha').hidden
 
 // ---- Detalle: animación del crecimiento construido y estadísticos de la confianza ----
 let animacion = null;
+// Fotos de fondo de la animación (teselas XYZ de uso libre). Son una referencia visual, no una fuente de medición.
+const TESELAS = new Map();
+const FOTO_SENTINEL = {nombre: 'Sentinel-2, mosaico sin nubes 2016 (EOX, CC BY 4.0)', zmax: 13, url: (z, x, y) => `https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/${z}/${y}/${x}.jpg`};
+const fotoLandsat = anio => ({nombre: `Landsat, mosaico anual ${anio} (NASA GIBS)`, zmax: 12, url: (z, x, y) => `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual/default/${anio}-12-01/GoogleMapsCompatible_Level12/${z}/${y}/${x}.jpeg`});
+// Qué foto acompaña a cada época: la más cercana que existe (no hay mosaico Landsat libre anterior a 1985).
+const fotoDeEpoca = anio => anio <= 1987 ? fotoLandsat(1985) : anio <= 1992 ? fotoLandsat(1990) : anio <= 1997 ? fotoLandsat(1998) : anio <= 2007 ? fotoLandsat(2000) : FOTO_SENTINEL;
 const tono = ha => { const t = Math.min(1, ha / 100), paradas = [[255,243,196],[249,178,74],[224,86,27],[143,29,12]], k = Math.min(2, Math.floor(t * 3)), u = t * 3 - k; return 'rgb(' + paradas[k].map((v, i) => Math.round(v + (paradas[k + 1][i] - v) * u)).join(',') + ')'; };
 async function detalle(codigo) {
   const d = await datosMunicipio(codigo), a = d.construido_analisis, g = geoMuni || (geoMuni = await (await fetch('/capas/municipios.geojson')).json());
@@ -954,8 +1003,10 @@ async function detalle(codigo) {
   $('#detcuerpo').innerHTML = `<h2 id="dettitulo" style="margin-right:30px">${esc(d.nombre)}, ${esc(d.departamento)}: crecimiento de la superficie construida</h2>
     <canvas id="animlienzo" width="700" height="430" role="img" aria-label="Animación de la superficie construida por época"></canvas>
     <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="accion chico" id="animplay" style="margin:0">❚❚ Pausa</button><input type="range" id="animanio" min="0" max="${ep.length - 1}" value="0" style="flex:1" aria-label="Época"><b id="animetq" style="min-width:150px;text-align:right"></b></div>
+    <div class="filtros" style="margin-top:8px;align-items:center"><div><label for="animfondo" style="margin-top:0">Foto de fondo</label><select id="animfondo"><option value="epoca">Foto satelital de cada época (Landsat y Sentinel-2)</option><option value="reciente">Foto satelital reciente (Sentinel-2, 2016)</option><option value="ninguna">Sin foto</option></select></div>
+      <label class="opcion" style="margin:18px 0 0"><input type="checkbox" id="animbucle"> Repetir sin parar</label><label class="opcion" style="margin:18px 0 0"><input type="checkbox" id="animbloques" checked> Ver los bloques construidos</label></div>
     <div class="rampa" style="margin-top:6px"><span>Cada cuadro es 1 km²: poco construido</span><i></i><span>100 ha (todo el cuadro)</span></div>
-    <p class="nota">Bloques de 1 km con al menos media hectárea construida en alguna época. Fuente: GHSL, Comisión Europea (100 m). ${bloques.length ? '' : 'Este municipio no tiene bloques que mostrar.'}</p>
+    <p class="nota">La animación corre una vez, de ${ep[0]} a ${ep[ep.length - 1]}, y se detiene; con «Repetir sin parar» sigue en bucle. Bloques de 1 km con al menos media hectárea construida en alguna época (GHSL, Comisión Europea, 100 m; el GHSL se obtiene de imágenes Landsat y Sentinel-2). ${bloques.length ? '' : 'Este municipio no tiene bloques que mostrar. '}La foto de fondo es solo una referencia visual: FARO no mide sobre ella. Landsat tiene mosaicos anuales libres para 1985, 1990, 1998 y 2000 (NASA GIBS); desde 2010 se usa el mosaico Sentinel-2 sin nubes de 2016 (EOX). Cada cuadro dice qué foto lleva.</p>
     <h3>Por qué la confianza es ${a ? esc(a.confianza) : 'desconocida'}</h3>
     ${a ? `<div class="tabla"><table><tbody>
       <tr><td>Épocas usadas para la tendencia</td><td class="num">${d.construido.filter(x => x[0] >= 2000).length} (de ${a.anio_inicial} a ${a.anio_final})</td></tr>
@@ -971,18 +1022,37 @@ async function detalle(codigo) {
   const pts = anillos.flat(), lons = pts.map(p => p[0]), lats = pts.map(p => p[1]), [lo0, lo1, la0, la1] = [Math.min(...lons), Math.max(...lons), Math.min(...lats), Math.max(...lats)];
   const kx = Math.cos((la0 + la1) / 2 * Math.PI / 180), esc_ = Math.min((lienzo.width - 30) / ((lo1 - lo0) * kx || 1), (lienzo.height - 30) / ((la1 - la0) || 1));
   const ox = (lienzo.width - (lo1 - lo0) * kx * esc_) / 2, oy = (lienzo.height - (la1 - la0) * esc_) / 2, P = (lon, lat) => [ox + (lon - lo0) * kx * esc_, lienzo.height - oy - (lat - la0) * esc_], lado = Math.max(2, esc_ / 111.2);
+  // Extensión geográfica del lienzo completo (el municipio va centrado con un margen): de ahí salen las teselas de la foto.
+  const W = lienzo.width, H = lienzo.height, lonIzq = lo0 - ox / (kx * esc_), lonDer = lo0 + (W - ox) / (kx * esc_), latAbajo = la0 - oy / esc_, latArriba = la0 + (H - oy) / esc_;
+  const teselasDe = foto => { const z = Math.max(6, Math.min(foto.zmax, Math.ceil(Math.log2(360 * kx * esc_ / 256)))), n = 2 ** z, tx = lon => Math.floor((lon + 180) / 360 * n), ty = lat => { const r = lat * Math.PI / 180; return Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n); }, latDe = y => Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180 / Math.PI, lista = [];
+    for (let a = tx(lonIzq); a <= tx(lonDer); a++) for (let b = ty(latArriba); b <= ty(latAbajo); b++) { const [x0, y0] = P(a / n * 360 - 180, latDe(b)), [x1, y1] = P((a + 1) / n * 360 - 180, latDe(b + 1)); lista.push({url: foto.url(z, a, b), x: x0, y: y0, w: x1 - x0, h: y1 - y0}); }
+    return lista.slice(0, 80); };
+  const fotoDe = k => { const modo = $('#animfondo').value; return modo === 'ninguna' ? null : modo === 'reciente' ? FOTO_SENTINEL : fotoDeEpoca(+ep[k]); };
+  const trazo = () => { x.beginPath(); anillos.forEach(an => an.forEach((p, i) => { const [a_, b_] = P(p[0], p[1]); i ? x.lineTo(a_, b_) : x.moveTo(a_, b_); })); };
+  let k = 0, corriendo = true, vivo = true;
   const dibujar = k => {
-    x.clearRect(0, 0, lienzo.width, lienzo.height); x.fillStyle = '#fff'; x.strokeStyle = '#07306b'; x.lineWidth = 1.4;
-    x.beginPath(); anillos.forEach(an => an.forEach((p, i) => { const [a_, b_] = P(p[0], p[1]); i ? x.lineTo(a_, b_) : x.moveTo(a_, b_); })); x.fill('evenodd');
-    bloques.forEach(b => { const ha = b[2 + k]; if (ha >= 0.5) { const [a_, b_] = P(b[0], b[1]); x.fillStyle = tono(ha); x.fillRect(a_ - lado / 2, b_ - lado / 2, lado, lado); } });
-    x.beginPath(); anillos.forEach(an => an.forEach((p, i) => { const [a_, b_] = P(p[0], p[1]); i ? x.lineTo(a_, b_) : x.moveTo(a_, b_); })); x.stroke();
-    const total = d.construido.find(v => v[0] === ep[k]); x.fillStyle = '#07306b'; x.font = '700 30px "Noto Sans", sans-serif'; x.fillText(ep[k], 14, 36);
+    const foto = fotoDe(k); x.clearRect(0, 0, W, H); x.globalAlpha = 1;
+    if (foto) { x.fillStyle = '#dfe5ec'; x.fillRect(0, 0, W, H); let listas = 0, todas = teselasDe(foto);
+      todas.forEach(t => { const im = TESELAS.get(t.url); if (im && im !== 'pedida') { x.drawImage(im, t.x, t.y, t.w + .5, t.h + .5); listas++; } else if (!im) { TESELAS.set(t.url, 'pedida'); const i = new Image(); i.onload = () => { TESELAS.set(t.url, i); if (vivo && $('#detalle').open) dibujar(+$('#animanio').value); }; i.onerror = () => TESELAS.set(t.url, null); i.src = t.url; } });
+      // Lo que queda fuera del municipio se aclara para que el límite se lea.
+      x.fillStyle = 'rgba(255,255,255,.5)'; x.beginPath(); x.rect(0, 0, W, H); anillos.forEach(an => an.forEach((p, i) => { const [a_, b_] = P(p[0], p[1]); i ? x.lineTo(a_, b_) : x.moveTo(a_, b_); })); x.fill('evenodd');
+      x.font = '12px "Noto Sans", sans-serif'; const pie = 'Foto: ' + foto.nombre + (listas ? '' : ' · cargando…'), ancho = x.measureText(pie).width; x.fillStyle = 'rgba(7,48,107,.82)'; x.fillRect(0, H - 22, ancho + 16, 22); x.fillStyle = '#fff'; x.fillText(pie, 8, H - 7);
+    } else { x.fillStyle = '#fff'; trazo(); x.fill('evenodd'); }
+    // Sobre la foto, cada bloque es más opaco cuanto más construido está: así lo poco construido deja ver el terreno.
+    if ($('#animbloques').checked) { bloques.forEach(b => { const ha = b[2 + k]; if (ha >= 0.5) { const [a_, b_] = P(b[0], b[1]); x.globalAlpha = foto ? Math.min(.85, .2 + ha / 55) : 1; x.fillStyle = tono(ha); x.fillRect(a_ - lado / 2, b_ - lado / 2, lado, lado); } }); x.globalAlpha = 1; }
+    if (foto) { x.strokeStyle = '#fff'; x.lineWidth = 3.4; trazo(); x.stroke(); } x.strokeStyle = '#07306b'; x.lineWidth = 1.4; trazo(); x.stroke();
+    const total = d.construido.find(v => v[0] === ep[k]); x.font = '700 30px "Noto Sans", sans-serif'; if (foto) { x.fillStyle = 'rgba(255,255,255,.85)'; x.fillRect(6, 6, x.measureText(ep[k]).width + 18, 40); } x.fillStyle = '#07306b'; x.fillText(ep[k], 14, 36);
     $('#animetq').textContent = total ? `${ep[k]}: ${num(total[1])} ha` : ep[k]; $('#animanio').value = k;
   };
-  let k = 0, corriendo = true; clearInterval(animacion); dibujar(0);
-  animacion = setInterval(() => { if (corriendo && $('#detalle').open) { k = (k + 1) % ep.length; dibujar(k); } }, 850);
-  $('#animplay').onclick = () => { corriendo = !corriendo; $('#animplay').textContent = corriendo ? '❚❚ Pausa' : '▶ Animar'; };
-  $('#animanio').oninput = e => { corriendo = false; $('#animplay').textContent = '▶ Animar'; k = +e.target.value; dibujar(k); };
+  const boton = () => { $('#animplay').textContent = corriendo ? '❚❚ Pausa' : k >= ep.length - 1 ? '↻ Ver de nuevo' : '▶ Animar'; };
+  clearInterval(animacion); dibujar(0); boton();
+  // Corre una vez y se detiene en la última época, salvo que se pida repetir sin parar.
+  animacion = setInterval(() => { if (!corriendo || !$('#detalle').open) return; if (k >= ep.length - 1) { if ($('#animbucle').checked) k = -1; else { corriendo = false; boton(); return; } } k += 1; dibujar(k); }, 950);
+  $('#animplay').onclick = () => { corriendo = !corriendo; if (corriendo && k >= ep.length - 1) { k = 0; dibujar(0); } boton(); };
+  $('#animanio').oninput = e => { corriendo = false; k = +e.target.value; dibujar(k); boton(); };
+  $('#animfondo').onchange = $('#animbloques').onchange = () => dibujar(k);
+  $('#animbucle').onchange = e => { if (e.target.checked && !corriendo) { corriendo = true; boton(); } };
+  $('#detalle').addEventListener('close', () => { vivo = false; }, {once: true});
   if (!$('#detalle').open) $('#detalle').showModal();
 }
 $('#detalle').addEventListener('close', () => clearInterval(animacion));
@@ -1033,6 +1103,7 @@ $('#capapoblados').onchange = async e => { capaPoblados = await capaOpcional(e.t
   return L.geoJSON(await (await fetch('/capas/lugares_poblados.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {renderer: lienzoCapa, radius:2, stroke:false, fillColor:'#07306b', fillOpacity:.55}), onEachFeature:(f, c) => c.bindTooltip(`${f.properties.nombre} · ${f.properties.codigo}`)}); }); };
 $('#capalugares').onchange = async e => { capaLugares = await capaOpcional(e.target.checked, capaLugares, async () => L.geoJSON(await (await fetch('/capas/lugares_sin_conexion.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {pane:'puntos', radius:4, weight:1, color:'#fff', fillOpacity:.9, fillColor: f.properties.conexion === 'sin_camino' ? '#b85c00' : '#7a3fb5'}), onEachFeature:(f, c) => c.bindPopup(`<b>${esc(f.properties.nombre)}</b> <small>${esc(f.properties.codigo)}</small><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>${f.properties.conexion === 'sin_camino' ? 'Sin camino mapeado cerca' + (f.properties.distancia_m ? ' (vía más cercana a ' + num(f.properties.distancia_m) + ' m)' : '') : 'En un tramo que no se une a la red principal'}`)})); };
 $('#capabase').onchange = async e => { capaBase = await capaOpcional(e.target.checked, capaBase, async () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:17, attribution:'© OpenStreetMap'})); if (capaBase && e.target.checked) capaBase.bringToBack(); pintarMapa(); };
+$('#capasat').onchange = async e => { capaSat = await capaOpcional(e.target.checked, capaSat, async () => L.tileLayer('https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg', {maxZoom:17, maxNativeZoom:13, attribution:'Sentinel-2 cloudless 2016 · <a href="https://s2maps.eu" rel="noopener">EOX IT Services</a> (datos Copernicus Sentinel modificados, CC BY 4.0)'})); if (capaSat && e.target.checked) capaSat.bringToBack(); pintarMapa(); };
 async function capasPublicadas() {
   const r = await (await fetch('/capas')).json();
   tabla('#tcapas', [{t:'Capa', f:f => `<b>${esc(f.titulo)}</b><br><small>${esc(f.descripcion)}</small>`}, {t:'Formato', f:f => `<span class="etq">${esc(f.formato)}</span>`}, {t:'Dirección', f:f => `<a href="${esc(f.url)}"><code>${esc(location.origin + f.url)}</code></a><br><small>${num(f.bytes / 1024)} KB</small>`},
@@ -1154,67 +1225,205 @@ $('#tmuestreos').onchange = async e => { const c = e.target, id = c.dataset.m ||
   try { await api('/api/muestreos/' + encodeURIComponent(id), {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(c.dataset.m ? {activa: c.checked} : {cada_horas: +c.value})}); aviso('Guardado.'); muestreos(); } catch (x) { aviso(x.message, true); muestreos(); } };
 $('#tmuestreos').onclick = async e => { const b = e.target.closest('button[data-e]'); if (!b) return; b.disabled = true; b.textContent = 'Consultando…';
   try { const r = await api('/api/muestreos/' + encodeURIComponent(b.dataset.e) + '/ejecutar', {method:'POST'}); aviso(r.en_curso ? 'Corrida iniciada: tarda unos minutos y sigue aunque cambie de sección.' : `${num(r.precios)} precios guardados.`); } catch (x) { aviso(x.message, true); } muestreos(); };
-// ---- Tableros a pedido ----
-const EJEMPLOS_TABLERO = ['Mapa y tabla de desnutrición y población en Sololá, los 5 municipios más altos', 'Resumen y ranking de lugares sin conexión vial en Alta Verapaz', 'Crecimiento urbano del país: barras de los 15 municipios que más crecen', 'Pirámide de edades y evolución de la población del municipio de Mixco'];
-const NOMBRE_TIPO = {tarjeta:'Tarjeta (una cifra)', barras:'Barras (ranking)', tabla:'Tabla', mapa:'Mapa', piramide:'Pirámide de edades', serie:'Serie de población'};
-let tabDef = null, tabId = null, tabSolicitud = '', tabIndicadores = [], tabAutor = null;
+// ---- Tableros: galería, diseñador y vista publicada ----
+// Un tablero es una definición (título, territorio, filtros y piezas) que se pinta en el navegador
+// con las mismas capas del mapa. Nace como borrador y se publica aparte; en la vista publicada los
+// filtros se pueden mover sin cambiar lo guardado.
+const EJEMPLOS_TABLERO = ['Mapa y tabla de desnutrición y población en Sololá, los 5 municipios más altos', 'Resumen y ranking de lugares sin conexión vial en Alta Verapaz', 'Crecimiento urbano del país: barras de los 15 municipios que más crecen', 'Pirámide de edades y evolución de la población del municipio de Mixco', 'Relación entre desnutrición e internet a nivel nacional'];
+const TIPOS_PIEZA = {
+  tarjeta:{n:'Tarjeta', d:'Una cifra del territorio', i:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 14h5M7 10h10"/>'},
+  barras:{n:'Barras', d:'Ranking de municipios', i:'<path d="M4 6h14M4 12h9M4 18h5"/>'},
+  tabla:{n:'Tabla', d:'Lista ordenada', i:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M10 4v16"/>'},
+  mapa:{n:'Mapa', d:'Municipios coloreados', i:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>'},
+  dispersion:{n:'Dispersión', d:'Cruce de dos indicadores', i:'<path d="M4 4v16h16"/><circle cx="9" cy="14" r="1.3"/><circle cx="12" cy="10" r="1.3"/><circle cx="16" cy="8" r="1.3"/><circle cx="17" cy="13" r="1.3"/>'},
+  piramide:{n:'Pirámide', d:'Edad y sexo (un municipio)', i:'<path d="M12 4v16M8 7h8M6 11h12M4 15h16"/>'},
+  serie:{n:'Serie', d:'Población 2015–2030 (un municipio)', i:'<path d="M4 4v16h16"/><path d="M6 15l4-4 3 2 5-6"/>'},
+  texto:{n:'Texto', d:'Una nota suya', i:'<path d="M5 6h14M12 6v13M9 19h6"/>'}};
+const iconoPieza = t => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${TIPOS_PIEZA[t].i}</svg>`;
+const botonesTipo = actual => Object.entries(TIPOS_PIEZA).map(([k, v]) => `<button type="button" data-tipo="${k}" title="${esc(v.d)}" aria-pressed="${k === actual}">${iconoPieza(k)}${v.n}</button>`).join('');
+// Estado del diseñador: la definición abierta, si se puede editar, la pieza elegida y el historial para deshacer.
+let tabDef = null, tabId = null, tabSolicitud = '', tabIndicadores = [], tabAutor = null, tabPublico = false, tabEditable = true, tabEdita = true, tabSel = -1, tabSucio = false, tabHist = [], tabFut = [], tabArrastre = -1;
 const valorInd = (p, id) => id === 'sin_conexion' ? (p.lugares_en_tramo_suelto || 0) + (p.lugares_sin_camino || 0) : p[id];
 const infoInd = id => tabIndicadores.find(i => i.id === id) || {nombre: id, unidad: ''};
+const anchoPieza = p => p.ancho || (p.tipo === 'tarjeta' ? 1 : p.tipo === 'texto' ? 4 : 2);
+const sinIndicador = t => t === 'piramide' || t === 'serie' || t === 'texto';
 async function geoDeMunicipios() { return geoMuni || (geoMuni = await (await fetch('/capas/municipios.geojson')).json()); }
-function alcanceTablero(t, g) { const ps = g.features.map(f => f.properties), dep = t.nivel === 'departamento' ? t.codigo : t.nivel === 'municipio' ? t.codigo.slice(0, 2) : null; return dep ? ps.filter(p => p.departamento_codigo === dep) : ps; }
-// Mapa de la pieza: los municipios del alcance, coloreados por cuantiles, en una proyección plana.
-function mapaPieza(g, alcance, id, resaltar) { const cods = new Set(alcance.map(p => p.codigo)), fs = g.features.filter(f => cods.has(f.properties.codigo)); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+// Municipios que entran al tablero: primero el territorio, después las condiciones.
+const cumpleFiltros = (p, filtros) => (filtros || []).every(f => { const v = valorInd(p, f.indicador); return v != null && isFinite(v) && (f.op === 'min' ? v >= f.valor : v <= f.valor); });
+function territorioTablero(t, g) { const ps = g.features.map(f => f.properties), dep = t.nivel === 'departamento' ? t.codigo : t.nivel === 'municipio' ? t.codigo.slice(0, 2) : null; return dep ? ps.filter(p => p.departamento_codigo === dep) : ps; }
+const alcanceTablero = (def, g) => territorioTablero(def.territorio, g).filter(p => cumpleFiltros(p, def.filtros));
+// Mapa de la pieza: los municipios del alcance coloreados por cuantiles; en gris, los del territorio que los filtros dejaron fuera.
+function mapaPieza(g, alcance, id, resaltar, territorio) { const cods = new Set(alcance.map(p => p.codigo)), fondo = new Set(territorio.map(p => p.codigo)), fs = g.features.filter(f => fondo.has(f.properties.codigo)); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
   const anillos = f => f.geometry.type === 'Polygon' ? f.geometry.coordinates : f.geometry.coordinates.flat(); fs.forEach(f => anillos(f).forEach(a => a.forEach(([x, y]) => { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); })));
   const k = Math.cos((y0 + y1) / 2 * Math.PI / 180), W = 400, H = Math.max(120, Math.min(420, W * (y1 - y0) / ((x1 - x0) * k || 1))), X = x => (x - x0) / (x1 - x0 || 1) * W, Y = y => (y1 - y) / (y1 - y0 || 1) * H;
-  const c = cortes(fs.map(f => valorInd(f.properties, id))), tonos = TONOS.azul.slice(-(c.length + 1)), color = v => v == null || !isFinite(v) ? '#f1f3f5' : tonos[c.filter(x => v >= x).length], inf = infoInd(id);
-  return `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" role="img" aria-label="Mapa de ${esc(inf.nombre)}">${fs.map(f => `<path d="${anillos(f).map(a => 'M' + a.map(([x, y]) => X(x).toFixed(1) + ' ' + Y(y).toFixed(1)).join('L') + 'Z').join('')}" fill="${color(valorInd(f.properties, id))}" stroke="${f.properties.codigo === resaltar ? '#f5a623' : '#fff'}" stroke-width="${f.properties.codigo === resaltar ? 2.5 : .5}"><title>${esc(f.properties.nombre)}: ${num(valorInd(f.properties, id))} ${esc(inf.unidad)}</title></path>`).join('')}</svg>
-    <small>${c.length ? 'De claro a oscuro: de menos a más (' + c.map(x => num(x)).join(' · ') + ' ' + esc(inf.unidad) + ')' : 'Sin datos'}</small>`; }
+  const dentro = fs.filter(f => cods.has(f.properties.codigo)), c = cortes(dentro.map(f => valorInd(f.properties, id))), tonos = TONOS.azul.slice(-(c.length + 1)), color = v => v == null || !isFinite(v) ? '#f1f3f5' : tonos[c.filter(x => v >= x).length], inf = infoInd(id);
+  return `<svg class="alto" viewBox="0 0 ${W} ${H.toFixed(0)}" role="img" aria-label="Mapa de ${esc(inf.nombre)}">${fs.map(f => { const p = f.properties, esta = cods.has(p.codigo); return `<path d="${anillos(f).map(a => 'M' + a.map(([x, y]) => X(x).toFixed(1) + ' ' + Y(y).toFixed(1)).join('L') + 'Z').join('')}" fill="${esta ? color(valorInd(p, id)) : '#eceff3'}" stroke="${p.codigo === resaltar ? '#f5a623' : '#fff'}" stroke-width="${p.codigo === resaltar ? 2.5 : .5}"><title>${esc(p.nombre)}: ${esta ? num(valorInd(p, id)) + ' ' + esc(inf.unidad) : 'fuera de los filtros'}</title></path>`; }).join('')}</svg>
+    <small>${c.length ? 'De claro a oscuro: de menos a más (' + c.map(x => num(x)).join(' · ') + ' ' + esc(inf.unidad) + ')' : 'Sin datos'}${dentro.length < fs.length ? ' · en gris, los que los filtros dejan fuera' : ''}</small>`; }
+// Dispersión: cada punto es un municipio. Se informa la correlación de Pearson con su tamaño de muestra.
+function dispersionPieza(alcance, a, b, resaltar) { const pts = alcance.map(m => [valorInd(m, a), valorInd(m, b), m]).filter(x => x[0] != null && x[1] != null && isFinite(x[0]) && isFinite(x[1])), ia = infoInd(a), ib = infoInd(b);
+  if (pts.length < 3) return '<small>Hacen falta al menos tres municipios con los dos datos.</small>';
+  const W = 400, H = 250, m = {l: 46, r: 10, t: 8, b: 32}, xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), X = x => m.l + (x - x0) / (x1 - x0 || 1) * (W - m.l - m.r), Y = y => H - m.b - (y - y0) / (y1 - y0 || 1) * (H - m.t - m.b);
+  const n = pts.length, mx = xs.reduce((t, v) => t + v, 0) / n, my = ys.reduce((t, v) => t + v, 0) / n, sxy = pts.reduce((t, p) => t + (p[0] - mx) * (p[1] - my), 0), sxx = xs.reduce((t, v) => t + (v - mx) ** 2, 0), syy = ys.reduce((t, v) => t + (v - my) ** 2, 0), r = sxx && syy ? sxy / Math.sqrt(sxx * syy) : 0, pend = sxx ? sxy / sxx : 0, yDe = x => my + pend * (x - mx), fuerza = Math.abs(r) < .3 ? 'débil' : Math.abs(r) < .6 ? 'moderada' : 'fuerte';
+  const corta = (y) => Math.max(m.t, Math.min(H - m.b, Y(y)));
+  return `<svg class="alto" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dispersión de ${esc(ia.nombre)} contra ${esc(ib.nombre)}"><path d="M${m.l} ${m.t}V${H - m.b}H${W - m.r}" fill="none" stroke="#9aa5b1"/><line x1="${X(x0)}" y1="${corta(yDe(x0))}" x2="${X(x1)}" y2="${corta(yDe(x1))}" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="5 4"/>
+    ${pts.map(([x, y, p]) => `<circle cx="${X(x).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="${p.codigo === resaltar ? 5 : 3}" fill="${p.codigo === resaltar ? '#f5a623' : '#0051b3'}" fill-opacity="${p.codigo === resaltar ? 1 : .55}"><title>${esc(p.nombre)}, ${esc(p.departamento)}: ${num(x)} ${esc(ia.unidad)} · ${num(y)} ${esc(ib.unidad)}</title></circle>`).join('')}
+    <text x="${m.l}" y="${H - 18}" font-size="10" fill="#5b6672">${num(x0)}</text><text x="${W - m.r}" y="${H - 18}" font-size="10" fill="#5b6672" text-anchor="end">${num(x1)}</text><text x="${(W + m.l) / 2}" y="${H - 5}" font-size="10.5" fill="#1f2a37" text-anchor="middle">${esc(ia.nombre.slice(0, 58))} (${esc(ia.unidad)})</text>
+    <text x="${m.l - 4}" y="${H - m.b}" font-size="10" fill="#5b6672" text-anchor="end">${num(y0)}</text><text x="${m.l - 4}" y="${m.t + 9}" font-size="10" fill="#5b6672" text-anchor="end">${num(y1)}</text><text transform="translate(11 ${(H - m.b + m.t) / 2}) rotate(-90)" font-size="10.5" fill="#1f2a37" text-anchor="middle">${esc(ib.nombre.slice(0, 40))} (${esc(ib.unidad)})</text></svg>
+    <small>Cada punto es un municipio (${n}). Correlación de Pearson r = ${r.toFixed(2)}: relación ${fuerza}${fuerza !== 'débil' && r < 0 ? ' e inversa' : ''}. La línea es el ajuste por mínimos cuadrados; una correlación no prueba que una cosa cause la otra.</small>`; }
+const resumenFiltros = def => (def.filtros || []).map(f => `${infoInd(f.indicador).nombre} ${f.op === 'min' ? '≥' : '≤'} ${num(f.valor)} ${infoInd(f.indicador).unidad}`).join(' · ');
 async function pintarTablero() {
-  if (!tabDef) { $('#tabvista').innerHTML = ''; return; }
-  const g = await geoDeMunicipios(), t = tabDef.territorio, alcance = alcanceTablero(t, g), propio = t.nivel === 'municipio' ? g.features.find(f => f.properties.codigo === t.codigo)?.properties : null;
-  const total = propio || resumenDepartamento(t.codigo, t.nombre, alcance), ficha = t.nivel === 'municipio' && tabDef.piezas.some(p => p.tipo === 'piramide' || p.tipo === 'serie') ? await datosMunicipio(t.codigo) : null;
-  const piezas = tabDef.piezas.map(p => { const inf = infoInd(p.indicador), tit = esc(p.titulo || inf.nombre), filas = alcance.map(m => [m, valorInd(m, p.indicador)]).filter(x => x[1] != null && isFinite(x[1])).sort((a, b) => p.orden === 'asc' ? a[1] - b[1] : b[1] - a[1]), ver = filas.slice(0, p.n), max = Math.max(...ver.map(x => Math.abs(x[1])), 1e-9), marca = m => m.codigo === t.codigo && t.nivel === 'municipio';
-    if (p.tipo === 'tarjeta') return `<div class="pieza tarjeta"><h3>${tit}</h3><b>${num(valorInd(total, p.indicador))} <small>${esc(inf.unidad)}</small></b><small>${esc(t.nombre)}${t.nivel === 'municipio' ? '' : ` · ${alcance.length} municipios`}</small></div>`;
-    if (p.tipo === 'barras') return `<div class="pieza"><h3>${tit}: ${p.orden === 'asc' ? 'los ' + ver.length + ' menores' : 'los ' + ver.length + ' mayores'} (${esc(inf.unidad)})</h3>${ver.map(([m, v]) => `<div class="barrah"><span title="${esc(m.nombre)}">${marca(m) ? '<b>' + esc(m.nombre) + '</b>' : esc(m.nombre)}</span><i style="width:${Math.abs(v) / max * 100}%;${marca(m) ? 'background:#f5a623' : ''}"></i><b>${num(v)}</b></div>`).join('') || '<small>Sin datos.</small>'}</div>`;
-    if (p.tipo === 'tabla') return `<div class="pieza"><h3>${tit}</h3><div class="tabla"><table><thead><tr><th scope="col">#</th><th scope="col">Municipio</th><th scope="col">Departamento</th><th scope="col" class="num">${esc(inf.unidad)}</th></tr></thead><tbody>${ver.map(([m, v], i) => `<tr><td>${i + 1}</td><td>${marca(m) ? '<b>' + esc(m.nombre) + '</b>' : esc(m.nombre)}</td><td>${esc(m.departamento)}</td><td class="num">${num(v)}</td></tr>`).join('')}</tbody></table></div></div>`;
-    if (p.tipo === 'mapa') return `<div class="pieza"><h3>${tit}</h3>${mapaPieza(g, alcance, p.indicador, t.nivel === 'municipio' ? t.codigo : null)}</div>`;
-    if (p.tipo === 'piramide') return `<div class="pieza"><h3>${esc(p.titulo || 'Edad y sexo')}</h3>${ficha && ficha.edades ? piramide(ficha.edades, ficha.anio_actual, 2018) : '<small>La pirámide se muestra cuando el territorio es un municipio.</small>'}</div>`;
-    return `<div class="pieza"><h3>${esc(p.titulo || 'Población 2015–2030 (habitantes)')}</h3>${ficha ? mini(ficha.poblacion.map(x => [x[0], x[1]]), {unidad:'hab.'}) : '<small>La serie se muestra cuando el territorio es un municipio.</small>'}</div>`; });
-  $('#tabvista').innerHTML = `<h2>${esc(tabDef.titulo)}</h2><p>${esc(t.nombre)}${tabAutor ? ' · tablero de ' + esc(tabAutor) : ''} · datos del INE y fuentes citadas en "Acerca y fuentes"</p>` + piezas.join('');
+  const lienzo = $('#tabvista'); if (!tabDef) { lienzo.innerHTML = ''; return; }
+  const g = await geoDeMunicipios(), t = tabDef.territorio, territorio = territorioTablero(t, g), alcance = alcanceTablero(tabDef, g), propio = t.nivel === 'municipio' ? g.features.find(f => f.properties.codigo === t.codigo)?.properties : null;
+  const total = propio || resumenDepartamento(t.codigo, t.nombre, alcance), pais = t.nivel === 'pais' && !(tabDef.filtros || []).length ? null : resumenDepartamento('', 'Guatemala', g.features.map(f => f.properties));
+  const ficha = t.nivel === 'municipio' && tabDef.piezas.some(p => p.tipo === 'piramide' || p.tipo === 'serie') ? await datosMunicipio(t.codigo) : null;
+  const herr = '<div class="pz-herr" role="toolbar" aria-label="Acciones de la pieza"><button type="button" data-a="izq" title="Mover antes" aria-label="Mover antes">←</button><button type="button" data-a="der" title="Mover después" aria-label="Mover después">→</button><button type="button" data-a="menos" title="Más angosta" aria-label="Más angosta">−</button><button type="button" data-a="mas" title="Más ancha" aria-label="Más ancha">+</button><button type="button" data-a="dup" title="Duplicar" aria-label="Duplicar">⧉</button><button type="button" data-a="quitar" title="Quitar" aria-label="Quitar">✕</button></div>';
+  const piezas = tabDef.piezas.map((p, i) => { const inf = infoInd(p.indicador), tit = esc(p.titulo || inf.nombre), filas = alcance.map(m => [m, valorInd(m, p.indicador)]).filter(x => x[1] != null && isFinite(x[1])).sort((a, b) => p.orden === 'asc' ? a[1] - b[1] : b[1] - a[1]), ver = filas.slice(0, p.n), max = Math.max(...ver.map(x => Math.abs(x[1])), 1e-9), marca = m => m.codigo === t.codigo && t.nivel === 'municipio';
+    const cuerpo = p.tipo === 'tarjeta' ? `<h3>${tit}</h3><b>${num(valorInd(total, p.indicador))} <small>${esc(inf.unidad)}</small></b><small>${esc(t.nombre)}${t.nivel === 'municipio' ? '' : ` · ${alcance.length} municipios`}${pais ? ` · país: ${num(valorInd(pais, p.indicador))}` : ''}</small>`
+      : p.tipo === 'barras' ? `<h3>${tit}: ${p.orden === 'asc' ? 'los ' + ver.length + ' menores' : 'los ' + ver.length + ' mayores'} (${esc(inf.unidad)})</h3>${ver.map(([m, v]) => `<div class="barrah"><span title="${esc(m.nombre)}">${marca(m) ? '<b>' + esc(m.nombre) + '</b>' : esc(m.nombre)}</span><i style="width:${Math.abs(v) / max * 100}%;${marca(m) ? 'background:#f5a623' : ''}"></i><b>${num(v)}</b></div>`).join('') || '<small>Ningún municipio cumple los filtros.</small>'}`
+      : p.tipo === 'tabla' ? `<h3>${tit}</h3><div class="tabla"><table><thead><tr><th scope="col">#</th><th scope="col">Municipio</th><th scope="col">Departamento</th><th scope="col" class="num">${esc(inf.unidad)}</th></tr></thead><tbody>${ver.map(([m, v], j) => `<tr><td>${j + 1}</td><td>${marca(m) ? '<b>' + esc(m.nombre) + '</b>' : esc(m.nombre)}</td><td>${esc(m.departamento)}</td><td class="num">${num(v)}</td></tr>`).join('')}</tbody></table></div>`
+      : p.tipo === 'mapa' ? `<h3>${tit}</h3>${mapaPieza(g, alcance, p.indicador, t.nivel === 'municipio' ? t.codigo : null, territorio)}`
+      : p.tipo === 'dispersion' ? `<h3>${esc(p.titulo || inf.nombre + ' y ' + infoInd(p.indicador2).nombre)}</h3>${dispersionPieza(alcance, p.indicador, p.indicador2, t.nivel === 'municipio' ? t.codigo : null)}`
+      : p.tipo === 'piramide' ? `<h3>${esc(p.titulo || 'Edad y sexo')}</h3>${ficha && ficha.edades ? piramide(ficha.edades, ficha.anio_actual, 2018) : '<small>La pirámide se muestra cuando el filtro de territorio es un municipio.</small>'}`
+      : p.tipo === 'serie' ? `<h3>${esc(p.titulo || 'Población 2015–2030 (habitantes)')}</h3>${ficha ? mini(ficha.poblacion.map(x => [x[0], x[1]]), {unidad:'hab.'}) : '<small>La serie se muestra cuando el filtro de territorio es un municipio.</small>'}`
+      : `${p.titulo ? `<h3>${esc(p.titulo)}</h3>` : ''}<p>${esc(p.texto) || (tabEdita ? '<small>Escriba el texto en el panel de propiedades.</small>' : '')}</p>`;
+    return `<div class="pieza a${anchoPieza(p)}${p.tipo === 'tarjeta' ? ' tarjeta' : ''}${p.tipo === 'texto' ? ' nota-texto' : ''}${tabEdita && i === tabSel ? ' sel' : ''}" data-i="${i}"${tabEdita ? ' draggable="true" tabindex="0" aria-label="Pieza ' + (i + 1) + ': ' + TIPOS_PIEZA[p.tipo].n + '"' : ''}>${tabEdita ? herr : ''}${cuerpo}</div>`; });
+  const filtros = resumenFiltros(tabDef);
+  lienzo.classList.toggle('editando', tabEdita);
+  lienzo.innerHTML = `<h2>${esc(tabDef.titulo)}</h2><p>${esc(t.nombre)}${filtros ? ' · solo municipios con ' + esc(filtros) + ` (${alcance.length} de ${territorio.length})` : ''}${tabAutor ? ' · tablero de ' + esc(tabAutor) : ''} · datos del INE y fuentes citadas en «Acerca y fuentes»</p>${tabDef.descripcion ? `<p>${esc(tabDef.descripcion)}</p>` : ''}`
+    + (piezas.join('') || '<div class="pieza a4"><small>El lienzo está vacío: elija una visualización a la izquierda o pídala con palabras.</small></div>');
 }
-function pintarEditor() {
-  if (!tabDef) { $('#tabeditor').hidden = true; return; } $('#tabeditor').hidden = false; $('#tabtitulo').value = tabDef.titulo; $('#tabnivel').value = tabDef.territorio.nivel;
-  const g = geoMuni, lista = tabDef.territorio.nivel === 'departamento' ? [...new Map(g.features.map(f => [f.properties.departamento_codigo, f.properties.departamento])).entries()].sort((a, b) => a[1].localeCompare(b[1])) : tabDef.territorio.nivel === 'municipio' ? g.features.map(f => [f.properties.codigo, f.properties.nombre + ', ' + f.properties.departamento]).sort((a, b) => a[1].localeCompare(b[1])) : [];
-  $('#tablugar').disabled = !lista.length; $('#tablugar').innerHTML = lista.map(([c, n]) => `<option value="${esc(c)}" ${c === tabDef.territorio.codigo ? 'selected' : ''}>${esc(n)}</option>`).join('');
-  tabla('#tabpiezas', [{t:'#', f:p => tabDef.piezas.indexOf(p) + 1}, {t:'Pieza', f:p => `<select data-k="tipo" aria-label="Tipo de pieza" style="padding:4px;max-width:200px">${Object.entries(NOMBRE_TIPO).map(([k, v]) => `<option value="${k}" ${k === p.tipo ? 'selected' : ''}>${v}</option>`).join('')}</select>`},
-    {t:'Indicador', f:p => `<select data-k="indicador" aria-label="Indicador" style="padding:4px;max-width:320px" ${p.tipo === 'piramide' || p.tipo === 'serie' ? 'disabled' : ''}>${tabIndicadores.map(i => `<option value="${i.id}" ${i.id === p.indicador ? 'selected' : ''}>${esc(i.nombre)}</option>`).join('')}</select>`},
-    {t:'Filas', f:p => `<input type="number" data-k="n" min="1" max="50" value="${p.n}" aria-label="Cantidad de filas" style="max-width:74px;padding:4px" ${p.tipo === 'barras' || p.tipo === 'tabla' ? '' : 'disabled'}>`},
-    {t:'Orden', f:p => `<select data-k="orden" aria-label="Orden" style="padding:4px" ${p.tipo === 'barras' || p.tipo === 'tabla' ? '' : 'disabled'}><option value="desc" ${p.orden === 'desc' ? 'selected' : ''}>mayores primero</option><option value="asc" ${p.orden === 'asc' ? 'selected' : ''}>menores primero</option></select>`},
-    {t:'', f:p => `<button class="accion chico suave" data-m="-1" aria-label="Subir">↑</button><button class="accion chico suave" data-m="1" aria-label="Bajar">↓</button><button class="accion chico suave" data-m="0" aria-label="Quitar">✕</button>`}], tabDef.piezas, 'Sin piezas: agregue una.');
-  $('#tabestado').textContent = tabId ? `Tablero guardado n.º ${tabId}.` : 'Sin guardar.';
+// Barra de filtros: territorio en cascada y condiciones sobre indicadores. Vale para todo el tablero.
+function pintarFiltros() {
+  const t = tabDef.territorio, g = geoMuni, deps = [...new Map(g.features.map(f => [f.properties.departamento_codigo, f.properties.departamento])).entries()].sort((a, b) => a[1].localeCompare(b[1])), dep = t.nivel === 'departamento' ? t.codigo : t.nivel === 'municipio' ? t.codigo.slice(0, 2) : '';
+  const munis = dep ? g.features.map(f => f.properties).filter(p => p.departamento_codigo === dep).sort((a, b) => a.nombre.localeCompare(b.nombre)) : [], hay = t.nivel !== 'pais' || (tabDef.filtros || []).length;
+  $('#tabfiltros').innerHTML = `<b>Filtros</b><label>Departamento <select id="tfdep"><option value="">Todo el país</option>${deps.map(([c, n]) => `<option value="${esc(c)}" ${c === dep ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
+    <label>Municipio <select id="tfmun" ${dep ? '' : 'disabled'}><option value="">${dep ? 'Todos los del departamento' : 'Elija un departamento'}</option>${munis.map(p => `<option value="${esc(p.codigo)}" ${t.nivel === 'municipio' && p.codigo === t.codigo ? 'selected' : ''}>${esc(p.nombre)}</option>`).join('')}</select></label>
+    ${(tabDef.filtros || []).map((f, i) => `<span class="cond" data-f="${i}"><select data-k="indicador" aria-label="Indicador de la condición">${tabIndicadores.map(x => `<option value="${x.id}" ${x.id === f.indicador ? 'selected' : ''}>${esc(x.nombre)}</option>`).join('')}</select><select data-k="op" aria-label="Comparación"><option value="min" ${f.op === 'min' ? 'selected' : ''}>≥ (ese valor o más)</option><option value="max" ${f.op === 'max' ? 'selected' : ''}>≤ (ese valor o menos)</option></select><input type="number" step="any" data-k="valor" value="${f.valor}" aria-label="Valor (${esc(infoInd(f.indicador).unidad)})"><button type="button" data-q="${i}" aria-label="Quitar condición" title="Quitar condición">✕</button></span>`).join('')}
+    <button type="button" class="accion chico suave" id="tfmas">+ Condición</button>${hay ? '<button type="button" class="accion chico suave" id="tflimpiar">Quitar filtros</button>' : ''}
+    <span class="nota" style="margin:0">${tabEdita ? 'Se guardan con el tablero.' : 'Mueva los filtros con libertad: no cambian el tablero publicado.'}</span>`;
 }
-async function abrirTablero(def, id, solicitud, autor) { await geoDeMunicipios(); tabDef = def; tabId = id; tabSolicitud = solicitud || ''; tabAutor = autor || null; pintarEditor(); await pintarTablero(); }
+// El territorio forma parte del título que arma el intérprete («… · Sololá»): si cambia el filtro, el título lo sigue.
+function ponerTerritorio(d, nuevo) { const cola = ' · ' + d.territorio.nombre; if (d.titulo.endsWith(cola)) d.titulo = d.titulo.slice(0, -cola.length) + ' · ' + nuevo.nombre; d.territorio = nuevo; }
+function pintarProps() {
+  const p = tabDef.piezas[tabSel], cont = $('#tabprops');
+  if (!p) { cont.innerHTML = `<h3 style="margin-top:0">Tablero</h3><label for="tpdesc">Descripción (se muestra bajo el título)</label><textarea id="tpdesc" rows="3" maxlength="400">${esc(tabDef.descripcion || '')}</textarea>
+    <p class="nota">${tabDef.piezas.length} pieza(s). Seleccione una en el lienzo para cambiar su tipo, su indicador, su tamaño o su título. Arrastre una pieza sobre otra para moverla; con el teclado, use las flechas de la barra de la pieza.</p>
+    <p class="nota"><b>Borrador y publicado.</b> «Guardar» deja un borrador que solo ven usted y los administradores. «Publicar» lo pone a la vista de cualquier visitante en la sección Tableros, con su enlace. Puede retirarlo cuando quiera.</p>`; return; }
+  const selInd = (k, v, etiqueta) => `<label for="tp${k}">${etiqueta}</label><select id="tp${k}" data-k="${k}">${tabIndicadores.map(i => `<option value="${i.id}" ${i.id === v ? 'selected' : ''}>${esc(i.nombre)}</option>`).join('')}</select>`;
+  cont.innerHTML = `<h3 style="margin-top:0">Pieza ${tabSel + 1} · ${TIPOS_PIEZA[p.tipo].n}</h3><div class="viz" id="tptipo">${botonesTipo(p.tipo)}</div>
+    <label for="tptitulo">Título</label><input type="text" id="tptitulo" data-k="titulo" maxlength="120" value="${esc(p.titulo)}" placeholder="${p.tipo === 'texto' ? '(opcional)' : '(el nombre del indicador)'}">
+    ${sinIndicador(p.tipo) ? '' : selInd('indicador', p.indicador, p.tipo === 'dispersion' ? 'Indicador horizontal' : 'Indicador')}${p.tipo === 'dispersion' ? selInd('indicador2', p.indicador2, 'Indicador vertical') : ''}
+    ${p.tipo === 'barras' || p.tipo === 'tabla' ? `<label for="tpn">Filas</label><input type="number" id="tpn" data-k="n" min="1" max="50" value="${p.n}"><label for="tporden">Orden</label><select id="tporden" data-k="orden"><option value="desc" ${p.orden === 'desc' ? 'selected' : ''}>Los mayores primero</option><option value="asc" ${p.orden === 'asc' ? 'selected' : ''}>Los menores primero</option></select>` : ''}
+    ${p.tipo === 'texto' ? `<label for="tptexto">Texto</label><textarea id="tptexto" data-k="texto" rows="6" maxlength="1200">${esc(p.texto)}</textarea>` : ''}
+    <label>Ancho en el lienzo</label><div class="seg" id="tpancho">${[[1, '¼'], [2, '½'], [3, '¾'], [4, 'Completo']].map(([v, n]) => `<button type="button" data-v="${v}" aria-pressed="${anchoPieza(p) === v}">${n}</button>`).join('')}</div>
+    ${p.tipo === 'piramide' || p.tipo === 'serie' ? '<p class="nota">Esta pieza usa el municipio elegido en el filtro de territorio.</p>' : ''}
+    <p style="margin:14px 0 0"><button type="button" class="accion chico suave" id="tpdup">Duplicar</button> <button type="button" class="accion chico suave" id="tpquitar">Quitar</button> <button type="button" class="accion chico suave" id="tpsoltar">Cerrar</button></p>`;
+}
+function pintarDatos() { const b = basicoJs($('#tabbuscar').value), p = tabDef && tabDef.piezas[tabSel];
+  $('#tabdatos').innerHTML = tabIndicadores.filter(i => !b || basicoJs(i.nombre).includes(b)).map(i => `<li><button type="button" data-ind="${i.id}" aria-pressed="${!!p && p.indicador === i.id}">${esc(i.nombre)} <small>(${esc(i.unidad)})</small></button></li>`).join('') || '<li class="nota">Ningún indicador con ese texto.</li>'; }
+const basicoJs = t => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+function pintarBarra() { $('#tabtitulo').value = tabDef.titulo; pintarBarraSinTitulo(); }
+function pintarBarraSinTitulo() {
+  $('#tabtitulo').readOnly = !tabEdita;
+  $('#tabestado').textContent = !tabEdita ? (tabPublico ? 'Publicado' : tabId ? 'Borrador (vista previa)' : 'Vista previa') : (tabPublico ? 'Publicado' : 'Borrador') + (tabSucio || !tabId ? ' · cambios sin guardar' : ` · guardado n.º ${tabId}`);
+  $('#tabmodo').textContent = tabEdita ? 'Vista previa' : tabEditable ? 'Editar' : 'Editar una copia'; $('#tabpublicar').textContent = tabPublico ? 'Retirar publicación' : 'Publicar';
+  $('#tabdeshacer').disabled = !tabHist.length; $('#tabrehacer').disabled = !tabFut.length; $('#tabenlace').hidden = !tabId;
+  document.querySelector('.barra-est').classList.toggle('vista', !tabEdita); $('#tabcuerpo').classList.toggle('vista', !tabEdita);
+}
+function pintarEstudio() { if (!tabDef) return; if (tabSel >= tabDef.piezas.length) tabSel = -1; pintarBarra(); pintarFiltros(); if (tabEdita) { pintarProps(); pintarDatos(); } pintarTablero().catch(x => aviso(x.message, true)); }
+// Todo cambio pasa por aquí: guarda una copia para deshacer (solo al editar) y vuelve a pintar.
+const tabApilar = foto => { if (tabEdita && tabHist[tabHist.length - 1] !== foto) { tabHist.push(foto); if (tabHist.length > 80) tabHist.shift(); } };
+const tabFoto = () => tabApilar(JSON.stringify(tabDef));   // antes de escribir en un campo de texto
+function tabCambiar(fn, soloLienzo) { const antes = JSON.stringify(tabDef); fn(tabDef); if (JSON.stringify(tabDef) === antes) return;   // un cambio que no cambia nada no ocupa un paso de «deshacer»
+  tabApilar(antes); if (tabEdita) { tabFut = []; tabSucio = true; } if (soloLienzo) { pintarBarra(); pintarTablero().catch(x => aviso(x.message, true)); } else pintarEstudio(); }
+function tabDeshacer(atras) { const de = atras ? tabHist : tabFut, a = atras ? tabFut : tabHist, actual = JSON.stringify(tabDef); while (de.length && de[de.length - 1] === actual) de.pop();
+  if (de.length && tabEdita) { a.push(actual); tabDef = JSON.parse(de.pop()); tabSucio = true; } pintarEstudio(); }
+function nuevaPieza(tipo, indicador) { const base = tabDef.piezas[tabSel], ind = indicador || (base && !sinIndicador(base.tipo) ? base.indicador : (tabDef.piezas.find(p => !sinIndicador(p.tipo)) || {}).indicador) || 'poblacion_actual';
+  return {tipo, indicador: ind, titulo: '', n: 10, orden: 'desc', ancho: 0, indicador2: tipo === 'dispersion' ? (tabIndicadores.find(i => i.id !== ind) || {id: ind}).id : '', texto: ''}; }
+function agregarPieza(tipo, indicador) { if (tabDef.piezas.length >= 24) return aviso('Un tablero lleva hasta 24 piezas.', true); tabCambiar(d => { d.piezas.push(nuevaPieza(tipo, indicador)); tabSel = d.piezas.length - 1; }); setTimeout(() => document.querySelector('#tabvista .pieza.sel')?.scrollIntoView({behavior:'smooth', block:'nearest'}), 60); }
+function accionPieza(i, a) { const ps = tabDef.piezas; if (!ps[i]) return;
+  tabCambiar(d => { const p = d.piezas[i];
+    if (a === 'quitar') { d.piezas.splice(i, 1); tabSel = -1; } else if (a === 'dup' && d.piezas.length < 24) { d.piezas.splice(i + 1, 0, JSON.parse(JSON.stringify(p))); tabSel = i + 1; }
+    else if (a === 'izq' && i > 0) { [d.piezas[i - 1], d.piezas[i]] = [p, d.piezas[i - 1]]; tabSel = i - 1; } else if (a === 'der' && i < d.piezas.length - 1) { [d.piezas[i + 1], d.piezas[i]] = [p, d.piezas[i + 1]]; tabSel = i + 1; }
+    else if (a === 'mas') p.ancho = Math.min(4, anchoPieza(p) + 1); else if (a === 'menos') p.ancho = Math.max(1, anchoPieza(p) - 1); }); }
+async function abrirTablero(def, {id = null, solicitud = '', autor = null, publico = false, editable = true, editar = true} = {}) {
+  await geoDeMunicipios(); tabDef = {filtros: [], descripcion: '', ...def}; tabId = id; tabSolicitud = solicitud || ''; tabAutor = autor; tabPublico = publico; tabEditable = editable; tabEdita = editar; tabSel = -1; tabSucio = false; tabHist = []; tabFut = [];
+  $('#tabgaleria').hidden = true; $('#tabestudio').hidden = false; document.querySelector('#tableros > .titulo').hidden = true; $('#tabviz').innerHTML = botonesTipo(null); $('#tabbuscar').value = ''; pintarEstudio();
+  history.replaceState(null, '', id ? '#tablero=' + id : location.pathname + location.search); }
+async function abrirGuardado(id, editar) { const r = await api('/api/tableros/' + id); tabIndicadores = r.indicadores; await abrirTablero(r.definicion, {id: r.id, solicitud: r.solicitud, autor: r.autor, publico: r.publico, editable: r.editable, editar: editar && r.editable}); }
+function cerrarTablero() { tabDef = null; $('#tabestudio').hidden = true; $('#tabgaleria').hidden = false; document.querySelector('#tableros > .titulo').hidden = false; $('#tabentendido').innerHTML = ''; history.replaceState(null, '', location.pathname + location.search); tableros().catch(x => aviso(x.message, true)); }
 async function tableros() { const r = await api('/api/tableros'); tabIndicadores = r.indicadores;
   $('#tabejemplos').innerHTML = EJEMPLOS_TABLERO.map(x => `<button type="button">${esc(x)}</button>`).join('');
-  tabla('#ttableros', [{t:'Tablero', f:f => `<b>${esc(f.titulo)}</b>${f.solicitud ? `<br><small>«${esc(f.solicitud)}»</small>` : ''}`}, {t:'Territorio', f:f => esc(f.territorio || '')}, {t:'Piezas (cantidad)', num:1, f:f => num(f.piezas)}, {t:'Autor', f:f => esc(f.autor)}, {t:'Cambiado', f:f => esc(f.cambiado)},
-    {t:'', f:f => `<button class="accion chico" data-abrir="${f.id}">Abrir</button><button class="accion chico suave" data-borrar="${f.id}">Borrar</button>`}], r.tableros, 'Todavía no hay tableros guardados.'); }
+  const tarjeta = f => `<div class="tarj-tab ${f.publico ? '' : 'borrador'}"><h3>${esc(f.titulo)}</h3><small>${esc(f.territorio || '')} · ${num(f.piezas)} pieza(s) · ${esc(f.autor)} · ${esc(f.cambiado)}</small>${f.descripcion ? `<p>${esc(f.descripcion)}</p>` : ''}
+    <div class="acc"><span class="etq">${f.publico ? 'Publicado' : 'Borrador'}</span><button type="button" class="accion chico" data-ver="${f.id}">Ver</button>${f.editable ? `<button type="button" class="accion chico suave" data-editar="${f.id}">Editar</button><button type="button" class="accion chico suave" data-publicar="${f.id}" data-estado="${f.publico}">${f.publico ? 'Retirar' : 'Publicar'}</button><button type="button" class="accion chico suave" data-borrar="${f.id}">Borrar</button>` : ''}</div></div>`;
+  $('#tabpublicados').innerHTML = r.tableros.filter(f => f.publico).map(tarjeta).join('') || '<p class="nota">Todavía no hay tableros publicados.</p>';
+  $('#tabborradores').innerHTML = r.tableros.filter(f => !f.publico).map(tarjeta).join('') || '<p class="nota">No tiene borradores.</p>'; }
+const pedirInterpretacion = texto => api('/api/tableros/interpretar', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({texto})});
+const loEntendido = (i, extra) => `<p class="nota" style="margin:0 0 10px"><b>Lo que entendí:</b> ${i.entendido.map(esc).join(' · ')}.${extra ? ' ' + esc(extra) : ''}${i.avisos.length ? ` <span style="color:var(--alerta)">${i.avisos.map(esc).join(' ')}</span>` : ''}</p>`;
 $('#tabejemplos').onclick = e => { const b = e.target.closest('button'); if (b) { $('#tabtexto').value = b.textContent; $('#tabarmar').click(); } };
-$('#tabarmar').onclick = async () => { try { const r = await api('/api/tableros/interpretar', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({texto: $('#tabtexto').value})}), i = r.interpretacion; tabIndicadores = r.indicadores;
-  $('#tabentendido').innerHTML = `<p class="nota" style="margin:12px 0 0"><b>Lo que entendí:</b> ${i.entendido.map(esc).join(' · ')}.</p>` + (i.avisos.length ? `<p class="nota" style="color:var(--alerta);margin:4px 0 0">${i.avisos.map(esc).join(' ')}</p>` : '');
-  await abrirTablero(i.tablero, null, $('#tabtexto').value); $('#tabvista').scrollIntoView({behavior:'smooth', block:'start'}); } catch (x) { aviso(x.message, true); } };
+$('#tabarmar').onclick = async () => { try { const r = await pedirInterpretacion($('#tabtexto').value), i = r.interpretacion; tabIndicadores = r.indicadores;
+  await abrirTablero(i.tablero, {solicitud: $('#tabtexto').value}); tabSucio = true; pintarBarra(); $('#tabentendido').innerHTML = loEntendido(i); } catch (x) { aviso(x.message, true); } };
 $('#tabtexto').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#tabarmar').click(); } };
-$('#tabvacio').onclick = () => abrirTablero({titulo:'Tablero nuevo', territorio:{nivel:'pais', codigo:'', nombre:'Guatemala'}, piezas:[{tipo:'tarjeta', indicador:'poblacion_actual', titulo:'', n:10, orden:'desc'}]}, null, '').catch(x => aviso(x.message, true));
-$('#tabtitulo').oninput = () => { tabDef.titulo = $('#tabtitulo').value; pintarTablero(); };
-$('#tabnivel').onchange = () => { const n = $('#tabnivel').value, f = geoMuni.features[0].properties; tabDef.territorio = n === 'pais' ? {nivel:n, codigo:'', nombre:'Guatemala'} : n === 'departamento' ? {nivel:n, codigo:f.departamento_codigo, nombre:f.departamento} : {nivel:n, codigo:f.codigo, nombre:f.nombre}; pintarEditor(); $('#tablugar').onchange(); };
-$('#tablugar').onchange = () => { const o = $('#tablugar').selectedOptions[0]; if (o) { tabDef.territorio.codigo = o.value; tabDef.territorio.nombre = o.textContent.split(',')[0]; } pintarTablero().catch(x => aviso(x.message, true)); };
-$('#tabpiezas').onchange = e => { const c = e.target, fila = c.closest('tr'); if (!c.dataset.k || !fila) return; const p = tabDef.piezas[fila.rowIndex - 1]; p[c.dataset.k] = c.dataset.k === 'n' ? Math.max(1, Math.min(50, +c.value || 10)) : c.value; if (c.dataset.k === 'tipo') pintarEditor(); pintarTablero().catch(x => aviso(x.message, true)); };
-$('#tabpiezas').onclick = e => { const b = e.target.closest('button[data-m]'); if (!b) return; const i = b.closest('tr').rowIndex - 1, m = +b.dataset.m, ps = tabDef.piezas; if (m === 0) ps.splice(i, 1); else if (ps[i + m]) [ps[i], ps[i + m]] = [ps[i + m], ps[i]]; pintarEditor(); pintarTablero(); };
-$('#tabagregar').onclick = () => { tabDef.piezas.push({tipo:'barras', indicador:'poblacion_actual', titulo:'', n:10, orden:'desc'}); pintarEditor(); pintarTablero(); };
+$('#tabvacio').onclick = () => abrirTablero({titulo:'Tablero nuevo', territorio:{nivel:'pais', codigo:'', nombre:'Guatemala'}, piezas:[]}).catch(x => aviso(x.message, true));
+$('#tabvolver').onclick = () => { if (!tabSucio || !tabEdita || confirm('Hay cambios sin guardar. ¿Salir sin guardarlos?')) cerrarTablero(); };
+$('#tabtitulo').onfocus = tabFoto; $('#tabtitulo').oninput = () => { if (!tabEdita) return; tabDef.titulo = $('#tabtitulo').value; tabSucio = true; tabFut = []; pintarBarraSinTitulo(); pintarTablero(); };
+$('#tabdeshacer').onclick = () => tabDeshacer(true); $('#tabrehacer').onclick = () => tabDeshacer(false);
+document.addEventListener('keydown', e => { if ($('#tabestudio').hidden || !$('#tableros').classList.contains('activa') || !tabEdita || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); tabDeshacer(!e.shiftKey); } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); tabDeshacer(false); }
+  else if ((e.key === 'Delete' || e.key === 'Backspace') && tabSel >= 0) { e.preventDefault(); accionPieza(tabSel, 'quitar'); } else if (e.key === 'Escape') { tabSel = -1; pintarEstudio(); } });
+$('#tabmodo').onclick = () => { if (!tabEdita && !tabEditable) { tabId = null; tabPublico = false; tabEditable = true; tabAutor = null; tabDef.titulo = (tabDef.titulo + ' (copia)').slice(0, 120); tabSucio = true; history.replaceState(null, '', location.pathname + location.search); } tabEdita = !tabEdita; tabSel = -1; pintarEstudio(); };
+async function guardarTablero() { const r = await api('/api/tableros' + (tabId ? '/' + tabId : ''), {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({solicitud: tabSolicitud, definicion: tabDef})}); tabId = r.id; tabSucio = false; history.replaceState(null, '', '#tablero=' + tabId); pintarBarra(); }
+$('#tabguardar').onclick = async () => { try { if (!tabDef.piezas.length) return aviso('Agregue al menos una pieza antes de guardar.', true); await guardarTablero(); aviso(tabPublico ? 'Guardado. Los cambios ya están en la versión publicada.' : 'Borrador guardado. Para que lo vea cualquier visitante, use «Publicar».'); } catch (x) { aviso(x.message, true); } };
+async function publicarTablero(id, publico) { await api('/api/tableros/' + id + '/publicar', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({publico})}); aviso(publico ? 'Publicado: ya aparece en «Tableros» para cualquier visitante, sin cuenta.' : 'Retirado: vuelve a ser un borrador.'); }
+$('#tabpublicar').onclick = async () => { try { if (!tabDef.piezas.length) return aviso('Agregue al menos una pieza antes de publicar.', true); if (!tabId || tabSucio) await guardarTablero(); await publicarTablero(tabId, !tabPublico); tabPublico = !tabPublico; pintarBarra(); } catch (x) { aviso(x.message, true); } };
+$('#tabenlace').onclick = async () => { const u = location.origin + '/#tablero=' + tabId; try { await navigator.clipboard.writeText(u); aviso(tabPublico ? 'Enlace copiado: ' + u : 'Enlace copiado. Mientras sea borrador solo lo abren usted y los administradores.'); } catch { prompt('Copie el enlace:', u); } };
 $('#tabimprimir').onclick = () => window.print();
-$('#tabguardar').onclick = async () => { try { const r = await api('/api/tableros' + (tabId ? '/' + tabId : ''), {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({solicitud: tabSolicitud, definicion: tabDef})}); tabId = r.id; aviso('Tablero guardado.'); pintarEditor(); tableros(); } catch (x) { aviso(x.message, true); } };
-$('#ttableros').onclick = async e => { const a = e.target.closest('button[data-abrir]'), b = e.target.closest('button[data-borrar]');
-  try { if (a) { const r = await api('/api/tableros/' + a.dataset.abrir); await abrirTablero(r.definicion, r.id, r.solicitud, r.autor); $('#tabvista').scrollIntoView({behavior:'smooth', block:'start'}); }
-    if (b && confirm('¿Borrar este tablero?')) { await api('/api/tableros/' + b.dataset.borrar, {method:'DELETE'}); if (tabId === +b.dataset.borrar) tabId = null; aviso('Tablero borrado.'); tableros(); pintarEditor(); } } catch (x) { aviso(x.message, true); } };
+// Filtros: cada cambio se aplica de inmediato a todas las piezas.
+$('#tabfiltros').onchange = e => { const c = e.target, g = geoMuni;
+  if (c.id === 'tfdep') { const p = g.features.find(f => f.properties.departamento_codigo === c.value)?.properties; tabCambiar(d => ponerTerritorio(d, p ? {nivel:'departamento', codigo: p.departamento_codigo, nombre: p.departamento} : {nivel:'pais', codigo:'', nombre:'Guatemala'})); }
+  else if (c.id === 'tfmun') { const dep = $('#tfdep').value, p = g.features.find(f => f.properties.codigo === c.value)?.properties, de = g.features.find(f => f.properties.departamento_codigo === dep).properties; tabCambiar(d => ponerTerritorio(d, p ? {nivel:'municipio', codigo: p.codigo, nombre: p.nombre} : {nivel:'departamento', codigo: dep, nombre: de.departamento})); }
+  else if (c.dataset.k) { const i = +c.closest('.cond').dataset.f; tabCambiar(d => { d.filtros[i][c.dataset.k] = c.dataset.k === 'valor' ? (isFinite(+c.value) ? +c.value : 0) : c.value; }, c.dataset.k === 'valor'); } };
+$('#tabfiltros').onclick = e => { const b = e.target.closest('button'); if (!b) return;
+  if (b.id === 'tfmas') { if ((tabDef.filtros || []).length >= 6) return aviso('Un tablero admite hasta 6 condiciones.', true); const p = tabDef.piezas[tabSel] || tabDef.piezas.find(x => !sinIndicador(x.tipo)); tabCambiar(d => { (d.filtros = d.filtros || []).push({indicador: p && !sinIndicador(p.tipo) ? p.indicador : 'poblacion_actual', op:'min', valor: 0}); }); }
+  else if (b.id === 'tflimpiar') tabCambiar(d => { ponerTerritorio(d, {nivel:'pais', codigo:'', nombre:'Guatemala'}); d.filtros = []; });
+  else if (b.dataset.q) tabCambiar(d => { d.filtros.splice(+b.dataset.q, 1); }); };
+// Paleta: visualizaciones, datos y pedido con palabras.
+$('#tabviz').onclick = e => { const b = e.target.closest('button[data-tipo]'); if (b) agregarPieza(b.dataset.tipo); };
+$('#tabbuscar').oninput = pintarDatos;
+$('#tabdatos').onclick = e => { const b = e.target.closest('button[data-ind]'); if (!b) return; const p = tabDef.piezas[tabSel]; if (p && !sinIndicador(p.tipo)) tabCambiar(d => { d.piezas[tabSel].indicador = b.dataset.ind; }); else agregarPieza('barras', b.dataset.ind); };
+$('#tabaplicar').onclick = async () => { const texto = $('#tabpedido').value.trim(); if (!texto) return;
+  try { const r = await pedirInterpretacion(texto), i = r.interpretacion, rec = i.reconocido, hechos = [];
+    if (!rec.territorio && !rec.indicadores && !rec.tipos) { $('#tabentendido').innerHTML = '<p class="nota" style="margin:0 0 10px;color:var(--alerta)">No reconocí en la frase un territorio, un indicador ni un tipo de pieza: el tablero queda como estaba.</p>'; return; }
+    tabCambiar(d => { if (rec.territorio) { ponerTerritorio(d, i.tablero.territorio); hechos.push('cambié el territorio a ' + i.tablero.territorio.nombre); }
+      if (rec.indicadores || rec.tipos) { const actual = (d.piezas[tabSel] && !sinIndicador(d.piezas[tabSel].tipo) ? d.piezas[tabSel] : d.piezas.find(p => !sinIndicador(p.tipo)) || {}).indicador, nuevas = i.tablero.piezas.slice(0, 24 - d.piezas.length).map(p => rec.indicadores || !actual || sinIndicador(p.tipo) ? p : {...p, indicador: actual});
+        d.piezas.push(...nuevas); hechos.push(`agregué ${nuevas.length} pieza(s)`); } });
+    $('#tabentendido').innerHTML = loEntendido({...i, avisos: rec.indicadores && rec.tipos ? i.avisos : []}, 'En este tablero ' + hechos.join(' y ') + '.'); $('#tabpedido').value = ''; } catch (x) { aviso(x.message, true); } };
+$('#tabpedido').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#tabaplicar').click(); } };
+// Lienzo: elegir, mover (arrastrando o con la barra de la pieza) y cambiar de tamaño.
+$('#tabvista').onclick = e => { if (!tabEdita) return; const b = e.target.closest('.pz-herr button'), pz = e.target.closest('.pieza[data-i]');
+  if (b) return accionPieza(+pz.dataset.i, b.dataset.a); const i = pz ? +pz.dataset.i : -1; if (i !== tabSel) { tabSel = i; pintarProps(); pintarDatos(); pintarTablero(); } };
+$('#tabvista').onkeydown = e => { const pz = e.target.closest('.pieza[data-i]'); if (tabEdita && pz && e.target === pz && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tabSel = +pz.dataset.i; pintarProps(); pintarDatos(); pintarTablero().then(() => document.querySelector('#tabvista .pieza.sel')?.focus()); } };
+$('#tabvista').ondragstart = e => { const pz = e.target.closest('.pieza[data-i]'); if (!tabEdita || !pz) return; tabArrastre = +pz.dataset.i; pz.classList.add('arrastre'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(tabArrastre)); };
+$('#tabvista').ondragover = e => { const pz = e.target.closest('.pieza[data-i]'); if (tabArrastre < 0 || !pz) return; e.preventDefault(); document.querySelectorAll('#tabvista .destino').forEach(x => x.classList.remove('destino')); if (+pz.dataset.i !== tabArrastre) pz.classList.add('destino'); };
+$('#tabvista').ondrop = e => { const pz = e.target.closest('.pieza[data-i]'); if (tabArrastre < 0 || !pz) return; e.preventDefault(); const de = tabArrastre, a = +pz.dataset.i; tabArrastre = -1; if (de !== a) tabCambiar(d => { const [p] = d.piezas.splice(de, 1); d.piezas.splice(a, 0, p); tabSel = a; }); };
+$('#tabvista').ondragend = () => { tabArrastre = -1; document.querySelectorAll('#tabvista .destino, #tabvista .arrastre').forEach(x => x.classList.remove('destino', 'arrastre')); };
+// Propiedades de la pieza elegida (o del tablero, si no hay ninguna).
+$('#tabprops').onfocusin = tabFoto;
+$('#tabprops').oninput = e => { const c = e.target; if (c.id === 'tpdesc') { tabDef.descripcion = c.value; tabSucio = true; tabFut = []; pintarBarra(); pintarTablero(); return; } const p = tabDef.piezas[tabSel]; if (!p || !c.dataset.k || c.tagName === 'SELECT') return;
+  p[c.dataset.k] = c.dataset.k === 'n' ? Math.max(1, Math.min(50, +c.value || 10)) : c.value; tabSucio = true; tabFut = []; pintarBarra(); pintarTablero(); };
+$('#tabprops').onchange = e => { const c = e.target, p = tabDef.piezas[tabSel]; if (p && c.tagName === 'SELECT' && c.dataset.k) tabCambiar(d => { d.piezas[tabSel][c.dataset.k] = c.value; }); };
+$('#tabprops').onclick = e => { const b = e.target.closest('button'), p = tabDef.piezas[tabSel]; if (!b || !p) return;
+  if (b.dataset.tipo) tabCambiar(d => { const q = d.piezas[tabSel]; q.tipo = b.dataset.tipo; q.ancho = 0; if (!sinIndicador(q.tipo) && !q.indicador) q.indicador = 'poblacion_actual'; if (q.tipo === 'dispersion' && !q.indicador2) q.indicador2 = (tabIndicadores.find(i => i.id !== q.indicador) || {id: q.indicador}).id; });
+  else if (b.dataset.v) tabCambiar(d => { d.piezas[tabSel].ancho = +b.dataset.v; }); else if (b.id === 'tpdup') accionPieza(tabSel, 'dup'); else if (b.id === 'tpquitar') accionPieza(tabSel, 'quitar'); else if (b.id === 'tpsoltar') { tabSel = -1; pintarEstudio(); } };
+// Galería: ver, editar, publicar o borrar.
+function clicGaleria(e) { const b = e.target.closest('button'); if (!b) return; (async () => {
+  if (b.dataset.ver) await abrirGuardado(b.dataset.ver, false); else if (b.dataset.editar) await abrirGuardado(b.dataset.editar, true);
+  else if (b.dataset.publicar) { await publicarTablero(b.dataset.publicar, b.dataset.estado !== 'true'); await tableros(); }
+  else if (b.dataset.borrar && confirm('¿Borrar este tablero? Si está publicado, su enlace dejará de funcionar.')) { await api('/api/tableros/' + b.dataset.borrar, {method:'DELETE'}); aviso('Tablero borrado.'); await tableros(); } })().catch(x => aviso(x.message, true)); }
+$('#tabpublicados').onclick = clicGaleria; $('#tabborradores').onclick = clicGaleria;
+// Enlace directo a un tablero: /#tablero=12 abre la vista publicada.
+async function abrirDeEnlace() { const m = /^#tablero=(\d+)$/.exec(location.hash); if (!m) return false; document.querySelector('nav button[data-s=tableros]').click(); try { await abrirGuardado(m[1], false); } catch (x) { aviso(x.message, true); } return true; }
+window.addEventListener('hashchange', abrirDeEnlace);
 // ---- Hoja de balance: derivados ----
 let hbaTexto = '', hbaPrimarios = [];
 function hbaPedir(producto, cantidad) { const p = new URLSearchParams(producto ? {producto, cantidad: cantidad ?? ''} : {});
@@ -1473,7 +1682,7 @@ $('#anio').onchange = () => crecimiento().catch(e => aviso(e.message, true));
 // La lista de envíos pide sesión: se carga al entrar a "Recibir envío", no al abrir la página.
 estado().then(cargarSolicitudes).catch(e => aviso(e.message, true));
 iniciarMapa().catch(e => aviso(e.message, true));
-verSesion().catch(() => {});
+verSesion().catch(() => {}).then(abrirDeEnlace);
 </script>
 </body>
 </html>

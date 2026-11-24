@@ -186,6 +186,9 @@ CREATE TABLE IF NOT EXISTS tableros (
     cambiado   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Un tablero nace como borrador (lo ven su autor y los administradores) y se publica aparte.
+ALTER TABLE tableros ALTER COLUMN publico SET DEFAULT FALSE;
+
 -- Corte de cada conteo: el mes de registro (o, si la solicitud no lo declara, el mes del hecho).
 ALTER TABLE hechos ADD COLUMN IF NOT EXISTS corte TEXT NOT NULL DEFAULT '';
 UPDATE hechos SET corte = periodo WHERE corte = '' AND periodo <> '';
@@ -202,3 +205,15 @@ WHERE e.id IN (SELECT max(envio_id) FROM hechos GROUP BY solicitud, corte)
 -- Huella de las reglas (la solicitud) con que se analizó cada envío. Si la solicitud cambia después,
 -- el envío queda marcado como «analizado con reglas anteriores»: hay que volver a subirlo.
 ALTER TABLE envios ADD COLUMN IF NOT EXISTS reglas TEXT;
+
+-- Bitácora de acciones: quién hizo qué y cuándo (publicar un tablero, recibir o borrar un envío,
+-- confirmar una equivalencia, cambiar una cuenta, registrar una visita de campo). No guarda datos
+-- de los archivos recibidos: solo el nombre de quien actúa, la acción y a qué se aplicó.
+CREATE TABLE IF NOT EXISTS bitacora (
+    id      BIGSERIAL PRIMARY KEY,
+    cuando  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    quien   TEXT NOT NULL,
+    accion  TEXT NOT NULL,
+    detalle TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS bitacora_cuando ON bitacora (cuando DESC);

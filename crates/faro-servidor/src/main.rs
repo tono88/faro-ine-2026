@@ -262,6 +262,8 @@ async fn main() -> Result<(), String> {
         .route("/api/tableros/interpretar", post(api_tablero_interpretar))
         .route("/api/tableros", get(api_tableros).post(api_tablero_guardar))
         .route("/api/tableros/:id", get(api_tablero).post(api_tablero_guardar_id).delete(api_tablero_borrar))
+        .route("/api/tableros/:id/publicar", post(api_tablero_publicar))
+        .route("/api/bitacora", get(api_bitacora))
         .route("/api/cif", get(|State(e): State<Compartido>| async move {
             let mut talla: Vec<Value> = e.talla.values().map(|f| { let mut v = json!(f); v["departamento"] = json!(f.get("municipio").and_then(|m| e.catalogo.por_codigo(&m[..2])).map(|d| d.nombre.clone())); v }).collect();
             talla.sort_by(|a, b| b["retardo_en_talla_pct"].as_str().and_then(|x| x.parse::<f64>().ok()).unwrap_or(0.0).total_cmp(&a["retardo_en_talla_pct"].as_str().and_then(|x| x.parse::<f64>().ok()).unwrap_or(0.0)));
@@ -419,7 +421,7 @@ async fn api_estado(State(e): State<Compartido>) -> Res<Json<Value>> {
     Ok(Json(json!({
         "envios": f.get::<_, i64>(0), "filas": f.get::<_, i64>(1), "pendientes": f.get::<_, i64>(2),
         "equivalencias": f.get::<_, i64>(3), "conjuntos_ine": f.get::<_, i64>(4), "municipios_con_edificaciones": f.get::<_, i64>(5),
-        "lugares_en_catalogo": e.catalogo.len(), "requiere_token": e.token.is_some(),
+        "lugares_en_catalogo": e.catalogo.len(), "requiere_token": e.token.is_some(), "umbral_de_celda": umbral_de_celda(),
     })))
 }
 
@@ -1059,6 +1061,9 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
         let (desde, hasta) = poblacion.anios().unwrap_or((2018, 2030));
         let hoy = 2026.clamp(desde, hasta);
         let censo_ind = leer_censo_indicadores(dir);
+        // Uso del suelo construido en 2020 (GHSL): municipio -> (hectáreas construidas, hectáreas no residenciales).
+        let uso: HashMap<String, (f64, f64)> = csv::Reader::from_path(dir.join("uso_construido_municipio.csv")).map(|mut l| l.deserialize::<HashMap<String, String>>().flatten().filter(|f| f.get("anio").is_some_and(|a| a == "2020"))
+            .filter_map(|f| Some((f.get("municipio")?.clone(), (f.get("construido_ha")?.parse().ok()?, f.get("no_residencial_ha")?.parse().ok()?)))).collect()).unwrap_or_default();
         for f in g["features"].as_array_mut().into_iter().flatten() {
             let codigo = f["properties"]["codigo"].as_str().unwrap_or("").to_string();
             let p = &mut f["properties"];
@@ -1080,6 +1085,11 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
             p["retardo_en_talla_pct"] = json!(talla.get(&codigo).and_then(|f| f.get("retardo_en_talla_pct")?.parse::<f64>().ok()));
             p["vulnerabilidad_nutricional"] = json!(talla.get(&codigo).and_then(|f| f.get("vulnerabilidad")));
             p["escolares_evaluados"] = json!(talla.get(&codigo).and_then(|f| f.get("escolares_evaluados")?.parse::<f64>().ok()));
+            if let Some((total, nres)) = uso.get(&codigo) {
+                p["no_residencial_ha_2020"] = json!(nres);
+                p["residencial_ha_2020"] = json!(((total - nres).max(0.0) * 100.0).round() / 100.0);
+                p["no_residencial_pct_2020"] = json!((*total > 0.0).then(|| (nres / total * 1000.0).round() / 10.0));
+            }
             // Censo 2018: porcentajes y, para poder agregarlos por departamento sin promediar mal, sus denominadores.
             if let Some(c) = censo_ind.get(&codigo) {
                 let v = |k: &str| c.get(k).copied().unwrap_or(0.0);
@@ -1140,6 +1150,10 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
         ("cif_departamentos.csv", "text/csv; charset=utf-8", "Inseguridad alimentaria aguda por departamento (CIF), octubre 2026 – febrero 2027", "Personas en cada fase de la CIF, fase del área y Fase 3 o superior, con código INE del departamento.", "SESAN y Grupo Técnico de la CIF Guatemala, actualización publicada el 19-nov-2026 y corregida el 20-nov-2026.", "publicación oficial; cite la fuente"),
         ("departamentos.geojson", GEOJSON, "Departamentos", "22 departamentos con código INE, para mapas a menor detalle.", "CONRED / OCHA (COD-AB Guatemala).", "CC BY-IGO"),
         ("red_vial_contexto.geojson", GEOJSON, "Caminos mapeados alrededor de los enlaces probables", "Tramos de camino a 1.5 km de cada enlace propuesto; indica si pertenecen a la red principal o a un tramo suelto.", "© colaboradores de OpenStreetMap (HOT/HDX), corte del 3-nov-2026.", "ODbL 1.0"),
+        ("censo2018_indicadores_municipio.csv", "text/csv; charset=utf-8", "Condiciones de vida por municipio, Censo 2018", "Alfabetismo, uso de celular, computadora e internet, pueblo de pertenencia, agua, servicio sanitario, alumbrado, combustible para cocinar y materiales de pared, techo y piso: conteos con su denominador, por municipio.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadros A5, A11, A12, B2, B3, B4, C2 y C3).", "datos abiertos del INE; cite la fuente"),
+        ("censo2018_techos_lugar_poblado.csv", "text/csv; charset=utf-8", "Material del techo por lugar poblado, Censo 2018", "Viviendas particulares por material predominante del techo (concreto, lámina, asbesto cemento, teja, paja o palma, desecho) en cada lugar poblado.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadro C2).", "datos abiertos del INE; cite la fuente"),
+        ("uso_construido_municipio.csv", "text/csv; charset=utf-8", "Superficie construida residencial y no residencial por municipio, 2000 y 2020", "Hectáreas construidas, no residenciales y residenciales, y porcentaje no residencial, con código INE del municipio.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A (capa total y componente NRES).", "CC BY 4.0"),
+        ("uso_construido_bloques.csv", "text/csv; charset=utf-8", "Uso del suelo construido en bloques de 1 km, 2020", "Hectáreas construidas y hectáreas no residenciales por bloque de 1 km, con el municipio al que pertenece.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A (capa total y componente NRES).", "CC BY 4.0"),
         ("superficie_construida_bloques.csv", "text/csv; charset=utf-8", "Superficie construida en bloques de 1 km, 1975–2020", "Hectáreas construidas por bloque de 1 km y época, con el municipio al que pertenece: la huella edificada del país.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A.", "CC BY 4.0"),
     ] {
         if let Ok(texto) = std::fs::read_to_string(dir.join(archivo)) {
@@ -2369,18 +2383,71 @@ async fn api_tablero_interpretar(State(e): State<Compartido>, Json(s): Json<Soli
     if s.texto.trim().is_empty() || s.texto.chars().count() > 500 {
         return Err(pedido("escriba la solicitud en una frase (hasta 500 caracteres)"));
     }
-    Ok(Json(json!({ "interpretacion": tablero::interpretar(&s.texto, &e.catalogo), "indicadores": tablero::INDICADORES.iter().map(|i| json!({ "id": i.0, "nombre": i.1, "unidad": i.2 })).collect::<Vec<_>>(), "tipos": tablero::TIPOS })))
+    Ok(Json(json!({ "interpretacion": tablero::interpretar(&s.texto, &e.catalogo), "indicadores": indicadores_de_tablero(), "tipos": tablero::TIPOS })))
 }
 
-async fn api_tableros(State(e): State<Compartido>) -> Res<Json<Value>> {
-    let filas = e.bd.query("SELECT id, titulo, solicitud, autor, to_char(cambiado, 'YYYY-MM-DD HH24:MI'), jsonb_array_length(definicion->'piezas'), definicion->'territorio'->>'nombre' FROM tableros WHERE publico ORDER BY cambiado DESC LIMIT 200", &[]).await.map_err(interno)?;
-    Ok(Json(json!({ "indicadores": tablero::INDICADORES.iter().map(|i| json!({ "id": i.0, "nombre": i.1, "unidad": i.2 })).collect::<Vec<_>>(), "tipos": tablero::TIPOS,
-        "tableros": filas.iter().map(|f| json!({ "id": f.get::<_, i64>(0), "titulo": f.get::<_, String>(1), "solicitud": f.get::<_, String>(2), "autor": f.get::<_, String>(3), "cambiado": f.get::<_, String>(4), "piezas": f.get::<_, Option<i32>>(5), "territorio": f.get::<_, Option<String>>(6) })).collect::<Vec<_>>() })))
+/// Deja constancia de una acción en la bitácora. Si la escritura falla no se interrumpe la acción:
+/// se avisa en el registro del servidor.
+async fn bitacora(e: &Estado, quien: &str, accion: &str, detalle: &str) {
+    let detalle: String = detalle.chars().take(300).collect();
+    if let Err(x) = e.bd.execute("INSERT INTO bitacora (quien, accion, detalle) VALUES ($1,$2,$3)", &[&quien, &accion, &detalle]).await {
+        eprintln!("bitácora: no se pudo anotar {accion}: {x}");
+    }
 }
 
-async fn api_tablero(State(e): State<Compartido>, Ruta(id): Ruta<i64>) -> Res<Json<Value>> {
-    let f = e.bd.query_opt("SELECT id, titulo, solicitud, definicion, autor FROM tableros WHERE id = $1 AND publico", &[&id]).await.map_err(interno)?.ok_or_else(|| pedido("no existe ese tablero"))?;
-    Ok(Json(json!({ "id": f.get::<_, i64>(0), "titulo": f.get::<_, String>(1), "solicitud": f.get::<_, String>(2), "definicion": f.get::<_, Value>(3), "autor": f.get::<_, String>(4) })))
+/// Últimas acciones anotadas (solo administradores).
+async fn api_bitacora(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    solo_admin(&e, &cabeceras).await?;
+    let filas = e.bd.query("SELECT to_char(cuando, 'YYYY-MM-DD HH24:MI'), quien, accion, detalle FROM bitacora ORDER BY id DESC LIMIT 300", &[]).await.map_err(interno)?;
+    Ok(Json(json!(filas.iter().map(|f| json!({ "cuando": f.get::<_, String>(0), "quien": f.get::<_, String>(1), "accion": f.get::<_, String>(2), "detalle": f.get::<_, String>(3) })).collect::<Vec<_>>())))
+}
+
+/// Indicadores que un tablero puede usar, con su unidad (los lee el diseñador).
+fn indicadores_de_tablero() -> Vec<Value> {
+    tablero::INDICADORES.iter().map(|i| json!({ "id": i.0, "nombre": i.1, "unidad": i.2 })).collect()
+}
+
+/// Lista de tableros: los publicados para cualquiera y, con sesión, además los borradores propios
+/// (un administrador ve todos).
+async fn api_tableros(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let quien = sesion_de(&e, &cabeceras).await.ok().flatten();
+    let (nombre, admin) = quien.as_ref().map(|s| (s.nombre.clone(), s.rol == "admin")).unwrap_or_default();
+    let filas = e
+        .bd
+        .query(
+            "SELECT id, titulo, solicitud, autor, to_char(cambiado, 'YYYY-MM-DD HH24:MI'), jsonb_array_length(definicion->'piezas'), definicion->'territorio'->>'nombre', publico, coalesce(definicion->>'descripcion', '')
+             FROM tableros WHERE publico OR autor = $1 OR $2 ORDER BY cambiado DESC LIMIT 300",
+            &[&nombre, &admin],
+        )
+        .await
+        .map_err(interno)?;
+    Ok(Json(json!({ "indicadores": indicadores_de_tablero(), "tipos": tablero::TIPOS,
+        "tableros": filas.iter().map(|f| { let autor: String = f.get(3); json!({ "id": f.get::<_, i64>(0), "titulo": f.get::<_, String>(1), "solicitud": f.get::<_, String>(2), "cambiado": f.get::<_, String>(4), "piezas": f.get::<_, Option<i32>>(5), "territorio": f.get::<_, Option<String>>(6),
+            "publico": f.get::<_, bool>(7), "descripcion": f.get::<_, String>(8), "editable": quien.is_some() && (admin || autor == nombre), "autor": autor }) }).collect::<Vec<_>>() })))
+}
+
+/// Un tablero: si está publicado lo lee cualquiera; un borrador, solo su autor o un administrador.
+async fn api_tablero(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let quien = sesion_de(&e, &cabeceras).await.ok().flatten();
+    let (nombre, admin) = quien.as_ref().map(|s| (s.nombre.clone(), s.rol == "admin")).unwrap_or_default();
+    let f = e.bd.query_opt("SELECT id, titulo, solicitud, definicion, autor, publico FROM tableros WHERE id = $1 AND (publico OR autor = $2 OR $3)", &[&id, &nombre, &admin]).await.map_err(interno)?.ok_or_else(|| pedido("no existe ese tablero o todavía no está publicado"))?;
+    let autor: String = f.get(4);
+    Ok(Json(json!({ "id": f.get::<_, i64>(0), "titulo": f.get::<_, String>(1), "solicitud": f.get::<_, String>(2), "definicion": f.get::<_, Value>(3), "publico": f.get::<_, bool>(5),
+        "editable": quien.is_some() && (admin || autor == nombre), "autor": autor, "indicadores": indicadores_de_tablero() })))
+}
+
+#[derive(Deserialize)]
+struct Publicacion {
+    publico: bool,
+}
+
+/// Publica un tablero (pasa a verse en el portal sin cuenta) o lo devuelve a borrador.
+async fn api_tablero_publicar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap, Json(p): Json<Publicacion>) -> Res<Json<Value>> {
+    let quien = autorizar_en(&e, &cabeceras, "tableros").await?;
+    let n = e.bd.execute("UPDATE tableros SET publico = $1, cambiado = now() WHERE id = $2 AND (autor = $3 OR $4)", &[&p.publico, &id, &quien.nombre, &(quien.rol == "admin")]).await.map_err(interno)?;
+    if n == 0 { return Err(Fallo(StatusCode::FORBIDDEN, "solo su autor o un administrador puede publicar o retirar este tablero".into())); }
+    bitacora(&e, &quien.nombre, if p.publico { "tablero_publicado" } else { "tablero_retirado" }, &id.to_string()).await;
+    Ok(Json(json!({ "id": id, "publico": p.publico })))
 }
 
 #[derive(Deserialize)]
