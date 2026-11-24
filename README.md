@@ -14,6 +14,18 @@ Las instituciones que envían datos al INE no tienen un formato común. El mismo
 escrito como "Puerto de San José", "El puerto", "PTO. SAN JOSE" o "San José" (que además existe
 en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde.
 
+## Para quién
+
+- **Coordinación del SEN y oficinas sectoriales (OCSE):** piden y reciben registros de RENAP, PNC,
+  SE-CONRED, ministerios y municipalidades con una solicitud estándar, y ven el avance.
+- **Registros administrativos (DESA):** validan cada envío con una herramienta de licencia libre
+  y dejan de corregir a mano lo mismo cada mes.
+- **Censos y Encuestas / Cartografía:** catálogo de lugares poblados verificado, lugares sin
+  camino en el mapa, y asignación de operadores cerca de su casa.
+- **Precios e Índices de Referencia:** cálculo documentado del precio de referencia.
+- **Instituciones que envían:** saben exactamente qué columnas se les piden y reciben un reporte
+  claro de lo que hay que corregir.
+
 ## Qué hace hoy
 
 1. **Solicitud de datos.** El INE declara una vez qué columnas necesita, de qué tipo, cuáles son
@@ -119,6 +131,9 @@ Si una solicitud sustituye identificadores por llaves, defina el secreto `FARO_S
 | `ambiguo` | Varios lugares con ese nombre y falta el nivel superior | No |
 | `revisar` | Hay candidatos, ninguno claro | No |
 | `sin_coincidencia` | Nada parecido en el catálogo | No |
+| `fuera_de_contexto` | El nombre existe, pero en otro departamento o municipio | No, se muestra dónde existe |
+| `codigo_invalido` | Llegó un código que no existe | No; se busca en la lista y queda aprendido |
+| `fuera_de_catalogo` | Valor no previsto de una variable (sexo, pueblo...) | No; se elige el valor permitido y queda aprendido |
 
 ## Datos
 
@@ -126,26 +141,31 @@ Si una solicitud sustituye identificadores por llaves, defina el secreto `FARO_S
 |---|---|---|
 | INE, Censo 2018, "Listado de lugares poblados" ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados), CC BY) | Catálogo oficial de lugares con código y coordenadas: fuente principal | Cargado: 20,036 lugares poblados, 19,723 con coordenadas (`faro catalogo importar`) |
 | `datos/catalogo/` | 22 departamentos, 340 municipios y 20,036 lugares poblados con código INE y alias | Incluido; verificado código por código contra el listado oficial ([detalle](datos/catalogo/LEEME.md)) |
+| INE, "Estimaciones y proyecciones de la población total por municipio, 2015–2030" ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/proyecciones-de-poblacion-2015-2030), ODC-BY), descargado el 24-nov-2026 | Población por municipio y año: denominador de tasas y crecimiento poblacional | Incluido resumido en `datos/referencia/poblacion_municipio.csv` ([detalle](datos/referencia/LEEME.md)) |
+| © Colaboradores de OpenStreetMap, exportación de carreteras de HOT en [HDX](https://data.humdata.org/dataset/hotosm_gtm_roads) (ODbL 1.0), corte del 3-nov-2026, descargado el 24-nov-2026 | Red vial como grafo | Resultados derivados en `datos/referencia/red_vial_*` (ODbL); el archivo original no se versiona |
 | `datos/solicitudes/` | Solicitudes de datos para RENAP (defunciones, nacimientos), PNC (detenidos) y SE-CONRED (emergencias) | Incluido |
 | Archivos de ejemplo de instituciones compartidos por el INE (23-nov-2026) | Diseño y prueba de las solicitudes | **No están en el repositorio** (contienen datos personales) |
 | Google Research, Open Buildings 2.5D Temporal (CC BY 4.0 / ODbL) | Edificaciones por año 2016–2023 para crecimiento urbano | Script listo (`scripts/`), pendiente de ejecutar |
 | `datos/estandar/` | Núcleo común de variables y mapa de registros e instituciones (borrador del equipo) | Incluido |
 | `datos/ejemplos/` | Envío, solicitud, serie de edificaciones, operadores y puestos **ficticios** para demostración ([detalle](datos/ejemplos/LEEME.md)) | Incluido |
 
-El repositorio no contiene datos de personas. Los ejemplos son inventados.
+El repositorio no contiene datos de personas. Los ejemplos son inventados. Cada descarga queda en
+`datos/crudo/manifiesto.jsonl` con URL, fecha, licencia y huella SHA-256 (`faro fuentes citar`).
 
 ## Estructura
 
 ```
 crates/faro-homologa/   biblioteca: lectura, solicitud, homologar, memoria, recepción
 crates/faro-fuentes/    cliente CKAN y descargas con procedencia
-crates/faro-territorio/ crecimiento de edificaciones y proyección
+crates/faro-territorio/ población, red vial, asignación de operadores, precios, edificaciones, aire
 crates/faro-servidor/   servidor web, base de datos y pantalla
 crates/faro-cli/        ejecutable `faro`
 scripts/                script de Earth Engine para edificaciones por municipio
 datos/catalogo/         catálogos oficiales en CSV (codigo,nombre,nivel,padre)
 datos/estandar/         núcleo común de variables y mapa de registros
-datos/ejemplos/         solicitud y envío de demostración
+datos/referencia/       tablas derivadas de fuentes oficiales (población, red vial)
+datos/solicitudes/      qué pide el INE a cada institución
+datos/ejemplos/         archivos ficticios de demostración
 docs/                   necesidades del INE, investigación, arquitectura y plan
 ```
 
@@ -158,11 +178,41 @@ docs/                   necesidades del INE, investigación, arquitectura y plan
 - [Cómo se conectan todas las instituciones](docs/05-mapa-institucional.md)
 - [Qué pasó al recibir los archivos reales](docs/06-hallazgos-datos-reales.md)
 - [Modelos de código abierto que tendría sentido entrenar](docs/07-modelos.md)
+- [Versiones](docs/08-versiones.md)
+- [Logros y hallazgos](docs/09-logros.md)
+
+## Limitaciones y mejoras
+
+- **Los umbrales son parámetros, no normas del INE.** Cuándo un nombre es "muy parecido", cuándo
+  un precio es "extremo", qué distancia cuenta como "tener camino": los valores por defecto son del
+  equipo y deben fijarlos las unidades responsables.
+- **Distancias en línea recta.** La asignación de operadores y la red vial no usan tiempo de viaje.
+  El siguiente paso es calcular rutas sobre el mismo grafo vial.
+- **La red vial mide el mapa.** Un hueco puede ser un camino sin dibujar o un paso en lancha.
+- **Crecimiento urbano sin serie real todavía.** El cálculo está; falta ejecutar el script de
+  Earth Engine para obtener las edificaciones por municipio.
+- **Precios sin históricos de Guatecompras.** El cálculo usa las cotizaciones que se le den.
+- **Un solo nivel de acceso.** Hay una clave compartida para enviar y confirmar; faltan usuarios y
+  roles por institución.
+- **Texto libre sin codificar.** Causa de muerte (CIE-10), delito y ocupación quedan como texto.
+- **Intercambio entre sistemas.** Hoy se suben archivos; el diseño prevé recibir lo mismo por
+  X-Road ([arquitectura](docs/03-arquitectura.md)).
+- `iniciar.bat` no se ha probado en todas las versiones de Windows.
 
 ## Componentes de terceros
 
 Bibliotecas de Rust de código abierto (licencias MIT o Apache-2.0): `serde`, `serde_json`, `toml`,
-`csv`, `strsim`, `unicode-normalization`, `chrono`, `clap`, `ureq`, `sha2`, `calamine`, `axum`, `tokio`, `tokio-postgres`. Base de datos: PostgreSQL 16. Versiones exactas en `Cargo.lock`.
+`csv`, `strsim`, `unicode-normalization`, `chrono`, `clap`, `ureq`, `sha2`, `calamine`, `zip`, `axum`,
+`tokio`, `tokio-postgres`. Base de datos: PostgreSQL 16 (licencia PostgreSQL). Imágenes de Docker:
+`rust`, `debian` y `postgres` oficiales. Versiones exactas en `Cargo.lock`. No se copió código de
+proyectos previos; los algoritmos (homologación, método húngaro, grafo vial, lector de Shapefile)
+se escribieron durante el evento.
+
+## Servicios en la nube
+
+FARO no depende de ningún servicio de pago ni en la nube: corre completo en una computadora con
+Docker. Consulta por internet solo fuentes abiertas (portal del INE, HDX). El desarrollo usó
+GitHub y un asistente de IA en la nube (ver abajo).
 
 ## Uso de inteligencia artificial
 
