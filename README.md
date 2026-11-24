@@ -79,9 +79,19 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
     emitió y publica en su portal (`faro referencias` y la pantalla).
 18. **Todo se puede repetir y auditar.** El cálculo de población se rehace desde la pantalla contra
     el portal del INE, mostrando cada paso; la sección "Proceso" enseña qué hace cada etapa y quién.
-19. **Muestreos automáticos.** Tareas configurables que el portal repite solo: consultan la
-    búsqueda pública de tiendas en línea y guardan cada precio con su dirección y fecha. Se
-    encienden y se les cambia la frecuencia desde la pantalla (`datos/estandar/muestreos.toml`).
+19. **Muestreos automáticos.** Tareas configurables que el portal repite solo: leen las páginas
+    públicas de tiendas en línea y guardan cada precio con su dirección y fecha. Cuatro lecturas:
+    búsqueda por términos, catálogo completo por categorías (con código de barras y precio de
+    lista), mapa del sitio con datos estructurados y listado paginado. Se encienden y se les cambia
+    la frecuencia desde la pantalla (`datos/estandar/muestreos.toml`, 19 tareas).
+19a. **Precios por rubro.** Supermercado, ferretería, tecnología, hogar, farmacia y vehículos:
+    26,976 precios publicados por 11 tiendas (levantamiento del 24-nov-2026, en
+    `datos/referencia/precios_publicados.csv`). Búsqueda con media, mediana y moda; el **mismo
+    producto entre tiendas por su código de barras** (3,137 productos de supermercado), alertas de
+    **cambios atípicos** entre muestreos, tiendas informantes y descarga en CSV.
+19b. **Mapa en tres niveles.** Departamentos (cifras sumadas de sus municipios, tasas recalculadas),
+    municipios y lugares poblados del censo (aldeas, caseríos, cantones) con su conexión vial.
+    La pantalla se adapta a teléfonos: menú desplegable y ficha como hoja inferior.
 20. **Canasta básica.** Precio promedio del INE de 34 productos, con su serie, junto a los
     precios publicados que recoge el muestreo (`faro canasta`).
 21. **Ficha y reporte por municipio.** Al tocar un municipio: cifras, gráficas, animación del
@@ -113,7 +123,7 @@ Abra <http://localhost:8082> y entre con el usuario inicial `admin` y la contras
 pantalla le pedirá cambiarla en "Mi perfil". Los demás usuarios se crean en "Usuarios". Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
-La pantalla abre en un mapa por municipio y tiene diecinueve secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
+La pantalla abre en un mapa por municipio y tiene veinte secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
 confirmadas, resultados y avance por institución, conjuntos del portal del INE (se sincroniza
 sola al arrancar y cada 24 horas), crecimiento poblacional y urbano, asignación de operadores de
 campo, red vial, materiales de construcción, precios de referencia y capas publicadas. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.

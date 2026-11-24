@@ -60,3 +60,12 @@ Para quien retome el proyecto (persona o asistente) sin el historial de la conve
 
 ## Pendientes y siguientes ideas
 Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por integrar: CONRED incidentes y MAGA cultivos (INE, conjunto de8af067), SEGEPLAN ranking (JSON 17 MB), MSPAS agua, MINEDUC establecimientos, PNC tránsito, INAB PROBOSQUE, SAT parque vehicular.
+
+## Bloque v0.10.0 (24-nov, tarde)
+- Muestreos nuevos probados fuera de Docker (servidor en :8099 + `pgtmp`). Tiempos: catálogo VTEX ~1–3 min; EPA 100 páginas ~3 min; farmacias 300 páginas ~20 min (3.4 s por página). Reiniciar el servidor corta las corridas en curso.
+- La comparación entre muestreos con autounión tardaba 26 s (plan de bucles anidados con parámetros); con `lead()` en ventana, <0.2 s.
+- `DISTINCT ON` debe incluir `rubro`: la misma URL de Walmart está en `alimentos` y `supermercado`.
+- Los puntos en lienzo (canvas) quedan tapados por polígonos SVG opacos: usar un panel propio (`mapa.createPane('puntos')`, z 450).
+- Para probar "cambios" se insertaron filas con fecha anterior en la base temporal (tarea `prueba-temporal`); no van al repositorio.
+- Guiones: `.faro/pruebas/movil_y_niveles.js` (390 px, desbordes, niveles) y `precios_por_rubro.js`.
+- Ideas pendientes: bajar a subcategorías VTEX para pasar el tope de 2,500 por categoría; avance de recepción por departamento; kemik.gt responde 403.

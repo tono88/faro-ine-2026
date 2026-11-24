@@ -116,6 +116,11 @@ async fn main() -> Result<(), String> {
         json!({ "disponible": false })
     });
     let dir_referencia = PathBuf::from(var("FARO_REFERENCIA", "datos/referencia"));
+    match sembrar_precios(&bd, &dir_referencia.join("precios_publicados.csv")).await {
+        Ok(0) => {}
+        Ok(n) => eprintln!("Precios publicados del levantamiento inicial: {n} cargados."),
+        Err(e) => eprintln!("AVISO: no se cargó el levantamiento inicial de precios ({e})."),
+    }
     let mut construido: BTreeMap<String, Vec<faro_territorio::Punto>> = BTreeMap::new();
     if let Ok(mut lector) = csv::Reader::from_path(dir_referencia.join("superficie_construida_municipio.csv")) {
         for f in lector.deserialize::<HashMap<String, String>>().flatten() {
@@ -242,6 +247,8 @@ async fn main() -> Result<(), String> {
         .route("/api/muestreos/:id", post(api_muestreo_configurar))
         .route("/api/muestreos/:id/ejecutar", post(api_muestreo_ejecutar))
         .route("/api/canasta", get(api_canasta))
+        .route("/api/publicados", get(api_publicados))
+        .route("/api/publicados.csv", get(api_publicados_csv))
         .route("/api/municipio/:codigo", get(api_municipio))
         .route("/api/solicitudes/:id/plantilla.csv", get(plantilla))
         .route("/api/equivalencias/tabla", post(api_tabla_equivalencias))
@@ -902,6 +909,7 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
             p["cif_fase3_o_superior_pct_departamento"] = json!(del_depto.and_then(|f| f.get("fase3_o_superior_pct")?.parse::<f64>().ok()));
             p["retardo_en_talla_pct"] = json!(talla.get(&codigo).and_then(|f| f.get("retardo_en_talla_pct")?.parse::<f64>().ok()));
             p["vulnerabilidad_nutricional"] = json!(talla.get(&codigo).and_then(|f| f.get("vulnerabilidad")));
+            p["escolares_evaluados"] = json!(talla.get(&codigo).and_then(|f| f.get("escolares_evaluados")?.parse::<f64>().ok()));
             p["proveedores_construccion"] = json!(construccion.proveedores.iter().filter(|x| x.get("municipio_codigo").map(String::as_str) == Some(codigo.as_str())).count());
             p["lugares_poblados"] = json!(lugares_de.get(&codigo).copied().unwrap_or(0));
             let (suelto, sin) = sin_conexion.get(&codigo).copied().unwrap_or((0, 0));
@@ -1205,14 +1213,63 @@ async fn api_reproducir_poblacion(State(e): State<Compartido>, cabeceras: Header
 // Muestreo automático de precios
 // ---------------------------------------------------------------------------------------------
 
+/// Nombre con que se guardan los precios del levantamiento que viene con el sistema.
+const LEVANTAMIENTO: &str = "levantamiento-inicial";
+
+/// Carga una sola vez el levantamiento de precios publicados que viene con el sistema
+/// (`datos/referencia/precios_publicados.csv`), con la fecha en que se consultó cada precio.
+async fn sembrar_precios(bd: &Client, ruta: &std::path::Path) -> Result<usize, String> {
+    if !ruta.exists() || bd.query_opt("SELECT 1 FROM precios_observados WHERE tarea = $1 LIMIT 1", &[&LEVANTAMIENTO]).await.map_err(|e| e.to_string())?.is_some() {
+        return Ok(0);
+    }
+    let filas: Vec<HashMap<String, String>> = csv::Reader::from_path(ruta).map_err(|e| e.to_string())?.deserialize().collect::<Result<_, _>>().map_err(|e| e.to_string())?;
+    let filas: Vec<&HashMap<String, String>> = filas.iter().filter(|f| f.get("precio_q").is_some_and(|p| p.parse::<f64>().is_ok_and(|x| x > 0.0)) && f.get("fecha_consulta").is_some_and(|d| d.len() == 10)).collect();
+    for lote in filas.chunks(500) {
+        let col = |k: &str| lote.iter().map(|f| f.get(k).map(String::as_str).unwrap_or("")).collect::<Vec<&str>>();
+        let precios: Vec<f64> = lote.iter().map(|f| f["precio_q"].parse().unwrap_or(0.0)).collect();
+        let listas: Vec<Option<f64>> = lote.iter().map(|f| f.get("precio_lista_q").and_then(|p| p.parse().ok())).collect();
+        bd.execute(
+            "INSERT INTO precios_observados (tarea, rubro, proveedor, producto, marca, precio, url, termino, ean, precio_lista, observado)
+             SELECT $1, r, t, p, m, x, u, c, e, l, d::date FROM unnest($2::text[], $3::text[], $4::text[], $5::text[], $6::float8[], $7::text[], $8::text[], $9::text[], $10::float8[], $11::text[]) AS f(r, t, p, m, x, u, c, e, l, d)",
+            &[&LEVANTAMIENTO, &col("rubro"), &col("tienda"), &col("producto"), &col("marca"), &precios, &col("url"), &col("categoria_tienda"), &col("codigo_barras"), &listas, &col("fecha_consulta")],
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+    }
+    Ok(filas.len())
+}
+
+/// Tareas que se están ejecutando en este momento (para no lanzar dos veces la misma).
+static EN_CURSO: std::sync::Mutex<Vec<String>> = std::sync::Mutex::new(Vec::new());
+
 /// Ejecuta una tarea de muestreo, guarda lo observado y deja constancia del resultado.
 async fn ejecutar_muestreo(e: &Compartido, tarea: &faro_fuentes::muestreo::Tarea) -> Res<Value> {
+    {
+        let mut en_curso = EN_CURSO.lock().map_err(interno)?;
+        if en_curso.contains(&tarea.id) {
+            return Err(pedido("esta tarea ya se está ejecutando"));
+        }
+        en_curso.push(tarea.id.clone());
+    }
+    let resultado = muestrear_y_guardar(e, tarea).await;
+    if let Ok(mut en_curso) = EN_CURSO.lock() {
+        en_curso.retain(|id| id != &tarea.id);
+    }
+    resultado
+}
+
+async fn muestrear_y_guardar(e: &Compartido, tarea: &faro_fuentes::muestreo::Tarea) -> Res<Value> {
     let t = tarea.clone();
     let (ofertas, bitacora) = tokio::task::spawn_blocking(move || faro_fuentes::muestreo::ejecutar(&t)).await.map_err(interno)?;
-    for o in &ofertas {
+    // Se guarda por lotes: un catálogo completo trae miles de precios.
+    for lote in ofertas.chunks(500) {
+        let col = |f: fn(&faro_fuentes::muestreo::Oferta) -> &str| lote.iter().map(f).collect::<Vec<&str>>();
+        let precios: Vec<f64> = lote.iter().map(|o| o.precio).collect();
+        let listas: Vec<Option<f64>> = lote.iter().map(|o| o.precio_lista).collect();
         e.bd.execute(
-            "INSERT INTO precios_observados (tarea, rubro, proveedor, producto, marca, precio, unidad, url, termino) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)",
-            &[&tarea.id, &tarea.rubro, &tarea.proveedor, &o.producto, &o.marca, &o.precio, &o.unidad, &o.url, &o.termino],
+            "INSERT INTO precios_observados (tarea, rubro, proveedor, producto, marca, precio, unidad, url, termino, ean, precio_lista)
+             SELECT $1, $2, $3, * FROM unnest($4::text[], $5::text[], $6::float8[], $7::text[], $8::text[], $9::text[], $10::text[], $11::float8[])",
+            &[&tarea.id, &tarea.rubro, &tarea.proveedor, &col(|o| &o.producto), &col(|o| &o.marca), &precios, &col(|o| &o.unidad), &col(|o| &o.url), &col(|o| &o.termino), &col(|o| &o.ean), &listas],
         )
         .await
         .map_err(interno)?;
@@ -1234,7 +1291,8 @@ async fn api_muestreos(State(e): State<Compartido>) -> Res<Json<Value>> {
     Ok(Json(json!(e.tareas.iter().map(|t| {
         let est = estados.iter().find(|f| f.get::<_, String>(0) == t.id);
         let n = conteos.iter().find(|f| f.get::<_, String>(0) == t.id);
-        json!({ "id": t.id, "titulo": t.titulo, "rubro": t.rubro, "proveedor": t.proveedor, "base": t.base, "terminos": t.terminos, "tipo": t.tipo,
+        let en_curso = EN_CURSO.lock().map(|c| c.contains(&t.id)).unwrap_or(false);
+        json!({ "id": t.id, "titulo": t.titulo, "rubro": t.rubro, "proveedor": t.proveedor, "base": t.base, "terminos": t.terminos, "tipo": t.tipo, "categorias": t.categorias, "max_resultados": t.max_resultados, "en_curso": en_curso,
                 "activa": est.map_or(t.activa, |f| f.get(1)), "cada_horas": est.map_or(t.cada_horas, |f| f.get(2)),
                 "ultima": est.and_then(|f| f.get::<_, Option<String>>(3)), "ultimo_ok": est.and_then(|f| f.get::<_, Option<bool>>(4)), "detalle": est.map(|f| f.get::<_, String>(5)),
                 "precios": n.map_or(0, |f| f.get::<_, i64>(1)), "productos": n.map_or(0, |f| f.get::<_, i64>(2)), "corridas": n.map_or(0, |f| f.get::<_, i64>(3)) })
@@ -1266,7 +1324,85 @@ async fn api_muestreo_configurar(State(e): State<Compartido>, Ruta(id): Ruta<Str
 async fn api_muestreo_ejecutar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     autorizar(&e, &cabeceras).await?;
     let t = e.tareas.iter().find(|t| t.id == id).ok_or_else(|| pedido(format!("no existe la tarea {id}")))?.clone();
-    Ok(Json(ejecutar_muestreo(&e, &t).await?))
+    if t.tipo == "vtex" {
+        return Ok(Json(ejecutar_muestreo(&e, &t).await?));
+    }
+    // Un catálogo completo tarda minutos: corre aparte y la pantalla consulta el avance.
+    if EN_CURSO.lock().map_err(interno)?.contains(&t.id) {
+        return Err(pedido("esta tarea ya se está ejecutando"));
+    }
+    tokio::spawn(async move {
+        let r = ejecutar_muestreo(&e, &t).await;
+        eprintln!("muestreo {}: {}", t.id, r.map(|v| v.to_string()).unwrap_or_else(|f| f.1));
+    });
+    Ok(Json(json!({ "en_curso": true })))
+}
+
+/// Precios publicados por rubro: el más reciente de cada producto de cada tienda, con búsqueda;
+/// el mismo código de barras en tiendas distintas; y los cambios de precio entre dos muestreos.
+async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
+    const ULTIMOS: &str = "SELECT DISTINCT ON (rubro, proveedor, url) rubro, proveedor, producto, marca, precio, precio_lista, ean, termino, url, observado FROM precios_observados ORDER BY rubro, proveedor, url, observado DESC";
+    const PLANO: &str = "translate(lower(producto), 'áéíóúüñ', 'aeiouun')";
+    let rubros = e.bd.query(&format!("SELECT rubro, count(*), count(DISTINCT proveedor), count(*) FILTER (WHERE ean <> ''), to_char(max(observado), 'YYYY-MM-DD'), string_agg(DISTINCT proveedor, ', ') FROM ({ULTIMOS}) u GROUP BY 1 ORDER BY 2 DESC"), &[]).await.map_err(interno)?;
+    let rubros: Vec<Value> = rubros.iter().map(|f| json!({ "rubro": f.get::<_, String>(0), "productos": f.get::<_, i64>(1), "proveedores": f.get::<_, i64>(2), "con_codigo": f.get::<_, i64>(3), "ultima": f.get::<_, Option<String>>(4), "tiendas": f.get::<_, Option<String>>(5) })).collect();
+    let rubro = q.get("rubro").cloned().filter(|r| !r.is_empty()).or_else(|| rubros.first().and_then(|r| r["rubro"].as_str().map(String::from))).unwrap_or_default();
+    let proveedor = q.get("proveedor").cloned().unwrap_or_default();
+    // Cada palabra buscada debe aparecer en el nombre del producto (sin tildes ni mayúsculas).
+    let palabras: Vec<String> = faro_homologa::normalizar::basico(q.get("q").map(String::as_str).unwrap_or("")).split(' ').filter(|p| !p.is_empty()).map(|p| format!("%{}%", p.to_lowercase())).collect();
+    let umbral: f64 = q.get("umbral").and_then(|u| u.parse().ok()).filter(|u: &f64| *u > 0.0).unwrap_or(15.0);
+    let filtro = format!("rubro = $1 AND ($2 = '' OR proveedor = $2) AND {PLANO} LIKE ALL($3::text[])");
+
+    let resumen = e.bd.query_one(&format!("SELECT count(*), min(precio), percentile_cont(0.5) WITHIN GROUP (ORDER BY precio), max(precio), avg(precio), mode() WITHIN GROUP (ORDER BY precio) FROM ({ULTIMOS}) u WHERE {filtro}"), &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
+    // Tiendas informantes del rubro: cuánto publica cada una y desde cuándo se le sigue.
+    let informantes = e.bd.query(
+        "SELECT proveedor, count(DISTINCT url), count(DISTINCT url) FILTER (WHERE ean <> ''), count(DISTINCT observado::date), to_char(min(observado), 'YYYY-MM-DD'), to_char(max(observado), 'YYYY-MM-DD'), count(DISTINCT termino), min(split_part(url, '/', 3))
+         FROM precios_observados WHERE rubro = $1 GROUP BY 1 ORDER BY 2 DESC", &[&rubro]).await.map_err(interno)?;
+    let informantes: Vec<Value> = informantes.iter().map(|f| json!({ "proveedor": f.get::<_, String>(0), "productos": f.get::<_, i64>(1), "con_codigo": f.get::<_, i64>(2), "dias": f.get::<_, i64>(3), "desde": f.get::<_, Option<String>>(4), "hasta": f.get::<_, Option<String>>(5), "categorias": f.get::<_, i64>(6), "sitio": f.get::<_, Option<String>>(7) })).collect();
+    let filas = e.bd.query(&format!("SELECT proveedor, producto, marca, precio, precio_lista, ean, termino, url, to_char(observado, 'YYYY-MM-DD') FROM ({ULTIMOS}) u WHERE {filtro} ORDER BY precio LIMIT 200"), &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
+    let filas: Vec<Value> = filas.iter().map(|f| json!({ "proveedor": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "marca": f.get::<_, String>(2), "precio": f.get::<_, f64>(3), "precio_lista": f.get::<_, Option<f64>>(4),
+        "ean": f.get::<_, String>(5), "categoria": f.get::<_, String>(6), "url": f.get::<_, String>(7), "fecha": f.get::<_, String>(8) })).collect();
+
+    // Mismo código de barras en dos o más tiendas: es el mismo producto sin que nadie lo interprete.
+    let iguales = e.bd.query(&format!(
+        "SELECT ean, min(producto), count(DISTINCT proveedor), min(precio), max(precio),
+                json_agg(json_build_object('proveedor', proveedor, 'precio', precio, 'url', url, 'producto', producto) ORDER BY precio)::text, count(*) OVER ()
+         FROM ({ULTIMOS}) u WHERE {filtro} AND ean <> '' GROUP BY ean HAVING count(DISTINCT proveedor) >= 2 ORDER BY max(precio) / min(precio) DESC, ean LIMIT 100"), &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
+    let total_iguales = iguales.first().map_or(0, |f| f.get::<_, i64>(6));
+    let iguales: Vec<Value> = iguales.iter().map(|f| { let (a, b) = (f.get::<_, f64>(3), f.get::<_, f64>(4));
+        json!({ "ean": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "tiendas": f.get::<_, i64>(2), "minimo": a, "maximo": b, "diferencia_pct": (b / a - 1.0) * 100.0, "ofertas": serde_json::from_str::<Value>(&f.get::<_, String>(5)).unwrap_or(Value::Null) }) }).collect();
+
+    // Cambio de precio del mismo producto en la misma tienda entre sus dos últimos días de muestreo.
+    let cambios = e.bd.query(&format!(
+        "WITH dias AS (SELECT DISTINCT ON (proveedor, url, observado::date) rubro, proveedor, url, producto, precio, observado::date AS dia FROM precios_observados WHERE rubro = $1 ORDER BY proveedor, url, observado::date, observado DESC),
+              orden AS (SELECT *, row_number() OVER w AS n, lead(precio) OVER w AS antes, lead(dia) OVER w AS dia_antes FROM dias WINDOW w AS (PARTITION BY proveedor, url ORDER BY dia DESC))
+         SELECT proveedor, producto, antes, precio, to_char(dia_antes, 'YYYY-MM-DD'), to_char(dia, 'YYYY-MM-DD'), url, count(*) OVER (), count(*) FILTER (WHERE abs(precio / antes - 1) * 100 >= $4) OVER ()
+         FROM orden WHERE n = 1 AND antes > 0 AND {filtro} ORDER BY abs(precio / antes - 1) DESC LIMIT 100"), &[&rubro, &proveedor, &palabras, &umbral]).await.map_err(interno)?;
+    let (comparados, atipicos) = cambios.first().map_or((0, 0), |f| (f.get::<_, i64>(7), f.get::<_, i64>(8)));
+    let cambios: Vec<Value> = cambios.iter().map(|f| { let (antes, ahora) = (f.get::<_, f64>(2), f.get::<_, f64>(3)); let v = (ahora / antes - 1.0) * 100.0;
+        json!({ "proveedor": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "antes": antes, "ahora": ahora, "fecha_antes": f.get::<_, String>(4), "fecha_ahora": f.get::<_, String>(5), "url": f.get::<_, String>(6), "variacion_pct": v, "atipico": v.abs() >= umbral }) })
+        .filter(|c| c["variacion_pct"].as_f64().is_some_and(|v| v != 0.0)).collect();
+
+    Ok(Json(json!({ "rubros": rubros, "rubro": rubro, "total": resumen.get::<_, i64>(0), "minimo": resumen.get::<_, Option<f64>>(1), "mediana": resumen.get::<_, Option<f64>>(2), "maximo": resumen.get::<_, Option<f64>>(3), "media": resumen.get::<_, Option<f64>>(4), "moda": resumen.get::<_, Option<f64>>(5), "informantes": informantes,
+        "filas": filas, "mismo_codigo": iguales, "total_mismo_codigo": total_iguales, "cambios": cambios, "comparados": comparados, "atipicos": atipicos, "umbral_pct": umbral })))
+}
+
+/// Los precios publicados de un rubro (el más reciente de cada producto de cada tienda), en CSV.
+async fn api_publicados_csv(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Response> {
+    let rubro = q.get("rubro").cloned().unwrap_or_default();
+    let proveedor = q.get("proveedor").cloned().unwrap_or_default();
+    let palabras: Vec<String> = faro_homologa::normalizar::basico(q.get("q").map(String::as_str).unwrap_or("")).split(' ').filter(|p| !p.is_empty()).map(|p| format!("%{}%", p.to_lowercase())).collect();
+    let filas = e.bd.query(
+        "SELECT rubro, proveedor, producto, marca, precio, precio_lista, ean, termino, url, to_char(observado, 'YYYY-MM-DD') FROM
+           (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados ORDER BY rubro, proveedor, url, observado DESC) u
+         WHERE ($1 = '' OR rubro = $1) AND ($2 = '' OR proveedor = $2) AND translate(lower(producto), 'áéíóúüñ', 'aeiouun') LIKE ALL($3::text[]) ORDER BY rubro, producto, precio LIMIT 50000",
+        &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
+    let campo = |t: String| if t.contains([',', '"', '\n']) { format!("\"{}\"", t.replace('"', "\"\"")) } else { t };
+    let mut csv = String::from("rubro,tienda,producto,marca,precio_q,precio_lista_q,codigo_barras,categoria_tienda,url,fecha_consulta\n");
+    for f in &filas {
+        let texto = |i: usize| campo(f.get::<_, String>(i));
+        csv.push_str(&format!("{},{},{},{},{},{},{},{},{},{}\n", texto(0), texto(1), texto(2), texto(3), f.get::<_, f64>(4), f.get::<_, Option<f64>>(5).map(|x| x.to_string()).unwrap_or_default(), texto(6), texto(7), texto(8), texto(9)));
+    }
+    Ok(([(axum::http::header::CONTENT_TYPE, "text/csv; charset=utf-8"), (axum::http::header::CONTENT_DISPOSITION, "attachment; filename=\"precios_publicados.csv\"")], csv).into_response())
 }
 
 /// Canasta básica: precio promedio del INE por producto (último mes y un año antes) y, al lado,

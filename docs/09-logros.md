@@ -82,6 +82,21 @@ y cómo repetirlo.
     sistema no compara lo que no puede comprobar.
     Detalle: [`datos/referencia/LEEME.md`](../datos/referencia/LEEME.md). Repetir: `faro construccion`.
 
+## Precios publicados por rubro
+
+10a. **26,976 precios publicados por 11 tiendas en seis rubros, leídos por el propio portal** el
+    24-nov-2026 (supermercado 12,330; ferretería 8,278; tecnología 3,107; hogar 2,050; farmacia
+    1,100; vehículos 111). Cada precio guarda la dirección de su página y la fecha.
+10b. **El código de barras permite comparar el mismo producto entre tiendas sin interpretar nombres.**
+    En supermercados, 3,137 productos aparecen con el mismo código en dos o más tiendas y 505 en las
+    cuatro (Walmart, Paiz, Maxi Despensa, La Torre). En 717 el precio es idéntico; la diferencia
+    mediana entre la tienda más cara y la más barata es 4.6 %, y en 665 productos es de 15 % o más.
+    Es la misma regla del núcleo —coincidencia exacta o decide una persona— aplicada a precios.
+    Tabla: [`datos/referencia/precios_publicados.csv`](../datos/referencia/precios_publicados.csv).
+    Repetir: sección "Muestreos automáticos" → "Ejecutar ahora".
+10c. **Tres supermercados conocidos no publican catálogo con precios** (Suma, Super del Barrio,
+    Mi Super Fresh: solo páginas informativas) y PriceSmart exige navegador con sesión; no se muestrean.
+
 ## Operadores de campo (necesidad planteada por la Gerencia)
 
 11. **Asignación con la menor distancia total posible**, calculada de forma exacta. Con el ejemplo

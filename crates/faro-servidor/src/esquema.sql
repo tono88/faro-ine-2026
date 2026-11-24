@@ -69,6 +69,10 @@ CREATE TABLE IF NOT EXISTS precios_observados (
     termino   TEXT NOT NULL DEFAULT '',
     observado TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+-- Código de barras y precio de lista: los publica el catálogo completo de la tienda.
+ALTER TABLE precios_observados ADD COLUMN IF NOT EXISTS ean TEXT NOT NULL DEFAULT '';
+ALTER TABLE precios_observados ADD COLUMN IF NOT EXISTS precio_lista DOUBLE PRECISION;
+CREATE INDEX IF NOT EXISTS precios_observados_url ON precios_observados (proveedor, url, observado DESC);
 CREATE INDEX IF NOT EXISTS precios_observados_rubro ON precios_observados (rubro, proveedor, producto, observado DESC);
 
 CREATE TABLE IF NOT EXISTS envios (

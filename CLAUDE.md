@@ -97,6 +97,16 @@ Usuario inicial admin/admin con aviso para cambiarla (pedido expreso del equipo)
 sección "Seguridad alimentaria"; dato por departamento, no por municipio. Censo de Talla 2024
 (SESAN): `faro talla`, `datos/referencia/censo_talla_municipio.csv`, por municipio.
 
+Agregado después (v0.10.0): lecturas de muestreo `vtex-catalogo`, `sitemap` y `magento` en
+`muestreo.rs` (19 tareas; los catálogos corren en segundo plano, `EN_CURSO`); columnas `ean` y
+`precio_lista`; `/api/publicados` y `/api/publicados.csv`; sección "Precios por rubro" (mismo código
+de barras entre tiendas, cambios entre muestreos, informantes); levantamiento en
+`datos/referencia/precios_publicados.csv` (se carga una vez, tarea `levantamiento-inicial`; no lleva
+los rubros `construccion` ni `alimentos` para no mover las cifras de esas secciones). Mapa con niveles
+(`cambiarNivel`, `resumenDepartamento`, `fichaDepartamento`), globo del enlace probable (`COMO_ENLACE`),
+estilos para teléfono (`@media (max-width: 700px)`). Suma, Super del Barrio y Mi Super Fresh no tienen
+catálogo en línea; PriceSmart pide navegador con sesión. Memoria técnica y guiones de prueba: `.faro/`.
+
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar
    `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del municipio,

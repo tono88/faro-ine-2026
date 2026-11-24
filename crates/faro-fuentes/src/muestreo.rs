@@ -14,12 +14,29 @@ pub struct Tarea {
     pub titulo: String,
     /// Rubro al que alimenta (construccion, alimentos...).
     pub rubro: String,
-    /// Tecnología del catálogo de la tienda. Por ahora: "vtex".
+    /// Cómo se lee la tienda:
+    /// - `vtex`: búsqueda pública por términos (`terminos`).
+    /// - `vtex-catalogo`: recorre el catálogo por categorías (`categorias` filtra las de primer nivel).
+    /// - `sitemap`: lee el mapa del sitio (`sitemap`) y los datos estructurados de cada página de producto.
+    /// - `magento`: recorre el listado paginado de productos (`listado`).
     pub tipo: String,
     pub proveedor: String,
     /// Dirección base de la tienda, sin barra final.
     pub base: String,
+    #[serde(default)]
     pub terminos: Vec<String>,
+    /// `vtex-catalogo`: nombres (o parte) de las categorías de primer nivel a recorrer; vacío = todas.
+    #[serde(default)]
+    pub categorias: Vec<String>,
+    /// `sitemap`: dirección del mapa del sitio.
+    #[serde(default)]
+    pub sitemap: Option<String>,
+    /// `sitemap`: texto que distingue las páginas de producto.
+    #[serde(default = "patron_producto")]
+    pub patron: String,
+    /// `magento`: dirección del listado de productos (se le agrega `?p=N`).
+    #[serde(default)]
+    pub listado: Option<String>,
     /// Cada cuántas horas se repite cuando está activa.
     #[serde(default = "semanal")]
     pub cada_horas: i32,
@@ -29,6 +46,9 @@ pub struct Tarea {
     /// Las tareas vienen apagadas: las enciende una persona.
     #[serde(default)]
     pub activa: bool,
+}
+fn patron_producto() -> String {
+    "/producto/".into()
 }
 fn semanal() -> i32 {
     168
@@ -50,8 +70,15 @@ pub fn cargar_tareas(ruta: &Path) -> Result<Vec<Tarea>, String> {
         if !t.base.starts_with("https://") || t.base.ends_with('/') {
             return Err(format!("tarea {}: la dirección base debe empezar con https:// y no terminar en /", t.id));
         }
-        if t.tipo != "vtex" {
-            return Err(format!("tarea {}: tipo {:?} no admitido (por ahora solo vtex)", t.id, t.tipo));
+        let falta = match t.tipo.as_str() {
+            "vtex" if t.terminos.is_empty() => Some("terminos"),
+            "sitemap" if !t.sitemap.as_deref().is_some_and(|u| u.starts_with("https://")) => Some("sitemap (https)"),
+            "magento" if !t.listado.as_deref().is_some_and(|u| u.starts_with("https://")) => Some("listado (https)"),
+            "vtex" | "vtex-catalogo" | "sitemap" | "magento" => None,
+            otro => return Err(format!("tarea {}: tipo {otro:?} no admitido (vtex, vtex-catalogo, sitemap o magento)", t.id)),
+        };
+        if let Some(campo) = falta {
+            return Err(format!("tarea {}: falta {campo}", t.id));
         }
     }
     Ok(a.tareas)
@@ -64,7 +91,12 @@ pub struct Oferta {
     pub precio: f64,
     pub unidad: String,
     pub url: String,
+    /// Término buscado o categoría de la tienda.
     pub termino: String,
+    /// Código de barras, si la tienda lo publica.
+    pub ean: String,
+    /// Precio de lista (antes de oferta), si es distinto del precio.
+    pub precio_lista: Option<f64>,
 }
 
 /// Interpreta la respuesta de la búsqueda pública de un catálogo VTEX. Solo toma productos con
@@ -88,6 +120,8 @@ pub fn ofertas_vtex(respuesta: &Value, termino: &str) -> Vec<Oferta> {
                 unidad: articulo["measurementUnit"].as_str().unwrap_or("").to_string(),
                 url: p["link"].as_str()?.to_string(),
                 termino: termino.to_string(),
+                ean: articulo["ean"].as_str().map(|e| e.trim()).filter(|e| e.len() >= 8 && e.chars().all(|c| c.is_ascii_digit())).unwrap_or("").to_string(),
+                precio_lista: oferta["ListPrice"].as_f64().filter(|l| *l > precio),
             })
         })
         .collect()
@@ -97,26 +131,195 @@ fn codificar(texto: &str) -> String {
     texto.bytes().map(|b| if b.is_ascii_alphanumeric() { (b as char).to_string() } else { format!("%{b:02X}") }).collect()
 }
 
-/// Ejecuta una tarea: una consulta por término, con un segundo de pausa entre consultas.
-/// Devuelve las ofertas y, por término, cuántas se hallaron o el error.
-pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
-    let agente = ureq::AgentBuilder::new().timeout(std::time::Duration::from_secs(40)).try_proxy_from_env(true).user_agent("faro-muestreo/0.1 (precios publicados; consulta de baja frecuencia)").build();
-    let (mut ofertas, mut bitacora) = (Vec::new(), Vec::new());
-    let tope = tarea.max_resultados.clamp(1, 50);
-    for (k, termino) in tarea.terminos.iter().enumerate() {
-        if k > 0 {
-            std::thread::sleep(std::time::Duration::from_secs(1));
-        }
-        let url = format!("{}/api/catalog_system/pub/products/search?ft={}&_from=0&_to={}", tarea.base, codificar(termino), tope - 1);
-        match agente.get(&url).call().map_err(|e| e.to_string()).and_then(|r| r.into_json::<Value>().map_err(|e| e.to_string())) {
-            Ok(v) => {
-                let halladas = ofertas_vtex(&v, termino);
-                bitacora.push(format!("{termino}: {}", halladas.len()));
-                ofertas.extend(halladas);
+/// Producto descrito en los datos estructurados (JSON-LD, schema.org) de una página.
+pub fn oferta_de_jsonld(html: &str, url: &str) -> Option<Oferta> {
+    static GUION: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let guion = GUION.get_or_init(|| regex::Regex::new(r#"(?is)<script[^>]*application/ld\+json[^>]*>(.*?)</script>"#).expect("patrón válido"));
+    fn buscar(v: &Value) -> Option<&Value> {
+        match v {
+            Value::Array(a) => a.iter().find_map(buscar),
+            Value::Object(o) => {
+                let es_producto = match &o.get("@type") {
+                    Some(Value::String(t)) => t == "Product",
+                    Some(Value::Array(t)) => t.iter().any(|x| x == "Product"),
+                    _ => false,
+                };
+                if es_producto { Some(v) } else { o.get("@graph").and_then(buscar) }
             }
-            Err(e) => bitacora.push(format!("{termino}: no respondió ({})", e.chars().take(80).collect::<String>())),
+            _ => None,
         }
     }
+    let numero = |v: &Value| v.as_f64().or_else(|| v.as_str()?.replace(',', "").parse().ok());
+    guion.captures_iter(html).find_map(|c| {
+        let dato: Value = serde_json::from_str(c.get(1)?.as_str().trim()).ok()?;
+        let p = buscar(&dato)?;
+        let oferta = match &p["offers"] {
+            Value::Array(a) => a.first()?,
+            otro => otro,
+        };
+        let precio = numero(&oferta["price"]).or_else(|| numero(&oferta["lowPrice"])).filter(|x| *x > 0.0)?;
+        let texto = |v: &Value| v.as_str().map(|t| t.split_whitespace().collect::<Vec<_>>().join(" ")).unwrap_or_default();
+        let marca = match &p["brand"] {
+            Value::Object(o) => o.get("name").map(texto).unwrap_or_default(),
+            otro => texto(otro),
+        };
+        let ean = ["gtin13", "gtin", "gtin12", "gtin8"].iter().map(|k| texto(&p[*k])).find(|e| e.len() >= 8 && e.chars().all(|c| c.is_ascii_digit())).unwrap_or_default();
+        Some(Oferta { producto: texto(&p["name"]), marca, precio, unidad: String::new(), url: url.to_string(), termino: texto(&p["category"]), ean, precio_lista: None }).filter(|o| !o.producto.is_empty())
+    })
+}
+
+/// Direcciones de un mapa del sitio (`<loc>`); dice también si es un índice de otros mapas.
+pub fn direcciones_del_mapa(xml: &str) -> (bool, Vec<String>) {
+    static LOC: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let loc = LOC.get_or_init(|| regex::Regex::new(r"(?is)<loc>\s*(.*?)\s*</loc>").expect("patrón válido"));
+    (xml.contains("<sitemapindex"), loc.captures_iter(xml).map(|c| c[1].replace("&amp;", "&")).collect())
+}
+
+/// Productos de una página de listado de una tienda Magento: nombre, dirección y precio final.
+pub fn ofertas_de_listado_magento(html: &str) -> Vec<Oferta> {
+    static ENLACE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    static PRECIO: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let enlace = ENLACE.get_or_init(|| regex::Regex::new(r#"(?is)class="product-item-link"\s+href="([^"]+)"[^>]*>(.*?)</a>"#).expect("patrón válido"));
+    let precio = PRECIO.get_or_init(|| regex::Regex::new(r#"data-price-amount="([0-9.]+)""#).expect("patrón válido"));
+    // Cada producto es un bloque; dentro, el primer precio es el final.
+    html.split("product-item-info").skip(1).filter_map(|bloque| {
+        let e = enlace.captures(bloque)?;
+        let p: f64 = precio.captures(bloque)?[1].parse().ok().filter(|x| *x > 0.0)?;
+        let nombre = e[2].replace("&quot;", "\"").replace("&amp;", "&").replace("&#039;", "'").split_whitespace().collect::<Vec<_>>().join(" ");
+        Some(Oferta { producto: nombre, marca: String::new(), precio: p, unidad: String::new(), url: e[1].to_string(), termino: String::new(), ean: String::new(), precio_lista: None }).filter(|o| !o.producto.is_empty())
+    }).collect()
+}
+
+/// Máximo de consultas que hace una tarea en una corrida, sea cual sea su configuración.
+const MAX_CONSULTAS: usize = 400;
+
+/// Ejecuta una tarea con pausas entre consultas. Devuelve las ofertas y una bitácora breve.
+pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
+    let agente = ureq::AgentBuilder::new().timeout(std::time::Duration::from_secs(40)).try_proxy_from_env(true).user_agent("faro-muestreo/0.1 (precios publicados; consulta de baja frecuencia)").build();
+    let (mut ofertas, mut bitacora): (Vec<Oferta>, Vec<String>) = (Vec::new(), Vec::new());
+    let mut consultas = 0usize;
+    let mut pedir = |url: &str| -> Result<String, String> {
+        if consultas >= MAX_CONSULTAS {
+            return Err("se alcanzó el máximo de consultas por corrida".into());
+        }
+        if consultas > 0 {
+            std::thread::sleep(std::time::Duration::from_millis(600));
+        }
+        consultas += 1;
+        agente.get(url).call().map_err(|e| e.to_string().chars().take(90).collect::<String>())?.into_string().map_err(|e| e.to_string())
+    };
+    let json = |texto: String| serde_json::from_str::<Value>(&texto).map_err(|e| e.to_string());
+    match tarea.tipo.as_str() {
+        "vtex" => {
+            let tope = tarea.max_resultados.clamp(1, 50);
+            for termino in &tarea.terminos {
+                let url = format!("{}/api/catalog_system/pub/products/search?ft={}&_from=0&_to={}", tarea.base, codificar(termino), tope - 1);
+                match pedir(&url).and_then(json) {
+                    Ok(v) => {
+                        let halladas = ofertas_vtex(&v, termino);
+                        bitacora.push(format!("{termino}: {}", halladas.len()));
+                        ofertas.extend(halladas);
+                    }
+                    Err(e) => bitacora.push(format!("{termino}: no respondió ({e})")),
+                }
+            }
+        }
+        "vtex-catalogo" => match pedir(&format!("{}/api/catalog_system/pub/category/tree/1", tarea.base)).and_then(json) {
+            Err(e) => bitacora.push(format!("categorías: no respondió ({e})")),
+            Ok(arbol) => {
+                // Las tiendas escriben la misma categoría con y sin tildes o mayúsculas.
+                let plano = |t: &str| t.to_lowercase().chars().map(|c| match c { 'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' | 'ü' => 'u', o => o }).collect::<String>();
+                let quiere = |nombre: &str| tarea.categorias.is_empty() || tarea.categorias.iter().any(|c| plano(nombre).contains(&plano(c)));
+                let categorias: Vec<(i64, String)> = arbol.as_array().into_iter().flatten().filter_map(|c| Some((c["id"].as_i64()?, c["name"].as_str()?.to_string()))).filter(|(_, n)| quiere(n)).collect();
+                let por_categoria = (tarea.max_resultados.max(50) / categorias.len().max(1)).max(50);
+                for (id, nombre) in &categorias {
+                    let mut de_esta = 0;
+                    // El catálogo se pagina de 50 en 50; la tienda no entrega más allá del producto 2,500.
+                    for desde in (0..por_categoria.min(2500)).step_by(50) {
+                        let url = format!("{}/api/catalog_system/pub/products/search?fq=C:/{id}/&_from={desde}&_to={}", tarea.base, desde + 49);
+                        match pedir(&url).and_then(json) {
+                            Ok(v) => {
+                                let recibidos = v.as_array().map_or(0, Vec::len);
+                                let halladas = ofertas_vtex(&v, nombre);
+                                de_esta += halladas.len();
+                                ofertas.extend(halladas);
+                                if recibidos < 50 {
+                                    break;
+                                }
+                            }
+                            Err(e) => {
+                                bitacora.push(format!("{nombre}: se interrumpió ({e})"));
+                                break;
+                            }
+                        }
+                    }
+                    bitacora.push(format!("{nombre}: {de_esta}"));
+                }
+            }
+        },
+        "sitemap" => {
+            let raiz = tarea.sitemap.clone().unwrap_or_default();
+            let mut paginas: Vec<String> = Vec::new();
+            match pedir(&raiz) {
+                Err(e) => bitacora.push(format!("mapa del sitio: no respondió ({e})")),
+                Ok(xml) => {
+                    let (indice, direcciones) = direcciones_del_mapa(&xml);
+                    if indice {
+                        for sub in direcciones.iter().take(15) {
+                            if let Ok(x) = pedir(sub) {
+                                paginas.extend(direcciones_del_mapa(&x).1);
+                            }
+                        }
+                    } else {
+                        paginas = direcciones;
+                    }
+                }
+            }
+            paginas.retain(|u| u.contains(&tarea.patron) && u.starts_with("https://"));
+            let total = paginas.len();
+            // Si hay más páginas que el cupo, se toma una de cada tantas para cubrir todo el catálogo.
+            let cupo = tarea.max_resultados.max(1);
+            let paso = (total / cupo).max(1);
+            let mut sin_datos = 0;
+            for url in paginas.iter().step_by(paso).take(cupo) {
+                match pedir(url) {
+                    Ok(html) => match oferta_de_jsonld(&html, url) {
+                        Some(o) => ofertas.push(o),
+                        None => sin_datos += 1,
+                    },
+                    Err(_) => sin_datos += 1,
+                }
+            }
+            bitacora.push(format!("{total} páginas de producto en el mapa; {} con precio; {sin_datos} sin datos estructurados o sin respuesta", ofertas.len()));
+        }
+        "magento" => {
+            let listado = tarea.listado.clone().unwrap_or_default();
+            let union = if listado.contains('?') { '&' } else { '?' };
+            for pagina in 1..=(tarea.max_resultados / 24).max(1) {
+                match pedir(&format!("{listado}{union}p={pagina}")) {
+                    Ok(html) => {
+                        let halladas = ofertas_de_listado_magento(&html);
+                        if halladas.is_empty() {
+                            break;
+                        }
+                        ofertas.extend(halladas);
+                    }
+                    Err(e) => {
+                        bitacora.push(format!("página {pagina}: no respondió ({e})"));
+                        break;
+                    }
+                }
+                if ofertas.len() >= tarea.max_resultados {
+                    break;
+                }
+            }
+            bitacora.push(format!("listado: {} productos", ofertas.len()));
+        }
+        otro => bitacora.push(format!("tipo {otro:?} no admitido")),
+    }
+    // Un mismo producto puede salir en dos categorías o páginas: se deja una vez.
+    let mut vistos = std::collections::HashSet::new();
+    ofertas.retain(|o| vistos.insert(o.url.clone()));
     (ofertas, bitacora)
 }
 
@@ -137,9 +340,34 @@ mod pruebas {
         )
         .unwrap();
         let o = ofertas_vtex(&r, "cemento");
-        assert_eq!(o, vec![Oferta { producto: "CEMENTO UGC 42.5KG".into(), marca: "Cementos Progreso".into(), precio: 83.04, unidad: "un".into(), url: "https://tienda.example/cemento-ugc/p".into(), termino: "cemento".into() }]);
+        assert_eq!(o, vec![Oferta { producto: "CEMENTO UGC 42.5KG".into(), marca: "Cementos Progreso".into(), precio: 83.04, unidad: "un".into(), url: "https://tienda.example/cemento-ugc/p".into(), termino: "cemento".into(), ean: String::new(), precio_lista: None }]);
+        let con_codigo: Value = serde_json::from_str(r#"[{"productName":"Arroz 1 kg","brand":"M","link":"https://t.example/a/p","items":[{"ean":"7401234567890","measurementUnit":"un","sellers":[{"commertialOffer":{"Price":9.5,"ListPrice":11.0,"AvailableQuantity":3}}]}]}]"#).unwrap();
+        let o = &ofertas_vtex(&con_codigo, "Abarrotes")[0];
+        assert_eq!((o.ean.as_str(), o.precio_lista), ("7401234567890", Some(11.0)));
         assert!(ofertas_vtex(&serde_json::json!({"error": "x"}), "t").is_empty());
         assert_eq!(codificar("piso cerámico"), "piso%20cer%C3%A1mico");
+    }
+
+    #[test]
+    fn lee_datos_estructurados_mapas_del_sitio_y_listados() {
+        let html = r#"<html><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList"},
+          {"@type":"Product","name":"Acetaminofén  500 mg x 10 tabletas","brand":{"@type":"Brand","name":"Genérico"},"gtin13":"7401111222333","category":"Analgésicos",
+           "offers":{"@type":"Offer","price":"12.50","priceCurrency":"GTQ"}}]}</script></html>"#;
+        let o = oferta_de_jsonld(html, "https://farmacia.example/producto/acetaminofen").unwrap();
+        assert_eq!((o.producto.as_str(), o.marca.as_str(), o.precio, o.ean.as_str(), o.termino.as_str()), ("Acetaminofén 500 mg x 10 tabletas", "Genérico", 12.5, "7401111222333", "Analgésicos"));
+        assert!(oferta_de_jsonld("<html>sin datos</html>", "u").is_none());
+        assert!(oferta_de_jsonld(r#"<script type="application/ld+json">{"@type":"Product","name":"Sin precio"}</script>"#, "u").is_none());
+
+        let (indice, urls) = direcciones_del_mapa("<urlset><url><loc> https://f.example/producto/a </loc></url><url><loc>https://f.example/contacto?x=1&amp;y=2</loc></url></urlset>");
+        assert_eq!((indice, urls), (false, vec!["https://f.example/producto/a".to_string(), "https://f.example/contacto?x=1&y=2".to_string()]));
+        assert!(direcciones_del_mapa("<sitemapindex><sitemap><loc>https://f.example/s1.xml</loc></sitemap></sitemapindex>").0);
+
+        let listado = r#"<li class="item product product-item"><div class="product-item-info"><a class="product-item-link" href="https://t.example/toma-rj11.html"> Toma RJ11
+            blanco </a><span data-price-amount="18.95" data-price-type="finalPrice"></span><span data-price-amount="25" data-price-type="oldPrice"></span></div></li>
+            <li><div class="product-item-info"><a class="product-item-link" href="https://t.example/sin-precio.html">Sin precio</a></div></li>"#;
+        let o = ofertas_de_listado_magento(listado);
+        assert_eq!(o.len(), 1);
+        assert_eq!((o[0].producto.as_str(), o[0].precio, o[0].url.as_str()), ("Toma RJ11 blanco", 18.95, "https://t.example/toma-rj11.html"));
     }
 
     #[test]

@@ -2,6 +2,19 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.10.0 · 24-nov-2026
+- Muestreos: tres lecturas nuevas (catálogo por categorías con código de barras y precio de lista,
+  mapa del sitio con datos estructurados, listado paginado) y 16 tareas más: supermercados
+  (Walmart, Paiz, Maxi Despensa, La Torre), tecnología (Elektra, Siman, Cemaco, Walmart), farmacia
+  (Cruz Verde, Meykos, Walmart), ferretería (EPA, Cemaco, Construfácil), hogar y vehículos.
+  Los catálogos corren en segundo plano.
+- Sección "Precios por rubro": 26,976 precios de 11 tiendas; búsqueda con media, mediana y moda;
+  mismo producto entre tiendas por código de barras; cambios atípicos entre muestreos; tiendas
+  informantes; descarga CSV.
+- Mapa en tres niveles: departamentos, municipios y lugares poblados; ficha de departamento.
+- Al pasar sobre un enlace probable se explica con qué se calculó.
+- Vistas para teléfono (menú, ficha como hoja inferior, tablas y controles táctiles), probadas a 390 px.
+
 ## v0.9.0 · 24-nov-2026
 - Inicio de sesión con usuarios y roles (administrador, analista, consulta), perfil y manejo de
   usuarios; la bitácora registra a quien inició sesión. Usuario inicial `admin` / `admin`.

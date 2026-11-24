@@ -153,3 +153,13 @@ de municipio; se componen en el código INE y se comprueba, además, que el nomb
 lleva al mismo municipio. Coinciden los 340 (uno, "San Raimundo", quedó agregado como otra forma de
 escribir San Raymundo). Las cifras y categorías se copian sin cambios: 90 municipios en
 vulnerabilidad muy alta, 90 en alta, 89 en moderada y 71 en baja.
+
+## `precios_publicados.csv`
+
+Levantamiento de precios publicados en línea, hecho por los muestreos del portal el 24-nov-2026:
+26,976 precios de 11 tiendas en seis rubros (supermercado, ferretería, tecnología, hogar, farmacia,
+vehículos). Columnas: rubro, tienda, producto, marca, precio en quetzales, precio de lista (si la
+tienda lo publica), código de barras (si lo publica), categoría en la tienda, dirección de la página
+y fecha de consulta. Son precios publicados en páginas públicas, no cotizaciones ni precios en tienda
+física. El servidor los carga una sola vez al arrancar (tarea `levantamiento-inicial`); los muestreos
+posteriores se guardan aparte y permiten ver cambios. Tareas y lecturas: `datos/estandar/muestreos.toml`.

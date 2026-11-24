@@ -3,6 +3,16 @@
 # vez por término y con pausa entre consultas, y guarda cada precio con su dirección y la fecha.
 # Vienen apagadas: se encienden y se les cambia la frecuencia desde la pantalla ("Muestreos").
 # Para agregar una tienda con catálogo VTEX basta otra tarea con su dirección base y sus términos.
+#
+# Cuatro maneras de leer una tienda (campo `tipo`):
+#   vtex           búsqueda pública por términos (`terminos`); pocos productos, muy rápida.
+#   vtex-catalogo  recorre el catálogo por categorías (`categorias` = parte del nombre de las de
+#                  primer nivel; vacío = todas). Trae código de barras y precio de lista.
+#   sitemap        lee el mapa del sitio (`sitemap`) y los datos estructurados (schema.org) de cada
+#                  página de producto (`patron` distingue esas páginas; por omisión "/producto/").
+#   magento        recorre el listado paginado de productos (`listado`).
+# `max_resultados` es el tope de productos por corrida; ninguna corrida pasa de 400 consultas y
+# entre una y otra se espera 0.6 s. Solo se leen páginas públicas, sin sesión ni claves.
 
 [[tarea]]
 id = "construccion-construfacil"
@@ -33,3 +43,189 @@ proveedor = "Walmart Guatemala"
 base = "https://www.walmart.com.gt"
 terminos = ["arroz", "avena", "pastas", "frijol", "azucar", "sal", "aceite", "huevos", "leche en polvo", "leche liquida", "queso fresco", "crema", "pollo", "carne de res", "tomate", "cebolla", "papa", "cafe", "sopa instantanea", "gaseosa"]
 cada_horas = 168
+
+# ---- Supermercados: catálogo por categorías, con código de barras ----
+# El mismo código de barras en dos tiendas es el mismo producto: se compara sin interpretar nombres.
+
+[[tarea]]
+id = "super-walmart"
+titulo = "Supermercado: catálogo de Walmart Guatemala"
+rubro = "supermercado"
+tipo = "vtex-catalogo"
+proveedor = "Walmart Guatemala"
+base = "https://www.walmart.com.gt"
+categorias = ["Abarrotes", "Lácteos", "Frutas y Verduras", "Carnes, Embutidos y Mariscos", "Panadería", "Jugos y Bebidas", "Limpieza", "Higiene y Belleza"]
+max_resultados = 4000
+cada_horas = 168
+
+[[tarea]]
+id = "super-paiz"
+titulo = "Supermercado: catálogo de Paiz"
+rubro = "supermercado"
+tipo = "vtex-catalogo"
+proveedor = "Paiz"
+base = "https://www.paiz.com.gt"
+categorias = ["Abarrotes", "Lácteos", "Frutas y Verduras", "Carnes, Embutidos y Mariscos", "Panadería", "Jugos y Bebidas", "Limpieza", "Higiene y Belleza"]
+max_resultados = 4000
+cada_horas = 168
+
+[[tarea]]
+id = "super-maxidespensa"
+titulo = "Supermercado: catálogo de Maxi Despensa"
+rubro = "supermercado"
+tipo = "vtex-catalogo"
+proveedor = "Maxi Despensa"
+base = "https://www.maxidespensa.com.gt"
+categorias = ["Abarrotes", "Lácteos", "Frutas y Verduras", "Carnes, Embutidos y Mariscos", "Panadería", "Jugos y Bebidas", "Limpieza", "Higiene y Belleza"]
+max_resultados = 4000
+cada_horas = 168
+
+[[tarea]]
+id = "super-latorre"
+titulo = "Supermercado: catálogo de La Torre"
+rubro = "supermercado"
+tipo = "vtex-catalogo"
+proveedor = "La Torre"
+base = "https://www.latorre.com.gt"
+categorias = ["Abarrotes", "Leches, Huevos", "Quesos y Embutidos", "Carnes", "Frutas, Verduras", "Panadería", "Bebidas", "Limpieza", "Cuidado Personal"]
+max_resultados = 4000
+cada_horas = 168
+
+# ---- Tecnología y electrodomésticos ----
+
+[[tarea]]
+id = "tecnologia-elektra"
+titulo = "Tecnología y línea blanca en Elektra"
+rubro = "tecnologia"
+tipo = "vtex-catalogo"
+proveedor = "Elektra"
+base = "https://www.elektra.com.gt"
+categorias = ["Cómputo", "Electrónica", "Telefonía", "Línea Blanca", "Electrodomésticos", "Videojuegos"]
+max_resultados = 2400
+cada_horas = 168
+
+[[tarea]]
+id = "tecnologia-siman"
+titulo = "Tecnología y electrodomésticos en Siman"
+rubro = "tecnologia"
+tipo = "vtex-catalogo"
+proveedor = "Siman"
+base = "https://gt.siman.com"
+categorias = ["Tecnologia", "Linea blanca", "Electrodomesticos"]
+max_resultados = 1500
+cada_horas = 168
+
+[[tarea]]
+id = "tecnologia-walmart"
+titulo = "Electrónica en Walmart Guatemala"
+rubro = "tecnologia"
+tipo = "vtex-catalogo"
+proveedor = "Walmart Guatemala"
+base = "https://www.walmart.com.gt"
+categorias = ["Electrónica"]
+max_resultados = 1000
+cada_horas = 168
+
+[[tarea]]
+id = "tecnologia-cemaco"
+titulo = "Tecnología y electrodomésticos en Cemaco"
+rubro = "tecnologia"
+tipo = "vtex-catalogo"
+proveedor = "Cemaco"
+base = "https://www.cemaco.com"
+categorias = ["Tecnología", "Electrodomésticos"]
+max_resultados = 1000
+cada_horas = 168
+
+# ---- Farmacia ----
+
+[[tarea]]
+id = "farmacia-cruzverde"
+titulo = "Medicamentos y cuidado personal en Farmacias Cruz Verde"
+rubro = "farmacia"
+tipo = "sitemap"
+proveedor = "Farmacias Cruz Verde"
+base = "https://cruzverde.com.gt"
+sitemap = "https://cruzverde.com.gt/sitemap.xml"
+max_resultados = 300
+cada_horas = 336
+
+[[tarea]]
+id = "farmacia-meykos"
+titulo = "Medicamentos y cuidado personal en Farmacias Meykos"
+rubro = "farmacia"
+tipo = "sitemap"
+proveedor = "Farmacias Meykos"
+base = "https://meykos.com"
+sitemap = "https://meykos.com/sitemap.xml"
+max_resultados = 300
+cada_horas = 336
+
+[[tarea]]
+id = "farmacia-walmart"
+titulo = "Farmacia en Walmart Guatemala"
+rubro = "farmacia"
+tipo = "vtex-catalogo"
+proveedor = "Walmart Guatemala"
+base = "https://www.walmart.com.gt"
+categorias = ["Farmacia", "MEDICINALES"]
+max_resultados = 1000
+cada_horas = 168
+
+# ---- Ferretería y hogar ----
+
+[[tarea]]
+id = "ferreteria-epa"
+titulo = "Ferretería y hogar en EPA"
+rubro = "ferreteria"
+tipo = "magento"
+proveedor = "EPA"
+base = "https://gt.epaenlinea.com"
+listado = "https://gt.epaenlinea.com/productos.html"
+max_resultados = 3200
+cada_horas = 168
+
+[[tarea]]
+id = "ferreteria-cemaco"
+titulo = "Ferretería, herramientas y plomería en Cemaco"
+rubro = "ferreteria"
+tipo = "vtex-catalogo"
+proveedor = "Cemaco"
+base = "https://www.cemaco.com"
+categorias = ["Ferretería", "Herramientas", "Plomería", "Eléctricos", "Pinturas", "Materiales De Construcción", "Pisos"]
+max_resultados = 3500
+cada_horas = 168
+
+[[tarea]]
+id = "ferreteria-construfacil"
+titulo = "Catálogo completo de Construfácil"
+rubro = "ferreteria"
+tipo = "vtex-catalogo"
+proveedor = "Construfácil"
+base = "https://www.construfacil.com.gt"
+max_resultados = 3500
+cada_horas = 168
+
+# ---- Hogar, librería y otros ----
+
+[[tarea]]
+id = "hogar-cemaco"
+titulo = "Hogar, cocina, muebles y librería en Cemaco"
+rubro = "hogar"
+tipo = "vtex-catalogo"
+proveedor = "Cemaco"
+base = "https://www.cemaco.com"
+categorias = ["Hogar", "Cocina", "Muebles", "Librería", "Limpieza Y Lavandería"]
+max_resultados = 2500
+cada_horas = 168
+
+[[tarea]]
+id = "vehiculos-elektra"
+titulo = "Motocicletas y transporte en Elektra"
+rubro = "vehiculos"
+tipo = "vtex-catalogo"
+proveedor = "Elektra"
+base = "https://www.elektra.com.gt"
+categorias = ["Motocicletas", "Transporte", "Bicicletas"]
+max_resultados = 600
+cada_horas = 336

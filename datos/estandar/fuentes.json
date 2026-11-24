@@ -83,14 +83,14 @@
    "id": "muestreo",
    "autor": "FARO (muestreo automático)",
    "anio": "2026",
-   "titulo": "Precios publicados en tiendas en línea de Guatemala (búsquedas públicas de sus catálogos)",
+   "titulo": "Precios publicados en tiendas en línea de Guatemala (catálogos, mapas del sitio y listados públicos): Walmart Guatemala, Paiz, Maxi Despensa, La Torre, Cemaco, Construfácil, EPA, Elektra, Siman, Farmacias Cruz Verde y Farmacias Meykos",
    "tipo": "conjunto de datos",
    "editor": "páginas públicas de cada tienda",
    "url": "",
    "licencia": "información comercial pública; cada precio guarda la dirección de su página",
-   "consultado": "la fecha de cada muestreo",
-   "uso": "Precios de construcción y de alimentos que el portal recoge con tareas configurables.",
-   "cita": "FARO (muestreo automático). (2026). Precios publicados en tiendas en línea de Guatemala (búsquedas públicas de sus catálogos) [conjunto de datos]. páginas públicas de cada tienda. Consultado el la fecha de cada muestreo."
+   "consultado": "24 de noviembre de 2026 (levantamiento inicial) y la fecha de cada muestreo posterior",
+   "uso": "Precios por rubro (supermercado, ferretería, tecnología, hogar, farmacia, vehículos), construcción y alimentos; levantamiento inicial en datos/referencia/precios_publicados.csv.",
+   "cita": "FARO (muestreo automático). (2026). Precios publicados en tiendas en línea de Guatemala (catálogos, mapas del sitio y listados públicos): Walmart Guatemala, Paiz, Maxi Despensa, La Torre, Cemaco, Construfácil, EPA, Elektra, Siman, Farmacias Cruz Verde y Farmacias Meykos [conjunto de datos]. páginas públicas de cada tienda. Consultado el 24 de noviembre de 2026 (levantamiento inicial) y la fecha de cada muestreo posterior."
   },
   {
    "id": "portal-ine",
