@@ -77,3 +77,8 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - Para probar pistas y cobertura sin archivos reales: filas `PRUEBA` en `pendientes`/`envios` de la base temporal (se borran) y `page.route` en Playwright.
 - Guion nuevo: `.faro/pruebas/mapa_aislar_y_canasta.js`.
 - Release: `gh release create` exige el SHA completo o una rama en `--target` (el corto da 422).
+
+## Bloque v0.12.0 (24-nov, noche)
+- Presentaciones releídas (texto extraído de los .pptx): propuestas por dirección y su estado en `docs/01-necesidades-ine.md`.
+- Guion: `.faro/pruebas/informe_balance_buscador.js`. El informe abre en pestaña nueva (`ctx.waitForEvent('page')`).
+- Nombres de WooCommerce traen entidades numéricas: `sin_entidades()`.

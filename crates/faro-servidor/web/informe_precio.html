@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FARO · Informe de precio de referencia</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --azul:#0051b3; --oscuro:#07306b; --celeste:#4d9ae1; --cielo:#e8f1fb; --tinta:#313131; --gris:#5b6672; --borde:#d9dfe6; --alerta:#a15c00; }
+  * { box-sizing:border-box; } body { margin:0; font:14px/1.5 "Noto Sans", system-ui, sans-serif; color:var(--tinta); background:#f4f6f9; }
+  .hoja { max-width:900px; margin:20px auto; background:#fff; padding:32px 36px; border:1px solid var(--borde); }
+  header { border-bottom:3px solid var(--azul); padding-bottom:10px; margin-bottom:16px; }
+  h1 { margin:0; font-size:23px; color:var(--oscuro); } h2 { font-size:16px; color:var(--oscuro); margin:22px 0 8px; border-bottom:1px solid var(--borde); padding-bottom:4px; }
+  header small, .nota { color:var(--gris); font-size:12.5px; } .nota { margin:6px 0; }
+  .kpi { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; } .kpi div { border:1px solid var(--borde); border-top:3px solid var(--celeste); border-radius:8px; padding:8px 10px; }
+  .kpi b { display:block; font-size:19px; color:var(--oscuro); } .kpi small { color:var(--gris); } .kpi .ref { border-top-color:var(--azul); background:var(--cielo); }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; } th, td { text-align:left; padding:5px 8px; border-bottom:1px solid var(--borde); vertical-align:top; } th { background:var(--cielo); color:var(--oscuro); } td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  td a { color:var(--azul); overflow-wrap:anywhere; } tr.extremo td { background:#fff7e6; }
+  .aviso { background:#fff7e6; border:1px solid #f3d9a4; border-radius:8px; padding:8px 12px; margin:10px 0; } ul { margin:6px 0; padding-left:20px; }
+  .barra { max-width:900px; margin:16px auto 0; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; padding:0 10px; } button { background:var(--azul); color:#fff; border:0; border-radius:7px; padding:8px 14px; font:inherit; font-weight:600; cursor:pointer; min-height:40px; } button.suave { background:var(--cielo); color:var(--oscuro); }
+  .tabla { overflow-x:auto; }
+  @media print { body { background:#fff; } .hoja { border:0; margin:0; padding:0; max-width:none; } .barra, .solo-pantalla { display:none !important; } h2 { break-after:avoid; } .kpi { break-inside:avoid; } }
+  @media (max-width:700px) { .kpi { grid-template-columns:1fr 1fr; } .hoja { padding:16px; margin:10px 0; } }
+</style>
+</head>
+<body>
+<div class="barra"><button class="suave" id="recalcular" hidden>Recalcular sin los apartados</button><button onclick="window.print()">Imprimir o guardar como PDF</button></div>
+<div class="hoja" id="hoja"><p>Cargando…</p></div>
+<script>
+const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const q = n => n == null ? '—' : 'Q' + Number(n).toLocaleString('es-GT', {minimumFractionDigits:2, maximumFractionDigits:2});
+const num = (n, d = 1) => n == null ? '—' : Number(n).toLocaleString('es-GT', {maximumFractionDigits:d});
+const RUBROS = {supermercado:'Supermercado', tecnologia:'Tecnología y electrodomésticos', farmacia:'Farmacia', ferreteria:'Ferretería y hogar', hogar:'Hogar y librería', vehiculos:'Motocicletas y transporte', construccion:'Materiales de construcción', alimentos:'Canasta básica'};
+const p = new URLSearchParams(location.search);
+(async () => {
+  const r = await fetch('/api/informe_precio?' + p), d = await r.json();
+  if (!r.ok) { document.getElementById('hoja').innerHTML = `<p>${esc(d.error || 'No se pudo hacer el informe.')}</p>`; return; }
+  const a = d.analisis, hoy = new Date().toLocaleDateString('es-GT', {day:'numeric', month:'long', year:'numeric'});
+  document.title = `Precio de referencia · ${d.producto}`;
+  const extremos = new Set((a?.extremos || []).map(e => e[0] + '|' + e[1]));
+  document.getElementById('hoja').innerHTML = `
+    <header><h1>Informe de precio de referencia</h1><small>Producto buscado: <b>${esc(d.producto)}</b>${d.rubro ? ' · rubro ' + esc(RUBROS[d.rubro] || d.rubro) : ''}${d.tienda ? ' · solo ' + esc(d.tienda) : ''} · elaborado el ${esc(hoy)} con FARO</small></header>
+    ${!a ? '<p>Ningún precio publicado coincide con la búsqueda.</p>' : `
+    <div class="kpi"><div class="ref"><b>${q(a.precio_referencia)}</b><small>precio de referencia (${esc(a.medida || 'sin recomendación')})</small></div><div><b>${q(a.media)}</b><small>media</small></div><div><b>${q(a.mediana)}</b><small>mediana</small></div><div><b>${a.moda == null ? '—' : q(a.moda)}</b><small>moda</small></div>
+      <div><b>${num(a.cotizaciones, 0)}</b><small>precios considerados</small></div><div><b>${q(a.minimo)} – ${q(a.maximo)}</b><small>rango</small></div><div><b>${num(a.coeficiente_variacion_pct)} %</b><small>coeficiente de variación</small></div><div><b>${d.tiendas.length}</b><small>tiendas: ${esc(d.tiendas.join(', '))}</small></div></div>
+    <div class="aviso"><b>Antes de usar este precio:</b><ul>
+      <li>Todas las fuentes son <b>secundarias</b> (catálogos en línea). La Dirección de Precios e Índices de Referencia recomienda que más del 50 % sean cotizaciones directas del mercado relevante: este informe es un antecedente de mercado, no sustituye esas cotizaciones.</li>
+      <li>La búsqueda es por palabras del nombre: puede traer presentaciones, tamaños o productos distintos. <span class="solo-pantalla">Marque en la tabla los que no correspondan y pulse «Recalcular sin los apartados».</span>${d.excluidos ? ` Una persona apartó <b>${d.excluidos}</b> producto(s) por no ser comparables.` : ''}</li>
+      ${(a.notas || []).map(n => `<li>${esc(n)}</li>`).join('')}</ul></div>
+    <h2>Metodología</h2>
+    <p class="nota">Se toma el precio más reciente de cada producto en cada tienda cuyo nombre contiene todas las palabras buscadas. Se calculan media, mediana y moda. Un precio es extremo si queda a más de ${d.parametros.factor_extremos} veces el rango intercuartílico fuera de los cuartiles (regla de Tukey) o si supera ${d.parametros.max_razon} veces la mediana (o queda por debajo de la mediana entre ${d.parametros.max_razon}). Si hay extremos o el coeficiente de variación pasa de ${d.parametros.cv_parecidos_pct} %, se recomienda la mediana; si los precios son parecidos, la media. Con menos de ${d.parametros.minimo_cotizaciones} precios no se recomienda ninguno. El cálculo es determinista: los mismos precios dan siempre el mismo resultado.</p>
+    <h2>Fuentes consultadas (${d.fuentes.length})</h2>
+    <div class="tabla"><table><thead><tr><th class="solo-pantalla">Apartar</th><th>Tienda</th><th>Producto publicado</th><th class="n">Precio (Q)</th><th>Consultado</th></tr></thead><tbody>
+    ${d.fuentes.map(f => `<tr class="${extremos.has(f.tienda + '|' + f.precio) ? 'extremo' : ''}"><td class="solo-pantalla"><input type="checkbox" data-u="${esc(f.url)}" aria-label="Apartar ${esc(f.producto)}"></td><td>${esc(f.tienda)}</td><td><a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.producto)}</a>${f.marca ? ` <small>${esc(f.marca)}</small>` : ''}${f.codigo_barras ? ` <small>· código ${esc(f.codigo_barras)}</small>` : ''}${extremos.has(f.tienda + '|' + f.precio) ? ' <small style="color:var(--alerta)">· precio extremo</small>' : ''}</td><td class="n">${Number(f.precio).toFixed(2)}</td><td>${esc(f.fecha)}</td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="nota">Precios publicados en páginas públicas de cada tienda, leídos por los muestreos de FARO en la fecha indicada; cada fila enlaza la página de donde salió. No son cotizaciones ni precios en tienda física.</p>`}`;
+  document.getElementById('hoja').addEventListener('change', () => { document.getElementById('recalcular').hidden = !document.querySelector('input[data-u]:checked'); });
+  document.getElementById('recalcular').onclick = () => { const sin = (p.get('sin') || '').split('|').filter(Boolean).concat([...document.querySelectorAll('input[data-u]:checked')].map(c => c.dataset.u)); p.set('sin', sin.join('|')); location.search = p.toString(); };
+})();
+</script>
+</body>
+</html>

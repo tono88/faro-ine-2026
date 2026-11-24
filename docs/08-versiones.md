@@ -2,6 +2,16 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.12.0 · 24-nov-2026
+Tres peticiones de las presentaciones del lanzamiento:
+- Dirección de Precios e Índices de Referencia: informe de precio de referencia imprimible a partir
+  de los precios publicados (media, mediana, moda, regla de elección, fuentes y metodología), con
+  la opción de apartar lo que no es comparable.
+- Hoja de Balance de Alimentos: calculadora de productos derivados con utilización y tasas de
+  extracción, y avisos de consistencia.
+- Coordinación Regional: buscador de departamento, municipio y lugar poblado sobre el mapa
+  (también por nombres de uso común y por código).
+
 ## v0.11.0 · 24-nov-2026
 - Catálogos a tope: se recorren las subcategorías (sin el límite de 2,500 por consulta) y todas
   las categorías de los supermercados. Lecturas nuevas para tiendas Shopify y WooCommerce.

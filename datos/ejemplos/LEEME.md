@@ -16,3 +16,7 @@ del INE ni de ninguna institución y no describen a personas reales.
   "Equivalencias".
 - `solicitud_hechos_transito.toml`: solicitud de ejemplo para probar `faro recibir` con
   `envio_hechos_transito.csv`. No aparece en la pantalla.
+
+- `tasas_extraccion_ficticias.csv`: tabla **ficticia** de utilización y tasas de extracción para probar
+  la calculadora de derivados de la Hoja de Balance de Alimentos. Los productos y los porcentajes son
+  inventados para mostrar el formato; las tasas reales las define el INE.

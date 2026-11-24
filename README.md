@@ -99,6 +99,14 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
     edad, «Extranjero», «Ignorado») para detectar columnas corridas; no decide con eso.
 19d. **Cobertura por departamento.** En cuántos municipios de cada departamento ya hay registros
     de cada solicitud: seguimiento de la recopilación por delegación.
+19e. **Informe de precio de referencia.** De una búsqueda en los precios publicados sale un informe
+    imprimible con media, mediana y moda, el precio recomendado según la regla de la Dirección de
+    Precios, las fuentes con su enlace y la metodología; la persona aparta lo que no es comparable
+    y el informe se recalcula (`/informe-precio`).
+19f. **Hoja de Balance de Alimentos: derivados.** Calculadora que aplica la tabla de utilización y
+    tasas de extracción a un producto primario y avisa de lo que no cuadra (`balance.rs`).
+19g. **Buscador de territorio.** Sobre el mapa: departamento, municipio o lugar poblado por nombre,
+    nombre común o código; lleva a su ficha o a su punto.
 20. **Canasta básica.** Precio promedio del INE de 34 productos, con su serie, junto a los
     precios publicados que recoge el muestreo (`faro canasta`).
 21. **Ficha y reporte por municipio.** Al tocar un municipio: cifras, gráficas, animación del
@@ -130,7 +138,7 @@ Abra <http://localhost:8082> y entre con el usuario inicial `admin` y la contras
 pantalla le pedirá cambiarla en "Mi perfil". Los demás usuarios se crean en "Usuarios". Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
-La pantalla abre en un mapa por municipio y tiene veinte secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
+La pantalla abre en un mapa por municipio y tiene veintiuna secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
 confirmadas, resultados y avance por institución, conjuntos del portal del INE (se sincroniza
 sola al arrancar y cada 24 horas), crecimiento poblacional y urbano, asignación de operadores de
 campo, red vial, materiales de construcción, precios de referencia y capas publicadas. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.

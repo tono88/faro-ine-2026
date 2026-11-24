@@ -67,6 +67,9 @@
   .niveles button { border:1px solid var(--borde); background:#fff; color:var(--azul-oscuro); border-radius:20px; padding:6px 14px; font:inherit; cursor:pointer; } .niveles button small { color:var(--gris); margin-left:4px; }
   .niveles button[aria-pressed=true] { background:var(--azul); border-color:var(--azul); color:#fff; font-weight:600; } .niveles button[aria-pressed=true] small { color:#d6e6fa; }
   #migas { font-size:13px; color:var(--gris); margin-left:6px; } #migas a { cursor:pointer; }
+  .buscalugar { position:relative; margin-left:auto; flex:0 1 340px; min-width:220px; } .buscalugar input { max-width:none; border-radius:20px; padding:7px 14px; }
+  #buscalista { position:absolute; z-index:1300; left:0; right:0; top:calc(100% + 4px); margin:0; padding:4px; list-style:none; background:#fff; border:1px solid var(--borde); border-radius:10px; box-shadow:0 8px 24px rgba(7,48,107,.2); max-height:340px; overflow-y:auto; }
+  #buscalista li { padding:7px 10px; border-radius:7px; cursor:pointer; font-size:14px; } #buscalista li:hover, #buscalista li[aria-selected=true] { background:var(--cielo); } #buscalista li small { color:var(--gris); display:block; } #buscalista li.vacio { cursor:default; color:var(--gris); }
   .mapa-marco { position:relative; align-self:start; } /* no se estira con la columna lateral: la ficha se ancla al alto del mapa */
   .ficha-flotante { position:absolute; top:10px; right:10px; bottom:10px; width:min(520px, calc(100% - 70px)); overflow-y:auto; z-index:1001; background:#fff; border:1px solid var(--borde); border-radius:var(--radio); box-shadow:0 8px 28px rgba(7,48,107,.22); padding:14px; }
   .ficha-flotante .cerrar, dialog .cerrar { position:absolute; top:8px; right:8px; border:0; background:var(--cielo); color:var(--azul-oscuro); border-radius:50%; width:28px; height:28px; font-size:16px; cursor:pointer; }
@@ -119,6 +122,7 @@
     button.accion { min-height:44px; } button.chico { min-height:36px; }
     table { font-size:13px; } th, td { padding:6px 7px; } .tabla { max-height:62vh; -webkit-overflow-scrolling:touch; }
     #lienzo { height:58vh; min-height:340px; }
+    .buscalugar { flex-basis:100%; margin:0; }
     .niveles { gap:5px; } .niveles button { padding:8px 11px; flex:1 1 auto; } .niveles button small { display:none; } #migas { flex-basis:100%; margin:0; }
     .ficha-flotante { position:fixed; top:auto; left:0; right:0; bottom:0; width:100%; max-height:72vh; border-radius:16px 16px 0 0; z-index:1400; padding:16px 12px 20px; box-shadow:0 -8px 28px rgba(7,48,107,.3); }
     .ficha-flotante::before { content:""; display:block; width:44px; height:4px; border-radius:2px; background:var(--borde); margin:-6px auto 8px; }
@@ -159,6 +163,7 @@
   <button data-s="precios">Precios de referencia</button>
   <button data-s="canasta">Canasta básica</button>
   <button data-s="rubros">Precios por rubro</button>
+  <button data-s="balance">Hoja de balance: derivados</button>
   <button data-s="muestreos">Muestreos automáticos</button>
   <h3>Datos</h3>
   <button data-s="ine">Portal del INE</button>
@@ -172,7 +177,8 @@
   <div id="aviso-clave" hidden>Está usando una contraseña inicial. Cámbiela en <a href="#" id="irperfil">Mi perfil</a>.</div>
   <section id="mapa" class="activa">
     <div class="titulo"><h2>Guatemala por territorio</h2><p>Lo que FARO sabe de cada territorio, en un solo mapa: población del INE, conexión vial de sus lugares poblados y los registros que han enviado las instituciones. Elija el nivel y qué ver; toque un departamento o un municipio para su ficha.</p></div>
-    <div class="niveles" role="group" aria-label="Nivel territorial del mapa"><button data-n="departamento" aria-pressed="false">Departamentos <small>22</small></button><button data-n="municipio" aria-pressed="true">Municipios <small>340</small></button><button data-n="lugar" aria-pressed="false">Lugares poblados <small>aldeas, caseríos, cantones</small></button><span id="migas"></span></div>
+    <div class="niveles" role="group" aria-label="Nivel territorial del mapa"><button data-n="departamento" aria-pressed="false">Departamentos <small>22</small></button><button data-n="municipio" aria-pressed="true">Municipios <small>340</small></button><button data-n="lugar" aria-pressed="false">Lugares poblados <small>aldeas, caseríos, cantones</small></button><span id="migas"></span>
+      <div class="buscalugar" role="search"><input type="text" id="buscalugar" placeholder="Buscar departamento, municipio o lugar poblado…" aria-label="Buscar un departamento, municipio o lugar poblado por nombre o código" autocomplete="off" aria-controls="buscalista" aria-expanded="false"><ul id="buscalista" role="listbox" hidden></ul></div></div>
     <div class="mapa-zona">
       <div class="mapa-marco"><div id="lienzo" role="application" aria-label="Mapa de municipios de Guatemala"></div>
         <aside id="ficha" class="ficha-flotante" hidden aria-live="polite"></aside></div>
@@ -369,6 +375,7 @@
         <div><label for="rubroq">Producto</label><input type="text" id="rubroq" placeholder="por ejemplo: arroz 5 lb, televisor 55, acetaminofén"></div>
         <div><label for="rubrotienda">Tienda</label><select id="rubrotienda"><option value="">Todas</option></select></div>
         <div><button class="accion" id="rubrobuscar">Buscar</button> <a id="rubrocsv" class="descarga" href="#">Descargar CSV</a></div></div>
+      <p class="nota" style="margin:10px 0 0"><a id="rubroinforme" class="accion chico suave" style="text-decoration:none;display:inline-block;border-radius:7px;padding:6px 12px" target="_blank" rel="noopener" href="#">Hacer informe de precio de referencia con esta búsqueda</a> <span id="rubroinformenota">Escriba un producto y pulse Buscar: el informe se hace sobre una búsqueda concreta.</span></p>
       <p class="nota" id="rubroresumen"></p>
       <div class="pestanas" role="tablist" id="rubrovistas"><button role="tab" data-v="filas" aria-selected="true">Precios</button><button role="tab" data-v="iguales" aria-selected="false">Mismo producto en varias tiendas</button><button role="tab" data-v="cambios" aria-selected="false">Cambios entre muestreos</button><button role="tab" data-v="informantes" aria-selected="false">Tiendas informantes</button></div>
       <div class="tabla"><table id="trubros"></table></div>
@@ -378,6 +385,26 @@
         <li><b>Mismo producto en varias tiendas</b>: productos con el mismo código de barras (EAN) publicado por dos o más tiendas. Es una coincidencia exacta: el portal no interpreta nombres. La diferencia es (máximo ÷ mínimo − 1) × 100.</li>
         <li><b>Cambios entre muestreos</b>: mismo producto y misma tienda en sus dos últimos días de muestreo. Se marca como atípico un cambio de 15 % o más en valor absoluto; es una alerta para revisar, no una conclusión.</li>
         <li>Solo se leen páginas públicas, con pausas entre consultas; son precios publicados en línea, no cotizaciones ni precios en tienda física.</li></ul></details>
+    </div>
+  </section>
+
+  <section id="balance">
+    <div class="titulo"><h2>Hoja de Balance de Alimentos: calculadora de derivados</h2><p>A partir de la cantidad de un producto primario calcula cuánto se destina a cada derivado y cuánto derivado resulta, aplicando la tabla de utilización y tasas de extracción. Avisa cuando la utilización no suma 100 % o una tasa pasa de 100 %. Las tasas las define el INE: aquí solo se aplican, siempre igual.</p></div>
+    <div class="panel">
+      <div class="filtros"><div><label for="hbatabla">Tabla de tasas (CSV: primario, derivado, utilizacion_pct, tasa_extraccion_pct)</label><input type="file" id="hbatabla" accept=".csv">
+          <p class="nota" style="margin:4px 0 0"><a href="/ejemplos/tasas_extraccion_ficticias.csv">Descargar un ejemplo (ficticio)</a> · <a href="#" id="hbaejemplo">usar el ejemplo ficticio</a></p></div>
+        <div><label for="hbaproducto">Producto primario</label><select id="hbaproducto" disabled><option>cargue una tabla</option></select></div>
+        <div><label for="hbacantidad">Cantidad del primario (toneladas métricas)</label><input type="number" id="hbacantidad" min="0" step="any" value="1000"></div>
+        <div><button class="accion" id="hbacalcular" disabled>Calcular</button></div></div>
+      <p class="nota" id="hbainfo" style="margin-top:12px"></p>
+      <div class="tarjetas" id="hbatarjetas"></div>
+      <div class="tabla"><table id="thba"></table></div>
+      <div id="hbaavisos"></div>
+      <details class="como"><summary>Cómo se calcula</summary><ul>
+        <li><b>Destinado</b> = cantidad del primario × utilización ÷ 100.</li>
+        <li><b>Derivado</b> = destinado × tasa de extracción ÷ 100.</li>
+        <li>Si la utilización suma menos de 100 %, el resto queda «sin destinar» (otros usos que la tabla no detalla); si suma más, se avisa porque se estaría usando más producto del que hay.</li>
+        <li>El archivo de ejemplo es ficticio: muestra el formato, no tasas reales.</li></ul></details>
     </div>
   </section>
 
@@ -725,6 +752,25 @@ function fichaDepartamento(p, capa) {
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="accion chico" data-bajar="${esc(p.codigo)}" style="margin:0">Ver solo este departamento, con sus municipios</button></div>`;
   caja.querySelector('[data-bajar]').onclick = () => aislar('departamento', p.codigo, p.nombre).catch(x => aviso(x.message, true));
 }
+// ---- Buscador de territorio: lleva al departamento, municipio o lugar poblado elegido ----
+let relojBusca = null, hallados = [];
+const NIVEL_ETQ = {departamento:'Departamento', municipio:'Municipio', lugar:'Lugar poblado'};
+function cerrarBusca() { $('#buscalista').hidden = true; $('#buscalugar').setAttribute('aria-expanded', 'false'); }
+$('#buscalugar').oninput = () => { clearTimeout(relojBusca); const t = $('#buscalugar').value.trim(); if (t.length < 2) return cerrarBusca();
+  relojBusca = setTimeout(async () => { try { const r = await api('/api/buscar_lugar?q=' + encodeURIComponent(t)); hallados = r.lugares || [];
+    $('#buscalista').innerHTML = hallados.length ? hallados.map((l, i) => `<li role="option" data-i="${i}" aria-selected="${i === 0}"><b>${esc(l.nombre)}</b> <span class="etq">${NIVEL_ETQ[l.nivel]}</span><small>${esc(l.donde ? l.donde + ' · ' : '')}código INE ${esc(l.codigo)}</small></li>`).join('') + (r.total > hallados.length ? `<li class="vacio">y ${num(r.total - hallados.length)} más: escriba más letras</li>` : '') : '<li class="vacio">Sin coincidencias en el catálogo.</li>';
+    $('#buscalista').hidden = false; $('#buscalugar').setAttribute('aria-expanded', 'true'); } catch (x) { aviso(x.message, true); } }, 220); };
+$('#buscalugar').onkeydown = e => { const items = [...document.querySelectorAll('#buscalista li[data-i]')], k = items.findIndex(x => x.getAttribute('aria-selected') === 'true');
+  if (e.key === 'Escape') cerrarBusca(); else if (e.key === 'Enter' && items[k]) items[k].click();
+  else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && items.length) { e.preventDefault(); const n = (k + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; items.forEach((x, i) => x.setAttribute('aria-selected', i === n)); items[n].scrollIntoView({block:'nearest'}); } };
+document.addEventListener('click', e => { if (!e.target.closest('.buscalugar')) cerrarBusca(); });
+$('#buscalista').onclick = async e => { const li = e.target.closest('li[data-i]'); if (!li) return; const l = hallados[+li.dataset.i]; cerrarBusca(); $('#buscalugar').value = l.nombre;
+  try {
+    if (l.nivel === 'departamento') { await cambiarNivel('departamento'); let c; capaDep.eachLayer(x => { if (x.feature.properties.codigo === l.codigo) c = x; }); if (c) { fichaDepartamento(c.feature.properties, c); await aislar('departamento', l.codigo, l.nombre); } }
+    else if (l.nivel === 'municipio') { if (nivel !== 'municipio') await cambiarNivel('municipio'); await aislar('municipio', l.codigo, l.nombre); const f = geoMuni.features.find(x => x.properties.codigo === l.codigo); if (f) await ficha(f.properties); }
+    else { await cambiarNivel('lugar'); aislado = null; pintarMigas(); pintarMapa(); pintarPuntos(); if (l.lat != null) { mapa.setView([l.lat, l.lon], 14); capaNivelLugar.eachLayer(c => { if (c.feature.properties.codigo === l.codigo) c.openPopup(); }); } else aviso('Ese lugar poblado no tiene coordenadas en el catálogo.', true); }
+    $('#lienzo').scrollIntoView({block:'nearest'});
+  } catch (x) { aviso(x.message, true); } };
 function capaDeMunicipio(codigo) { let hallada = null; capaMuni.eachLayer(c => { if (c.feature.properties.codigo === codigo) hallada = c; }); return hallada; }
 document.querySelector('.niveles').onclick = e => { const b = e.target.closest('button[data-n]'); if (b) cambiarNivel(b.dataset.n).catch(x => aviso(x.message, true)); if (e.target.closest('[data-todo]')) verTodo(); };
 // Desde la ficha de un departamento o el globo de un lugar poblado se abre la ficha del municipio.
@@ -999,6 +1045,26 @@ $('#tmuestreos').onchange = async e => { const c = e.target, id = c.dataset.m ||
   try { await api('/api/muestreos/' + encodeURIComponent(id), {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(c.dataset.m ? {activa: c.checked} : {cada_horas: +c.value})}); aviso('Guardado.'); muestreos(); } catch (x) { aviso(x.message, true); muestreos(); } };
 $('#tmuestreos').onclick = async e => { const b = e.target.closest('button[data-e]'); if (!b) return; b.disabled = true; b.textContent = 'Consultando…';
   try { const r = await api('/api/muestreos/' + encodeURIComponent(b.dataset.e) + '/ejecutar', {method:'POST'}); aviso(r.en_curso ? 'Corrida iniciada: tarda unos minutos y sigue aunque cambie de sección.' : `${num(r.precios)} precios guardados.`); } catch (x) { aviso(x.message, true); } muestreos(); };
+// ---- Hoja de balance: derivados ----
+let hbaTexto = '';
+async function hbaCargar(texto) {
+  const r = await api('/api/balance', {method:'POST', headers:{'content-type':'text/csv'}, body: texto}); hbaTexto = texto;
+  $('#hbaproducto').innerHTML = r.primarios.map(p => `<option>${esc(p)}</option>`).join(''); $('#hbaproducto').disabled = false; $('#hbacalcular').disabled = false;
+  $('#hbainfo').textContent = `Tabla cargada: ${num(r.filas)} tasa(s) para ${num(r.primarios.length)} producto(s) primario(s). No se guarda en el servidor.`; await hbaCalcular();
+}
+async function hbaCalcular() {
+  if (!hbaTexto) return;
+  const r = await api('/api/balance?' + new URLSearchParams({producto: $('#hbaproducto').value, cantidad: $('#hbacantidad').value}), {method:'POST', headers:{'content-type':'text/csv'}, body: hbaTexto}), b = r.balance, t = x => num(x) + ' t';
+  $('#hbatarjetas').innerHTML = [[t(b.cantidad), `de ${esc(b.primario)}`], [num(b.utilizacion_total_pct) + ' %', 'utilización total'], [t(b.derivados.reduce((s, d) => s + d.cantidad, 0)), 'de derivados en total'], [t(b.sin_destinar), 'sin destinar a derivados']].map(([v, e]) => `<div class="tarjeta"><b>${v}</b><small>${e}</small></div>`).join('');
+  tabla('#thba', [{t:'Derivado', f:d => `<b>${esc(d.derivado)}</b>`}, {t:'Utilización (%)', num:1, f:d => num(d.utilizacion_pct)}, {t:'Destinado (t)', num:1, f:d => num(d.destinado)}, {t:'Tasa de extracción (%)', num:1, f:d => num(d.tasa_extraccion_pct)}, {t:'Derivado (t)', num:1, f:d => `<b>${num(d.cantidad)}</b>`},
+    {t:'Parte del primario', f:d => `<div class="barra" title="${num(d.utilizacion_pct)} %"><i style="width:${Math.min(100, d.utilizacion_pct)}%;background:var(--azul)"></i></div>`}], b.derivados, 'Sin derivados.');
+  $('#hbaavisos').innerHTML = b.avisos.length ? `<p class="nota" style="color:var(--alerta);margin-top:10px"><b>Por revisar:</b> ${b.avisos.map(esc).join('; ')}.</p>` : '<p class="nota" style="color:var(--ok);margin-top:10px">La utilización suma 100 % y ninguna tasa pasa de 100 %.</p>';
+}
+$('#hbatabla').onchange = async e => { const a = e.target.files[0]; if (a) hbaCargar(await a.text()).catch(x => aviso(x.message, true)); };
+$('#hbaejemplo').onclick = async e => { e.preventDefault(); hbaCargar(await (await fetch('/ejemplos/tasas_extraccion_ficticias.csv')).text()).catch(x => aviso(x.message, true)); };
+$('#hbacalcular').onclick = () => hbaCalcular().catch(x => aviso(x.message, true));
+$('#hbaproducto').onchange = () => $('#hbacalcular').click();
+$('#hbacantidad').onkeydown = e => { if (e.key === 'Enter') $('#hbacalcular').click(); };
 // ---- Precios por rubro ----
 const NOMBRE_RUBRO = {supermercado:'Supermercado', tecnologia:'Tecnología y electrodomésticos', farmacia:'Farmacia', ferreteria:'Ferretería y hogar', hogar:'Hogar y librería', vehiculos:'Motocicletas y transporte', construccion:'Materiales de construcción', alimentos:'Canasta básica (búsqueda)'};
 const rubroNombre = r => NOMBRE_RUBRO[r] || r;
@@ -1013,6 +1079,8 @@ async function rubros(conservar) {
   $('#rubrotienda').innerHTML = '<option value="">Todas</option>' + (actual?.tiendas || '').split(', ').filter(Boolean).map(t => `<option ${t === elegida ? 'selected' : ''}>${esc(t)}</option>`).join('');
   $('#rubroresumen').innerHTML = `<b>${num(r.total)}</b> producto(s)${$('#rubroq').value.trim() ? ' coinciden' : ''}; precios entre <b>${q(r.minimo)}</b> y <b>${q(r.maximo)}</b>; media <b>${q(r.media)}</b>, mediana <b>${q(r.mediana)}</b>, moda <b>${q(r.moda)}</b>. Con código de barras en común entre tiendas: <b>${num(r.total_mismo_codigo)}</b>. Comparados entre dos muestreos: <b>${num(r.comparados)}</b>, de ellos <b>${num(r.atipicos)}</b> con cambio de ${num(r.umbral_pct)} % o más.`;
   $('#rubrocsv').href = '/api/publicados.csv?' + new URLSearchParams({rubro: r.rubro, q: $('#rubroq').value, proveedor: $('#rubrotienda').value});
+  const hayq = !!$('#rubroq').value.trim(); $('#rubroinforme').href = hayq ? '/informe-precio?' + new URLSearchParams({rubro: r.rubro, q: $('#rubroq').value, proveedor: $('#rubrotienda').value}) : '#';
+  $('#rubroinforme').style.opacity = hayq ? 1 : .5; $('#rubroinformenota').textContent = hayq ? 'Media, mediana y moda, el precio recomendado según la regla de la Dirección de Precios, las fuentes con su enlace y la metodología; listo para imprimir. Allí puede apartar los productos que no sean comparables.' : 'Escriba un producto y pulse Buscar: el informe se hace sobre una búsqueda concreta.';
   pintarRubro();
 }
 function pintarRubro() {
@@ -1032,6 +1100,7 @@ function pintarRubro() {
     {t:'Variación (%)', num:1, f:f => `<span class="etq ${f.atipico ? 'mal' : ''}">${f.variacion_pct > 0 ? '+' : ''}${num(f.variacion_pct)} %</span>${f.atipico ? '<br><small>atípico: revisar</small>' : ''}`}], r.cambios, r.comparados ? 'Ningún precio cambió entre los dos últimos muestreos.' : 'Hace falta un segundo muestreo, en otro día, para comparar.');
 }
 $('#rubrovistas').onclick = e => { const b = e.target.closest('button[data-v]'); if (b) { rubroVista = b.dataset.v; pintarRubro(); } };
+$('#rubroinforme').onclick = e => { if (e.currentTarget.getAttribute('href') === '#') { e.preventDefault(); aviso('Escriba un producto y pulse Buscar.', true); $('#rubroq').focus(); } };
 $('#rubrobuscar').onclick = () => rubros(true).catch(x => aviso(x.message, true));
 $('#rubroq').onkeydown = e => { if (e.key === 'Enter') $('#rubrobuscar').click(); };
 $('#rubrosel').onchange = () => { $('#rubrotienda').value = ''; rubros(true).catch(x => aviso(x.message, true)); };
@@ -1134,7 +1203,7 @@ async function alimentaria() {
     {t:'Con retardo en talla (%)', num:1, f:f => `<div class="barra" style="min-width:70px"><i style="width:${f.retardo_en_talla_pct}%;background:var(--mal)"></i></div><b>${esc(f.retardo_en_talla_pct)} %</b>`},
     {t:'Vulnerabilidad nutricional', f:f => `<span class="etq ${/alta/.test(f.vulnerabilidad) ? 'mal' : f.vulnerabilidad === 'moderada' ? 'alerta' : 'ok'}">${esc(f.vulnerabilidad)}</span>`}], r.talla || [], 'Este servidor no tiene cargado el censo de talla (se genera con "faro talla").');
 }
-const cargar = {rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
+const cargar = {balance: async () => {}, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 // Enlaces internos del tipo <a href="#seccion"> llevan a esa sección del menú.
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const b = a && document.querySelector(`nav button[data-s="${a.getAttribute('href').slice(1)}"]`); if (b) { e.preventDefault(); b.click(); } });

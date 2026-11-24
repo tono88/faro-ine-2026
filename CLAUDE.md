@@ -118,6 +118,14 @@ Galeno, Suma, Super del Barrio; bloqueados: Kemik, Platino, Fayco, Agencias Way,
 (verificados): Max y Tecnofácil (`__NEXT_DATA__`, traen EAN), Steren (GraphQL), Pacifiko, Office Depot,
 El Gallo más Gallo, Celasa.
 
+Agregado después (v0.12.0), de las presentaciones: `/informe-precio` + `/api/informe_precio` (informe
+imprimible desde precios publicados, parámetro `sin` = direcciones apartadas por la persona);
+`crates/faro-territorio/src/balance.rs` + `POST /api/balance` + sección "Hoja de balance: derivados"
+(ejemplo ficticio en `datos/ejemplos/tasas_extraccion_ficticias.csv`; las tasas reales las da el INE);
+`/api/buscar_lugar` y buscador sobre el mapa (también por alias). Estado de cada propuesta de las
+presentaciones: tabla al final de `docs/01-necesidades-ine.md`. No hechos: catálogo del Manual de
+Características del IPC (no es público), ICC, edades y comparación entre censos.
+
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar
    `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del municipio,

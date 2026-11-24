@@ -216,6 +216,14 @@ pub fn ofertas_shopify(respuesta: &Value, base: &str) -> Vec<Oferta> {
     }).collect()
 }
 
+/// Convierte las entidades HTML de un texto (`&amp;`, `&quot;`, `&#8243;`...) en sus caracteres.
+pub fn sin_entidades(texto: &str) -> String {
+    static NUMERICA: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let numerica = NUMERICA.get_or_init(|| regex::Regex::new(r"&#(\d{1,7});").expect("patrón válido"));
+    let t = numerica.replace_all(texto, |c: &regex::Captures| c[1].parse::<u32>().ok().and_then(char::from_u32).map(String::from).unwrap_or_default());
+    t.replace("&quot;", "\"").replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").replace("&amp;", "&")
+}
+
 /// Productos de una página de la API pública de tienda de WooCommerce (`/wp-json/wc/store/v1/products`).
 /// Los precios vienen como enteros con los decimales corridos (`currency_minor_unit`).
 pub fn ofertas_woocommerce(respuesta: &Value) -> Vec<Oferta> {
@@ -225,7 +233,7 @@ pub fn ofertas_woocommerce(respuesta: &Value) -> Vec<Oferta> {
         let numero = |v: &Value| v.as_str().and_then(|t| t.parse::<f64>().ok()).map(|x| x / divisor);
         let precio = numero(&precios["price"]).filter(|x| *x > 0.0)?;
         Some(Oferta {
-            producto: p["name"].as_str()?.replace("&amp;", "&").replace("&#8211;", "–").replace("&quot;", "\"").split_whitespace().collect::<Vec<_>>().join(" "),
+            producto: sin_entidades(p["name"].as_str()?).split_whitespace().collect::<Vec<_>>().join(" "),
             marca: String::new(),
             precio,
             unidad: String::new(),
@@ -465,6 +473,7 @@ mod pruebas {
         let o = ofertas_shopify(&s, "https://t.example");
         assert_eq!(o.len(), 1);
         assert_eq!((o[0].producto.as_str(), o[0].precio, o[0].precio_lista, o[0].url.as_str(), o[0].ean.as_str()), ("Audífonos X", 2399.0, Some(2999.0), "https://t.example/products/audifonos-x", "050036394437"));
+        assert_eq!(sin_entidades("15.6&#8243; FHD &amp; W11 &#8211; US"), "15.6″ FHD & W11 – US");
         let w: Value = serde_json::from_str(r#"[{"name":"Laptop HP 15 &amp; funda","permalink":"https://m.example/producto/laptop","prices":{"price":"405500","regular_price":"450000","currency_minor_unit":2},"categories":[{"name":"Laptops"}]}]"#).unwrap();
         let o = ofertas_woocommerce(&w);
         assert_eq!((o[0].producto.as_str(), o[0].precio, o[0].precio_lista, o[0].termino.as_str()), ("Laptop HP 15 & funda", 4055.0, Some(4500.0), "Laptops"));

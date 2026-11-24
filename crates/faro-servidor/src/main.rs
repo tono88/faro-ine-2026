@@ -251,6 +251,10 @@ async fn main() -> Result<(), String> {
         .route("/api/muestreos/:id/ejecutar", post(api_muestreo_ejecutar))
         .route("/api/canasta", get(api_canasta))
         .route("/api/publicados", get(api_publicados))
+        .route("/api/informe_precio", get(api_informe_precio))
+        .route("/informe-precio", get(|| async { Html(include_str!("../web/informe_precio.html")) }))
+        .route("/api/balance", post(api_balance))
+        .route("/api/buscar_lugar", get(api_buscar_lugar))
         .route("/api/publicados.csv", get(api_publicados_csv))
         .route("/api/municipio/:codigo", get(api_municipio))
         .route("/api/solicitudes/:id/plantilla.csv", get(plantilla))
@@ -1421,6 +1425,77 @@ async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<Str
 
     Ok(Json(json!({ "rubros": rubros, "rubro": rubro, "total": resumen.get::<_, i64>(0), "minimo": resumen.get::<_, Option<f64>>(1), "mediana": resumen.get::<_, Option<f64>>(2), "maximo": resumen.get::<_, Option<f64>>(3), "media": resumen.get::<_, Option<f64>>(4), "moda": resumen.get::<_, Option<f64>>(5), "informantes": informantes,
         "filas": filas, "mismo_codigo": iguales, "total_mismo_codigo": total_iguales, "cambios": cambios, "comparados": comparados, "atipicos": atipicos, "umbral_pct": umbral })))
+}
+
+/// Informe de precio de referencia a partir de los precios publicados que coinciden con una
+/// búsqueda: mismas reglas que la sección de cotizaciones (media, mediana, moda; mediana si hay
+/// extremos). Todas las fuentes son secundarias (catálogos en línea) y el informe lo dice.
+async fn api_informe_precio(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
+    let rubro = q.get("rubro").cloned().unwrap_or_default();
+    let proveedor = q.get("proveedor").cloned().unwrap_or_default();
+    let texto = q.get("q").map(|t| t.trim().to_string()).unwrap_or_default();
+    let palabras: Vec<String> = faro_homologa::normalizar::basico(&texto).split(' ').filter(|p| !p.is_empty()).map(|p| format!("%{}%", p.to_lowercase())).collect();
+    if palabras.is_empty() {
+        return Err(pedido("escriba el producto: el informe se hace sobre una búsqueda concreta"));
+    }
+    // Productos que la persona apartó por no ser comparables (direcciones separadas por coma).
+    let excluidos: Vec<String> = q.get("sin").map(|t| t.split('|').filter(|u| !u.is_empty()).map(String::from).collect()).unwrap_or_default();
+    let filas = e.bd.query(
+        "SELECT proveedor, producto, marca, precio, ean, url, to_char(observado, 'YYYY-MM-DD') FROM
+           (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados ORDER BY rubro, proveedor, url, observado DESC) u
+         WHERE ($1 = '' OR rubro = $1) AND ($2 = '' OR proveedor = $2) AND translate(lower(producto), 'áéíóúüñ', 'aeiouun') LIKE ALL($3::text[]) AND NOT (url = ANY($4::text[])) ORDER BY precio LIMIT 300",
+        &[&rubro, &proveedor, &palabras, &excluidos]).await.map_err(interno)?;
+    let cotizaciones: Vec<faro_territorio::precios::Cotizacion> = filas.iter().map(|f| faro_territorio::precios::Cotizacion { producto: texto.clone(), precio: f.get(3), fuente: f.get(0), tipo_fuente: "secundaria".into(), unidad: String::new() }).collect();
+    let p = faro_territorio::precios::Parametros::default();
+    let analisis = (!cotizaciones.is_empty()).then(|| faro_territorio::precios::analizar(&texto, &cotizaciones.iter().collect::<Vec<_>>(), &p));
+    let tiendas: std::collections::BTreeSet<String> = filas.iter().map(|f| f.get::<_, String>(0)).collect();
+    Ok(Json(json!({ "producto": texto, "rubro": rubro, "tienda": proveedor, "parametros": p, "analisis": analisis, "tiendas": tiendas, "excluidos": excluidos.len(),
+        "fuentes": filas.iter().map(|f| json!({ "tienda": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "marca": f.get::<_, String>(2), "precio": f.get::<_, f64>(3), "codigo_barras": f.get::<_, String>(4), "url": f.get::<_, String>(5), "fecha": f.get::<_, String>(6) })).collect::<Vec<_>>() })))
+}
+
+/// Calculadora de derivados de la Hoja de Balance de Alimentos: el cuerpo es la tabla de tasas (CSV).
+async fn api_balance(Query(q): Query<HashMap<String, String>>, cuerpo: String) -> Res<Json<Value>> {
+    let tasas = faro_territorio::balance::leer_tasas(cuerpo.as_bytes()).map_err(pedido)?;
+    let primarios = faro_territorio::balance::primarios(&tasas);
+    let balance = match q.get("producto").filter(|p| !p.is_empty()) {
+        Some(producto) => {
+            let cantidad: f64 = q.get("cantidad").and_then(|c| c.replace(',', "").parse().ok()).ok_or_else(|| pedido("escriba la cantidad del producto primario"))?;
+            Some(faro_territorio::balance::calcular(&tasas, producto, cantidad).map_err(pedido)?)
+        }
+        None => None,
+    };
+    Ok(Json(json!({ "primarios": primarios, "filas": tasas.len(), "balance": balance })))
+}
+
+/// Busca departamentos, municipios y lugares poblados por nombre o código (para ir a ellos en el mapa).
+async fn api_buscar_lugar(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
+    let texto = faro_homologa::normalizar::basico(q.get("q").map(String::as_str).unwrap_or(""));
+    if texto.chars().count() < 2 {
+        return Ok(Json(json!([])));
+    }
+    let palabras: Vec<&str> = texto.split(' ').collect();
+    let mut hallados: Vec<(u8, usize, Value)> = Vec::new();
+    for (orden, nivel) in [(0u8, Nivel::Departamento), (1, Nivel::Municipio), (2, Nivel::LugarPoblado)] {
+        for l in e.catalogo.de_nivel(nivel, None) {
+            let nombre = faro_homologa::normalizar::basico(&l.nombre);
+            // También se busca en los otros nombres de uso común del catálogo (alias).
+            let en = |t: &str| palabras.iter().all(|p| t.split(' ').any(|n| n.starts_with(p)));
+            let coincide = l.codigo == texto || en(&nombre) || l.alias.split('|').filter(|a| !a.is_empty()).any(|a| en(&faro_homologa::normalizar::basico(a)));
+            if !coincide {
+                continue;
+            }
+            let padre = e.catalogo.por_codigo(&l.padre);
+            let abuelo = padre.and_then(|p| e.catalogo.por_codigo(&p.padre));
+            let donde = match orden { 0 => String::new(), 1 => padre.map(|p| p.nombre.clone()).unwrap_or_default(), _ => format!("{}, {}", padre.map(|p| p.nombre.as_str()).unwrap_or(""), abuelo.map(|p| p.nombre.as_str()).unwrap_or("")) };
+            // Primero lo que coincide exacto o empieza igual; luego por nivel.
+            let nombre_nivel = ["departamento", "municipio", "lugar"][orden as usize];
+            let cercania = if nombre == texto || l.codigo == texto { 0 } else if nombre.starts_with(&texto) { 1 } else { 2 };
+            hallados.push((cercania, hallados.len(), json!({ "nivel": nombre_nivel, "codigo": l.codigo, "nombre": l.nombre, "donde": donde, "municipio": if orden == 2 { l.padre.clone() } else { String::new() }, "lon": l.longitud, "lat": l.latitud })));
+        }
+    }
+    let total = hallados.len();
+    hallados.sort_by_key(|(c, i, _)| (*c, *i));
+    Ok(Json(json!({ "total": total, "lugares": hallados.into_iter().take(15).map(|(_, _, v)| v).collect::<Vec<_>>() })))
 }
 
 /// Los precios publicados de un rubro (el más reciente de cada producto de cada tienda), en CSV.

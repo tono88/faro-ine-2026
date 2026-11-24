@@ -73,7 +73,7 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 |---|---|
 | Pruebas automáticas | 69 |
 | Comandos de `faro` | 19 |
-| Secciones de la pantalla | 20 |
+| Secciones de la pantalla | 21 |
 | Tareas de muestreo de precios | 26 |
 | Precios publicados en el levantamiento | 85,856 (18 tiendas, 6 rubros) |
 | Capas publicadas | 13 |

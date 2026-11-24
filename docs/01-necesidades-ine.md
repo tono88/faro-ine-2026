@@ -29,3 +29,17 @@
 - Servicios de pago o en la nube deben declararse.
 - Los integrantes ceden al INE los derechos de autor y propiedad intelectual.
 - Enviar por correo la nota de consentimiento firmada por todos los integrantes.
+
+## Estado frente a cada propuesta de las presentaciones (24-nov-2026)
+
+| Propuesta | Dirección | Estado en FARO |
+|---|---|---|
+| Sistema para registrar informantes, productos y precios, con alertas de variaciones atípicas | DIEC · IPP | Hecho: muestreos automáticos, "Precios por rubro" (tiendas informantes, cambios de 15 % o más entre muestreos) |
+| Sistema para estandarizar los procedimientos del IPMC y del ICC | DIEC · IPMC/ICC | Parcial: canasta del IPMC como catálogo, homologación de productos y precios por artículo; el ICC no se abordó |
+| Catálogo digital del Manual de Características para dispositivos móviles | DIEC · IPC | No hecho: el Manual no es público; la pantalla sí funciona en teléfonos y el catálogo del IPMC se consulta desde ella |
+| Calculadora de derivados de la Hoja de Balance de Alimentos | DIEC · HBA | Hecho: sección "Hoja de balance: derivados"; las tasas reales las carga el INE (el ejemplo incluido es ficticio) |
+| Validación de bases de datos con herramientas de licencia libre; tableros dinámicos | DIEC · DESA | Hecho: validación de cada envío contra su solicitud, pistas para códigos inexistentes, resultados y mapa |
+| Herramienta con datos del censo por municipio y lugar poblado para las delegaciones | DIEC · DCR | Hecho en parte: mapa en tres niveles, buscador, ficha y reporte por municipio; no incluye población por lugar poblado (el catálogo trae código, nombre y coordenadas) |
+| Tablero de avance de recopilación de las 22 delegaciones | DIEC · DCR | Hecho: cobertura por departamento en "Resultados y avance" y registros en el mapa por departamento |
+| Investigación de precios con catálogos en línea; media, mediana y moda; informe técnico | DPIR | Hecho: precio de referencia desde cotizaciones y, ahora, informe imprimible desde precios publicados. Falta Guatecompras (bloqueado desde la nube) |
+| Proyecciones por territorio; cambios entre censos; limpiar códigos especiales; no identificar personas | DCE | Parcial: población 2015–2030 por municipio y sexo, valores "sin dato", salida sin datos personales; sin edades ni comparación entre censos |
