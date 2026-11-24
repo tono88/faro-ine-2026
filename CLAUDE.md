@@ -107,6 +107,17 @@ los rubros `construccion` ni `alimentos` para no mover las cifras de esas seccio
 estilos para teléfono (`@media (max-width: 700px)`). Suma, Super del Barrio y Mi Super Fresh no tienen
 catálogo en línea; PriceSmart pide navegador con sesión. Memoria técnica y guiones de prueba: `.faro/`.
 
+Agregado después (v0.11.0): `vtex-catalogo` baja a subcategorías; lecturas `shopify` y `woocommerce`;
+`max_consultas` por tarea; 26 tareas; levantamiento de 85,856 precios (18 tiendas), que el servidor
+recarga si el CSV cambia. Mapa: `aislar()`, `verTodo()`, paneles `encima` y `puntos`, botón `#volverpais`.
+Canasta: `graficaGrande()`. Pendientes: `pista_de_codigo()` con `datos/estandar/paises_ine.csv`
+(diccionario de estadísticas vitales del INE). Resultados: `cobertura()` por departamento.
+Sobre los códigos de RENAP: no hay tabla pública; 608/643 son países y 34–42 edades en el diccionario
+del INE (probable desfase de columnas; confirmar con el archivo real). Sin catálogo legible: Farma Value,
+Galeno, Suma, Super del Barrio; bloqueados: Kemik, Platino, Fayco, Agencias Way, MEM. Por integrar
+(verificados): Max y Tecnofácil (`__NEXT_DATA__`, traen EAN), Steren (GraphQL), Pacifiko, Office Depot,
+El Gallo más Gallo, Celasa.
+
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar
    `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del municipio,

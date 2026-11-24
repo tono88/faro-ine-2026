@@ -80,18 +80,25 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
 18. **Todo se puede repetir y auditar.** El cálculo de población se rehace desde la pantalla contra
     el portal del INE, mostrando cada paso; la sección "Proceso" enseña qué hace cada etapa y quién.
 19. **Muestreos automáticos.** Tareas configurables que el portal repite solo: leen las páginas
-    públicas de tiendas en línea y guardan cada precio con su dirección y fecha. Cuatro lecturas:
-    búsqueda por términos, catálogo completo por categorías (con código de barras y precio de
-    lista), mapa del sitio con datos estructurados y listado paginado. Se encienden y se les cambia
-    la frecuencia desde la pantalla (`datos/estandar/muestreos.toml`, 19 tareas).
+    públicas de tiendas en línea y guardan cada precio con su dirección y fecha. Seis lecturas:
+    búsqueda por términos, catálogo completo por categorías y subcategorías (con código de barras
+    y precio de lista), mapa del sitio con datos estructurados, listado paginado y los catálogos
+    públicos de tiendas Shopify y WooCommerce. Se encienden y se les cambia
+    la frecuencia desde la pantalla (`datos/estandar/muestreos.toml`, 26 tareas).
 19a. **Precios por rubro.** Supermercado, ferretería, tecnología, hogar, farmacia y vehículos:
-    26,976 precios publicados por 11 tiendas (levantamiento del 24-nov-2026, en
+    85,856 precios publicados por 18 tiendas (levantamiento del 24-nov-2026, en
     `datos/referencia/precios_publicados.csv`). Búsqueda con media, mediana y moda; el **mismo
-    producto entre tiendas por su código de barras** (3,137 productos de supermercado), alertas de
+    producto entre tiendas por su código de barras** (16,314 productos de supermercado), alertas de
     **cambios atípicos** entre muestreos, tiendas informantes y descarga en CSV.
-19b. **Mapa en tres niveles.** Departamentos (cifras sumadas de sus municipios, tasas recalculadas),
-    municipios y lugares poblados del censo (aldeas, caseríos, cantones) con su conexión vial.
-    La pantalla se adapta a teléfonos: menú desplegable y ficha como hoja inferior.
+19b. **Mapa en tres niveles, con vista aislada.** Departamentos (cifras sumadas de sus municipios,
+    tasas recalculadas), municipios y lugares poblados del censo (aldeas, caseríos, cantones). Se
+    puede ver solo un departamento o solo un municipio (lo demás se atenúa y las clases se
+    recalculan) y volver a todo el país con un botón. La pantalla se adapta a teléfonos.
+19c. **Pistas para códigos que no existen.** Cuando llega un código de lugar inexistente, el portal
+    dice qué más podría ser según el diccionario de estadísticas vitales del INE (un país, una
+    edad, «Extranjero», «Ignorado») para detectar columnas corridas; no decide con eso.
+19d. **Cobertura por departamento.** En cuántos municipios de cada departamento ya hay registros
+    de cada solicitud: seguimiento de la recopilación por delegación.
 20. **Canasta básica.** Precio promedio del INE de 34 productos, con su serie, junto a los
     precios publicados que recoge el muestreo (`faro canasta`).
 21. **Ficha y reporte por municipio.** Al tocar un municipio: cifras, gráficas, animación del

@@ -11,8 +11,11 @@
 #   sitemap        lee el mapa del sitio (`sitemap`) y los datos estructurados (schema.org) de cada
 #                  página de producto (`patron` distingue esas páginas; por omisión "/producto/").
 #   magento        recorre el listado paginado de productos (`listado`).
-# `max_resultados` es el tope de productos por corrida; ninguna corrida pasa de 400 consultas y
-# entre una y otra se espera 0.6 s. Solo se leen páginas públicas, sin sesión ni claves.
+#   shopify        catálogo público de la tienda (`/products.json`).
+#   woocommerce    API pública de tienda (`/wp-json/wc/store/v1/products`).
+# `max_resultados` es el tope de productos por corrida y `max_consultas` el de consultas (400 por
+# omisión, 3,000 como máximo). Los supermercados van a tope: todas las categorías y subcategorías.
+# Entre una consulta y otra se espera 0.6 s. Solo se leen páginas públicas, sin sesión ni claves.
 
 [[tarea]]
 id = "construccion-construfacil"
@@ -54,8 +57,8 @@ rubro = "supermercado"
 tipo = "vtex-catalogo"
 proveedor = "Walmart Guatemala"
 base = "https://www.walmart.com.gt"
-categorias = ["Abarrotes", "Lácteos", "Frutas y Verduras", "Carnes, Embutidos y Mariscos", "Panadería", "Jugos y Bebidas", "Limpieza", "Higiene y Belleza"]
-max_resultados = 4000
+max_resultados = 100000
+max_consultas = 2000
 cada_horas = 168
 
 [[tarea]]
@@ -65,8 +68,8 @@ rubro = "supermercado"
 tipo = "vtex-catalogo"
 proveedor = "Paiz"
 base = "https://www.paiz.com.gt"
-categorias = ["Abarrotes", "Lácteos", "Frutas y Verduras", "Carnes, Embutidos y Mariscos", "Panadería", "Jugos y Bebidas", "Limpieza", "Higiene y Belleza"]
-max_resultados = 4000
+max_resultados = 100000
+max_consultas = 2000
 cada_horas = 168
 
 [[tarea]]
@@ -76,8 +79,8 @@ rubro = "supermercado"
 tipo = "vtex-catalogo"
 proveedor = "Maxi Despensa"
 base = "https://www.maxidespensa.com.gt"
-categorias = ["Abarrotes", "Lácteos", "Frutas y Verduras", "Carnes, Embutidos y Mariscos", "Panadería", "Jugos y Bebidas", "Limpieza", "Higiene y Belleza"]
-max_resultados = 4000
+max_resultados = 100000
+max_consultas = 2000
 cada_horas = 168
 
 [[tarea]]
@@ -87,8 +90,8 @@ rubro = "supermercado"
 tipo = "vtex-catalogo"
 proveedor = "La Torre"
 base = "https://www.latorre.com.gt"
-categorias = ["Abarrotes", "Leches, Huevos", "Quesos y Embutidos", "Carnes", "Frutas, Verduras", "Panadería", "Bebidas", "Limpieza", "Cuidado Personal"]
-max_resultados = 4000
+max_resultados = 100000
+max_consultas = 2000
 cada_horas = 168
 
 # ---- Tecnología y electrodomésticos ----
@@ -147,7 +150,8 @@ tipo = "sitemap"
 proveedor = "Farmacias Cruz Verde"
 base = "https://cruzverde.com.gt"
 sitemap = "https://cruzverde.com.gt/sitemap.xml"
-max_resultados = 300
+max_resultados = 3000
+max_consultas = 3000
 cada_horas = 336
 
 [[tarea]]
@@ -158,7 +162,8 @@ tipo = "sitemap"
 proveedor = "Farmacias Meykos"
 base = "https://meykos.com"
 sitemap = "https://meykos.com/sitemap.xml"
-max_resultados = 300
+max_resultados = 3000
+max_consultas = 3000
 cada_horas = 336
 
 [[tarea]]
@@ -229,3 +234,82 @@ base = "https://www.elektra.com.gt"
 categorias = ["Motocicletas", "Transporte", "Bicicletas"]
 max_resultados = 600
 cada_horas = 336
+
+# ---- Fuentes agregadas tras verificar que publican precios sin sesión (24-nov-2026) ----
+
+[[tarea]]
+id = "farmacia-batres"
+titulo = "Medicamentos en Farmacias Batres"
+rubro = "farmacia"
+tipo = "sitemap"
+proveedor = "Farmacias Batres"
+base = "https://farmaciasbatres.com"
+sitemap = "https://farmaciasbatres.com/sitemap.xml"
+patron = "/detalle_producto/"
+max_resultados = 3000
+max_consultas = 3000
+cada_horas = 336
+
+[[tarea]]
+id = "tecnologia-intelaf"
+titulo = "Cómputo y tecnología en Intelaf"
+rubro = "tecnologia"
+tipo = "sitemap"
+proveedor = "Intelaf"
+base = "https://www.intelaf.com"
+sitemap = "https://www.intelaf.com/sitemap.xml"
+patron = "/precios_stock_detallado/"
+max_resultados = 3000
+max_consultas = 3000
+cada_horas = 336
+
+[[tarea]]
+id = "tecnologia-click"
+titulo = "Tecnología en Click"
+rubro = "tecnologia"
+tipo = "shopify"
+proveedor = "Click"
+base = "https://click.gt"
+max_resultados = 10000
+cada_horas = 168
+
+[[tarea]]
+id = "tecnologia-ishop"
+titulo = "Tecnología en iShop"
+rubro = "tecnologia"
+tipo = "shopify"
+proveedor = "iShop"
+base = "https://ishop.gt"
+max_resultados = 10000
+cada_horas = 168
+
+[[tarea]]
+id = "tecnologia-macrosistemas"
+titulo = "Cómputo en Macrosistemas"
+rubro = "tecnologia"
+tipo = "woocommerce"
+proveedor = "Macrosistemas"
+base = "https://www.macrosistemas.com"
+max_resultados = 5000
+cada_horas = 168
+
+[[tarea]]
+id = "hogar-kalea"
+titulo = "Muebles y decoración en Kalea"
+rubro = "hogar"
+tipo = "shopify"
+proveedor = "Kalea"
+base = "https://kalea.com.gt"
+max_resultados = 10000
+cada_horas = 168
+
+[[tarea]]
+id = "ferreteria-ferco"
+titulo = "Construcción y acabados en Ferco"
+rubro = "ferreteria"
+tipo = "vtex-catalogo"
+proveedor = "Ferco"
+base = "https://www.ferco.com.gt"
+max_resultados = 10000
+max_consultas = 600
+cada_horas = 168

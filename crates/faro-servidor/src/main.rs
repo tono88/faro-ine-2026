@@ -29,6 +29,8 @@ struct Estado {
     talla: HashMap<String, HashMap<String, String>>,
     /// Inseguridad alimentaria aguda por departamento (CIF, SESAN).
     cif: Vec<HashMap<String, String>>,
+    /// Catálogo de países del diccionario de estadísticas vitales del INE: código -> nombre.
+    paises: HashMap<String, String>,
     /// Tareas de muestreo de precios (datos/estandar/muestreos.toml).
     tareas: Vec<faro_fuentes::muestreo::Tarea>,
     /// Canasta básica: (periodo, producto, precio promedio del INE).
@@ -155,6 +157,7 @@ async fn main() -> Result<(), String> {
         referencias: csv::Reader::from_path(var("FARO_REFERENCIAS_INE", "datos/catalogo_precios/precios_referencia_ine.csv")).map(|mut l| l.deserialize().flatten().collect()).unwrap_or_default(),
         cif: cif.clone(),
         talla: talla.clone(),
+        paises: csv::Reader::from_path(var("FARO_PAISES", "datos/estandar/paises_ine.csv")).map(|mut l| l.deserialize::<(String, String)>().flatten().collect()).unwrap_or_default(),
         tareas: faro_fuentes::muestreo::cargar_tareas(&PathBuf::from(var("FARO_MUESTREOS", "datos/estandar/muestreos.toml"))).unwrap_or_else(|e| {
             eprintln!("AVISO: sin tareas de muestreo ({e}).");
             vec![]
@@ -468,7 +471,9 @@ async fn api_pendientes(State(e): State<Compartido>) -> Res<Json<Value>> {
         .map_err(interno)?;
     Ok(Json(json!(filas.iter().map(|f| {
         let ctx: String = f.get(2);
+        let pista = pista_de_codigo(&e, &f.get::<_, String>(1), &f.get::<_, String>(3));
         json!({
+            "pista": pista,
             "columna": f.get::<_, String>(0), "nivel": f.get::<_, String>(1), "contexto": ctx,
             "contexto_nombre": e.catalogo.por_codigo(&ctx).map(|l| l.nombre.clone()),
             "valor": f.get::<_, String>(3), "veces": f.get::<_, i64>(4), "estado": f.get::<_, String>(5),
@@ -1219,11 +1224,17 @@ const LEVANTAMIENTO: &str = "levantamiento-inicial";
 /// Carga una sola vez el levantamiento de precios publicados que viene con el sistema
 /// (`datos/referencia/precios_publicados.csv`), con la fecha en que se consultó cada precio.
 async fn sembrar_precios(bd: &Client, ruta: &std::path::Path) -> Result<usize, String> {
-    if !ruta.exists() || bd.query_opt("SELECT 1 FROM precios_observados WHERE tarea = $1 LIMIT 1", &[&LEVANTAMIENTO]).await.map_err(|e| e.to_string())?.is_some() {
+    if !ruta.exists() {
         return Ok(0);
     }
     let filas: Vec<HashMap<String, String>> = csv::Reader::from_path(ruta).map_err(|e| e.to_string())?.deserialize().collect::<Result<_, _>>().map_err(|e| e.to_string())?;
     let filas: Vec<&HashMap<String, String>> = filas.iter().filter(|f| f.get("precio_q").is_some_and(|p| p.parse::<f64>().is_ok_and(|x| x > 0.0)) && f.get("fecha_consulta").is_some_and(|d| d.len() == 10)).collect();
+    // Si la tabla del sistema cambió (una versión nueva trae un levantamiento más amplio), se reemplaza.
+    let cargadas: i64 = bd.query_one("SELECT count(*) FROM precios_observados WHERE tarea = $1", &[&LEVANTAMIENTO]).await.map_err(|e| e.to_string())?.get(0);
+    if cargadas == filas.len() as i64 {
+        return Ok(0);
+    }
+    bd.execute("DELETE FROM precios_observados WHERE tarea = $1", &[&LEVANTAMIENTO]).await.map_err(|e| e.to_string())?;
     for lote in filas.chunks(500) {
         let col = |k: &str| lote.iter().map(|f| f.get(k).map(String::as_str).unwrap_or("")).collect::<Vec<&str>>();
         let precios: Vec<f64> = lote.iter().map(|f| f["precio_q"].parse().unwrap_or(0.0)).collect();
@@ -1297,6 +1308,32 @@ async fn api_muestreos(State(e): State<Compartido>) -> Res<Json<Value>> {
                 "ultima": est.and_then(|f| f.get::<_, Option<String>>(3)), "ultimo_ok": est.and_then(|f| f.get::<_, Option<bool>>(4)), "detalle": est.map(|f| f.get::<_, String>(5)),
                 "precios": n.map_or(0, |f| f.get::<_, i64>(1)), "productos": n.map_or(0, |f| f.get::<_, i64>(2)), "corridas": n.map_or(0, |f| f.get::<_, i64>(3)) })
     }).collect::<Vec<_>>())))
+}
+
+/// Qué más podría ser un código de lugar que no existe, según el diccionario de estadísticas
+/// vitales del INE. Es una pista para quien revisa: el sistema no decide con ella.
+fn pista_de_codigo(e: &Estado, nivel: &str, valor: &str) -> Option<String> {
+    let n: u32 = valor.trim().parse().ok()?;
+    let mut pistas: Vec<String> = Vec::new();
+    match (nivel, n) {
+        ("departamento", 23) | ("municipio", 2300) => pistas.push("en el diccionario del INE este código es «Extranjero»".into()),
+        ("departamento", 99) | ("municipio", 9999) => pistas.push("en el diccionario del INE este código es «Ignorado»".into()),
+        (_, 0) => pistas.push("el cero no está en el diccionario del INE como lugar: suele ser un campo sin llenar".into()),
+        _ => {}
+    }
+    let fuera = match nivel { "departamento" => n > 22 && n != 23 && n != 99, "municipio" => n != 2300 && n != 9999, _ => false };
+    if fuera {
+        if let Some(pais) = e.paises.get(&n.to_string()).filter(|p| !p.eq_ignore_ascii_case("ignorado")) {
+            pistas.push(format!("{n} es «{pais}» en el catálogo de países del INE"));
+        }
+        if (10..=91).contains(&n) {
+            pistas.push(format!("{n} también es una edad posible"));
+        }
+        if !pistas.is_empty() {
+            pistas.push("revise si las columnas del archivo están corridas o mal rotuladas".into());
+        }
+    }
+    (!pistas.is_empty()).then(|| pistas.join("; "))
 }
 
 #[derive(Deserialize)]
@@ -1394,7 +1431,7 @@ async fn api_publicados_csv(State(e): State<Compartido>, Query(q): Query<HashMap
     let filas = e.bd.query(
         "SELECT rubro, proveedor, producto, marca, precio, precio_lista, ean, termino, url, to_char(observado, 'YYYY-MM-DD') FROM
            (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados ORDER BY rubro, proveedor, url, observado DESC) u
-         WHERE ($1 = '' OR rubro = $1) AND ($2 = '' OR proveedor = $2) AND translate(lower(producto), 'áéíóúüñ', 'aeiouun') LIKE ALL($3::text[]) ORDER BY rubro, producto, precio LIMIT 50000",
+         WHERE ($1 = '' OR rubro = $1) AND ($2 = '' OR proveedor = $2) AND translate(lower(producto), 'áéíóúüñ', 'aeiouun') LIKE ALL($3::text[]) ORDER BY rubro, producto, precio LIMIT 300000",
         &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
     let campo = |t: String| if t.contains([',', '"', '\n']) { format!("\"{}\"", t.replace('"', "\"\"")) } else { t };
     let mut csv = String::from("rubro,tienda,producto,marca,precio_q,precio_lista_q,codigo_barras,categoria_tienda,url,fecha_consulta\n");

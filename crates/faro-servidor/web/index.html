@@ -81,7 +81,9 @@
   .rampa { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--gris); } .rampa i { display:block; height:10px; flex:1; border-radius:3px; background:linear-gradient(90deg,#fff3c4,#f9b24a,#e0561b,#8f1d0c); }
   tr.clic { cursor:pointer; } .etq.clic { cursor:pointer; text-decoration:underline dotted; }
   details.como { margin-top:12px; border:1px solid var(--borde); border-radius:8px; padding:8px 12px; background:#fbfcfe; } details.como summary { cursor:pointer; font-weight:600; color:var(--azul-oscuro); } details.como li { margin:4px 0; }
-  .proc { font-size:13px; }
+  .proc { font-size:13px; } small.pista { display:block; max-width:300px; margin-top:4px; color:var(--alerta); line-height:1.35; }
+  button.ampliar { border:1px solid transparent; background:none; padding:2px 4px; border-radius:6px; cursor:zoom-in; font:inherit; text-align:right; display:block; } button.ampliar:hover { border-color:var(--celeste); background:var(--cielo); } button.ampliar small { color:var(--azul); font-size:11px; }
+  #volverpais { font-size:18px; line-height:30px; text-decoration:none; color:var(--azul-oscuro); }
   .filtros { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:flex-end; } .filtros > div { flex:1 1 180px; min-width:0; } .filtros label { margin-top:0; } .filtros .accion { margin-top:0; }
   .descarga { margin-left:10px; font-size:14px; white-space:nowrap; }
   .pestanas { display:flex; gap:4px; flex-wrap:wrap; margin:12px 0 8px; border-bottom:2px solid var(--borde); }
@@ -215,7 +217,7 @@
   <section id="pendientes">
     <div class="panel">
       <h2>Lo que el sistema no quiso adivinar</h2>
-      <p class="nota">Elija a qué corresponde cada texto: un lugar del catálogo oficial o un valor permitido (sexo, pueblo y otras variables). La decisión queda grabada con su nombre y no se vuelve a preguntar, sin importar qué institución lo envíe. Si llega un código que no existe, búsquelo por nombre en la lista.</p>
+      <p class="nota">Elija a qué corresponde cada texto: un lugar del catálogo oficial o un valor permitido (sexo, pueblo y otras variables). La decisión queda grabada con su nombre y no se vuelve a preguntar, sin importar qué institución lo envíe. Si llega un código que no existe, búsquelo por nombre en la lista. Cuando un código no existe, el portal dice qué más podría ser según el diccionario de estadísticas vitales del INE (un país, una edad, «Extranjero», «Ignorado»): es una pista para revisar el archivo, no una decisión.</p>
       <p class="nota" style="margin:0">Cada decisión queda en la bitácora con el nombre de quien inició sesión.</p>
       <div class="tabla" style="margin-top:12px"><table id="tpend"></table></div>
     </div>
@@ -229,6 +231,7 @@
 
   <section id="resultados">
     <div class="panel"><h2>Avance de la recepción</h2><p class="nota">Qué pidió el INE a cada institución, qué ha llegado y con qué calidad.</p><div class="tabla"><table id="tavance"></table></div></div>
+    <div class="panel"><h2>Cobertura por departamento (22 delegaciones)</h2><p class="nota">De cada solicitud, en cuántos municipios de cada departamento ya hay registros recibidos y homologados. Un departamento con municipios en cero no está completo: o no ha llegado su información o sigue pendiente de revisar. Sirve para dar seguimiento a la recopilación por delegación.</p><div class="tabla"><table id="tcobertura"></table></div></div>
     <div class="panel"><h2>Registros por departamento</h2><p class="nota">Conteos de los envíos recibidos, ya con código oficial. Si un periodo se reenvía, cuenta solo el envío más reciente. La tasa divide entre la población que el INE proyecta para ese departamento y año, y cubre solo los meses recibidos (no es una tasa anual).</p><div class="tabla"><table id="thechos"></table></div></div>
   </section>
 
@@ -504,7 +507,7 @@ async function pendientes() {
   tabla('#tpend', [
     {t:'Texto recibido', f:f => `<b>${esc(f.valor)}</b><br><small>${esc(f.columna)}</small>`},
     {t:'En', f:f => f.nivel === 'valor' ? `variable <b>${esc(f.contexto)}</b>` : esc(f.contexto_nombre || (f.contexto ? 'código ' + f.contexto : '(sin nivel superior)'))},
-    {t:'Veces (filas)', num:1, f:f => num(f.veces)}, {t:'Institución', f:f => esc(f.instituciones)}, {t:'Estado', f:f => etq(f.estado)},
+    {t:'Veces (filas)', num:1, f:f => num(f.veces)}, {t:'Institución', f:f => esc(f.instituciones)}, {t:'Estado', f:f => etq(f.estado) + (f.pista ? `<br><small class="pista">Pista: ${esc(f.pista)}.</small>` : '')},
     {t:'¿A qué corresponde?', f:f => f.candidatos.map(c => `<button class="accion chico" ${datos(f)} data-c="${esc(c.codigo)}">${f.nivel === 'valor' ? esc(c.nombre) : esc(c.codigo) + ' ' + esc(c.nombre)}</button>`).join('') + otro(f)},
   ], filas, 'No hay nada por revisar.');
 }
@@ -528,7 +531,18 @@ async function memoria() {
   tabla('#tmem', [{t:'Texto', f:f => esc(f.original)}, {t:'Equivale a', f:f => `${esc(f.codigo)} ${esc(f.nombre)}`}, {t:'Nivel', f:f => esc(f.nivel)}, {t:'Contexto', f:f => esc(f.contexto)},
     {t:'Institución', f:f => esc(f.institucion)}, {t:'Confirmó', f:f => esc(f.confirmado_por)}, {t:'Fecha', f:f => esc(f.fecha)}], await api('/api/equivalencias'), 'Aún no hay equivalencias confirmadas.');
 }
+// Cobertura de la recepción por departamento: municipios con registros sobre municipios del departamento.
+async function cobertura() {
+  const [g, reg] = await Promise.all([geoMuni ? geoMuni : fetch('/capas/municipios.geojson').then(x => x.ok ? x.json() : null), api('/api/registros_municipio').catch(() => ({}))]);
+  const sols = Object.keys(reg); if (!g || !sols.length) { tabla('#tcobertura', [{t:'Cobertura', f:() => ''}], [], 'Todavía no hay registros recibidos con municipio reconocido.'); return; }
+  const deps = {}; g.features.forEach(f => { const p = f.properties, d = deps[p.departamento_codigo] = deps[p.departamento_codigo] || {codigo: p.departamento_codigo, nombre: p.departamento, municipios: 0, con: {}, total: {}}; d.municipios++;
+    sols.forEach(s => { const x = reg[s][p.codigo]; if (x && x.total > 0) { d.con[s] = (d.con[s] || 0) + 1; d.total[s] = (d.total[s] || 0) + x.total; } }); });
+  tabla('#tcobertura', [{t:'Departamento', f:d => `<b>${esc(d.nombre)}</b> <small>${esc(d.codigo)}</small>`}, {t:'Municipios (cantidad)', num:1, f:d => d.municipios}].concat(sols.map(s => ({t:`${s} (municipios con registros)`, f:d => { const n = d.con[s] || 0, pct = 100 * n / d.municipios;
+    return `<div class="barra" title="${num(pct)} %"><i style="width:${pct}%;background:${pct >= 100 ? 'var(--ok)' : pct > 0 ? '#f5a623' : 'var(--mal)'}"></i></div>${n} de ${d.municipios}${n ? ` · <small>${num(d.total[s])} registros</small>` : ' · <span class="etq mal">sin registros</span>'}`; }}))),
+    Object.values(deps).sort((a, b) => a.codigo.localeCompare(b.codigo)), 'Sin departamentos.');
+}
 async function hechos() {
+  cobertura().catch(e => aviso(e.message, true));
   tabla('#tavance', [{t:'Institución', f:f => esc(f.institucion)}, {t:'Solicitud', f:f => esc(f.solicitud)}, {t:'Envíos (archivos)', num:1, f:f => num(f.envios)}, {t:'Filas (registros)', num:1, f:f => num(f.filas)},
     {t:'Último envío', f:f => f.ultimo ? esc(f.ultimo) : '<span class="etq mal">sin envíos</span>'},
     {t:'Lugares resueltos', f:f => f.pct_resuelto == null ? '' : `<div class="barra" title="${num(f.pct_resuelto)} %"><i style="width:${f.pct_resuelto}%"></i></div>${num(f.pct_resuelto)} %`},
@@ -628,6 +642,23 @@ const TONOS = {azul:['#e8f1fb','#b9d6f5','#7fb3ea','#3f86d6','#0051b3'], naranja
 let mapa, capaMuni, capaEnlaces, capaLugares, capaBase, geoMuni, registros = {};
 // Nivel territorial del mapa: departamento, municipio o lugar poblado.
 let nivel = 'municipio', capaDep, geoDep, registrosDep = {}, capaNivelLugar, lugarDe = null;
+// Vista aislada: solo un departamento (con sus municipios) o solo un municipio; lo demás se atenúa.
+let aislado = null; // {tipo:'departamento'|'municipio', codigo, nombre}
+const dentro = p => !aislado || (aislado.tipo === 'departamento' ? p.departamento_codigo === aislado.codigo : p.codigo === aislado.codigo);
+function pintarMigas() {
+  $('#migas').innerHTML = aislado ? `Viendo solo: <b>${esc(aislado.nombre)}</b> <button class="accion chico suave" data-todo="1" style="margin:0 0 0 6px">✕ Ver todo el país</button>` : '';
+  document.querySelector('.leaflet-container')?.classList.toggle('aislado', !!aislado);
+}
+async function aislar(tipo, codigo, nombre) {
+  aislado = {tipo, codigo, nombre}; let limites = null;
+  if (tipo === 'departamento' && nivel === 'departamento') await cambiarNivel('municipio'); // un departamento se mira por sus municipios
+  capaMuni.eachLayer(c => { if (dentro(c.feature.properties)) limites = limites ? limites.extend(c.getBounds()) : L.latLngBounds(c.getBounds().getSouthWest(), c.getBounds().getNorthEast()); });
+  if (limites) mapa.fitBounds(limites, {padding:[20, 20]});
+  pintarMigas(); pintarMapa(); pintarPuntos();
+}
+function verTodo() { aislado = null; lugarDe = null; pintarMigas(); mapa.fitBounds((nivel === 'departamento' && capaDep ? capaDep : capaMuni).getBounds()); pintarMapa(); pintarPuntos(); }
+// En el nivel de lugares poblados, la vista aislada deja solo los puntos de ese territorio.
+function pintarPuntos() { if (!capaNivelLugar) return; capaNivelLugar.eachLayer(c => { const m = c.feature.properties.municipio, ve = !aislado || (aislado.tipo === 'departamento' ? m.slice(0, 2) === aislado.codigo : m === aislado.codigo); c.setStyle({fillOpacity: ve ? (c.options.stroke ? .95 : .6) : 0, opacity: ve ? 1 : 0}); }); }
 const suma = (ms, k) => ms.reduce((t, p) => t + (+p[k] || 0), 0);
 const ponderado = (ms, k, peso) => { const con = ms.filter(p => p[k] != null && +p[peso] > 0), w = suma(con, peso); return w ? con.reduce((t, p) => t + p[k] * p[peso], 0) / w : null; };
 const redondo = (x, d) => x == null || !isFinite(x) ? null : Math.round(x * 10 ** d) / 10 ** d;
@@ -662,7 +693,6 @@ async function cambiarNivel(n, enfocar) {
     const [todos, sueltos] = await Promise.all([fetch('/capas/lugares_poblados.geojson').then(x => x.json()), fetch('/capas/lugares_sin_conexion.geojson').then(x => x.ok ? x.json() : {features:[]})]);
     const estado = Object.fromEntries(sueltos.features.map(f => [f.properties.codigo, f.properties.conexion])), nombres = Object.fromEntries(geoMuni.features.map(f => [f.properties.codigo, f.properties]));
     // Panel propio, por encima de los polígonos, para que los puntos no queden tapados.
-    mapa.createPane('puntos').style.zIndex = 450;
     const lienzoCapa = L.canvas({padding:.3, pane:'puntos'});
     capaNivelLugar = L.geoJSON(todos, {pointToLayer:(f, ll) => { const e = estado[f.properties.codigo]; return L.circleMarker(ll, {renderer: lienzoCapa, radius: e ? 3.5 : 2.5, stroke: !!e, weight:.8, color:'#fff', fillColor: COLOR_CONEXION[e || 'conectado'], fillOpacity: e ? .95 : .6}); },
       onEachFeature:(f, c) => { const m = nombres[f.properties.municipio] || {}, e = estado[f.properties.codigo];
@@ -672,10 +702,10 @@ async function cambiarNivel(n, enfocar) {
   n === 'departamento' ? mapa.removeLayer(capaMuni) : capaMuni.addTo(mapa);
   if (n === 'lugar') capaNivelLugar.bringToFront();
   if (enfocar) mapa.fitBounds(enfocar.getBounds(), {maxZoom: 12}); else if (n === 'departamento') mapa.fitBounds(capaDep.getBounds());
-  if (!enfocar || n === 'departamento') lugarDe = null;
-  $('#migas').innerHTML = lugarDe ? `Guatemala › <b>${esc(lugarDe)}</b> · <a data-todo="1">ver todo el país</a>` : '';
-  pintarMapa();
+  if (n === 'departamento' && aislado?.tipo === 'municipio') aislado = null;
+  pintarMigas(); pintarMapa(); pintarPuntos();
 }
+const FUERA = {fillColor:'#eef1f4', fillOpacity:.35, color:'#dfe5eb', weight:.5};
 const COLOR_CONEXION = {conectado:'#0051b3', tramo_suelto:'#7a3fb5', sin_camino:'#d9730d'};
 function fichaDepartamento(p, capa) {
   const ms = municipiosDe(p.codigo), ind = indicadorActual(), orden = ms.map(m => [m, ind.f(m)]).filter(x => x[1] != null).sort((a, b) => b[1] - a[1]);
@@ -692,11 +722,11 @@ function fichaDepartamento(p, capa) {
     ${reg ? `<h3>Registros recibidos</h3><ul style="margin:0;padding-left:18px;font-size:13px">${reg}</ul>` : ''}
     <h3>${esc(ind.t || $('#indicador').selectedOptions[0].textContent)}: municipios de ${esc(p.nombre)}</h3>
     <div class="tabla" style="max-height:230px"><table><thead><tr><th scope="col">Municipio</th><th scope="col" class="num">${esc(ind.u)}</th></tr></thead><tbody>${orden.map(([m, v]) => `<tr class="clic" data-muni="${esc(m.codigo)}"><td>${esc(m.nombre)}</td><td class="num">${n(v)}</td></tr>`).join('') || '<tr><td colspan="2">Sin dato en sus municipios.</td></tr>'}</tbody></table></div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="accion chico" data-bajar="${esc(p.codigo)}" style="margin:0">Ver sus municipios en el mapa</button></div>`;
-  caja.querySelector('[data-bajar]').onclick = () => { lugarDe = p.nombre; cambiarNivel('municipio', capa); };
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="accion chico" data-bajar="${esc(p.codigo)}" style="margin:0">Ver solo este departamento, con sus municipios</button></div>`;
+  caja.querySelector('[data-bajar]').onclick = () => aislar('departamento', p.codigo, p.nombre).catch(x => aviso(x.message, true));
 }
 function capaDeMunicipio(codigo) { let hallada = null; capaMuni.eachLayer(c => { if (c.feature.properties.codigo === codigo) hallada = c; }); return hallada; }
-document.querySelector('.niveles').onclick = e => { const b = e.target.closest('button[data-n]'); if (b) cambiarNivel(b.dataset.n).catch(x => aviso(x.message, true)); if (e.target.closest('[data-todo]')) { lugarDe = null; $('#migas').innerHTML = ''; mapa.fitBounds(capaMuni.getBounds()); } };
+document.querySelector('.niveles').onclick = e => { const b = e.target.closest('button[data-n]'); if (b) cambiarNivel(b.dataset.n).catch(x => aviso(x.message, true)); if (e.target.closest('[data-todo]')) verTodo(); };
 // Desde la ficha de un departamento o el globo de un lugar poblado se abre la ficha del municipio.
 document.addEventListener('click', e => { const el = e.target.closest('[data-muni]'); if (!el || !geoMuni) return; e.preventDefault(); const f = geoMuni.features.find(x => x.properties.codigo === el.dataset.muni); if (f) { mapa.closePopup(); ficha(f.properties).catch(x => aviso(x.message, true)); } });
 // Cortes por cuantiles. Si muchos municipios valen cero, el cero es su propia clase.
@@ -714,7 +744,7 @@ function indicadorActual() {
 function pintarMapa() {
   if (!capaMuni) return;
   if (nivel === 'lugar') {
-    capaMuni.setStyle({fillColor:'#eef3f8', fillOpacity: capaBase && mapa.hasLayer(capaBase) ? .15 : 1, color:'#9fb3c8', weight:.7});
+    capaMuni.setStyle(f => dentro(f.properties) ? {fillColor:'#eef3f8', fillOpacity: capaBase && mapa.hasLayer(capaBase) ? .15 : 1, color:'#9fb3c8', weight:.7} : FUERA);
     const sueltos = suma(geoMuni.features.map(f => f.properties), 'lugares_en_tramo_suelto'), sin = suma(geoMuni.features.map(f => f.properties), 'lugares_sin_camino');
     $('#leyenda').innerHTML = `<span><i style="background:${COLOR_CONEXION.conectado}"></i>con conexión a la red vial mapeada</span><span><i style="background:${COLOR_CONEXION.tramo_suelto}"></i>en un tramo suelto (${num(sueltos)})</span><span><i style="background:${COLOR_CONEXION.sin_camino}"></i>sin camino mapeado a 500 m (${num(sin)})</span>`;
     $('#indnota').textContent = 'Cada punto es un lugar poblado del Censo 2018 (aldea, caserío, cantón, colonia…) en su centroide; el censo no publica su polígono. Toque un punto para ver su código y su conexión vial; acerque el mapa para distinguirlos.';
@@ -722,9 +752,10 @@ function pintarMapa() {
   }
   const capa = nivel === 'departamento' ? capaDep : capaMuni, geo = nivel === 'departamento' ? geoDep : geoMuni;
   if (!capa || !geo) return; // la capa del nivel todavía se está descargando
-  const ind = indicadorActual(), c = cortes(geo.features.map(f => ind.f(f.properties))), tonos = TONOS[ind.tonos].slice(-(c.length + 1));
+  const visibles = nivel === 'municipio' && aislado?.tipo === 'departamento' ? geo.features.filter(f => dentro(f.properties)) : geo.features; // las clases se calculan con lo que se está viendo
+  const ind = indicadorActual(), c = cortes(visibles.map(f => ind.f(f.properties))), tonos = TONOS[ind.tonos].slice(-(c.length + 1));
   const color = v => v == null || !isFinite(v) ? '#f1f3f5' : tonos[c.filter(x => v >= x).length];
-  capa.setStyle(f => ({fillColor: color(ind.f(f.properties)), fillOpacity: capaBase && mapa.hasLayer(capaBase) ? .65 : 1, color:'#fff', weight: nivel === 'departamento' ? 1 : .6}));
+  capa.setStyle(f => nivel === 'municipio' && !dentro(f.properties) ? FUERA : ({fillColor: color(ind.f(f.properties)), fillOpacity: capaBase && mapa.hasLayer(capaBase) ? .65 : 1, color:'#fff', weight: nivel === 'departamento' ? 1 : .6}));
   const n = x => Number(x).toLocaleString('es-GT', {maximumFractionDigits: ind.dec ?? 0});
   const rangos = c.length ? [c[0] <= 1 && (ind.dec ?? 0) === 0 ? '0' : `menos de ${n(c[0])}`].concat(c.map((x, i) => i + 1 < c.length ? `${n(x)} a ${n(c[i + 1])}` : `${n(x)} o más`)) : ['sin datos'];
   $('#leyenda').innerHTML = rangos.map((t, i) => `<span><i style="background:${tonos[i] || '#f1f3f5'}"></i>${esc(t)} ${esc(ind.u)}</span>`).join('') + '<span><i style="background:#f1f3f5"></i>sin dato</span>';
@@ -760,9 +791,9 @@ async function ficha(p) {
     ${a ? `<p class="nota" style="margin:4px 0">Proyección a ${a.anio_proyectado}: ${num(a.proyeccion)} ± ${num(a.proyeccion_margen)} ha · confianza <span class="etq clic ${a.confianza === 'alta' ? 'ok' : a.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(d.codigo)}">${esc(a.confianza)}</span></p>` : ''}
     ${reg ? `<h3>Registros recibidos</h3><ul style="margin:0;padding-left:18px;font-size:13px">${reg}</ul>` : ''}
     ${d.proveedores.length ? `<h3>Proveedores de construcción</h3><p class="nota" style="margin:0">${d.proveedores.slice(0, 6).map(esc).join(' · ')}${d.proveedores.length > 6 ? ` y ${d.proveedores.length - 6} más` : ''}</p>` : ''}
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="accion chico" data-det="${esc(d.codigo)}" style="margin:0">▶ Ver crecimiento</button><a class="accion chico suave" style="margin:0;text-decoration:none;display:inline-block;border-radius:7px;padding:4px 10px" href="/reporte?municipio=${esc(d.codigo)}" target="_blank" rel="noopener">Exportar reporte</a></div>`;
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="accion chico" data-det="${esc(d.codigo)}" style="margin:0">▶ Ver crecimiento</button><button class="accion chico suave" data-solo="${esc(d.codigo)}" data-nombre="${esc(d.nombre)}" style="margin:0">Ver solo este municipio</button><a class="accion chico suave" style="margin:0;text-decoration:none;display:inline-block;border-radius:7px;padding:4px 10px" href="/reporte?municipio=${esc(d.codigo)}" target="_blank" rel="noopener">Exportar reporte</a></div>`;
 }
-$('#ficha').onclick = e => { if (e.target.closest('.cerrar')) $('#ficha').hidden = true; const b = e.target.closest('[data-det]'); if (b) detalle(b.dataset.det).catch(x => aviso(x.message, true)); };
+$('#ficha').onclick = e => { if (e.target.closest('.cerrar')) $('#ficha').hidden = true; const solo = e.target.closest('[data-solo]'); if (solo) { aislar('municipio', solo.dataset.solo, solo.dataset.nombre).catch(x => aviso(x.message, true)); if (matchMedia('(max-width: 700px)').matches) $('#ficha').hidden = true; } const b = e.target.closest('[data-det]'); if (b) detalle(b.dataset.det).catch(x => aviso(x.message, true)); };
 
 // ---- Detalle: animación del crecimiento construido y estadísticos de la confianza ----
 let animacion = null;
@@ -808,6 +839,10 @@ $('#detalle').addEventListener('close', () => clearInterval(animacion));
 async function iniciarMapa() {
   if (mapa) { mapa.invalidateSize(); return; }
   mapa = L.map('lienzo', {zoomSnap:.25, attributionControl:true}).setView([15.7, -90.3], 7.25);
+  // Las capas que se encienden a mano van en paneles propios, siempre encima de los polígonos del nivel.
+  mapa.createPane('encima').style.zIndex = 440; mapa.createPane('puntos').style.zIndex = 450;
+  // Botón para volver a la vista de todo el país.
+  const inicio = L.control({position:'topleft'}); inicio.onAdd = () => { const d = L.DomUtil.create('div', 'leaflet-bar'); d.innerHTML = '<a href="#" role="button" id="volverpais" title="Volver a ver todo el país" aria-label="Volver a ver todo el país">⌂</a>'; L.DomEvent.disableClickPropagation(d); d.firstChild.onclick = e => { e.preventDefault(); e.stopPropagation(); verTodo(); }; return d; }; inicio.addTo(mapa);
   mapa.attributionControl.setPrefix('').addAttribution('Límites: CONRED/OCHA · Población y lugares: INE · Caminos: © colaboradores de OpenStreetMap');
   const [g, r] = await Promise.all([fetch('/capas/municipios.geojson').then(x => x.ok ? x.json() : null), api('/api/registros_municipio').catch(() => ({}))]);
   if (!g) { aviso('Este servidor no tiene la capa de municipios (se genera con "faro limites").', true); return; }
@@ -815,7 +850,7 @@ async function iniciarMapa() {
   $('#indicador').innerHTML = INDICADORES.map(i => `<option value="${i.id}">${esc(i.t)}</option>`).join('') +
     Object.keys(registros).map(s => `<option value="reg:${esc(s)}">Registros recibidos: ${esc(s)}</option><option value="reg:${esc(s)}:tasa">Registros por 100 mil hab.: ${esc(s)}</option>`).join('');
   capaMuni = L.geoJSON(g, {onEachFeature: (f, capa) => { capa.bindTooltip(`${f.properties.nombre}, ${f.properties.departamento}`, {sticky:true});
-    capa.on({click: () => ficha(f.properties).catch(x => aviso(x.message, true)), mouseover: () => capa.setStyle({weight:2.2, color:'#07306b'}), mouseout: () => capa.setStyle(nivel === 'lugar' ? {weight:.7, color:'#9fb3c8'} : {weight:.6, color:'#fff'})}); }}).addTo(mapa);
+    capa.on({click: () => ficha(f.properties).catch(x => aviso(x.message, true)), mouseover: () => capa.setStyle({weight:2.2, color:'#07306b'}), mouseout: () => capa.setStyle(!dentro(f.properties) ? FUERA : nivel === 'lugar' ? {weight:.7, color:'#9fb3c8'} : {weight:.6, color:'#fff'})}); }}).addTo(mapa);
   mapa.fitBounds(capaMuni.getBounds()); pintarMapa();
 }
 async function capaOpcional(marcada, actual, crear) { if (!mapa) return actual; if (!marcada) { if (actual) mapa.removeLayer(actual); return actual; } if (!actual) actual = await crear(); actual.addTo(mapa); return actual; }
@@ -823,8 +858,8 @@ $('#indicador').onchange = pintarMapa;
 $('#capaenlaces').onchange = async e => { capaEnlaces = await capaOpcional(e.target.checked, capaEnlaces, async () => {
   const [enl, ctx] = await Promise.all([fetch('/capas/red_vial_enlaces.geojson').then(x => x.json()), fetch('/capas/red_vial_contexto.geojson').then(x => x.ok ? x.json() : {type:'FeatureCollection', features:[]})]);
   // Primero los caminos ya mapeados (gris oscuro: red principal; morado: tramo suelto); encima, el enlace propuesto.
-  return L.layerGroup([L.geoJSON(ctx, {style: f => ({color: f.properties.red === 'principal' ? '#2f3b47' : '#7a3fb5', weight: f.properties.red === 'principal' ? 2.2 : 3, opacity:.9}), interactive:false}),
-    L.geoJSON(enl, {style:{color:'#d1242f', weight:4, dashArray:'6 6'}, onEachFeature:(f, c) => c.bindTooltip(`<b>Enlace probable</b> · hueco de ${f.properties.km < 1 ? num(f.properties.km * 1000) + ' m' : num(f.properties.km) + ' km'}<br>${COMO_ENLACE}`, {sticky:true, className:'tip-enlace', direction:'top'}).bindPopup(`<b>Enlace probable</b><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>Hueco de ${f.properties.km < 1 ? num(f.properties.km * 1000) + ' m' : num(f.properties.km) + ' km'} · uniría ${num(f.properties.tramo_km)} km de vías y ${f.properties.lugares} lugar(es)<br><small>${esc(f.properties.nombres)}</small><br><small>Gris: red principal · morado: tramo suelto · rojo punteado: enlace propuesto</small>`)})]);
+  return L.layerGroup([L.geoJSON(ctx, {pane:'encima', style: f => ({color: f.properties.red === 'principal' ? '#2f3b47' : '#7a3fb5', weight: f.properties.red === 'principal' ? 2.2 : 3, opacity:.9}), interactive:false}),
+    L.geoJSON(enl, {pane:'encima', style:{color:'#d1242f', weight:4, dashArray:'6 6'}, onEachFeature:(f, c) => c.bindTooltip(`<b>Enlace probable</b> · hueco de ${f.properties.km < 1 ? num(f.properties.km * 1000) + ' m' : num(f.properties.km) + ' km'}<br>${COMO_ENLACE}`, {sticky:true, className:'tip-enlace', direction:'top'}).bindPopup(`<b>Enlace probable</b><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>Hueco de ${f.properties.km < 1 ? num(f.properties.km * 1000) + ' m' : num(f.properties.km) + ' km'} · uniría ${num(f.properties.tramo_km)} km de vías y ${f.properties.lugares} lugar(es)<br><small>${esc(f.properties.nombres)}</small><br><small>Gris: red principal · morado: tramo suelto · rojo punteado: enlace propuesto</small>`)})]);
 }); };
 // Con qué se calcula un enlace probable (se muestra al pasar sobre la línea roja).
 const COMO_ENLACE = `<small><b>Cómo se calculó:</b> las vías de OpenStreetMap (exportación de HOT) se arman como un grafo: cada cruce es un nodo y los tramos que se tocan forman un componente (unión–búsqueda). El componente con más kilómetros es la red principal. Este tramo no se une a ella y tiene lugares poblados del Censo 2018 a 500 m o menos; la línea roja une los dos puntos más cercanos entre ese tramo y la red principal (se proponen huecos de hasta 5 km). Es una propuesta para verificar en campo o en imagen satelital: no es un camino confirmado.</small>`;
@@ -834,16 +869,16 @@ $('#capahuella').onchange = async e => { $('#huellactl').hidden = !e.target.chec
   capaHuella = await capaOpcional(e.target.checked, capaHuella, async () => {
     const lineas = (await (await fetch('/capas/superficie_construida_bloques.csv')).text()).trim().split(/\r?\n/), cab = lineas[0].split(',');
     bloquesPais = {epocas: cab.slice(3).map(c => c.replace('ha_', ''))}; $('#huellaanio').max = bloquesPais.epocas.length - 1; $('#huellaanio').value = bloquesPais.epocas.length - 1;
-    const lienzoCapa = L.canvas({padding:.3}), grupo = L.layerGroup(), dlat = 0.0045;
+    const lienzoCapa = L.canvas({padding:.3, pane:'encima'}), grupo = L.layerGroup(), dlat = 0.0045;
     lineas.slice(1).forEach(l => { const v = l.split(',').slice(1).map(Number), dlon = dlat / Math.cos(v[1] * Math.PI / 180); const c = L.rectangle([[v[1] - dlat, v[0] - dlon], [v[1] + dlat, v[0] + dlon]], {renderer: lienzoCapa, stroke:false, interactive:false}); c.datos = v; grupo.addLayer(c); });
     return grupo; });
   if (e.target.checked) pintarHuella(); };
 $('#huellaanio').oninput = () => { clearInterval(huellaTimer); $('#huellaplay').textContent = '▶ Animar'; pintarHuella(); };
 $('#huellaplay').onclick = () => { if (huellaTimer) { clearInterval(huellaTimer); huellaTimer = null; $('#huellaplay').textContent = '▶ Animar'; return; }
   $('#huellaplay').textContent = '❚❚ Pausa'; huellaTimer = setInterval(() => { const m = +$('#huellaanio').max; $('#huellaanio').value = (+$('#huellaanio').value + 1) % (m + 1); pintarHuella(); }, 900); };
-$('#capapoblados').onchange = async e => { capaPoblados = await capaOpcional(e.target.checked, capaPoblados, async () => { const lienzoCapa = L.canvas({padding:.3});
+$('#capapoblados').onchange = async e => { capaPoblados = await capaOpcional(e.target.checked, capaPoblados, async () => { const lienzoCapa = L.canvas({padding:.3, pane:'puntos'});
   return L.geoJSON(await (await fetch('/capas/lugares_poblados.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {renderer: lienzoCapa, radius:2, stroke:false, fillColor:'#07306b', fillOpacity:.55}), onEachFeature:(f, c) => c.bindTooltip(`${f.properties.nombre} · ${f.properties.codigo}`)}); }); };
-$('#capalugares').onchange = async e => { capaLugares = await capaOpcional(e.target.checked, capaLugares, async () => L.geoJSON(await (await fetch('/capas/lugares_sin_conexion.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {radius:4, weight:1, color:'#fff', fillOpacity:.9, fillColor: f.properties.conexion === 'sin_camino' ? '#b85c00' : '#7a3fb5'}), onEachFeature:(f, c) => c.bindPopup(`<b>${esc(f.properties.nombre)}</b> <small>${esc(f.properties.codigo)}</small><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>${f.properties.conexion === 'sin_camino' ? 'Sin camino mapeado cerca' + (f.properties.distancia_m ? ' (vía más cercana a ' + num(f.properties.distancia_m) + ' m)' : '') : 'En un tramo que no se une a la red principal'}`)})); };
+$('#capalugares').onchange = async e => { capaLugares = await capaOpcional(e.target.checked, capaLugares, async () => L.geoJSON(await (await fetch('/capas/lugares_sin_conexion.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {pane:'puntos', radius:4, weight:1, color:'#fff', fillOpacity:.9, fillColor: f.properties.conexion === 'sin_camino' ? '#b85c00' : '#7a3fb5'}), onEachFeature:(f, c) => c.bindPopup(`<b>${esc(f.properties.nombre)}</b> <small>${esc(f.properties.codigo)}</small><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>${f.properties.conexion === 'sin_camino' ? 'Sin camino mapeado cerca' + (f.properties.distancia_m ? ' (vía más cercana a ' + num(f.properties.distancia_m) + ' m)' : '') : 'En un tramo que no se une a la red principal'}`)})); };
 $('#capabase').onchange = async e => { capaBase = await capaOpcional(e.target.checked, capaBase, async () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:17, attribution:'© OpenStreetMap'})); if (capaBase && e.target.checked) capaBase.bringToBack(); pintarMapa(); };
 async function capasPublicadas() {
   const r = await (await fetch('/capas')).json();
@@ -1001,13 +1036,38 @@ $('#rubrobuscar').onclick = () => rubros(true).catch(x => aviso(x.message, true)
 $('#rubroq').onkeydown = e => { if (e.key === 'Enter') $('#rubrobuscar').click(); };
 $('#rubrosel').onchange = () => { $('#rubrotienda').value = ''; rubros(true).catch(x => aviso(x.message, true)); };
 $('#rubrotienda').onchange = () => $('#rubrobuscar').click();
+// ---- Gráfica grande de una serie mensual [[periodo 'AAAA-MM', valor], ...] ----
+function graficaGrande(serie, unidad) {
+  const W = 720, H = 320, ml = 56, mr = 16, mt = 14, mb = 34, ys = serie.map(p => p[1]), lo = Math.min(...ys), hi = Math.max(...ys), pad = (hi - lo) * .1 || 1, y0 = Math.max(0, lo - pad), y1 = hi + pad;
+  const X = i => ml + (W - ml - mr) * (serie.length === 1 ? .5 : i / (serie.length - 1)), Y = v => mt + (H - mt - mb) * (1 - (v - y0) / (y1 - y0));
+  const guias = [0, .25, .5, .75, 1].map(t => y0 + (y1 - y0) * t).map(v => `<line x1="${ml}" x2="${W - mr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#e3e8ee"/><text x="${ml - 6}" y="${Y(v) + 4}" font-size="11" fill="#5b6672" text-anchor="end">${unidad}${v.toFixed(2)}</text>`).join('');
+  // Una marca en el eje por cada enero (o por el primer punto).
+  const marcas = serie.map((p, i) => (i === 0 && !serie.slice(1, 4).some(x => String(x[0]).endsWith('-01'))) || String(p[0]).endsWith('-01') ? `<line x1="${X(i)}" x2="${X(i)}" y1="${H - mb}" y2="${H - mb + 5}" stroke="#8a96a3"/><text x="${X(i)}" y="${H - mb + 18}" font-size="11" fill="#5b6672" text-anchor="${i === 0 ? 'start' : 'middle'}">${esc(String(p[0]).endsWith('-01') ? String(p[0]).slice(0, 4) : p[0])}</text>` : '').join('');
+  const imax = ys.indexOf(hi), imin = ys.indexOf(lo), punto = (i, color) => `<circle cx="${X(i)}" cy="${Y(ys[i])}" r="4.5" fill="${color}" stroke="#fff" stroke-width="1.5"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Histórico de ${serie[0][0]} a ${serie[serie.length - 1][0]}" style="width:100%;height:auto">${guias}${marcas}
+    <polygon fill="#0051b3" opacity=".08" points="${X(0)},${H - mb} ${serie.map((p, i) => X(i) + ',' + Y(p[1])).join(' ')} ${X(serie.length - 1)},${H - mb}"/>
+    <polyline fill="none" stroke="#0051b3" stroke-width="2.2" points="${serie.map((p, i) => X(i) + ',' + Y(p[1])).join(' ')}"/>
+    ${punto(imin, '#1a7f4b')}${punto(imax, '#b3261e')}${punto(serie.length - 1, '#0051b3')}
+    ${serie.map((p, i) => `<circle cx="${X(i)}" cy="${Y(p[1])}" r="7" fill="transparent"><title>${esc(p[0])}: ${unidad}${Number(p[1]).toFixed(2)}</title></circle>`).join('')}</svg>`;
+}
+let datosCanasta = null;
+$('#tcanasta').onclick = e => { const b = e.target.closest('button[data-serie]'); if (!b || !datosCanasta) return; const f = datosCanasta.productos.find(x => x.producto === b.dataset.serie); if (!f) return;
+  const s = f.serie, ys = s.map(p => p[1]), hi = Math.max(...ys), lo = Math.min(...ys), pri = s[0], ult = s[s.length - 1], hace12 = s[s.length - 13];
+  $('#detcuerpo').innerHTML = `<h2 id="dettitulo" style="margin-right:36px">${esc(f.producto)}: precio promedio del INE</h2><p class="nota" style="margin:0 0 8px">Serie mensual de ${esc(pri[0])} a ${esc(ult[0])} (${s.length} meses), en quetzales. Fuente: INE, precios promedio de la canasta básica alimentaria. Pase el cursor sobre la línea para ver cada mes.</p>
+    ${graficaGrande(s, 'Q')}
+    <div class="mini" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))"><div><b>${q(ult[1])}</b><small>último (${esc(ult[0])})</small></div><div><b style="color:var(--mal)">${q(hi)}</b><small>máximo (${esc(s[ys.indexOf(hi)][0])})</small></div><div><b style="color:var(--ok)">${q(lo)}</b><small>mínimo (${esc(s[ys.indexOf(lo)][0])})</small></div>
+      <div><b>${pri[1] > 0 ? (ult[1] / pri[1] > 1 ? '+' : '') + num((ult[1] / pri[1] - 1) * 100) + ' %' : '—'}</b><small>en toda la serie</small></div><div><b>${hace12 && hace12[1] > 0 ? (ult[1] / hace12[1] > 1 ? '+' : '') + num((ult[1] / hace12[1] - 1) * 100) + ' %' : '—'}</b><small>en los últimos 12 meses</small></div></div>
+    <details class="como"><summary>Ver los ${s.length} valores</summary><div class="tabla" style="max-height:220px;margin-top:8px"><table><thead><tr><th scope="col">Mes</th><th scope="col" class="num">Precio promedio (Q)</th><th scope="col" class="num">Cambio mensual (%)</th></tr></thead><tbody>${s.map((p, i) => `<tr><td>${esc(p[0])}</td><td class="num">${Number(p[1]).toFixed(2)}</td><td class="num">${i && s[i - 1][1] > 0 ? ((p[1] / s[i - 1][1] - 1) * 100).toFixed(1) : ''}</td></tr>`).reverse().join('')}</tbody></table></div></details>`;
+  clearInterval(animacion);
+  if (!$('#detalle').open) $('#detalle').showModal(); };
 // ---- Canasta básica ----
 async function canasta() {
   const r = await api('/api/canasta');
   if (!r.disponible) { $('#canastainfo').textContent = 'Este servidor no tiene cargada la canasta básica (se genera con "faro canasta").'; return; }
   $('#canastainfo').textContent = `Precio promedio del INE a ${r.periodo} (serie desde ${r.desde}). Precios publicados por tiendas: ${num(r.observados)}${r.observados ? '' : ' — active el muestreo de alimentos en "Muestreos automáticos" para llenarlos'}.`;
+  datosCanasta = r;
   tabla('#tcanasta', [{t:'Producto de la canasta', f:f => `<b>${esc(f.producto)}</b>`}, {t:`Precio promedio INE (Q, ${r.periodo})`, num:1, f:f => `<b>${q(f.precio_ine)}</b>`},
-    {t:'En un año', num:1, f:f => f.variacion_pct == null ? '' : `${f.variacion_pct > 0 ? '+' : ''}${num(f.variacion_pct)} %`}, {t:`Serie ${r.desde} a ${r.periodo} (Q)`, f:f => mini(f.serie.map(p => [p[0], p[1]]), {unidad:'Q'}).replace('<svg ', '<svg style="width:170px" ')},
+    {t:'En un año', num:1, f:f => f.variacion_pct == null ? '' : `${f.variacion_pct > 0 ? '+' : ''}${num(f.variacion_pct)} %`}, {t:`Serie ${r.desde} a ${r.periodo} (Q)`, f:f => `<button class="ampliar" data-serie="${esc(f.producto)}" title="Ampliar el histórico de ${esc(f.producto)}" aria-label="Ampliar el histórico de precios de ${esc(f.producto)}">${mini(f.serie.map(p => [p[0], p[1]]), {unidad:'Q'}).replace('<svg ', '<svg style="width:170px" ')}<small>⤢ ampliar</small></button>`},
     {t:'Publicados por tiendas (Q, presentación de la tienda)', f:f => f.ofertas.length ? f.ofertas.slice(0, 4).map(o => `<a href="${esc(o.url)}" target="_blank" rel="noopener">${esc(o.producto)}</a> <b>${q(o.precio)}</b> <small>${esc(o.proveedor)} · ${esc(o.fecha)}</small>`).join('<br>') + (f.publicados > 4 ? `<br><small>y ${f.publicados - 4} más</small>` : '') : '<small>sin muestreo todavía</small>'}], r.productos, 'Sin datos.');
 }
 // ---- Tabla de códigos ----
@@ -1018,8 +1078,14 @@ $('#subirtabla').onclick = async () => {
   catch (x) { aviso(x.message, true); } };
 // ---- Enlace vial: verlo en el mapa ----
 $('#tvialenl').onclick = async e => { const b = e.target.closest('button[data-ver]'); if (!b) return; const [lon, lat] = b.dataset.ver.split(',').map(Number);
-  document.querySelector('nav button[data-s=mapa]').click(); await iniciarMapa(); if (!$('#capaenlaces').checked) { $('#capaenlaces').checked = true; await $('#capaenlaces').onchange({target: $('#capaenlaces')}); }
-  setTimeout(() => { mapa.invalidateSize(); mapa.setView([lat, lon], 14); }, 150); };
+  document.querySelector('nav button[data-s=mapa]').click(); await iniciarMapa();
+  // Se pasa al nivel de municipios sin aislar nada y se enciende la capa de enlaces.
+  aislado = null; if (nivel !== 'municipio') await cambiarNivel('municipio');
+  $('#capaenlaces').checked = true; await $('#capaenlaces').onchange({target: $('#capaenlaces')});
+  setTimeout(() => { mapa.invalidateSize(); mapa.setView([lat, lon], 14);
+    // Se abre la explicación del enlace elegido (el que empieza en ese punto).
+    capaEnlaces.eachLayer(g => g.eachLayer(c => { const k = c.feature?.geometry?.coordinates?.[0]; if (c.getPopup && c.getPopup() && k && Math.abs(k[0] - lon) < 1e-4 && Math.abs(k[1] - lat) < 1e-4) c.openPopup(); })); }, 200);
+  $('#lienzo').scrollIntoView({block:'center'}); };
 // ---- Sesión ----
 let yo = null;
 const ROL = {admin:'Administrador', analista:'Analista', consulta:'Consulta'};

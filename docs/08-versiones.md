@@ -2,6 +2,21 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.11.0 · 24-nov-2026
+- Catálogos a tope: se recorren las subcategorías (sin el límite de 2,500 por consulta) y todas
+  las categorías de los supermercados. Lecturas nuevas para tiendas Shopify y WooCommerce.
+  Tiendas nuevas: Farmacias Batres, Intelaf, Click, iShop, Macrosistemas, Kalea y Ferco (26 tareas).
+- Levantamiento ampliado: 85,856 precios de 18 tiendas; 16,314 productos de supermercado con el
+  mismo código de barras en dos o más tiendas. El servidor lo recarga solo si la tabla cambia.
+- Mapa: botón para volver a todo el país; vista aislada de un departamento o de un municipio;
+  las capas encendidas a mano quedan siempre encima. "Ver en el mapa" (red vial) enciende la capa
+  de enlaces y abre la explicación del enlace elegido.
+- Canasta básica: el histórico de cada producto se amplía (gráfica con ejes, máximo, mínimo,
+  variaciones y tabla de valores).
+- Pendientes: pista de qué podría ser un código inexistente (catálogo de países y edades del
+  diccionario de estadísticas vitales del INE).
+- Resultados: cobertura de la recepción por departamento (22 delegaciones).
+
 ## v0.10.0 · 24-nov-2026
 - Muestreos: tres lecturas nuevas (catálogo por categorías con código de barras y precio de lista,
   mapa del sitio con datos estructurados, listado paginado) y 16 tareas más: supermercados

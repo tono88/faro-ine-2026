@@ -34,6 +34,9 @@ pub struct Tarea {
     /// `sitemap`: texto que distingue las páginas de producto.
     #[serde(default = "patron_producto")]
     pub patron: String,
+    /// Tope de consultas por corrida (por omisión 400; nunca más de 3,000).
+    #[serde(default = "consultas_por_omision")]
+    pub max_consultas: usize,
     /// `magento`: dirección del listado de productos (se le agrega `?p=N`).
     #[serde(default)]
     pub listado: Option<String>,
@@ -46,6 +49,9 @@ pub struct Tarea {
     /// Las tareas vienen apagadas: las enciende una persona.
     #[serde(default)]
     pub activa: bool,
+}
+fn consultas_por_omision() -> usize {
+    400
 }
 fn patron_producto() -> String {
     "/producto/".into()
@@ -74,8 +80,8 @@ pub fn cargar_tareas(ruta: &Path) -> Result<Vec<Tarea>, String> {
             "vtex" if t.terminos.is_empty() => Some("terminos"),
             "sitemap" if !t.sitemap.as_deref().is_some_and(|u| u.starts_with("https://")) => Some("sitemap (https)"),
             "magento" if !t.listado.as_deref().is_some_and(|u| u.starts_with("https://")) => Some("listado (https)"),
-            "vtex" | "vtex-catalogo" | "sitemap" | "magento" => None,
-            otro => return Err(format!("tarea {}: tipo {otro:?} no admitido (vtex, vtex-catalogo, sitemap o magento)", t.id)),
+            "vtex" | "vtex-catalogo" | "sitemap" | "magento" | "shopify" | "woocommerce" => None,
+            otro => return Err(format!("tarea {}: tipo {otro:?} no admitido (vtex, vtex-catalogo, sitemap, magento, shopify o woocommerce)", t.id)),
         };
         if let Some(campo) = falta {
             return Err(format!("tarea {}: falta {campo}", t.id));
@@ -190,8 +196,52 @@ pub fn ofertas_de_listado_magento(html: &str) -> Vec<Oferta> {
     }).collect()
 }
 
+/// Productos de una página del catálogo público de una tienda Shopify (`/products.json`).
+pub fn ofertas_shopify(respuesta: &Value, base: &str) -> Vec<Oferta> {
+    let numero = |v: &Value| v.as_str().and_then(|t| t.parse::<f64>().ok()).or_else(|| v.as_f64());
+    respuesta["products"].as_array().into_iter().flatten().filter_map(|p| {
+        let v = p["variants"].as_array()?.first()?;
+        let precio = numero(&v["price"]).filter(|x| *x > 0.0)?;
+        let codigo = v["barcode"].as_str().unwrap_or("").trim();
+        Some(Oferta {
+            producto: p["title"].as_str()?.split_whitespace().collect::<Vec<_>>().join(" "),
+            marca: p["vendor"].as_str().unwrap_or("").to_string(),
+            precio,
+            unidad: String::new(),
+            url: format!("{base}/products/{}", p["handle"].as_str()?),
+            termino: p["product_type"].as_str().unwrap_or("").to_string(),
+            ean: if codigo.len() >= 8 && codigo.chars().all(|c| c.is_ascii_digit()) { codigo.to_string() } else { String::new() },
+            precio_lista: numero(&v["compare_at_price"]).filter(|l| *l > precio),
+        })
+    }).collect()
+}
+
+/// Productos de una página de la API pública de tienda de WooCommerce (`/wp-json/wc/store/v1/products`).
+/// Los precios vienen como enteros con los decimales corridos (`currency_minor_unit`).
+pub fn ofertas_woocommerce(respuesta: &Value) -> Vec<Oferta> {
+    respuesta.as_array().into_iter().flatten().filter_map(|p| {
+        let precios = &p["prices"];
+        let divisor = 10f64.powi(precios["currency_minor_unit"].as_i64().unwrap_or(2) as i32);
+        let numero = |v: &Value| v.as_str().and_then(|t| t.parse::<f64>().ok()).map(|x| x / divisor);
+        let precio = numero(&precios["price"]).filter(|x| *x > 0.0)?;
+        Some(Oferta {
+            producto: p["name"].as_str()?.replace("&amp;", "&").replace("&#8211;", "–").replace("&quot;", "\"").split_whitespace().collect::<Vec<_>>().join(" "),
+            marca: String::new(),
+            precio,
+            unidad: String::new(),
+            url: p["permalink"].as_str()?.to_string(),
+            termino: p["categories"][0]["name"].as_str().unwrap_or("").replace("&amp;", "&"),
+            ean: String::new(),
+            precio_lista: numero(&precios["regular_price"]).filter(|l| *l > precio),
+        })
+    }).collect()
+}
+
+/// Desde este valor un "precio" publicado se toma como relleno y se descarta.
+const PRECIO_DE_RELLENO: f64 = 999_999.0;
+
 /// Máximo de consultas que hace una tarea en una corrida, sea cual sea su configuración.
-const MAX_CONSULTAS: usize = 400;
+const MAX_CONSULTAS: usize = 3000;
 
 /// Ejecuta una tarea con pausas entre consultas. Devuelve las ofertas y una bitácora breve.
 pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
@@ -199,7 +249,7 @@ pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
     let (mut ofertas, mut bitacora): (Vec<Oferta>, Vec<String>) = (Vec::new(), Vec::new());
     let mut consultas = 0usize;
     let mut pedir = |url: &str| -> Result<String, String> {
-        if consultas >= MAX_CONSULTAS {
+        if consultas >= tarea.max_consultas.clamp(1, MAX_CONSULTAS) {
             return Err("se alcanzó el máximo de consultas por corrida".into());
         }
         if consultas > 0 {
@@ -224,32 +274,44 @@ pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
                 }
             }
         }
-        "vtex-catalogo" => match pedir(&format!("{}/api/catalog_system/pub/category/tree/1", tarea.base)).and_then(json) {
+        "vtex-catalogo" => match pedir(&format!("{}/api/catalog_system/pub/category/tree/2", tarea.base)).and_then(json) {
             Err(e) => bitacora.push(format!("categorías: no respondió ({e})")),
             Ok(arbol) => {
                 // Las tiendas escriben la misma categoría con y sin tildes o mayúsculas.
                 let plano = |t: &str| t.to_lowercase().chars().map(|c| match c { 'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' | 'ü' => 'u', o => o }).collect::<String>();
                 let quiere = |nombre: &str| tarea.categorias.is_empty() || tarea.categorias.iter().any(|c| plano(nombre).contains(&plano(c)));
-                let categorias: Vec<(i64, String)> = arbol.as_array().into_iter().flatten().filter_map(|c| Some((c["id"].as_i64()?, c["name"].as_str()?.to_string()))).filter(|(_, n)| quiere(n)).collect();
+                // Cada categoría de primer nivel se recorre por sus subcategorías: la tienda no entrega
+                // más allá del producto 2,500 de una misma consulta, y así no se pierde nada.
+                let categorias: Vec<(String, Vec<String>)> = arbol.as_array().into_iter().flatten().filter_map(|c| {
+                    let (id, nombre) = (c["id"].as_i64()?, c["name"].as_str()?.to_string());
+                    let hijas: Vec<String> = c["children"].as_array().into_iter().flatten().filter_map(|h| Some(format!("{id}/{}", h["id"].as_i64()?))).collect();
+                    Some((nombre, if hijas.is_empty() { vec![id.to_string()] } else { hijas }))
+                }).filter(|(n, _)| quiere(n)).collect();
                 let por_categoria = (tarea.max_resultados.max(50) / categorias.len().max(1)).max(50);
-                for (id, nombre) in &categorias {
+                'categorias: for (nombre, rutas) in &categorias {
                     let mut de_esta = 0;
-                    // El catálogo se pagina de 50 en 50; la tienda no entrega más allá del producto 2,500.
-                    for desde in (0..por_categoria.min(2500)).step_by(50) {
-                        let url = format!("{}/api/catalog_system/pub/products/search?fq=C:/{id}/&_from={desde}&_to={}", tarea.base, desde + 49);
-                        match pedir(&url).and_then(json) {
-                            Ok(v) => {
-                                let recibidos = v.as_array().map_or(0, Vec::len);
-                                let halladas = ofertas_vtex(&v, nombre);
-                                de_esta += halladas.len();
-                                ofertas.extend(halladas);
-                                if recibidos < 50 {
-                                    break;
-                                }
-                            }
-                            Err(e) => {
-                                bitacora.push(format!("{nombre}: se interrumpió ({e})"));
+                    for ruta in rutas {
+                        for desde in (0..2500).step_by(50) {
+                            if de_esta >= por_categoria {
                                 break;
+                            }
+                            let url = format!("{}/api/catalog_system/pub/products/search?fq=C:/{ruta}/&_from={desde}&_to={}", tarea.base, desde + 49);
+                            match pedir(&url).and_then(json) {
+                                Ok(v) => {
+                                    let recibidos = v.as_array().map_or(0, Vec::len);
+                                    let halladas = ofertas_vtex(&v, nombre);
+                                    de_esta += halladas.len();
+                                    ofertas.extend(halladas);
+                                    if recibidos < 50 {
+                                        break;
+                                    }
+                                }
+                                Err(e) if e.contains("máximo de consultas") => {
+                                    bitacora.push(format!("{nombre}: {de_esta} (se alcanzó el máximo de consultas)"));
+                                    break 'categorias;
+                                }
+                                // Una subcategoría que falla no detiene las demás.
+                                Err(_) => break,
                             }
                         }
                     }
@@ -315,7 +377,33 @@ pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
             }
             bitacora.push(format!("listado: {} productos", ofertas.len()));
         }
+        "shopify" | "woocommerce" => {
+            let (por_pagina, shopify) = if tarea.tipo == "shopify" { (250, true) } else { (100, false) };
+            for pagina in 1..=(tarea.max_resultados / por_pagina).max(1) {
+                let url = if shopify { format!("{}/products.json?limit=250&page={pagina}", tarea.base) } else { format!("{}/wp-json/wc/store/v1/products?per_page=100&page={pagina}", tarea.base) };
+                match pedir(&url).and_then(json) {
+                    Ok(v) => {
+                        let recibidos = if shopify { v["products"].as_array().map_or(0, Vec::len) } else { v.as_array().map_or(0, Vec::len) };
+                        ofertas.extend(if shopify { ofertas_shopify(&v, &tarea.base) } else { ofertas_woocommerce(&v) });
+                        if recibidos < por_pagina {
+                            break;
+                        }
+                    }
+                    Err(e) => {
+                        bitacora.push(format!("página {pagina}: no respondió ({e})"));
+                        break;
+                    }
+                }
+            }
+            bitacora.push(format!("catálogo: {} productos con precio", ofertas.len()));
+        }
         otro => bitacora.push(format!("tipo {otro:?} no admitido")),
+    }
+    // Algunas tiendas publican 9,999,999 como precio de relleno de un producto no disponible: no es un precio.
+    let antes = ofertas.len();
+    ofertas.retain(|o| o.precio < PRECIO_DE_RELLENO);
+    if ofertas.len() < antes {
+        bitacora.push(format!("{} con precio de relleno, descartados", antes - ofertas.len()));
     }
     // Un mismo producto puede salir en dos categorías o páginas: se deja una vez.
     let mut vistos = std::collections::HashSet::new();
@@ -368,6 +456,18 @@ mod pruebas {
         let o = ofertas_de_listado_magento(listado);
         assert_eq!(o.len(), 1);
         assert_eq!((o[0].producto.as_str(), o[0].precio, o[0].url.as_str()), ("Toma RJ11 blanco", 18.95, "https://t.example/toma-rj11.html"));
+    }
+
+    #[test]
+    fn lee_catalogos_shopify_y_woocommerce() {
+        let s: Value = serde_json::from_str(r#"{"products":[{"title":"Audífonos  X","vendor":"JBL","handle":"audifonos-x","product_type":"Audio","variants":[{"price":"2399.00","compare_at_price":"2999.00","barcode":"050036394437"}]},
+            {"title":"Sin precio","handle":"sin","variants":[{"price":"0.00"}]}]}"#).unwrap();
+        let o = ofertas_shopify(&s, "https://t.example");
+        assert_eq!(o.len(), 1);
+        assert_eq!((o[0].producto.as_str(), o[0].precio, o[0].precio_lista, o[0].url.as_str(), o[0].ean.as_str()), ("Audífonos X", 2399.0, Some(2999.0), "https://t.example/products/audifonos-x", "050036394437"));
+        let w: Value = serde_json::from_str(r#"[{"name":"Laptop HP 15 &amp; funda","permalink":"https://m.example/producto/laptop","prices":{"price":"405500","regular_price":"450000","currency_minor_unit":2},"categories":[{"name":"Laptops"}]}]"#).unwrap();
+        let o = ofertas_woocommerce(&w);
+        assert_eq!((o[0].producto.as_str(), o[0].precio, o[0].precio_lista, o[0].termino.as_str()), ("Laptop HP 15 & funda", 4055.0, Some(4500.0), "Laptops"));
     }
 
     #[test]

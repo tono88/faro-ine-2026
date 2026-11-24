@@ -69,3 +69,11 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - Para probar "cambios" se insertaron filas con fecha anterior en la base temporal (tarea `prueba-temporal`); no van al repositorio.
 - Guiones: `.faro/pruebas/movil_y_niveles.js` (390 px, desbordes, niveles) y `precios_por_rubro.js`.
 - Ideas pendientes: bajar a subcategorías VTEX para pasar el tope de 2,500 por categoría; avance de recepción por departamento; kemik.gt responde 403.
+
+## Bloque v0.11.0 (24-nov, noche)
+- La descarga `/api/publicados.csv` tenía tope de 50,000 filas y cortó el levantamiento; se exporta con `\copy` desde la base temporal (consulta en el historial de este bloque) y el tope subió a 300,000.
+- Para levantar sin esperar horas: copia de `muestreos.toml` con `max_resultados = 450` en las tareas `sitemap` (`FARO_MUESTREOS=/tmp/...`). Con el tope real (3,000 páginas a ~4 s) cada farmacia tarda más de 3 horas.
+- Walmart a tope: 30,055 productos, ~35 min. No reiniciar el servidor que muestrea: usar otro puerto para probar la pantalla (misma base).
+- Para probar pistas y cobertura sin archivos reales: filas `PRUEBA` en `pendientes`/`envios` de la base temporal (se borran) y `page.route` en Playwright.
+- Guion nuevo: `.faro/pruebas/mapa_aislar_y_canasta.js`.
+- Release: `gh release create` exige el SHA completo o una rama en `--target` (el corto da 422).

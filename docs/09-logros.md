@@ -84,18 +84,26 @@ y cómo repetirlo.
 
 ## Precios publicados por rubro
 
-10a. **26,976 precios publicados por 11 tiendas en seis rubros, leídos por el propio portal** el
-    24-nov-2026 (supermercado 12,330; ferretería 8,278; tecnología 3,107; hogar 2,050; farmacia
-    1,100; vehículos 111). Cada precio guarda la dirección de su página y la fecha.
+10a. **85,856 precios publicados por 18 tiendas en seis rubros, leídos por el propio portal** el
+    24-nov-2026 (supermercado 63,920; ferretería 9,167; tecnología 7,886; hogar 2,574; farmacia
+    2,198; vehículos 111). Cada precio guarda la dirección de su página y la fecha.
 10b. **El código de barras permite comparar el mismo producto entre tiendas sin interpretar nombres.**
-    En supermercados, 3,137 productos aparecen con el mismo código en dos o más tiendas y 505 en las
-    cuatro (Walmart, Paiz, Maxi Despensa, La Torre). En 717 el precio es idéntico; la diferencia
-    mediana entre la tienda más cara y la más barata es 4.6 %, y en 665 productos es de 15 % o más.
-    Es la misma regla del núcleo —coincidencia exacta o decide una persona— aplicada a precios.
+    En supermercados, 16,314 productos aparecen con el mismo código en dos o más tiendas y 1,750 en
+    las cuatro (Walmart, Paiz, Maxi Despensa, La Torre). En 6,569 el precio es idéntico; la
+    diferencia mediana entre la tienda más cara y la más barata es 1.6 %, y en 2,764 productos es
+    de 15 % o más. Es la misma regla del núcleo —coincidencia exacta o decide una persona—
+    aplicada a precios.
     Tabla: [`datos/referencia/precios_publicados.csv`](../datos/referencia/precios_publicados.csv).
     Repetir: sección "Muestreos automáticos" → "Ejecutar ahora".
 10c. **Tres supermercados conocidos no publican catálogo con precios** (Suma, Super del Barrio,
     Mi Super Fresh: solo páginas informativas) y PriceSmart exige navegador con sesión; no se muestrean.
+
+10d. **Los códigos "de municipio" que RENAP envía y no existen coinciden con otros catálogos del INE.**
+    No hay tabla pública de identificadores propios de RENAP (se buscó en RENAP, INE y repositorios
+    abiertos). En cambio, el diccionario de estadísticas vitales del INE muestra que 608 y 643 son
+    países (Filipinas, Rusia) y que 34, 36, 37 y 42 son edades válidas de la madre: lo más probable
+    es que las columnas del archivo estén corridas o mal rotuladas. El portal ahora lo señala como
+    pista junto a cada código inexistente; la confirmación requiere el archivo real o una consulta a RENAP.
 
 ## Operadores de campo (necesidad planteada por la Gerencia)
 
