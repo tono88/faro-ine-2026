@@ -220,17 +220,39 @@ En el propio portal:
 
 La lista completa, con la evidencia de cada uno, está en [`docs/09-logros.md`](docs/09-logros.md).
 
-## Levantarlo con Docker
+## Cómo desplegarlo
+
+Necesita [Git](https://git-scm.com) y [Docker](https://docs.docker.com/get-docker/) con Docker
+Compose (viene incluido en Docker Desktop). No hace falta instalar nada más.
+
+**1. Clone el repositorio y entre a su carpeta.**
+
+```bash
+git clone https://github.com/tono88/faro-ine-2026.git
+```
+
+```bash
+cd faro-ine-2026
+```
+
+**2. Cree su archivo de configuración.**
 
 ```bash
 cp .env.example .env
 ```
 
-Cambie las tres claves de `.env` y después:
+Abra `.env` y cambie las tres claves (`POSTGRES_PASSWORD`, `FARO_TOKEN` y `FARO_SAL`) por valores
+propios. En Windows, `iniciar.bat` hace los pasos 2 y 3 y genera las claves.
+
+**3. Construya y levante el portal.**
 
 ```bash
 docker compose up -d --build
 ```
+
+La primera vez tarda varios minutos, porque compila el programa. Las siguientes arranca en segundos.
+
+**4. Entre al portal.**
 
 Abra <http://localhost:8082>.
 
@@ -264,42 +286,33 @@ Configuración (archivo `.env`):
 **Para el trabajo de campo el portal debe publicarse con HTTPS**: los teléfonos solo entregan su
 posición a páginas seguras. Instalación paso a paso: [`docs/15`](docs/15-instalacion-y-dependencias.md).
 
-## Probarlo sin Docker
-
-Requiere [Rust](https://rustup.rs) estable y, para el servidor, PostgreSQL 16.
+Para detenerlo:
 
 ```bash
-cargo test
+docker compose down
+```
+
+Para actualizarlo a la última versión:
+
+```bash
+git pull
 ```
 
 ```bash
-cargo build --release
+docker compose up -d --build
 ```
 
-Algunos comandos de la línea de comandos (no necesitan base de datos):
+Para usar la línea de comandos sin instalar nada (por ejemplo, volver a calcular las verificaciones):
 
 ```bash
-./target/release/faro recibir --solicitud datos/ejemplos/solicitud_hechos_transito.toml --entrada datos/ejemplos/envio_hechos_transito.csv --salida salida
+docker compose exec faro faro --help
 ```
 
-```bash
-./target/release/faro verificar
-```
-
-`faro --help` lista todos: `recibir`, `confirmar`, `fuentes`, `catalogo`, `poblacion`, `edades`,
-`censo-lugares`, `censo-indicadores`, `limites`, `construido`, `uso-suelo`, `vial`, `asignar`,
-`precios`, `ipmc`, `construccion`, `canasta`, `hba`, `cif`, `talla`, `fotos`, `fachadas`,
-`verificar`, `mejoras` y `citas`.
-
-Servidor:
-
-```bash
-DATABASE_URL="host=localhost user=faro password=... dbname=faro" FARO_TOKEN=... FARO_SAL=... ./target/release/faro-servidor
-```
+Quien quiera compilarlo sin Docker encuentra los pasos en [`docs/15`](docs/15-instalacion-y-dependencias.md).
 
 ## Cómo se comprueba
 
-- **`cargo test`**: 93 pruebas de las reglas (homologación, recepción, curvas, rutas, cruce de visitas).
+- **Pruebas automáticas** (`cargo test`, para quien compile el código): 93 pruebas de las reglas (homologación, recepción, curvas, rutas, cruce de visitas).
 - **`faro verificar`** vuelve a calcular las cifras y escribe [`docs/19`](docs/19-verificacion-estadistica.md):
   consistencia de las tablas, prueba hacia atrás de las proyecciones, curvas de población,
   intervalos de confianza, umbrales de precios.
