@@ -46,6 +46,7 @@
   <button role="tab" data-s="ine">Portal INE</button>
   <button role="tab" data-s="crecimiento">Crecimiento urbano</button>
   <button role="tab" data-s="operadores">Operadores de campo</button>
+  <button role="tab" data-s="precios">Precios de referencia</button>
 </nav>
 <main>
   <div class="tarjetas" id="tarjetas" aria-live="polite"></div>
@@ -116,6 +117,17 @@
       <button class="accion chico" id="asigcsv">Descargar CSV</button>
       <div class="tabla" style="margin-top:12px"><table id="tasig"></table></div>
     </div>
+  </section>
+
+  <section id="precios">
+    <div class="panel">
+      <h2>Precio de referencia a partir de cotizaciones</h2>
+      <p class="nota">Calcula media, mediana y moda por producto y elige como lo explica la Dirección de Precios e Índices de Referencia: mediana si hay precios extremos, media si los precios son parecidos. Avisa si menos de la mitad de las fuentes son cotizaciones directas o si se mezclan unidades. Las cotizaciones no se guardan. Para probar: <a href="/ejemplos/cotizaciones_ficticias.csv">cotizaciones de ejemplo (ficticias)</a>.</p>
+      <label for="csvprecios">Cotizaciones (CSV: producto, precio, fuente, tipo_fuente, unidad)</label><input type="file" id="csvprecios" accept=".csv">
+      <p class="nota"><code>tipo_fuente</code>: <code>primaria</code> (cotización directa de un proveedor) o <code>secundaria</code> (históricos de Guatecompras, catálogos en línea).</p>
+      <button class="accion" id="calcprecios">Calcular precios de referencia</button>
+    </div>
+    <div class="panel" id="preciosres" hidden><p class="nota" id="preciosnota"></p><div class="tabla"><table id="tprecios"></table></div></div>
   </section>
 </main>
 <div id="aviso" role="status"></div>
@@ -251,7 +263,17 @@ function mostrarAsignacion(r) {
   $('#asignota').textContent = partes.join(' ');
   tabla('#tasig', [{t:'Puesto', f:f => esc(f.puesto)}, {t:'Operador', f:f => esc(f.operador)}, {t:'Distancia', num:1, f:f => `${num(f.km)} km`}], a.asignados, 'No se asignó a nadie.');
 }
-const cargar = {recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
+const q = x => x == null ? '' : 'Q' + Number(x).toLocaleString('es-GT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+function mostrarPrecios(r) {
+  $('#preciosres').hidden = false; const p = r.parametros;
+  $('#preciosnota').textContent = `Criterios usados: un precio es extremo si queda a más de ${p.factor_extremos} veces el rango intercuartílico de los cuartiles; los precios son "parecidos" si varían ${p.cv_parecidos_pct} % o menos; se piden al menos ${p.minimo_cotizaciones} cotizaciones.`;
+  tabla('#tprecios', [{t:'Producto', f:f => `<b>${esc(f.producto)}</b><br><small>${f.cotizaciones} cotizaciones${f.unidad ? ' · por ' + esc(f.unidad) : ''}</small>`},
+    {t:'Precio de referencia', num:1, f:f => f.precio_referencia == null ? '<span class="etq mal">sin precio</span>' : `<b>${q(f.precio_referencia)}</b><br><span class="etq ok">${esc(f.medida)}</span>`},
+    {t:'Media', num:1, f:f => q(f.media)}, {t:'Mediana', num:1, f:f => q(f.mediana)}, {t:'Moda', num:1, f:f => q(f.moda)}, {t:'Rango', num:1, f:f => `${q(f.minimo)} – ${q(f.maximo)}`},
+    {t:'Directas', num:1, f:f => `${num(f.fuentes_primarias_pct)} %`},
+    {t:'Notas', f:f => f.notas.map(esc).join('<br>') + (f.extremos.length ? '<br><small>Extremos: ' + f.extremos.map(([fu, x]) => `${esc(fu)} ${q(x)}`).join('; ') + '</small>' : '')}], r.productos, 'El archivo no trae cotizaciones.');
+}
+const cargar = {precios: async () => {}, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
   document.querySelectorAll('section').forEach(s => s.classList.toggle('activa', s.id === b.dataset.s));
@@ -288,6 +310,10 @@ $('#asigcsv').onclick = () => {
   const q = t => /[",\n]/.test(t) ? '"' + String(t).replace(/"/g, '""') + '"' : t;
   const lineas = ['operador,puesto,km'].concat(ultimaAsignacion.asignados.map(a => [q(a.operador), q(a.puesto), a.km.toFixed(1)].join(',')), ultimaAsignacion.sin_puesto.map(o => q(o) + ',,'));
   const enlace = document.createElement('a'); enlace.href = URL.createObjectURL(new Blob([lineas.join('\n') + '\n'], {type: 'text/csv'})); enlace.download = 'asignacion.csv'; enlace.click(); URL.revokeObjectURL(enlace.href);
+};
+$('#calcprecios').onclick = async () => {
+  const f = $('#csvprecios').files[0]; if (!f) return aviso('Elija el archivo de cotizaciones.', true);
+  try { mostrarPrecios(await api('/api/precios', {method:'POST', headers:{'content-type':'text/csv'}, body: await f.text()})); } catch (e) { aviso(e.message, true); }
 };
 $('#pobdesde').onchange = $('#pobhasta').onchange = () => poblacion().catch(e => aviso(e.message, true));
 $('#anio').onchange = () => crecimiento().catch(e => aviso(e.message, true));

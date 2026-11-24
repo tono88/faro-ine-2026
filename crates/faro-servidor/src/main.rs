@@ -129,6 +129,7 @@ async fn main() -> Result<(), String> {
         .route("/api/crecimiento", get(api_crecimiento))
         .route("/api/asignar", post(api_asignar))
         .route("/api/poblacion", get(api_poblacion))
+        .route("/api/precios", post(api_precios))
         .route("/api/avance", get(api_avance))
         .route("/ejemplos/:archivo", get(ejemplo))
         .layer(DefaultBodyLimit::max(300 * 1024 * 1024))
@@ -639,4 +640,12 @@ async fn api_asignar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(p):
     .await
     .map_err(interno)?;
     Ok(Json(resultado.map_err(pedido)?))
+}
+
+/// Precio de referencia por producto. Calcula y devuelve; no guarda las cotizaciones.
+async fn api_precios(State(e): State<Compartido>, cabeceras: HeaderMap, cuerpo: String) -> Res<Json<Value>> {
+    autorizar(&e, &cabeceras)?;
+    let p = faro_territorio::precios::Parametros::default();
+    let productos = faro_territorio::precios::analizar_csv(cuerpo.as_bytes(), &p).map_err(pedido)?;
+    Ok(Json(json!({ "parametros": p, "productos": productos })))
 }

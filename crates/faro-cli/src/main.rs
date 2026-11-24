@@ -90,6 +90,17 @@ enum Comando {
         #[arg(long, default_value = "datos/referencia/poblacion_municipio.csv")]
         salida: PathBuf,
     },
+    /// Precio de referencia por producto a partir de cotizaciones (media, mediana o moda según el caso).
+    Precios {
+        /// CSV: producto, precio, fuente, tipo_fuente (primaria o secundaria), unidad.
+        #[arg(long)]
+        cotizaciones: PathBuf,
+        /// Variación (%) hasta la cual los precios se consideran parecidos y se usa la media.
+        #[arg(long, default_value_t = 15.0)]
+        cv_parecidos: f64,
+        #[arg(long, default_value = "salida/precios_referencia.csv")]
+        salida: PathBuf,
+    },
     /// Reparte operadores de campo entre puestos con la menor distancia total (línea recta).
     Asignar {
         /// CSV: operador, lugar (código de lugar poblado donde vive) o longitud y latitud.
@@ -183,6 +194,32 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
     // Estos comandos no necesitan catálogo ni memoria.
     let comando = match cli.comando {
         Comando::Fuentes { portal, manifiesto, accion } => return fuentes(&portal, &manifiesto, accion),
+        Comando::Precios { cotizaciones, cv_parecidos, salida } => {
+            use faro_territorio::precios;
+            let p = precios::Parametros { cv_parecidos_pct: cv_parecidos, ..Default::default() };
+            let archivo = std::fs::File::open(&cotizaciones).map_err(|e| format!("{}: {e}", cotizaciones.display()))?;
+            let resultados = precios::analizar_csv(archivo, &p).map_err(|e| format!("{}: {e}", cotizaciones.display()))?;
+            if let Some(dir) = salida.parent() {
+                std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+            }
+            let mut w = csv::Writer::from_path(&salida).map_err(|e| e.to_string())?;
+            w.write_record(["producto", "unidad", "cotizaciones", "minimo", "maximo", "media", "mediana", "moda", "variacion_pct", "extremos", "fuentes_primarias_pct", "medida", "precio_referencia", "notas"]).map_err(|e| e.to_string())?;
+            let q = |x: f64| format!("{x:.2}");
+            for r in &resultados {
+                w.write_record([r.producto.clone(), r.unidad.clone(), r.cotizaciones.to_string(), q(r.minimo), q(r.maximo), q(r.media), q(r.mediana), r.moda.map(q).unwrap_or_default(), format!("{:.1}", r.coeficiente_variacion_pct),
+                    r.extremos.iter().map(|(f, x)| format!("{f}: {x:.2}")).collect::<Vec<_>>().join(" | "), format!("{:.0}", r.fuentes_primarias_pct), r.medida.clone(), r.precio_referencia.map(q).unwrap_or_default(), r.notas.join(" ")]).map_err(|e| e.to_string())?;
+                match r.precio_referencia {
+                    Some(x) => println!("{}: Q{x:.2} por {} ({}, {} cotizaciones)", r.producto, if r.unidad.is_empty() { "unidad" } else { &r.unidad }, r.medida, r.cotizaciones),
+                    None => println!("{}: sin precio de referencia", r.producto),
+                }
+                for n in &r.notas {
+                    println!("    {n}");
+                }
+            }
+            w.flush().map_err(|e| e.to_string())?;
+            println!("{} producto(s) -> {}", resultados.len(), salida.display());
+            return Ok(ExitCode::SUCCESS);
+        }
         Comando::Crecimiento { entrada, proyectar, salida } => return crecimiento(&entrada, proyectar, &salida),
         Comando::Aire { entrada, max_horas_sin_dato, max_dias_no_validos, salida } => {
             let filas = faro_homologa::lectura::leer_crudo(&entrada)?;
@@ -270,7 +307,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } => unreachable!("atendidos arriba"),
+        Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } => unreachable!("atendidos arriba"),
     }
 }
 

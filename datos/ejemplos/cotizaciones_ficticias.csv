@@ -1,0 +1,16 @@
+producto,precio,fuente,tipo_fuente,unidad
+"Laptop 8 GB RAM, 256 GB SSD, 14 pulgadas",4500,Proveedor A,primaria,unidad
+"Laptop 8 GB RAM, 256 GB SSD, 14 pulgadas",4800,Proveedor B,primaria,unidad
+"Laptop 8 GB RAM, 256 GB SSD, 14 pulgadas",5100,Proveedor C,primaria,unidad
+"Laptop 8 GB RAM, 256 GB SSD, 14 pulgadas",4500,Catálogo en línea D,secundaria,unidad
+"Laptop 8 GB RAM, 256 GB SSD, 14 pulgadas",5400,Histórico de compras E,secundaria,unidad
+"Escritorio escolar de madera",350,Proveedor A,primaria,unidad
+"Escritorio escolar de madera",365,Proveedor F,primaria,unidad
+"Escritorio escolar de madera",340,Proveedor G,primaria,unidad
+"Escritorio escolar de madera",360,Proveedor H,primaria,unidad
+"Escritorio escolar de madera",1500,Proveedor I,primaria,unidad
+"Resma de papel bond carta",38,Histórico de compras E,secundaria,resma
+"Resma de papel bond carta",41,Catálogo en línea D,secundaria,resma
+"Resma de papel bond carta",40,Proveedor B,primaria,resma
+"Tóner para impresora láser",600,Proveedor C,primaria,unidad
+"Tóner para impresora láser",640,Proveedor B,primaria,unidad

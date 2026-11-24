@@ -11,4 +11,5 @@ pub mod aire;
 pub mod asignacion;
 pub mod crecimiento;
 pub mod poblacion;
+pub mod precios;
 pub use crecimiento::{analizar, leer_series, Crecimiento, Punto};
