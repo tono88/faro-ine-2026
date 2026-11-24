@@ -24,26 +24,30 @@ Leer primero `README.md` y `docs/` (necesidades del INE, arquitectura, plan, hal
   (puerto en `FARO_PUERTO` de `.env`; `iniciar.bat` busca uno libre si está ocupado).
 - Servidor sin Docker: PostgreSQL 16 + variables `DATABASE_URL`, `FARO_TOKEN`, `FARO_SAL`.
 
-## Estado al 23-nov-2026, 18:30
-Hecho: núcleo de homologación con memoria, lectura de Excel/CSV reales, salida estándar con datos
-personales eliminados o seudonimizados, solicitudes para RENAP/PNC/SE-CONRED, cliente CKAN del INE
-con procedencia, servidor axum + PostgreSQL + pantalla web, sincronización automática con el INE,
-crecimiento de edificaciones y regla de calidad del aire.
+## Estado al 24-nov-2026
+Hecho y probado en contenedor + Chromium: núcleo de homologación con memoria (lugares y valores de
+catálogo por dimensión), lectura de Excel/CSV reales, salida estándar sin datos personales,
+solicitudes RENAP/PNC/SE-CONRED, cliente CKAN con procedencia, servidor axum + PostgreSQL + pantalla
+(7 pestañas), catálogo Censo 2018 verificado (20,036 lugares poblados con coordenadas), asignación
+de operadores (método húngaro), población INE 2015–2030 por municipio (`datos/referencia/`), tasas
+por 100 mil habitantes, avance de recepción por institución, crecimiento de edificaciones, aire.
 
-Probado el 23-nov: `docker compose up` en Linux (imagen, base de datos, volúmenes, reinicio) y la
-pantalla en Chromium de punta a punta (envío, pendientes, confirmar, resultados, crecimiento);
-inventario y descarga en vivo desde datos.ine.gob.gt (105 conjuntos, 876 recursos).
+Campos de la solicitud además de los básicos: `dimension`, `respaldo`, `sin_dato` (ver
+`crates/faro-homologa/src/solicitud.rs`). Estados nuevos: `fuera_de_contexto`, `fuera_de_catalogo`.
 
-Catálogo verificado contra el "Listado de lugares poblados" del Censo 2018 (`faro catalogo
-verificar|importar`): 22 departamentos y 340 municipios coinciden código por código; 20,036 lugares
-poblados cargados, 19,723 con coordenadas. Detalle en `datos/catalogo/LEEME.md`.
+Hallazgos en datos del INE: el libro de proyecciones trae 16 códigos de municipio inexistentes
+(0123–0138); se reubican con su diccionario (`datos/referencia/LEEME.md`).
 
-Asignación de operadores (`faro asignar`, pestaña "Operadores de campo", `POST /api/asignar`):
-método húngaro exacto, distancia en línea recta entre centroides; el servidor no guarda dónde vive
-nadie. Probada en el navegador con `datos/ejemplos/operadores_ficticios.csv` y `puestos_ficticios.csv`.
+Versiones: se publican como releases de GitHub (v0.1.0, v0.2.0, v0.3.0...). Al cerrar un bloque de
+trabajo: actualizar README y `docs/08-versiones.md` y crear el release.
 
-No probado todavía: `iniciar.bat` y `crear_env.ps1` en Windows (el cambio de puerto automático se
-escribió sin poder ejecutarlo); la sincronización con el INE desde dentro del contenedor.
+Cuidado: no usar `sed` masivo sobre el repositorio (un reemplazo de puerto dañó códigos del
+catálogo; se restauró). En esta nube la imagen se construye con una copia del Dockerfile que agrega
+el certificado del proxy; el Dockerfile del repositorio no lleva nada de eso.
+
+No probado: `iniciar.bat` y `crear_env.ps1` en Windows; sincronización con el INE desde dentro del
+contenedor; las solicitudes de RENAP/PNC con los archivos reales tras estos cambios (los archivos
+no están en el repositorio: volver a pasarlos localmente).
 
 ## Pendiente, en orden
 1. Red vial con OpenStreetMap: lugares poblados sin conexión y enlaces probables.

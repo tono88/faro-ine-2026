@@ -28,6 +28,7 @@
   table { border-collapse:collapse; width:100%; font-size:14px; } th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--borde); vertical-align:top; }
   th { background:#eef2f6; position:sticky; top:0; } td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
   .tabla { overflow:auto; max-height:520px; border:1px solid var(--borde); border-radius:6px; }
+  a { color:var(--azul); } code { background:#eef2f6; padding:1px 4px; border-radius:4px; font-size:.92em; }
   .etq { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; font-weight:600; background:#e6ebf0; }
   .etq.ok { background:#dff3e7; color:var(--ok); } .etq.alerta { background:#fdeecf; color:var(--alerta); } .etq.mal { background:#fbe0de; color:var(--mal); }
   .barra { height:10px; background:#e6ebf0; border-radius:5px; overflow:hidden; min-width:80px; } .barra i { display:block; height:100%; background:var(--ok); }
@@ -53,6 +54,7 @@
     <div class="panel">
       <h2>Recibir un envío</h2>
       <p class="nota">Elija qué registro envía la institución y suba el archivo tal como llega (CSV o Excel). Solo pasan las columnas pedidas; nombres y documentos de identidad se eliminan o se sustituyen por una llave.</p>
+      <p class="nota">Para probar: elija "Institución de ejemplo" y suba este <a href="/ejemplos/envio_hechos_transito.csv">envío de ejemplo (ficticio)</a>.</p>
       <label for="sol">Solicitud de datos</label><select id="sol"></select>
       <div id="solinfo" class="nota"></div>
       <label for="archivo">Archivo</label><input type="file" id="archivo" accept=".csv,.txt,.xlsx,.xls,.xlsm,.ods">
@@ -65,8 +67,8 @@
 
   <section id="pendientes">
     <div class="panel">
-      <h2>Lugares que el sistema no quiso adivinar</h2>
-      <p class="nota">Elija el lugar correcto. La decisión queda grabada con su nombre y no se vuelve a preguntar, sin importar qué institución lo envíe.</p>
+      <h2>Lo que el sistema no quiso adivinar</h2>
+      <p class="nota">Elija a qué corresponde cada texto: un lugar del catálogo oficial o un valor permitido (sexo, pueblo y otras variables). La decisión queda grabada con su nombre y no se vuelve a preguntar, sin importar qué institución lo envíe. Si llega un código que no existe, búsquelo por nombre en la lista.</p>
       <label for="usuario">Su nombre (queda en la bitácora)</label><input type="text" id="usuario">
       <div class="tabla" style="margin-top:12px"><table id="tpend"></table></div>
     </div>
@@ -74,14 +76,24 @@
 
   <section id="memoria"><div class="panel"><h2>Equivalencias confirmadas</h2><p class="nota">Bitácora de decisiones: qué texto equivale a qué lugar oficial, quién lo confirmó y cuándo.</p><div class="tabla"><table id="tmem"></table></div></div></section>
 
-  <section id="resultados"><div class="panel"><h2>Registros por departamento</h2><p class="nota">Conteos de los envíos recibidos, ya con código oficial. Si un periodo se reenvía, cuenta solo el envío más reciente.</p><div class="tabla"><table id="thechos"></table></div></div></section>
+  <section id="resultados">
+    <div class="panel"><h2>Avance de la recepción</h2><p class="nota">Qué pidió el INE a cada institución, qué ha llegado y con qué calidad.</p><div class="tabla"><table id="tavance"></table></div></div>
+    <div class="panel"><h2>Registros por departamento</h2><p class="nota">Conteos de los envíos recibidos, ya con código oficial. Si un periodo se reenvía, cuenta solo el envío más reciente. La tasa divide entre la población que el INE proyecta para ese departamento y año, y cubre solo los meses recibidos (no es una tasa anual).</p><div class="tabla"><table id="thechos"></table></div></div>
+  </section>
 
   <section id="ine"><div class="panel"><h2>Conjuntos del portal de datos abiertos del INE</h2><p class="nota" id="ineinfo"></p><button class="accion" id="sync">Sincronizar ahora</button><div class="tabla" style="margin-top:12px"><table id="tine"></table></div></div></section>
 
   <section id="crecimiento">
     <div class="panel">
+      <h2>Crecimiento de la población por municipio</h2>
+      <p class="nota">Estimaciones y proyecciones de población del INE por municipio, 2015–2030 (portal de datos abiertos). No hace falta cargar nada: vienen con el sistema. <span id="pobpais"></span></p>
+      <label for="pobdesde">Comparar del año</label><input type="number" id="pobdesde" value="2018" min="2015" max="2029" style="max-width:120px">
+      <label for="pobhasta">al año</label><input type="number" id="pobhasta" value="2030" min="2016" max="2030" style="max-width:120px">
+      <div class="tabla" style="margin-top:12px"><table id="tpob"></table></div>
+    </div>
+    <div class="panel">
       <h2>Crecimiento de edificaciones por municipio</h2>
-      <p class="nota">Edificaciones observadas por satélite cada año (Google Open Buildings 2.5D Temporal, 2016–2023) y su proyección. Son edificaciones, no viviendas ni personas: sirve para priorizar la actualización cartográfica.</p>
+      <p class="nota">Edificaciones observadas por satélite cada año (Google Open Buildings 2.5D Temporal, 2016–2023) y su proyección. Son edificaciones, no viviendas ni personas: sirve para priorizar la actualización cartográfica. La serie real se obtiene con <code>scripts/open_buildings_por_municipio.js</code> en Google Earth Engine; mientras tanto puede probar con el <a href="/ejemplos/edificaciones_ficticias.csv">archivo de ejemplo (ficticio)</a>.</p>
       <label for="anio">Proyectar al año</label><input type="number" id="anio" value="2030" min="2024" max="2050" style="max-width:120px">
       <label for="csvedif">Cargar serie (CSV: codigo, anio, edificaciones; o departamento, municipio, anio, edificaciones)</label><input type="file" id="csvedif" accept=".csv">
       <button class="accion" id="cargaredif">Cargar y calcular</button>
@@ -95,7 +107,7 @@
       <p class="nota">Reparte a los operadores entre los puestos de modo que la suma de distancias casa–puesto sea la menor posible (cálculo exacto). La distancia es en línea recta entre centroides de lugares poblados del Censo 2018, no por carretera. Dónde vive cada operador no se guarda en el servidor.</p>
       <label for="csvops">Operadores (CSV: operador, lugar; o operador, longitud, latitud)</label><input type="file" id="csvops" accept=".csv">
       <label for="csvpuestos">Puestos (CSV: puesto, lugar, operadores)</label><input type="file" id="csvpuestos" accept=".csv">
-      <p class="nota"><code>lugar</code> es el código de lugar poblado del INE (siete dígitos). Use un identificador en vez del nombre del operador.</p>
+      <p class="nota"><code>lugar</code> es el código de lugar poblado del INE (siete dígitos). Use un identificador en vez del nombre del operador. Para probar: <a href="/ejemplos/operadores_ficticios.csv">operadores de ejemplo</a> y <a href="/ejemplos/puestos_ficticios.csv">puestos de ejemplo</a> (ficticios).</p>
       <button class="accion" id="asignar">Calcular asignación</button>
     </div>
     <div class="panel" id="asigres" hidden>
@@ -121,7 +133,8 @@ function tabla(sel, columnas, filas, vacio) {
   $(sel).innerHTML = '<thead><tr>' + columnas.map(c => `<th${c.num ? ' class="num"' : ''} scope="col">${esc(c.t)}</th>`).join('') + '</tr></thead><tbody>' +
     (filas.length ? filas.map(f => '<tr>' + columnas.map(c => `<td${c.num ? ' class="num"' : ''}>${c.f(f)}</td>`).join('') + '</tr>').join('') : `<tr><td colspan="${columnas.length}">${esc(vacio)}</td></tr>`) + '</tbody>';
 }
-const etq = e => `<span class="etq ${({exacto:'ok',memoria:'ok',sugerido:'alerta',revisar:'alerta',ambiguo:'alerta'}[e]) || 'mal'}">${esc(e.replace('_',' '))}</span>`;
+const NOMBRE_ESTADO = {exacto:'exacto', memoria:'ya aprendido', sugerido:'muy parecido', revisar:'parecido', ambiguo:'hay varios', sin_coincidencia:'no existe', fuera_de_contexto:'está en otro lugar', codigo_invalido:'código que no existe', fuera_de_catalogo:'valor no previsto', vacio:'vacío'};
+const etq = e => `<span class="etq ${({exacto:'ok',memoria:'ok',sugerido:'alerta',revisar:'alerta',ambiguo:'alerta',fuera_de_contexto:'alerta'}[e]) || 'mal'}">${esc(NOMBRE_ESTADO[e] || e.replace(/_/g,' '))}</span>`;
 let solicitudes = [];
 
 async function estado() {
@@ -157,16 +170,33 @@ function mostrarResultado(r) {
     <table><tbody>${geo}</tbody></table>
     ${fuera ? `<h2 style="margin-top:14px">Valores fuera de catálogo</h2><ul>${fuera}</ul>` : ''}
     ${prob ? `<h2 style="margin-top:14px">Problemas de contenido (${num(rep.problemas.length + rep.problemas_omitidos)})</h2><ul>${prob}</ul>` : ''}
-    <p class="nota">${rec.pendientes.length} valor(es) de lugar por revisar en la pestaña 2.</p>`;
+    <p class="nota">${rec.pendientes.length} lugar(es) y ${rec.pendientes_valor.length} valor(es) de catálogo por revisar en la pestaña 2.
+    ${Object.keys(rec.valores_por_memoria).length ? ' Valores resueltos con equivalencias ya confirmadas: ' + Object.entries(rec.valores_por_memoria).map(([k, n]) => `${esc(k)} (${num(n)})`).join(', ') + '.' : ''}
+    ${Object.keys(rec.resueltos_por_respaldo).length ? ' Lugares resueltos con la columna de respaldo: ' + Object.entries(rec.resueltos_por_respaldo).map(([k, n]) => `${esc(k)} (${num(n)})`).join(', ') + '.' : ''}</p>`;
 }
 async function pendientes() {
   const filas = await api('/api/pendientes');
+  const datos = f => `data-v="${esc(f.valor)}" data-n="${esc(f.nivel)}" data-x="${esc(f.contexto)}" data-i="${esc(f.instituciones)}"`;
+  // Para lugares: lista del catálogo oficial (dentro del departamento o municipio, si se conoce) en vez de escribir el código de memoria.
+  const otro = f => f.nivel === 'valor' ? '' : (f.nivel === 'lugar_poblado' && !f.contexto)
+    ? `<input type="text" placeholder="otro código" aria-label="Otro código para ${esc(f.valor)}" style="max-width:110px;padding:4px" ${datos(f)}>`
+    : `<input type="text" class="buscar" list="cat-${esc(f.nivel)}-${esc(f.contexto)}" placeholder="buscar en el catálogo…" aria-label="Buscar en el catálogo el lugar de ${esc(f.valor)}" style="max-width:230px;padding:4px" ${datos(f)}>`;
   tabla('#tpend', [
-    {t:'Texto recibido', f:f => `<b>${esc(f.valor)}</b>`}, {t:'En', f:f => esc(f.contexto_nombre || (f.contexto ? 'código ' + f.contexto : '(sin nivel superior)'))},
+    {t:'Texto recibido', f:f => `<b>${esc(f.valor)}</b><br><small>${esc(f.columna)}</small>`},
+    {t:'En', f:f => f.nivel === 'valor' ? `variable <b>${esc(f.contexto)}</b>` : esc(f.contexto_nombre || (f.contexto ? 'código ' + f.contexto : '(sin nivel superior)'))},
     {t:'Veces', num:1, f:f => num(f.veces)}, {t:'Institución', f:f => esc(f.instituciones)}, {t:'Estado', f:f => etq(f.estado)},
-    {t:'¿A qué lugar corresponde?', f:(f) => f.candidatos.map(c => `<button class="accion chico" data-v="${esc(f.valor)}" data-n="${esc(f.nivel)}" data-x="${esc(f.contexto)}" data-c="${esc(c.codigo)}" data-i="${esc(f.instituciones)}">${esc(c.codigo)} ${esc(c.nombre)}</button>`).join('') +
-        `<input type="text" placeholder="otro código" aria-label="Otro código para ${esc(f.valor)}" style="max-width:110px;padding:4px" data-v="${esc(f.valor)}" data-n="${esc(f.nivel)}" data-x="${esc(f.contexto)}" data-i="${esc(f.instituciones)}">`},
+    {t:'¿A qué corresponde?', f:f => f.candidatos.map(c => `<button class="accion chico" ${datos(f)} data-c="${esc(c.codigo)}">${f.nivel === 'valor' ? esc(c.nombre) : esc(c.codigo) + ' ' + esc(c.nombre)}</button>`).join('') + otro(f)},
   ], filas, 'No hay nada por revisar.');
+}
+// Las listas del catálogo se piden la primera vez que se usa cada una.
+const listas = {};
+async function listaCatalogo(nivel, contexto) {
+  const id = `cat-${nivel}-${contexto}`;
+  if (listas[id]) return; listas[id] = true;
+  const lugares = await api(`/api/catalogo/${encodeURIComponent(nivel)}?padre=${encodeURIComponent(contexto)}`);
+  const dl = document.createElement('datalist'); dl.id = id;
+  dl.innerHTML = lugares.map(l => `<option value="${esc(l.codigo)} ${esc(l.nombre)}${!contexto && l.padre_nombre ? ' — ' + esc(l.padre_nombre) : ''}"></option>`).join('');
+  document.body.appendChild(dl);
 }
 async function confirmar(d, codigo) {
   try {
@@ -179,8 +209,14 @@ async function memoria() {
     {t:'Institución', f:f => esc(f.institucion)}, {t:'Confirmó', f:f => esc(f.confirmado_por)}, {t:'Fecha', f:f => esc(f.fecha)}], await api('/api/equivalencias'), 'Aún no hay equivalencias confirmadas.');
 }
 async function hechos() {
+  tabla('#tavance', [{t:'Institución', f:f => esc(f.institucion)}, {t:'Solicitud', f:f => esc(f.solicitud)}, {t:'Envíos', num:1, f:f => num(f.envios)}, {t:'Filas', num:1, f:f => num(f.filas)},
+    {t:'Último envío', f:f => f.ultimo ? esc(f.ultimo) : '<span class="etq mal">sin envíos</span>'},
+    {t:'Lugares resueltos', f:f => f.pct_resuelto == null ? '' : `<div class="barra" title="${num(f.pct_resuelto)} %"><i style="width:${f.pct_resuelto}%"></i></div>${num(f.pct_resuelto)} %`},
+    {t:'Por revisar', num:1, f:f => num(f.pendientes)}], await api('/api/avance'), 'No hay solicitudes.');
   tabla('#thechos', [{t:'Solicitud', f:f => esc(f.solicitud)}, {t:'Departamento', f:f => `${esc(f.departamento)} ${esc(f.nombre)}`}, {t:'Total', num:1, f:f => num(f.total)},
-    {t:'Hombres', num:1, f:f => f.hombres == null ? '' : num(f.hombres)}, {t:'Mujeres', num:1, f:f => f.mujeres == null ? '' : num(f.mujeres)}], await api('/api/hechos'), 'Sin envíos todavía.');
+    {t:'Hombres', num:1, f:f => f.hombres == null ? '' : num(f.hombres)}, {t:'Mujeres', num:1, f:f => f.mujeres == null ? '' : num(f.mujeres)},
+    {t:'Población (INE)', num:1, f:f => f.poblacion == null ? '' : `${num(f.poblacion)} <small>(${f.anio})</small>`},
+    {t:'Por 100 mil hab.', num:1, f:f => f.por_100_mil == null ? '' : `${Number(f.por_100_mil).toLocaleString('es-GT', {maximumFractionDigits: 2})} <small>(${f.meses} mes${f.meses === 1 ? '' : 'es'})</small>`}], await api('/api/hechos'), 'Sin envíos todavía.');
 }
 async function ine() {
   const r = await api('/api/ine'), u = r.ultima;
@@ -188,8 +224,16 @@ async function ine() {
   tabla('#tine', [{t:'Conjunto', f:f => `<b>${esc(f.titulo)}</b><br><small>${esc(f.nombre)}</small>`}, {t:'Modificado', f:f => esc(f.modificado)}, {t:'Recursos', num:1, f:f => f.recursos},
     {t:'Formatos', f:f => esc(f.formatos)}, {t:'Licencia', f:f => esc(f.licencia)}], r.conjuntos, 'Sin datos: pulse "Sincronizar ahora".');
 }
+async function poblacion() {
+  const r = await api(`/api/poblacion?desde=${encodeURIComponent($('#pobdesde').value)}&hasta=${encodeURIComponent($('#pobhasta').value)}`);
+  if (!r.disponible) { $('#pobpais').textContent = 'Este servidor no tiene cargada la tabla de población.'; return; }
+  const p = r.pais; $('#pobpais').textContent = p ? `País: ${num(p.poblacion_inicial)} habitantes en ${r.desde} y ${num(p.poblacion_final)} en ${r.hasta} (${num(p.tasa_anual_pct)} % anual).` : '';
+  tabla('#tpob', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:String(r.desde), num:1, f:f => num(f.poblacion_inicial)}, {t:String(r.hasta), num:1, f:f => num(f.poblacion_final)},
+    {t:'Cambio', num:1, f:f => `${f.cambio > 0 ? '+' : ''}${num(f.cambio)}`}, {t:'En el periodo', num:1, f:f => `${num(f.cambio_pct)} %`}, {t:'Crecimiento anual', num:1, f:f => `${num(f.tasa_anual_pct)} %`}], r.municipios, 'Sin datos.');
+}
 async function crecimiento() {
-  tabla('#tcrec', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:`${''}Inicio`, num:1, f:f => `${num(f.edificaciones_inicial)} <small>(${f.anio_inicial})</small>`},
+  poblacion().catch(e => aviso(e.message, true));
+  tabla('#tcrec', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:'Inicio', num:1, f:f => `${num(f.edificaciones_inicial)} <small>(${f.anio_inicial})</small>`},
     {t:'Final', num:1, f:f => `${num(f.edificaciones_final)} <small>(${f.anio_final})</small>`}, {t:'Crecimiento anual', num:1, f:f => `${num(f.tasa_anual_pct)} %`},
     {t:'Proyección', num:1, f:f => `${num(f.proyeccion)} ± ${num(f.proyeccion_margen)} <small>(${f.anio_proyectado})</small>`}, {t:'Confianza', f:f => `<span class="etq ${f.confianza === 'alta' ? 'ok' : f.confianza === 'media' ? 'alerta' : 'mal'}">${esc(f.confianza)}</span>`}],
     await api('/api/crecimiento?anio=' + encodeURIComponent($('#anio').value)), 'Aún no se ha cargado la serie de edificaciones.');
@@ -221,7 +265,11 @@ $('#enviar').onclick = async () => {
   catch (e) { aviso(e.message, true); } finally { $('#enviar').disabled = false; }
 };
 $('#tpend').onclick = e => { const b = e.target.closest('button[data-c]'); if (b) confirmar(b.dataset, b.dataset.c); };
-$('#tpend').onkeydown = e => { if (e.key === 'Enter' && e.target.matches('input[data-v]') && e.target.value.trim()) confirmar(e.target.dataset, e.target.value.trim()); };
+const codigoDe = t => t.trim().split(/\s+/)[0];
+$('#tpend').onkeydown = e => { if (e.key === 'Enter' && e.target.matches('input[data-v]') && e.target.value.trim()) confirmar(e.target.dataset, codigoDe(e.target.value)); };
+$('#tpend').addEventListener('focusin', e => { if (e.target.matches('input.buscar')) listaCatalogo(e.target.dataset.n, e.target.dataset.x).catch(x => aviso(x.message, true)); });
+// Al elegir una opción de la lista (código + nombre) se confirma sin más pasos.
+$('#tpend').addEventListener('change', e => { if (e.target.matches('input.buscar') && /^\d+ \S/.test(e.target.value)) confirmar(e.target.dataset, codigoDe(e.target.value)); });
 $('#sync').onclick = async () => { $('#sync').disabled = true; try { const r = await api('/api/ine/sincronizar', {method:'POST'}); aviso(`${r.conjuntos} conjuntos; ${r.nuevos} nuevos, ${r.cambiados} con cambios.`); ine(); estado(); } catch (e) { aviso(e.message, true); ine(); } finally { $('#sync').disabled = false; } };
 $('#cargaredif').onclick = async () => {
   const f = $('#csvedif').files[0];
@@ -241,6 +289,7 @@ $('#asigcsv').onclick = () => {
   const lineas = ['operador,puesto,km'].concat(ultimaAsignacion.asignados.map(a => [q(a.operador), q(a.puesto), a.km.toFixed(1)].join(',')), ultimaAsignacion.sin_puesto.map(o => q(o) + ',,'));
   const enlace = document.createElement('a'); enlace.href = URL.createObjectURL(new Blob([lineas.join('\n') + '\n'], {type: 'text/csv'})); enlace.download = 'asignacion.csv'; enlace.click(); URL.revokeObjectURL(enlace.href);
 };
+$('#pobdesde').onchange = $('#pobhasta').onchange = () => poblacion().catch(e => aviso(e.message, true));
 $('#anio').onchange = () => crecimiento().catch(e => aviso(e.message, true));
 estado().then(cargarSolicitudes).then(envios).catch(e => aviso(e.message, true));
 </script>

@@ -30,14 +30,27 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
 7. **Probado con archivos reales** de RENAP, PNC, SE-CONRED e INSIVUMEH compartidos por el INE:
    51,719 filas en menos de 3 segundos, entre 97.9 % y 100 % de lugares con código oficial.
    Ver [hallazgos](docs/06-hallazgos-datos-reales.md).
-8. **Catálogo oficial verificado.** Departamentos, municipios y 20,036 lugares poblados del
-   Censo 2018 con coordenadas, comprobados código por código contra el listado del INE
-   (`faro catalogo verificar`).
-9. **Operadores de campo cerca de su casa.** Reparte operadores entre puestos con la menor
-   distancia total posible, usando las coordenadas del catálogo (`faro asignar` y la pantalla).
-   Cálculo exacto (método húngaro); distancia en línea recta, no por carretera.
-10. **Crecimiento urbano.** A partir de edificaciones por año vistas por satélite, calcula el
-   ritmo de crecimiento de cada municipio y lo proyecta con su margen (`faro crecimiento`).
+8. **Más que lugares.** Los valores de catálogos cerrados (sexo, pueblo, tipo de vehículo y los
+   que declare cada solicitud) que no se reconocen también se revisan en pantalla y se aprenden
+   por variable, para todas las instituciones. Cada solicitud puede declarar qué valores
+   significan "sin dato" (98, 99, 999) y una columna de respaldo (el nombre, cuando el código
+   propio de la institución no existe).
+9. **Correcciones que ya no hay que hacer a mano.** Letras dañadas por la codificación
+   ("Due±as" es "Dueñas"), códigos propios de una institución que se traducen una vez, y nombres
+   que existen en otro departamento ("Camotán" enviado en El Progreso): se proponen, no se asignan.
+10. **Población y tasas.** Proyecciones de población del INE por municipio, 2015–2030, como
+    denominador: los resultados salen también por 100 mil habitantes, y la pantalla muestra el
+    crecimiento poblacional de los 340 municipios (`faro poblacion`).
+11. **Avance de la recepción.** Qué se pidió a cada institución, qué ha llegado, cuándo y con qué
+    calidad.
+12. **Catálogo oficial verificado.** Departamentos, municipios y 20,036 lugares poblados del
+    Censo 2018 con coordenadas, comprobados código por código contra el listado del INE
+    (`faro catalogo verificar`).
+13. **Operadores de campo cerca de su casa.** Reparte operadores entre puestos con la menor
+    distancia total posible, usando las coordenadas del catálogo (`faro asignar` y la pantalla).
+    Cálculo exacto (método húngaro); distancia en línea recta, no por carretera.
+14. **Crecimiento urbano.** A partir de edificaciones por año vistas por satélite, calcula el
+    ritmo de crecimiento de cada municipio y lo proyecta con su margen (`faro crecimiento`).
 
 ## Levantarlo con Docker
 
@@ -62,7 +75,7 @@ sin privilegios; antes del primer `faro fuentes ...` dentro del contenedor ejecu
 Requiere [Rust](https://rustup.rs) estable (probado con 1.97) y, para el servidor, PostgreSQL 16.
 
 ```bash
-cargo test                       # 37 pruebas
+cargo test                       # 46 pruebas
 cargo build --release
 
 # Línea de comandos (no necesita base de datos)

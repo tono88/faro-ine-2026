@@ -8,7 +8,8 @@ use axum::{Json, Router};
 use faro_homologa::lectura;
 use faro_homologa::recepcion::{recibir, Recepcion};
 use faro_homologa::solicitud::Solicitud;
-use faro_homologa::{Catalogo, Equivalencia, Homologador, Memoria, Nivel};
+use faro_homologa::{Catalogo, Equivalencia, EquivalenciaValor, Homologador, Memoria, Nivel};
+use faro_territorio::poblacion::Poblacion;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, HashMap};
@@ -19,6 +20,9 @@ use tokio_postgres::{Client, NoTls};
 struct Estado {
     bd: Client,
     catalogo: Catalogo,
+    /// Proyecciones de población del INE por municipio y año (denominador de tasas).
+    poblacion: Poblacion,
+    dir_ejemplos: PathBuf,
     dir_solicitudes: PathBuf,
     dir_privado: PathBuf,
     token: Option<String>,
@@ -71,8 +75,19 @@ async fn main() -> Result<(), String> {
     });
     bd.batch_execute(include_str!("esquema.sql")).await.map_err(|e| format!("esquema: {e}"))?;
 
+    // Sin la tabla de población el servidor funciona igual; solo no calcula tasas.
+    let ruta_poblacion = PathBuf::from(var("FARO_POBLACION", "datos/referencia/poblacion_municipio.csv"));
+    let poblacion = match faro_territorio::poblacion::leer(&ruta_poblacion) {
+        Ok(filas) => Poblacion::new(filas),
+        Err(e) => {
+            eprintln!("AVISO: sin proyecciones de población ({e}); no se calcularán tasas.");
+            Poblacion::default()
+        }
+    };
     let estado = Arc::new(Estado {
         bd,
+        poblacion,
+        dir_ejemplos: PathBuf::from(var("FARO_EJEMPLOS", "datos/ejemplos")),
         catalogo: Catalogo::cargar_carpeta(&PathBuf::from(var("FARO_CATALOGO", "datos/catalogo")))?,
         dir_solicitudes: PathBuf::from(var("FARO_SOLICITUDES", "datos/solicitudes")),
         dir_privado: PathBuf::from(var("FARO_PRIVADO", "datos/privado")),
@@ -113,6 +128,9 @@ async fn main() -> Result<(), String> {
         .route("/api/edificaciones", post(api_edificaciones))
         .route("/api/crecimiento", get(api_crecimiento))
         .route("/api/asignar", post(api_asignar))
+        .route("/api/poblacion", get(api_poblacion))
+        .route("/api/avance", get(api_avance))
+        .route("/ejemplos/:archivo", get(ejemplo))
         .layer(DefaultBodyLimit::max(300 * 1024 * 1024))
         .with_state(estado);
 
@@ -136,6 +154,11 @@ fn autorizar(e: &Estado, cabeceras: &HeaderMap) -> Res<()> {
 
 async fn memoria(e: &Estado) -> Res<Memoria> {
     let filas = e.bd.query("SELECT original, clave, nivel, contexto, codigo FROM equivalencias ORDER BY id", &[]).await.map_err(interno)?;
+    let valores = e.bd.query("SELECT dimension, original, clave, valor FROM equivalencias_valor ORDER BY id", &[]).await.map_err(interno)?;
+    let valores: Vec<EquivalenciaValor> = valores
+        .iter()
+        .map(|f| EquivalenciaValor { dimension: f.get(0), original: f.get(1), clave: f.get(2), valor: f.get(3), institucion: String::new(), confirmado_por: String::new(), fecha: String::new() })
+        .collect();
     Ok(Memoria::desde(filas.iter().filter_map(|f| {
         Some(Equivalencia {
             original: f.get(0),
@@ -147,7 +170,8 @@ async fn memoria(e: &Estado) -> Res<Memoria> {
             confirmado_por: String::new(),
             fecha: String::new(),
         })
-    })))
+    }))
+    .con_valores(valores))
 }
 
 fn solicitudes(e: &Estado) -> Result<Vec<Solicitud>, String> {
@@ -165,7 +189,8 @@ async fn api_estado(State(e): State<Compartido>) -> Res<Json<Value>> {
         .bd
         .query_one(
             "SELECT (SELECT count(*) FROM envios), (SELECT coalesce(sum(filas),0)::bigint FROM envios),
-                    (SELECT count(*) FROM pendientes WHERE NOT resuelto), (SELECT count(*) FROM equivalencias),
+                    (SELECT count(*) FROM (SELECT 1 FROM pendientes WHERE NOT resuelto GROUP BY columna, nivel, contexto, valor) p),
+                    (SELECT count(*) FROM equivalencias) + (SELECT count(*) FROM equivalencias_valor),
                     (SELECT count(*) FROM conjuntos_ine), (SELECT count(DISTINCT municipio) FROM edificaciones)",
             &[],
         )
@@ -185,7 +210,7 @@ async fn api_solicitudes(State(e): State<Compartido>) -> Res<Json<Value>> {
 async fn api_catalogo(State(e): State<Compartido>, Ruta(nivel): Ruta<String>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
     let nivel: Nivel = nivel.parse().map_err(pedido)?;
     let padre = q.get("padre").map(String::as_str).filter(|p| !p.is_empty());
-    Ok(Json(json!(e.catalogo.de_nivel(nivel, padre).map(|l| json!({"codigo": l.codigo, "nombre": l.nombre, "padre": l.padre})).collect::<Vec<_>>())))
+    Ok(Json(json!(e.catalogo.de_nivel(nivel, padre).map(|l| json!({"codigo": l.codigo, "nombre": l.nombre, "padre": l.padre, "padre_nombre": e.catalogo.por_codigo(&l.padre).map(|p| p.nombre.clone())})).collect::<Vec<_>>())))
 }
 
 async fn api_envios(State(e): State<Compartido>) -> Res<Json<Value>> {
@@ -263,6 +288,16 @@ async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabecer
         .await
         .map_err(interno)?;
     }
+    // Valores de catálogos cerrados por decidir: van a la misma lista, con nivel "valor".
+    for p in &rec.pendientes_valor {
+        let opciones: Vec<Value> = p.opciones.iter().map(|o| json!({ "codigo": o, "nombre": o, "puntaje": 0.0 })).collect();
+        e.bd.execute(
+            "INSERT INTO pendientes (envio_id, institucion, columna, nivel, contexto, valor, veces, estado, candidatos) VALUES ($1,$2,$3,'valor',$4,$5,$6,'fuera_de_catalogo',$7)",
+            &[&envio, &sol.institucion, &p.columna, &p.dimension, &p.valor, &(p.veces as i64), &json!(opciones)],
+        )
+        .await
+        .map_err(interno)?;
+    }
     for ((periodo, municipio, sexo), n) in agregar(&rec) {
         e.bd.execute("INSERT INTO hechos (envio_id, solicitud, periodo, municipio, sexo, n) VALUES ($1,$2,$3,$4,$5,$6)", &[&envio, &sol.id, &periodo, &municipio, &sexo, &n]).await.map_err(interno)?;
     }
@@ -309,7 +344,8 @@ async fn api_pendientes(State(e): State<Compartido>) -> Res<Json<Value>> {
 #[derive(Deserialize)]
 struct Confirmacion {
     valor: String,
-    nivel: Nivel,
+    /// departamento | municipio | lugar_poblado | valor (catálogo cerrado; `contexto` es la dimensión).
+    nivel: String,
     #[serde(default)]
     contexto: String,
     codigo: String,
@@ -321,17 +357,34 @@ struct Confirmacion {
 
 async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c): Json<Confirmacion>) -> Res<Json<Value>> {
     autorizar(&e, &cabeceras)?;
-    let lugar = e.catalogo.por_codigo(&c.codigo).ok_or_else(|| pedido(format!("el código {} no existe en el catálogo", c.codigo)))?;
-    if lugar.nivel != c.nivel {
-        return Err(pedido(format!("{} ({}) no es del nivel indicado", c.codigo, lugar.nombre)));
-    }
     if c.usuario.trim().is_empty() {
         return Err(pedido("indique quién confirma: queda en la bitácora"));
     }
-    let nivel = serde_json::to_value(c.nivel).ok().and_then(|v| v.as_str().map(str::to_string)).unwrap_or_default();
+    if c.nivel == "valor" {
+        // El valor elegido debe pertenecer al catálogo de esa dimensión en alguna solicitud.
+        let permitido = solicitudes(&e).map_err(interno)?.iter().flat_map(|s| s.columnas.clone()).filter(|col| col.dimension() == c.contexto).find_map(|col| col.canonico(&c.codigo).map(str::to_string));
+        let valor = permitido.ok_or_else(|| pedido(format!("{:?} no es un valor permitido de {}", c.codigo, c.contexto)))?;
+        e.bd.execute(
+            "INSERT INTO equivalencias_valor (dimension, original, clave, valor, institucion, confirmado_por) SELECT $1,$2,$3,$4,$5,$6
+             WHERE NOT EXISTS (SELECT 1 FROM equivalencias_valor x WHERE x.id = (SELECT max(id) FROM equivalencias_valor y WHERE y.dimension = $1 AND y.clave = $3) AND x.valor = $4)",
+            &[&c.contexto, &c.valor, &faro_homologa::normalizar::basico(&c.valor), &valor, &c.institucion, &c.usuario],
+        )
+        .await
+        .map_err(interno)?;
+        let n = e.bd.execute("UPDATE pendientes SET resuelto = TRUE WHERE NOT resuelto AND nivel = 'valor' AND contexto = $1 AND valor = $2", &[&c.contexto, &c.valor]).await.map_err(interno)?;
+        return Ok(Json(json!({ "grabado": true, "codigo": valor, "nombre": format!("({})", c.contexto), "pendientes_resueltos": n })));
+    }
+    let nivel_pedido: Nivel = c.nivel.parse().map_err(pedido)?;
+    let lugar = e.catalogo.por_codigo(&c.codigo).ok_or_else(|| pedido(format!("el código {} no existe en el catálogo", c.codigo)))?;
+    if lugar.nivel != nivel_pedido {
+        return Err(pedido(format!("{} ({}) no es del nivel indicado", c.codigo, lugar.nombre)));
+    }
+    let nivel = c.nivel.clone();
     let clave = faro_homologa::normalizar::clave(&c.valor);
+    // Repetir la misma confirmación (doble clic) no duplica la bitácora.
     e.bd.execute(
-        "INSERT INTO equivalencias (original, clave, nivel, contexto, codigo, institucion, confirmado_por) VALUES ($1,$2,$3,$4,$5,$6,$7)",
+        "INSERT INTO equivalencias (original, clave, nivel, contexto, codigo, institucion, confirmado_por) SELECT $1,$2,$3,$4,$5,$6,$7
+         WHERE NOT EXISTS (SELECT 1 FROM equivalencias x WHERE x.id = (SELECT max(id) FROM equivalencias y WHERE y.nivel = $3 AND y.contexto = $4 AND y.clave = $2) AND x.codigo = $5)",
         &[&c.valor, &clave, &nivel, &c.contexto, &c.codigo, &c.institucion, &c.usuario],
     )
     .await
@@ -341,7 +394,17 @@ async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c
 }
 
 async fn api_equivalencias(State(e): State<Compartido>) -> Res<Json<Value>> {
-    let filas = e.bd.query("SELECT original, nivel, contexto, codigo, institucion, confirmado_por, to_char(fecha, 'YYYY-MM-DD HH24:MI') FROM equivalencias ORDER BY id DESC LIMIT 500", &[]).await.map_err(interno)?;
+    let filas = e
+        .bd
+        .query(
+            "SELECT original, nivel, contexto, codigo, institucion, confirmado_por, to_char(fecha, 'YYYY-MM-DD HH24:MI') FROM (
+                SELECT original, nivel, contexto, codigo, institucion, confirmado_por, fecha FROM equivalencias
+                UNION ALL SELECT original, 'valor', dimension, valor, institucion, confirmado_por, fecha FROM equivalencias_valor) t
+             ORDER BY fecha DESC LIMIT 500",
+            &[],
+        )
+        .await
+        .map_err(interno)?;
     Ok(Json(json!(filas.iter().map(|f| {
         let codigo: String = f.get(3);
         json!({ "original": f.get::<_, String>(0), "nivel": f.get::<_, String>(1), "contexto": f.get::<_, String>(2), "codigo": codigo,
@@ -356,7 +419,8 @@ async fn api_hechos(State(e): State<Compartido>) -> Res<Json<Value>> {
         .bd
         .query(
             "WITH ultimo AS (SELECT solicitud, periodo, max(envio_id) AS envio_id FROM hechos GROUP BY 1, 2)
-             SELECT h.solicitud, left(h.municipio, 2), sum(h.n)::bigint, sum(h.n) FILTER (WHERE h.sexo = 'hombre')::bigint, sum(h.n) FILTER (WHERE h.sexo = 'mujer')::bigint
+             SELECT h.solicitud, left(h.municipio, 2), sum(h.n)::bigint, sum(h.n) FILTER (WHERE h.sexo = 'hombre')::bigint, sum(h.n) FILTER (WHERE h.sexo = 'mujer')::bigint,
+                    max(left(h.periodo, 4)), count(DISTINCT h.periodo) FILTER (WHERE h.periodo <> '')
              FROM hechos h JOIN ultimo u USING (solicitud, periodo, envio_id) GROUP BY 1, 2 ORDER BY 1, 2",
             &[],
         )
@@ -364,9 +428,76 @@ async fn api_hechos(State(e): State<Compartido>) -> Res<Json<Value>> {
         .map_err(interno)?;
     Ok(Json(json!(filas.iter().map(|f| {
         let d: String = f.get(1);
+        let total: i64 = f.get(2);
+        // Denominador: proyección del INE para el departamento en el año más reciente recibido.
+        let anio: Option<i32> = f.get::<_, Option<String>>(5).and_then(|a| a.parse().ok());
+        let poblacion = anio.filter(|_| d.len() == 2).and_then(|a| e.poblacion.total(&d, a));
         json!({ "solicitud": f.get::<_, String>(0), "departamento": d, "nombre": e.catalogo.por_codigo(&d).map(|l| l.nombre.clone()).unwrap_or_else(|| "(sin lugar)".into()),
-                "total": f.get::<_, i64>(2), "hombres": f.get::<_, Option<i64>>(3), "mujeres": f.get::<_, Option<i64>>(4) })
+                "total": total, "hombres": f.get::<_, Option<i64>>(3), "mujeres": f.get::<_, Option<i64>>(4),
+                "anio": anio, "meses": f.get::<_, i64>(6), "poblacion": poblacion,
+                "por_100_mil": poblacion.filter(|p| *p > 0).map(|p| total as f64 * 100_000.0 / p as f64) })
     }).collect::<Vec<_>>())))
+}
+
+/// Avance de la recepción: qué ha enviado cada institución, cuándo y con qué calidad.
+async fn api_avance(State(e): State<Compartido>) -> Res<Json<Value>> {
+    let filas = e
+        .bd
+        .query(
+            "SELECT e.institucion, e.solicitud, count(*), sum(e.filas)::bigint, to_char(max(e.recibido), 'YYYY-MM-DD HH24:MI'),
+                    (array_agg(e.pct_resuelto ORDER BY e.id DESC))[1], (array_agg(e.problemas ORDER BY e.id DESC))[1],
+                    (SELECT count(*) FROM (SELECT 1 FROM pendientes p JOIN envios x ON x.id = p.envio_id WHERE NOT p.resuelto AND x.solicitud = e.solicitud GROUP BY p.columna, p.nivel, p.contexto, p.valor) q)
+             FROM envios e GROUP BY e.institucion, e.solicitud ORDER BY 1, 2",
+            &[],
+        )
+        .await
+        .map_err(interno)?;
+    let recibidas: Vec<String> = filas.iter().map(|f| f.get(1)).collect();
+    let mut salida: Vec<Value> = filas.iter().map(|f| json!({
+        "institucion": f.get::<_, String>(0), "solicitud": f.get::<_, String>(1), "envios": f.get::<_, i64>(2), "filas": f.get::<_, i64>(3),
+        "ultimo": f.get::<_, String>(4), "pct_resuelto": f.get::<_, f64>(5), "problemas": f.get::<_, i64>(6), "pendientes": f.get::<_, i64>(7),
+    })).collect();
+    // Lo que se pidió y todavía no llega también es avance.
+    for s in solicitudes(&e).map_err(interno)?.iter().filter(|s| !recibidas.contains(&s.id)) {
+        salida.push(json!({ "institucion": s.institucion, "solicitud": s.id, "periodicidad": s.periodicidad, "envios": 0, "filas": 0, "ultimo": null, "pct_resuelto": null, "problemas": 0, "pendientes": 0 }));
+    }
+    Ok(Json(json!(salida)))
+}
+
+/// Crecimiento de la población por municipio entre dos años, según las proyecciones del INE.
+async fn api_poblacion(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
+    let Some((min, max)) = e.poblacion.anios() else {
+        return Ok(Json(json!({ "disponible": false, "municipios": [] })));
+    };
+    let anio = |k: &str, defecto: i32| q.get(k).and_then(|a| a.parse::<i32>().ok()).unwrap_or(defecto).clamp(min, max);
+    let (desde, hasta) = (anio("desde", 2018), anio("hasta", max));
+    if hasta <= desde {
+        return Err(pedido(format!("el año final debe ser mayor que el inicial (hay datos de {min} a {max})")));
+    }
+    let mut municipios: Vec<Value> = e
+        .poblacion
+        .municipios()
+        .iter()
+        .filter_map(|m| e.poblacion.cambio(m, desde, hasta))
+        .map(|c| {
+            let l = e.catalogo.por_codigo(&c.codigo);
+            let mut v = serde_json::to_value(&c).unwrap_or(Value::Null);
+            v["municipio"] = json!(l.map(|l| l.nombre.clone()));
+            v["departamento"] = json!(l.and_then(|l| e.catalogo.por_codigo(&l.padre)).map(|d| d.nombre.clone()));
+            v
+        })
+        .collect();
+    municipios.sort_by(|a, b| b["tasa_anual_pct"].as_f64().unwrap_or(0.0).total_cmp(&a["tasa_anual_pct"].as_f64().unwrap_or(0.0)));
+    Ok(Json(json!({ "disponible": true, "desde": desde, "hasta": hasta, "anio_minimo": min, "anio_maximo": max, "pais": e.poblacion.cambio("", desde, hasta), "municipios": municipios })))
+}
+
+/// Archivos de ejemplo (ficticios) para probar cada pantalla sin tener datos propios.
+async fn ejemplo(State(e): State<Compartido>, Ruta(archivo): Ruta<String>) -> Response {
+    let limpio = archivo.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.')) && !archivo.contains("..") && archivo.ends_with(".csv");
+    match (limpio, tokio::fs::read(e.dir_ejemplos.join(&archivo)).await) {
+        (true, Ok(bytes)) => ([("content-type", "text/csv; charset=utf-8".to_string()), ("content-disposition", format!("attachment; filename=\"{archivo}\""))], bytes).into_response(),
+        _ => Fallo(StatusCode::NOT_FOUND, "no existe ese ejemplo".into()).into_response(),
+    }
 }
 
 async fn sincronizar_ine(e: &Compartido) -> Res<Value> {

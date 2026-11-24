@@ -48,6 +48,26 @@ direcciones nunca pasan porque no se piden.
 **La memoria funciona con datos reales.** Tras confirmar una vez que `La De Mocracia`
 (Huehuetenango) es La Democracia, el reenvío del mismo archivo resolvió esas 6 filas solo.
 
+## Hallazgos en los datos abiertos del propio INE (24-nov-2026)
+
+- **Proyecciones de población por municipio, 2015–2030.** El libro identifica 16 municipios del
+  departamento de Guatemala con códigos que no existen (`0123` a `0138`) en lugar de `0102` a
+  `0117`; su diccionario los nombra bien. FARO lo detectó al cruzar con el catálogo y los ubicó por
+  nombre. Detalle en [`datos/referencia/LEEME.md`](../datos/referencia/LEEME.md).
+- **Listado de lugares poblados, Censo 2018.** Los 340 códigos de municipio coinciden con el
+  catálogo; 313 de 20,036 lugares se publican sin coordenadas. Detalle en
+  [`datos/catalogo/LEEME.md`](../datos/catalogo/LEEME.md).
+
+## Qué se corrige ahora y qué sigue decidiendo una persona
+
+| Situación vista en los archivos | Qué hace FARO |
+|---|---|
+| Letras dañadas (`Vi±as`, `Due±as`) | Las repara al comparar: no hay otra lectura posible. |
+| Código de municipio que no existe (por ejemplo `37` en Escuintla) | Si el archivo trae además el nombre, lo usa como respaldo (`respaldo` en la solicitud). Si no, la persona lo busca en la lista del catálogo y queda aprendido para ese departamento. |
+| Municipio que no pertenece al departamento indicado (`Camotán` en El Progreso) | Muestra dónde sí existe (Chiquimula) y la persona decide. |
+| Valor de catálogo no previsto (sexo, pueblo, tipo de vehículo) | Se elige el valor permitido en pantalla y queda aprendido por variable. |
+| `98`, `99`, `-1`, `IGNORADO` | Salen vacíos si la solicitud los declara como "sin dato" (`sin_dato`). |
+
 ## Calidad del aire
 
 Regla planteada por el INE como idea general: un día con más de 4 horas sin dato no cuenta, y un

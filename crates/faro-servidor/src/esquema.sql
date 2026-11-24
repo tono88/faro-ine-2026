@@ -15,6 +15,18 @@ CREATE TABLE IF NOT EXISTS equivalencias (
 );
 CREATE INDEX IF NOT EXISTS equivalencias_clave ON equivalencias (nivel, contexto, clave);
 
+-- Equivalencias de valores de catálogos cerrados (sexo, pueblo...): valen por dimensión.
+CREATE TABLE IF NOT EXISTS equivalencias_valor (
+    id             BIGSERIAL PRIMARY KEY,
+    dimension      TEXT NOT NULL,
+    original       TEXT NOT NULL,
+    clave          TEXT NOT NULL,
+    valor          TEXT NOT NULL,
+    institucion    TEXT NOT NULL DEFAULT '',
+    confirmado_por TEXT NOT NULL DEFAULT '',
+    fecha          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS envios (
     id            BIGSERIAL PRIMARY KEY,
     solicitud     TEXT NOT NULL,
