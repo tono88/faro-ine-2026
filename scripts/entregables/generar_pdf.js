@@ -20,7 +20,8 @@ function aHtml(md) {
 }
 (async () => {
   fs.mkdirSync(cap, { recursive: true });
-  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1360, height: 860 }, deviceScaleFactor: 1 });
+  // Si la sesión sale a internet por un proxy, el navegador lo usa para las fotos satelitales (no para el portal).
+  const proxy = process.env.HTTPS_PROXY; const b = await chromium.launch(proxy ? { proxy: { server: proxy, bypass: 'localhost,127.0.0.1' } } : {}); const p = await b.newPage({ viewport: { width: 1360, height: 860 }, deviceScaleFactor: 1 });
   await p.goto(base); await p.waitForSelector('#lienzo path.leaflet-interactive'); await p.waitForTimeout(800);
   const toma = async (n, pie) => { await p.screenshot({ path: path.join(cap, n + '.png') }); return { n, pie }; }; const tomas = [];
   tomas.push(await toma('01-mapa', 'Mapa por municipio: población proyectada por el INE.'));
@@ -36,6 +37,12 @@ function aHtml(md) {
   tomas.push(await toma('07-tablero', 'Tablero armado a partir de una frase escrita por el usuario.'));
   await p.click('nav > button[data-s=proceso]'); await p.waitForTimeout(1500);
   tomas.push(await toma('06-proceso', 'Proceso: qué hace cada etapa y quién.'));
+  await p.click('nav > button[data-s=mejoras]'); await p.waitForSelector('.mejora'); await p.waitForTimeout(400);
+  tomas.push(await toma('08-antes-y-ahora', 'Antes y ahora: qué se tenía, qué hace FARO con una cifra comprobable y cómo escala.'));
+  await p.evaluate(() => detalle('0101')); await p.waitForSelector('#animlienzo'); await p.waitForFunction(() => /Ver de nuevo/.test(document.querySelector('#animplay').textContent), null, { timeout: 40000 }); await p.waitForTimeout(2500);
+  tomas.push(await toma('09-animacion', 'Crecimiento urbano del municipio de Guatemala sobre la foto satelital (si no hay internet, sin foto).')); await p.click('#detalle .cerrar');
+  // Capturas del trabajo de campo: las deja el guion .faro/pruebas/trabajo_de_campo.js cuando se le da esta carpeta.
+  for (const [n, pie] of [['101-campo-coordinacion', 'Trabajo de campo: quien coordina arma la ruta de cada operador y revisa las visitas.'], ['103-campo-ruta-movil', 'Trabajo de campo en el teléfono del operador: sus paradas en orden y el resultado de cada visita.'], ['102b-campo-foto-comercio', 'Una visita con foto de comercio queda marcada para revisar, con la razón.']]) if (fs.existsSync(path.join(cap, n + '.png'))) tomas.push({ n, pie });
   const leer = f => fs.readFileSync(path.join(raiz, f), 'utf8'); const img = n => 'data:image/png;base64,' + fs.readFileSync(path.join(cap, n + '.png')).toString('base64');
   const figura = t => `<figure><img src="${img(t.n)}"><figcaption>${esc(t.pie)}</figcaption></figure>`;
   const version = (leer('docs/08-versiones.md').match(/## (v[\d.]+)/) || [])[1] || '';
@@ -44,18 +51,22 @@ function aHtml(md) {
     h1 { font-size: 26pt; color: #07306b; margin: 0; } h2 { font-size: 15pt; color: #07306b; border-bottom: 2px solid #0051b3; padding-bottom: 3px; margin: 22px 0 8px; break-after: avoid; } h3 { font-size: 12pt; color: #07306b; margin: 14px 0 4px; break-after: avoid; } h4 { font-size: 10.5pt; color: #07306b; margin: 10px 0 2px; }
     table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 6px 0 10px; } th, td { border: 1px solid #d9dfe6; padding: 4px 6px; text-align: left; vertical-align: top; } th { background: #e8f1fb; color: #07306b; } tr { break-inside: avoid; }
     code { background: #e8f1fb; padding: 0 3px; border-radius: 3px; font-size: 9pt; } pre { background: #f4f6f9; border: 1px solid #d9dfe6; padding: 8px; font-size: 8.5pt; white-space: pre-wrap; }
-    figure { margin: 10px 0; break-inside: avoid; } figure img { display: block; max-width: 100%; max-height: 104mm; margin: 0 auto; border: 1px solid #d9dfe6; } figcaption { font-size: 9pt; color: #5b6672; margin-top: 2px; }
+    figure { margin: 10px 0; break-inside: avoid; } figure img { display: block; max-width: 100%; max-height: 118mm; margin: 0 auto; border: 1px solid #d9dfe6; } figcaption { font-size: 9pt; color: #5b6672; margin-top: 2px; }
     .portada { height: 240mm; display: flex; flex-direction: column; justify-content: center; border-left: 8px solid #0051b3; padding-left: 22px; break-after: page; } .portada p { color: #5b6672; font-size: 12pt; max-width: 150mm; } .sec { break-before: page; }
   </style><body>
   <div class="portada"><h1>FARO</h1><p style="font-size:15pt;color:#07306b">Registros administrativos, territorio y precios</p><p>Herramienta para que el INE pida, reciba y homologue registros de otras instituciones, y los aproveche junto a sus datos abiertos.</p><p>Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos<br>Documento técnico · versión ${esc(version)} · ${new Date().toLocaleDateString('es-GT', { day: 'numeric', month: 'long', year: 'numeric' })}</p><p>Repositorio: github.com/tono88/faro-ine-2026</p></div>
   ${aHtml(leer('docs/18-ficha-tecnica.md'))}
   <div class="sec">${aHtml(leer('docs/00-que-se-hizo.md'))}</div>
+  <div class="sec">${aHtml(leer('docs/22-antes-y-ahora.md'))}</div>
   <div class="sec"><h2>El portal en imágenes</h2>${tomas.map(figura).join('')}</div>
   <div class="sec">${aHtml(leer('docs/01-necesidades-ine.md'))}</div>
   <div class="sec">${aHtml(leer('docs/09-logros.md'))}</div>
   <div class="sec">${aHtml(leer('docs/19-verificacion-estadistica.md'))}</div>
   <div class="sec">${aHtml(leer('docs/20-verificacion-interfaz.md'))}</div>
   <div class="sec">${aHtml(leer('docs/21-seguridad.md'))}</div>
+  <div class="sec">${aHtml(leer('docs/23-conformidad-legal.md'))}</div>
+  <div class="sec">${aHtml(leer('docs/24-clasificador-de-fotos.md'))}</div>
+  <div class="sec">${aHtml(leer('docs/10-imagenes-satelitales.md'))}</div>
   <div class="sec">${aHtml(leer('docs/14-manual-de-usuario.md'))}</div>
   <div class="sec">${aHtml(leer('docs/15-instalacion-y-dependencias.md'))}</div>
   <div class="sec">${aHtml(leer('docs/11-fuentes-y-citas.md'))}</div></body></html>`;
