@@ -125,6 +125,16 @@ en Escuintla y en Petén). Cada envío se limpia a mano y lo aprendido se pierde
 19l. **Entregables.** Documento técnico en PDF (`entregables/FARO-documento-tecnico.pdf`, se
     regenera con `scripts/entregables/generar_pdf.js`), ficha técnica, manual de usuario,
     instalación y dependencias, guion del video y guion de la presentación (`docs/14` a `docs/18`).
+19m. **Tableros a pedido.** Se escribe lo que se quiere ver («mapa y tabla de desnutrición y
+    población en Sololá, los 5 más altos») y el portal arma el tablero con reglas a la vista, sin
+    modelos; dice qué entendió y se edita pieza por pieza, se guarda y se imprime (`tablero.rs`).
+19n. **Grupos de usuarios.** Además del rol, cada persona puede pertenecer a un grupo que define a
+    qué secciones entra: su menú muestra solo esas y solo en ellas puede hacer cambios.
+19o. **Se verifica a sí mismo.** Tres informes que se regeneran: estadístico
+    ([`docs/19`](docs/19-verificacion-estadistica.md): consistencia de las tablas, prueba hacia
+    atrás de las proyecciones, intervalos de confianza), de interfaz
+    ([`docs/20`](docs/20-verificacion-interfaz.md): 22 secciones en laptop de 15.6", tableta y
+    celular) y de seguridad ([`docs/21`](docs/21-seguridad.md): auditoría completa y correcciones).
 19g. **Buscador de territorio.** Sobre el mapa: departamento, municipio o lugar poblado por nombre,
     nombre común o código; lleva a su ficha o a su punto.
 20. **Canasta básica.** Precio promedio del INE de 34 productos, con su serie, junto a los
@@ -158,7 +168,7 @@ Abra <http://localhost:8082> y entre con el usuario inicial `admin` y la contras
 pantalla le pedirá cambiarla en "Mi perfil". Los demás usuarios se crean en "Usuarios". Si ese puerto está ocupado, cambie `FARO_PUERTO` en `.env`
 (`iniciar.bat` elige solo uno libre y muestra la dirección).
 
-La pantalla abre en un mapa por municipio y tiene veintiuna secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
+La pantalla abre en un mapa por municipio y tiene veintidós secciones agrupadas por área (incluye el flujo de proceso y las fuentes con sus citas): recibir un envío, revisar pendientes, equivalencias
 confirmadas, resultados y avance por institución, conjuntos del portal del INE (se sincroniza
 sola al arrancar y cada 24 horas), crecimiento poblacional y urbano, asignación de operadores de
 campo, red vial, materiales de construcción, precios de referencia y capas publicadas. Cada sección enlaza un archivo de ejemplo (ficticio) para probarla.

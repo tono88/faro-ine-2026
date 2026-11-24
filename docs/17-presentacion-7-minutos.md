@@ -1,34 +1,49 @@
 # Presentación ante el jurado (7 minutos + 3 de preguntas)
 
+## El mensaje en una frase
+
+**FARO hace que el INE reciba de cualquier institución datos que puede usar el mismo día, sin
+adivinar nada, y deja prueba de cada paso.**
+
 ## Estructura
 
 | Minuto | Tema | Idea que debe quedar |
 |---|---|---|
-| 0:00–0:45 | El problema | Las instituciones no tienen un estándar para enviar datos; el mismo lugar llega escrito de muchas formas |
-| 0:45–2:15 | Demostración 1: pedir, recibir, homologar | El sistema no adivina; lo que decide una persona queda aprendido |
-| 2:15–3:30 | Demostración 2: territorio | Mapa en tres niveles, censo por lugar poblado, red vial como grafo, operadores |
-| 3:30–5:00 | Demostración 3: precios | 85 mil precios publicados; código de barras; reglas para diferencias; informe de precio de referencia |
-| 5:00–6:00 | Confianza | Todo citado y reproducible; hallazgos en los datos; nada inventado; sin modelos externos |
-| 6:00–7:00 | Adopción | Un comando para levantarlo; usuarios y roles; qué falta y qué sigue |
+| 0:00–0:40 | El problema, con las palabras de la Gerencia | No hay un estándar para enviar datos; «Puerto de San José» llega escrito de diez maneras |
+| 0:40–2:00 | Demostración 1: pedir, recibir, homologar | No adivina; lo que una persona decide queda aprendido para siempre |
+| 2:00–3:10 | Demostración 2: territorio | Del país al lugar poblado; red vial como grafo; operadores de campo |
+| 3:10–4:40 | Demostración 3: precios | 85 mil precios reales; código de barras; reglas para diferencias; informe de referencia |
+| 4:40–5:20 | Demostración 4: tableros a pedido | Una frase produce un tablero, sin modelos externos |
+| 5:20–6:20 | Por qué confiar | Se verifica a sí mismo: estadística, interfaz y seguridad, con informes |
+| 6:20–7:00 | Adopción | Un comando; usuarios, roles y grupos; qué sigue |
 
-## Hallazgos para mencionar (uno por bloque)
+## Lo que nos distingue (decirlo explícitamente)
 
-- El libro de proyecciones del INE trae 16 códigos de municipio que no existen; se reubicaron con su propio diccionario.
-- 707 lugares poblados no conectan con la red vial mapeada; 83 enlaces probables suman 51 km.
-- 16 mil productos de supermercado se comparan entre tiendas por código de barras; de las diferencias de 50 % o más, tres de cada cuatro son ofertas.
-- Las tasas de extracción de la FAO para Guatemala (de los años noventa) siguen coincidiendo con la Hoja de Balance 2024 del INE: trigo 72 %.
+1. **Responde a las cuatro necesidades de la Gerencia y a las propuestas de las direcciones**, con el estado de cada una a la vista, incluido lo que no se hizo (`docs/01-necesidades-ine.md`).
+2. **Nada inventado**: cada dato tiene fuente, fecha, licencia y huella; cada tabla se regenera con un comando.
+3. **Encontró errores en datos oficiales y en sí mismo**: 16 códigos de municipio inexistentes en las proyecciones; y una prueba hacia atrás mostró que su propio margen de proyección acertaba 45 % de las veces cuando prometía 95 %: se corrigió y ahora cumple.
+4. **Explicable de principio a fin**: reglas fijas, sin modelos en ejecución; el mismo dato da siempre el mismo resultado.
+5. **Listo para usarse**: usuarios, roles, grupos, bitácora, auditoría de seguridad atendida, y funciona en celular.
+
+## Cifras para citar
+
+- 20,036 lugares poblados con población, hogares y viviendas del Censo 2018; 340 municipios; 22 departamentos.
+- 707 lugares sin conexión vial mapeada y 83 enlaces probables (51 km).
+- 85,907 precios de 18 tiendas; 16 mil productos comparables por código de barras; 3 de cada 4 diferencias grandes son ofertas.
+- Tasas de extracción de la FAO que coinciden con la Hoja de Balance 2024 del INE (trigo: 72 %).
+- 1,020 proyecciones comprobadas contra lo ocurrido; 6 tamaños de pantalla × 22 secciones sin hallazgos; 20 hallazgos de seguridad, 16 corregidos.
 
 ## Preguntas probables y respuesta corta
 
 | Pregunta | Respuesta |
 |---|---|
-| ¿Usa inteligencia artificial? | En ejecución, no: todo son reglas fijas y a la vista; el mismo dato da siempre el mismo resultado. Se usó asistencia de IA para programar, y está declarado en el README. |
-| ¿Qué pasa con los datos personales? | Los archivos reales se procesan en un temporal y no se guardan; la salida estándar no lleva nombres ni identificadores, y en el repositorio no hay ningún dato personal. |
-| ¿Cómo se relaciona con X-Road? | X-Road transporta; FARO define qué se pide y comprueba lo que llega. La solicitud de FARO puede viajar por X-Road u otro canal. |
-| ¿Qué tan difícil es agregar una institución? | Un archivo de solicitud (columnas, niveles geográficos, catálogos) y nada de código. |
-| ¿Y si el sistema se equivoca al homologar? | Solo asigna con coincidencia exacta y única o con una equivalencia confirmada; lo demás queda pendiente. Cada decisión tiene autor y se puede revertir. |
-| ¿Los precios publicados sirven como precio de referencia? | Son fuentes secundarias: sirven de antecedente; la Dirección de Precios recomienda más de 50 % de cotizaciones directas y el informe lo dice. |
-| ¿Por qué Rust? | Un solo ejecutable, rápido y sin dependencias de sistema; se levanta con Docker en cualquier máquina. |
-| ¿Qué no hace todavía? | Guatecompras (bloqueado para clientes automáticos), comparación con censos anteriores (no hay fuente descargable), el ICC y el Manual de Características del IPC. |
-| ¿Cómo se mantiene? | Los datos abiertos se vigilan solos; cada tabla derivada se regenera con un comando documentado; hay pruebas automáticas del núcleo y de la pantalla. |
-| ¿Qué necesita el INE para adoptarlo? | Un servidor con Docker, definir sus solicitudes y cargar sus usuarios. |
+| ¿Usa inteligencia artificial? | En ejecución, no: reglas fijas y a la vista. Hasta los tableros «en lenguaje natural» son reglas que dicen qué entendieron. Se usó un asistente de IA para programar, y está declarado. |
+| ¿Y los datos personales? | Los archivos reales se procesan en un temporal que se borra siempre; la salida no lleva nombres ni identificadores; en el repositorio no hay ninguno. |
+| ¿Cómo se relaciona con X-Road? | X-Road transporta; FARO define qué se pide y comprueba lo que llega. Se complementan. |
+| ¿Qué tan difícil es agregar una institución? | Un archivo de solicitud con sus columnas. Sin programar. |
+| ¿Y si se equivoca al homologar? | Solo asigna con coincidencia exacta y única o con una decisión humana registrada, que se puede revertir. |
+| ¿Sus proyecciones son confiables? | Lo medimos: al proyectar diez años, 8 de cada 10 veces el error fue de 20 % o menos. Ese es el margen que el portal muestra. |
+| ¿Los precios publicados sirven de referencia? | Como antecedente: son fuentes secundarias y el informe lo dice. La regla de la Dirección de Precios pide más de 50 % de cotizaciones directas. |
+| ¿Es seguro? | Se auditó completo: sin inyección ni fallos de rol; lo encontrado se corrigió y lo pendiente está escrito. |
+| ¿Qué no hace todavía? | Guatecompras (bloquea clientes automáticos), comparación con censos anteriores (no hay fuente descargable), el ICC y el Manual del IPC. |
+| ¿Qué necesita el INE para adoptarlo? | Un servidor con Docker, definir sus solicitudes y crear sus usuarios. |

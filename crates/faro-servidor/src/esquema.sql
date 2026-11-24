@@ -159,3 +159,29 @@ CREATE TABLE IF NOT EXISTS edificaciones (
     fuente        TEXT NOT NULL DEFAULT 'Google Open Buildings 2.5D Temporal',
     PRIMARY KEY (municipio, anio)
 );
+
+-- Grupos de usuarios: qué secciones del portal puede usar cada grupo.
+CREATE TABLE IF NOT EXISTS grupos (
+    id          BIGSERIAL PRIMARY KEY,
+    nombre      TEXT NOT NULL UNIQUE,
+    descripcion TEXT NOT NULL DEFAULT '',
+    secciones   TEXT[] NOT NULL DEFAULT '{}'
+);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS grupo_id BIGINT REFERENCES grupos(id) ON DELETE SET NULL;
+INSERT INTO grupos (nombre, descripcion, secciones) VALUES
+  ('Registros administrativos', 'Recepción y homologación de envíos de instituciones', '{mapa,proceso,recibir,pendientes,memoria,resultados,tableros,ine,capas,acerca,perfil}'),
+  ('Territorio y cartografía', 'Población, crecimiento, red vial y operadores de campo', '{mapa,proceso,crecimiento,vial,operadores,alimentaria,tableros,capas,acerca,perfil}'),
+  ('Precios e índices', 'Precios de referencia, canasta, rubros, balance y muestreos', '{mapa,proceso,construccion,precios,canasta,rubros,balance,muestreos,tableros,acerca,perfil}')
+ON CONFLICT (nombre) DO NOTHING;
+
+-- Tableros armados por los usuarios (a partir de una frase o editándolos).
+CREATE TABLE IF NOT EXISTS tableros (
+    id         BIGSERIAL PRIMARY KEY,
+    titulo     TEXT NOT NULL,
+    solicitud  TEXT NOT NULL DEFAULT '',
+    definicion JSONB NOT NULL,
+    autor      TEXT NOT NULL,
+    publico    BOOLEAN NOT NULL DEFAULT TRUE,
+    creado     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    cambiado   TIMESTAMPTZ NOT NULL DEFAULT now()
+);

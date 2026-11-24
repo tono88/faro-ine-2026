@@ -65,7 +65,13 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
   municipio (Censo de Talla 2024), ambas de SESAN, verificadas y citadas.
 - Se entra con usuario y contraseña; tres roles; la bitácora registra a quien decidió.
 
-## 8. Trazabilidad
+## 8. Tableros, grupos y verificación
+
+- Tableros a pedido: de una frase a un tablero editable, sin modelos externos.
+- Grupos de usuarios: cada quien entra solo a las secciones de su grupo.
+- Tres verificaciones con informe: estadística, de interfaz (laptop, tableta, celular) y de seguridad.
+
+## 9. Trazabilidad
 
 - Cada descarga queda con dirección, fecha, licencia y huella.
 - Cada decisión queda con quién y cuándo.
@@ -75,9 +81,9 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 | | |
 |---|---|
-| Pruebas automáticas | 78 |
-| Comandos de `faro` | 23 |
-| Secciones de la pantalla | 21 |
+| Pruebas automáticas | 82 |
+| Comandos de `faro` | 24 |
+| Secciones de la pantalla | 22 |
 | Tareas de muestreo de precios | 26 |
 | Precios publicados en el levantamiento | 85,907 (18 tiendas, 6 rubros) |
 | Capas publicadas | 15 |

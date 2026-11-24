@@ -196,9 +196,10 @@ impl Solicitud {
                     continue; // lo geográfico lo juzga la homologación, no el tipo
                 }
                 if !tipo_valido(c.tipo, valor) {
-                    anotar(&mut rep, n + 1, &c.nombre, format!("{valor:?} no es {:?}", c.tipo).to_lowercase());
+                    // De una columna sensible nunca se cita el valor: el reporte se guarda.
+                    anotar(&mut rep, n + 1, &c.nombre, if c.sensible.is_some() { format!("valor que no es {:?}", c.tipo).to_lowercase() } else { format!("{valor:?} no es {:?}", c.tipo).to_lowercase() });
                 } else if !c.valores.is_empty() && c.canonico(valor).is_none() && !aprendido(c, valor) {
-                    anotar(&mut rep, n + 1, &c.nombre, format!("{valor:?} no está en los valores permitidos"));
+                    anotar(&mut rep, n + 1, &c.nombre, if c.sensible.is_some() { "valor fuera de los permitidos".to_string() } else { format!("{valor:?} no está en los valores permitidos") });
                 }
             }
         }

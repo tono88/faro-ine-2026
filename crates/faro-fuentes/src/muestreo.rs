@@ -348,7 +348,9 @@ pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
                 Ok(xml) => {
                     let (indice, direcciones) = direcciones_del_mapa(&xml);
                     if indice {
-                        for sub in direcciones.iter().take(15) {
+                        // Los submapas deben ser del mismo sitio que el mapa principal.
+                        let sitio = raiz.split('/').nth(2).unwrap_or("").to_string();
+                        for sub in direcciones.iter().filter(|u| u.starts_with("https://") && u.split('/').nth(2) == Some(sitio.as_str())).take(15) {
                             if let Ok(x) = pedir(sub) {
                                 paginas.extend(direcciones_del_mapa(&x).1);
                             }
@@ -425,6 +427,11 @@ pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
     ofertas.retain(|o| o.precio < PRECIO_DE_RELLENO);
     if ofertas.len() < antes {
         bitacora.push(format!("{} con precio de relleno, descartados", antes - ofertas.len()));
+    }
+    // Solo se guardan direcciones https: una tienda no puede colar otro tipo de enlace en la pantalla.
+    ofertas.retain(|o| o.url.starts_with("https://"));
+    for o in ofertas.iter_mut().filter(|o| !o.imagen.starts_with("https://")) {
+        o.imagen.clear();
     }
     // Un mismo producto puede salir en dos categorías o páginas: se deja una vez.
     let mut vistos = std::collections::HashSet::new();

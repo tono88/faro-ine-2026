@@ -2,6 +2,23 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.15.0 · 24-nov-2026
+- Verificación estadística (`faro verificar` → `docs/19`): consistencia de todas las tablas; prueba
+  hacia atrás de la proyección de superficie construida en 1,020 casos, que mostró que el margen
+  anterior solo acertaba 45 % de las veces: ahora el margen es el error realmente observado y cubre
+  80 % y 95 %; intervalo de confianza de la mediana en el informe de precios; intervalos de Wilson
+  para la comparación por foto; sensibilidad del umbral de diferencias de precio.
+- Verificación de interfaz (`docs/20`): 22 secciones en laptop de 15.6" (HD y Full HD), tableta
+  (vertical y horizontal) y celular, con clic y toque real en el mapa; se corrigieron textos
+  pequeños en celular y botones bajos en tableta.
+- Seguridad (`docs/21`): auditoría completa; 16 de 20 hallazgos corregidos (contraseña inicial
+  obligatoria de cambiar, borrado garantizado del archivo temporal, freno de intentos, contraseñas
+  fuertes, lecturas sensibles con sesión, cabeceras, rechazo de peticiones de otro origen, topes de
+  tamaño y de consultas pesadas, portal atendido solo en la propia máquina por omisión).
+- Grupos de usuarios con acceso por secciones.
+- Tableros a pedido: de una frase a un tablero, con editor, guardado e impresión.
+- Manual, guiones y documento técnico reescritos.
+
 ## v0.14.0 · 24-nov-2026
 - Precios: diferencias de 50 % o más entre tiendas explicadas por regla (oferta, tienda atípica)
   o confirmadas por una persona; lo marcado como error sale de comparaciones, búsquedas e informes.

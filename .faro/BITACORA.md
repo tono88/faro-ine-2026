@@ -95,3 +95,10 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - `dockerd` puede caerse entre turnos: `nohup dockerd &` y `docker start pgtmp`.
 - Diferencias de precio: la lista muestra 300 y lo decidido baja al final; para comprobar una decisión usar `q=` o los conteos.
 - PDF entregable: `node scripts/entregables/generar_pdf.js http://localhost:PUERTO` (toma capturas en vivo; convertidor Markdown mínimo propio).
+
+## Bloque v0.15.0 (24-nov)
+- El margen de regresión (±2 SE o t) NO sirve con series GHSL: cobertura real 45 %. Se usa el error empírico de la prueba hacia atrás. `faro verificar` falla si las constantes dejan de coincidir.
+- El contraste HBA (derivado ÷ procesado) solo equivale a la tasa si lo procesado va a ese derivado (maíz no).
+- Seguridad: tras estos cambios, cualquier guion que escriba debe entrar con `_sesion.js`; con admin/admin sin cambiar, todo POST da 403.
+- Interfaz: `small` dentro de tablas de 13 px baja de 11 px en celular; botones `.chico` necesitan 36 px en táctil.
+- Tableros: el intérprete vive en `tablero.rs` (sinónimos en `INDICADORES`); agregar un indicador = una fila allí + que exista la propiedad en `municipios.geojson`.

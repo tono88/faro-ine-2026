@@ -13,6 +13,7 @@ pub mod balance;
 pub mod construccion;
 pub mod construido;
 pub mod crecimiento;
+pub mod estadistica;
 pub mod geo;
 pub mod geotiff;
 pub mod poblacion;

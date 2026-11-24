@@ -1,5 +1,7 @@
 //! Servidor de FARO: una sola aplicación que recibe envíos, muestra lo pendiente, guarda las
 //! equivalencias confirmadas y se mantiene al día con el portal del INE.
+mod tablero;
+
 use axum::extract::{DefaultBodyLimit, Multipart, Path as Ruta, Query, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::{Html, IntoResponse, Response};
@@ -104,6 +106,8 @@ async fn main() -> Result<(), String> {
         }
     });
     bd.batch_execute(include_str!("esquema.sql")).await.map_err(|e| format!("esquema: {e}"))?;
+    // Ninguna consulta puede ocupar la base más de medio minuto.
+    bd.batch_execute("SET statement_timeout = '30s'").await.map_err(|e| e.to_string())?;
 
     // Sin la tabla de población el servidor funciona igual; solo no calcula tasas.
     let ruta_poblacion = PathBuf::from(var("FARO_POBLACION", "datos/referencia/poblacion_municipio.csv"));
@@ -231,7 +235,7 @@ async fn main() -> Result<(), String> {
         .route("/api/solicitudes", get(api_solicitudes))
         .route("/api/catalogo/:nivel", get(api_catalogo))
         .route("/api/envios", get(api_envios))
-        .route("/api/envios/:solicitud", post(api_enviar))
+        .route("/api/envios/:solicitud", post(api_enviar).layer(DefaultBodyLimit::max(300 * 1024 * 1024)))
         .route("/api/pendientes", get(api_pendientes))
         .route("/api/confirmar", post(api_confirmar))
         .route("/api/equivalencias", get(api_equivalencias))
@@ -252,6 +256,11 @@ async fn main() -> Result<(), String> {
         .route("/api/perfil", post(api_perfil))
         .route("/api/usuarios", get(api_usuarios).post(api_usuario_crear))
         .route("/api/usuarios/:id", post(api_usuario_cambiar))
+        .route("/api/grupos", get(api_grupos).post(api_grupo_guardar))
+        .route("/api/grupos/:id", post(api_grupo_guardar_id).delete(api_grupo_borrar))
+        .route("/api/tableros/interpretar", post(api_tablero_interpretar))
+        .route("/api/tableros", get(api_tableros).post(api_tablero_guardar))
+        .route("/api/tableros/:id", get(api_tablero).post(api_tablero_guardar_id).delete(api_tablero_borrar))
         .route("/api/cif", get(|State(e): State<Compartido>| async move {
             let mut talla: Vec<Value> = e.talla.values().map(|f| { let mut v = json!(f); v["departamento"] = json!(f.get("municipio").and_then(|m| e.catalogo.por_codigo(&m[..2])).map(|d| d.nombre.clone())); v }).collect();
             talla.sort_by(|a, b| b["retardo_en_talla_pct"].as_str().and_then(|x| x.parse::<f64>().ok()).unwrap_or(0.0).total_cmp(&a["retardo_en_talla_pct"].as_str().and_then(|x| x.parse::<f64>().ok()).unwrap_or(0.0)));
@@ -283,7 +292,9 @@ async fn main() -> Result<(), String> {
         .route("/api/registros_municipio", get(api_registros_municipio))
         .route("/vendor/leaflet.js", get(|| async { ([("content-type", "text/javascript; charset=utf-8"), ("cache-control", "public, max-age=86400")], include_str!("../web/vendor/leaflet.js")) }))
         .route("/vendor/leaflet.css", get(|| async { ([("content-type", "text/css; charset=utf-8"), ("cache-control", "public, max-age=86400")], include_str!("../web/vendor/leaflet.css")) }))
-        .layer(DefaultBodyLimit::max(300 * 1024 * 1024))
+        // Tope general de 20 MB; solo la recepción de envíos admite archivos grandes.
+        .layer(DefaultBodyLimit::max(20 * 1024 * 1024))
+        .layer(axum::middleware::from_fn(seguridad))
         .with_state(estado);
 
     let puerto = var("FARO_PUERTO", "8080");
@@ -295,17 +306,62 @@ async fn main() -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
+/// Dos defensas para todas las rutas: (1) una petición que cambia datos y trae `Origin` de otro
+/// sitio se rechaza (falsificación de peticiones); (2) toda respuesta lleva cabeceras que impiden
+/// incrustar el portal en otra página, adivinar tipos de contenido o cargar código de terceros.
+async fn seguridad(pedido: axum::extract::Request, siguiente: axum::middleware::Next) -> Response {
+    use axum::http::{header, HeaderValue, Method};
+    if !matches!(*pedido.method(), Method::GET | Method::HEAD | Method::OPTIONS) {
+        let cab = pedido.headers();
+        let (origen, anfitrion) = (cab.get(header::ORIGIN).and_then(|v| v.to_str().ok()), cab.get(header::HOST).and_then(|v| v.to_str().ok()));
+        if let (Some(o), Some(h)) = (origen, anfitrion) {
+            if o.split("://").nth(1) != Some(h) {
+                return (StatusCode::FORBIDDEN, Json(json!({ "error": "petición rechazada: viene de otro sitio" }))).into_response();
+            }
+        }
+    }
+    let mut respuesta = siguiente.run(pedido).await;
+    let c = respuesta.headers_mut();
+    c.insert("x-content-type-options", HeaderValue::from_static("nosniff"));
+    c.insert("x-frame-options", HeaderValue::from_static("DENY"));
+    c.insert("referrer-policy", HeaderValue::from_static("no-referrer"));
+    c.insert("permissions-policy", HeaderValue::from_static("geolocation=(), camera=(), microphone=()"));
+    // Los guiones y estilos van dentro de la propia página (por eso 'unsafe-inline'); de fuera solo
+    // se admiten la tipografía, las teselas del mapa base y las fotos de productos, por https.
+    c.insert("content-security-policy", HeaderValue::from_static("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"));
+    respuesta
+}
+
 /// Las operaciones que cambian datos exigen el token cuando está configurado.
 /// Quién hace la operación. Las operaciones que cambian datos exigen una sesión de analista o
 /// administrador; la clave de servicio (FARO_TOKEN) queda para procesos automáticos.
 async fn autorizar(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
     if let Some(s) = sesion_de(e, cabeceras).await? {
+        if s.debe_cambiar {
+            return Err(Fallo(StatusCode::FORBIDDEN, "antes de hacer cambios debe cambiar su contraseña inicial en «Mi perfil»".into()));
+        }
         return if s.rol == "consulta" { Err(Fallo(StatusCode::FORBIDDEN, "su usuario es de consulta: no puede hacer cambios".into())) } else { Ok(s) };
     }
-    match &e.token {
-        Some(t) if cabeceras.get("x-faro-token").and_then(|v| v.to_str().ok()) == Some(t.as_str()) => Ok(Sesion { id: 0, usuario: "servicio".into(), nombre: "Clave de servicio".into(), rol: "analista".into(), debe_cambiar: false }),
+    // La clave de servicio se compara por su huella y recorriendo todos los bytes (tiempo constante).
+    let igual = |a: &str, b: &str| { use sha2::{Digest, Sha256}; let (x, y) = (Sha256::digest(a.as_bytes()), Sha256::digest(b.as_bytes())); x.iter().zip(y.iter()).fold(0u8, |d, (p, q)| d | (p ^ q)) == 0 };
+    match (&e.token, cabeceras.get("x-faro-token").and_then(|v| v.to_str().ok())) {
+        (Some(t), Some(dada)) if igual(t, dada) => Ok(Sesion { id: 0, usuario: "servicio".into(), nombre: "Clave de servicio".into(), rol: "analista".into(), debe_cambiar: false, secciones: None }),
         _ => Err(Fallo(StatusCode::UNAUTHORIZED, "inicie sesión para hacer cambios".into())),
     }
+}
+
+/// Lecturas que muestran lo que llegó de las instituciones: piden una sesión de cualquier rol.
+async fn con_sesion(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
+    sesion_de(e, cabeceras).await?.ok_or(Fallo(StatusCode::UNAUTHORIZED, "inicie sesión para ver esta información".into()))
+}
+
+/// Como `autorizar`, y además el grupo del usuario debe incluir la sección (los administradores entran a todas).
+async fn autorizar_en(e: &Estado, cabeceras: &HeaderMap, seccion: &str) -> Res<Sesion> {
+    let s = autorizar(e, cabeceras).await?;
+    if s.rol != "admin" && s.secciones.as_ref().is_some_and(|v| !v.iter().any(|x| x == seccion)) {
+        return Err(Fallo(StatusCode::FORBIDDEN, format!("su grupo no tiene acceso a esta parte del portal ({seccion})")));
+    }
+    Ok(s)
 }
 
 async fn memoria(e: &Estado) -> Res<Memoria> {
@@ -369,7 +425,8 @@ async fn api_catalogo(State(e): State<Compartido>, Ruta(nivel): Ruta<String>, Qu
     Ok(Json(json!(e.catalogo.de_nivel(nivel, padre).map(|l| json!({"codigo": l.codigo, "nombre": l.nombre, "padre": l.padre, "padre_nombre": e.catalogo.por_codigo(&l.padre).map(|p| p.nombre.clone())})).collect::<Vec<_>>())))
 }
 
-async fn api_envios(State(e): State<Compartido>) -> Res<Json<Value>> {
+async fn api_envios(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    con_sesion(&e, &cabeceras).await?;
     let filas = e
         .bd
         .query("SELECT id, solicitud, institucion, archivo, to_char(recibido, 'YYYY-MM-DD HH24:MI'), filas, pct_resuelto, problemas FROM envios ORDER BY id DESC LIMIT 100", &[])
@@ -396,7 +453,7 @@ fn agregar(rec: &Recepcion) -> BTreeMap<(String, String, String), i64> {
 }
 
 async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap, mut partes: Multipart) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras).await?;
+    autorizar_en(&e, &cabeceras, "recibir").await?;
     let sol = solicitudes(&e).map_err(interno)?.into_iter().find(|s| s.id == id).ok_or_else(|| pedido(format!("no existe la solicitud {id}")))?;
     let mut archivo = None;
     while let Some(parte) = partes.next_field().await.map_err(pedido)? {
@@ -414,6 +471,14 @@ async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabecer
 
     // El archivo original solo vive en un temporal mientras se procesa.
     let temporal = std::env::temp_dir().join(format!("faro-{}-{}.{ext}", std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0)));
+    // La guarda borra el temporal pase lo que pase: error de lectura, pánico o conexión cortada.
+    struct Temporal(PathBuf);
+    impl Drop for Temporal {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_file(&self.0);
+        }
+    }
+    let _guarda = Temporal(temporal.clone());
     tokio::fs::write(&temporal, &bytes).await.map_err(interno)?;
     let (e2, sol2, temporal2) = (e.clone(), sol.clone(), temporal.clone());
     let resultado = tokio::task::spawn_blocking(move || {
@@ -475,7 +540,8 @@ async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabecer
     Ok(Json(json!({ "envio": envio, "solicitud": sol.id, "archivo": nombre, "porcentaje_resuelto": rec.porcentaje_resuelto(), "recepcion": rec })))
 }
 
-async fn api_pendientes(State(e): State<Compartido>) -> Res<Json<Value>> {
+async fn api_pendientes(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    con_sesion(&e, &cabeceras).await?;
     // Un mismo valor puede venir en varios envíos: se muestra una vez, con el total.
     let filas = e
         .bd
@@ -515,7 +581,7 @@ struct Confirmacion {
 
 async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c): Json<Confirmacion>) -> Res<Json<Value>> {
     // En la bitácora queda quien inició sesión, no un nombre escrito a mano.
-    let quien = autorizar(&e, &cabeceras).await?;
+    let quien = autorizar_en(&e, &cabeceras, "pendientes").await?;
     let mut c = c;
     if quien.id != 0 || c.usuario.trim().is_empty() {
         c.usuario = quien.nombre;
@@ -566,7 +632,8 @@ async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c
     Ok(Json(json!({ "grabado": true, "codigo": lugar.codigo, "nombre": lugar.nombre, "pendientes_resueltos": n })))
 }
 
-async fn api_equivalencias(State(e): State<Compartido>) -> Res<Json<Value>> {
+async fn api_equivalencias(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    con_sesion(&e, &cabeceras).await?;
     let filas = e
         .bd
         .query(
@@ -679,8 +746,9 @@ async fn sincronizar_ine(e: &Compartido) -> Res<Value> {
     let conjuntos = match inventario {
         Ok(c) => c,
         Err(detalle) => {
-            e.bd.execute("INSERT INTO sincronizaciones (ok, detalle) VALUES (FALSE, $1)", &[&detalle]).await.map_err(interno)?;
-            return Err(Fallo(StatusCode::BAD_GATEWAY, format!("no se pudo consultar el portal del INE: {detalle}")));
+            eprintln!("sincronización con el INE: {detalle}");
+            e.bd.execute("INSERT INTO sincronizaciones (ok, detalle) VALUES (FALSE, $1)", &[&"no se pudo consultar el portal del INE (sin conexión o sin respuesta)"]).await.map_err(interno)?;
+            return Err(Fallo(StatusCode::BAD_GATEWAY, "no se pudo consultar el portal del INE (sin conexión o sin respuesta)".into()));
         }
     };
     let (mut nuevos, mut cambiados) = (0i32, 0i32);
@@ -707,7 +775,7 @@ async fn sincronizar_ine(e: &Compartido) -> Res<Value> {
 }
 
 async fn api_sincronizar(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras).await?;
+    autorizar_en(&e, &cabeceras, "ine").await?;
     Ok(Json(sincronizar_ine(&e).await?))
 }
 
@@ -726,7 +794,7 @@ async fn api_ine(State(e): State<Compartido>) -> Res<Json<Value>> {
 /// - `departamento, municipio, anio, edificaciones`: nombres, que se homologan al código INE con
 ///   el mismo motor que los envíos.
 async fn api_edificaciones(State(e): State<Compartido>, cabeceras: HeaderMap, cuerpo: String) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras).await?;
+    autorizar_en(&e, &cabeceras, "crecimiento").await?;
     let mem = memoria(&e).await?;
     let h = Homologador::new(&e.catalogo, &mem);
     let mut lector = csv::Reader::from_reader(cuerpo.as_bytes());
@@ -800,7 +868,7 @@ struct PedidoAsignacion {
 /// dato personal: se usa para el cálculo y se devuelve el resultado, pero no se guarda nada.
 async fn api_asignar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(p): Json<PedidoAsignacion>) -> Res<Json<Value>> {
     use faro_territorio::asignacion::{self, Coordenada};
-    autorizar(&e, &cabeceras).await?;
+    autorizar_en(&e, &cabeceras, "operadores").await?;
     let resultado = tokio::task::spawn_blocking(move || {
         let donde = |codigo: &str| faro_homologa::censo::centroide(&e.catalogo, codigo).map(|(longitud, latitud)| Coordenada { longitud, latitud });
         let operadores = asignacion::leer_operadores(p.operadores.as_bytes(), &donde).map_err(|x| format!("operadores: {x}"))?;
@@ -816,7 +884,7 @@ async fn api_asignar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(p):
 
 /// Precio de referencia por producto. Calcula y devuelve; no guarda las cotizaciones.
 async fn api_precios(State(e): State<Compartido>, cabeceras: HeaderMap, cuerpo: String) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras).await?;
+    autorizar_en(&e, &cabeceras, "precios").await?;
     let p = faro_territorio::precios::Parametros::default();
     let productos = faro_territorio::precios::analizar_csv(cuerpo.as_bytes(), &p).map_err(pedido)?;
     Ok(Json(json!({ "parametros": p, "productos": productos })))
@@ -1207,7 +1275,7 @@ async fn api_proceso(State(e): State<Compartido>) -> Res<Json<Value>> {
 /// que usa este servidor. Devuelve cada paso con sus cifras.
 async fn api_reproducir_poblacion(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     use faro_territorio::poblacion::{procesar, Paso};
-    autorizar(&e, &cabeceras).await?;
+    autorizar_en(&e, &cabeceras, "crecimiento").await?;
     let resultado = tokio::task::spawn_blocking(move || -> Result<Value, String> {
         const CONJUNTO: &str = "proyecciones-de-poblacion-2015-2030";
         let mut pasos: Vec<Paso> = Vec::new();
@@ -1364,7 +1432,7 @@ struct ConfigMuestreo {
 }
 
 async fn api_muestreo_configurar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap, Json(c): Json<ConfigMuestreo>) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras).await?;
+    autorizar_en(&e, &cabeceras, "muestreos").await?;
     let t = e.tareas.iter().find(|t| t.id == id).ok_or_else(|| pedido(format!("no existe la tarea {id}")))?;
     if c.cada_horas.is_some_and(|h| !(1..=24 * 90).contains(&h)) {
         return Err(pedido("la frecuencia debe estar entre 1 hora y 90 días"));
@@ -1380,7 +1448,7 @@ async fn api_muestreo_configurar(State(e): State<Compartido>, Ruta(id): Ruta<Str
 }
 
 async fn api_muestreo_ejecutar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras).await?;
+    autorizar_en(&e, &cabeceras, "muestreos").await?;
     let t = e.tareas.iter().find(|t| t.id == id).ok_or_else(|| pedido(format!("no existe la tarea {id}")))?.clone();
     if t.tipo == "vtex" {
         return Ok(Json(ejecutar_muestreo(&e, &t).await?));
@@ -1399,6 +1467,7 @@ async fn api_muestreo_ejecutar(State(e): State<Compartido>, Ruta(id): Ruta<Strin
 /// Precios publicados por rubro: el más reciente de cada producto de cada tienda, con búsqueda;
 /// el mismo código de barras en tiendas distintas; y los cambios de precio entre dos muestreos.
 async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
+    let _turno = turno_pesado()?;
     const ULTIMOS: &str = "SELECT DISTINCT ON (rubro, proveedor, url) rubro, proveedor, producto, marca, precio, precio_lista, ean, termino, url, observado FROM precios_observados p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor) ORDER BY rubro, proveedor, url, observado DESC";
     const PLANO: &str = "translate(lower(producto), 'áéíóúüñ', 'aeiouun')";
     let rubros = e.bd.query(&format!("SELECT rubro, count(*), count(DISTINCT proveedor), count(*) FILTER (WHERE ean <> ''), to_char(max(observado), 'YYYY-MM-DD'), string_agg(DISTINCT proveedor, ', ') FROM ({ULTIMOS}) u GROUP BY 1 ORDER BY 2 DESC"), &[]).await.map_err(interno)?;
@@ -1474,7 +1543,10 @@ async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<Str
 /// Informe de precio de referencia a partir de los precios publicados que coinciden con una
 /// búsqueda: mismas reglas que la sección de cotizaciones (media, mediana, moda; mediana si hay
 /// extremos). Todas las fuentes son secundarias (catálogos en línea) y el informe lo dice.
-async fn api_informe_precio(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
+async fn api_informe_precio(State(e): State<Compartido>, cabeceras: HeaderMap, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
+    let _turno = turno_pesado()?;
+    // Bajar fotos nuevas es trabajo del servidor hacia afuera: solo con sesión. Sin ella se usan las ya calculadas.
+    let puede_bajar = sesion_de(&e, &cabeceras).await?.is_some();
     let rubro = q.get("rubro").cloned().unwrap_or_default();
     let proveedor = q.get("proveedor").cloned().unwrap_or_default();
     let texto = q.get("q").map(|t| t.trim().to_string()).unwrap_or_default();
@@ -1491,7 +1563,7 @@ async fn api_informe_precio(State(e): State<Compartido>, Query(q): Query<HashMap
         &[&rubro, &proveedor, &palabras, &excluidos]).await.map_err(interno)?;
     // Huella visual de cada foto (se calcula una vez y queda guardada).
     let imagenes: Vec<String> = filas.iter().map(|f| f.get::<_, String>(7)).filter(|u| !u.is_empty()).collect();
-    let huellas = huellas_de(&e, &imagenes).await?;
+    let huellas = huellas_de(&e, &imagenes, puede_bajar).await?;
     let umbrales = faro_fuentes::foto::Umbrales::default();
     let se_parecen = |a: &str, b: &str| huellas.get(a).zip(huellas.get(b)).is_some_and(|(x, y)| faro_fuentes::foto::se_ven_iguales(x, y, &umbrales));
     // Si la persona eligió un producto de referencia, se dejan solo los que se ven como él o
@@ -1520,7 +1592,7 @@ async fn api_informe_precio(State(e): State<Compartido>, Query(q): Query<HashMap
 
 /// Huellas visuales de las fotos pedidas: las guardadas y, de las que faltan, hasta 150 por
 /// consulta (descarga con pausa; el resto se calcula en la siguiente).
-async fn huellas_de(e: &Compartido, imagenes: &[String]) -> Res<HashMap<String, faro_fuentes::foto::Huella>> {
+async fn huellas_de(e: &Compartido, imagenes: &[String], bajar: bool) -> Res<HashMap<String, faro_fuentes::foto::Huella>> {
     let mut huellas: HashMap<String, faro_fuentes::foto::Huella> = HashMap::new();
     let mut intentadas: std::collections::HashSet<String> = std::collections::HashSet::new();
     for f in e.bd.query("SELECT imagen, forma, color FROM huellas_foto WHERE imagen = ANY($1::text[])", &[&imagenes]).await.map_err(interno)? {
@@ -1530,7 +1602,7 @@ async fn huellas_de(e: &Compartido, imagenes: &[String]) -> Res<HashMap<String, 
         }
     }
     let faltan: Vec<String> = imagenes.iter().filter(|u| !intentadas.contains(*u)).cloned().collect::<std::collections::BTreeSet<_>>().into_iter().take(150).collect();
-    if faltan.is_empty() {
+    if faltan.is_empty() || !bajar {
         return Ok(huellas);
     }
     let nuevas = tokio::task::spawn_blocking(move || {
@@ -1633,7 +1705,7 @@ struct DecisionPrecio {
 
 /// Guarda lo que una persona decidió sobre el precio de una tienda para un código de barras.
 async fn api_decision_precio(State(e): State<Compartido>, cabeceras: HeaderMap, Json(d): Json<DecisionPrecio>) -> Res<Json<Value>> {
-    let quien = autorizar(&e, &cabeceras).await?;
+    let quien = autorizar_en(&e, &cabeceras, "rubros").await?;
     match d.decision.as_str() {
         "" => { e.bd.execute("DELETE FROM decisiones_precio WHERE rubro = $1 AND ean = $2 AND proveedor = $3", &[&d.rubro, &d.ean, &d.proveedor]).await.map_err(interno)?; }
         "correcto" | "error" => {
@@ -1646,7 +1718,7 @@ async fn api_decision_precio(State(e): State<Compartido>, cabeceras: HeaderMap, 
 
 /// Ejecuta todas las tareas de muestreo: en segundo plano, una tienda a la vez por sitio.
 async fn api_muestreos_todas(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
-    autorizar(&e, &cabeceras).await?;
+    autorizar_en(&e, &cabeceras, "muestreos").await?;
     let mut por_sitio: BTreeMap<String, Vec<faro_fuentes::muestreo::Tarea>> = BTreeMap::new();
     for t in &e.tareas {
         por_sitio.entry(t.base.clone()).or_default().push(t.clone());
@@ -1666,6 +1738,7 @@ async fn api_muestreos_todas(State(e): State<Compartido>, cabeceras: HeaderMap) 
 
 /// Los precios publicados de un rubro (el más reciente de cada producto de cada tienda), en CSV.
 async fn api_publicados_csv(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Response> {
+    let _turno = turno_pesado()?;
     let rubro = q.get("rubro").cloned().unwrap_or_default();
     let proveedor = q.get("proveedor").cloned().unwrap_or_default();
     let palabras: Vec<String> = faro_homologa::normalizar::basico(q.get("q").map(String::as_str).unwrap_or("")).split(' ').filter(|p| !p.is_empty()).map(|p| format!("%{}%", p.to_lowercase())).collect();
@@ -1674,7 +1747,8 @@ async fn api_publicados_csv(State(e): State<Compartido>, Query(q): Query<HashMap
            (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor) ORDER BY rubro, proveedor, url, observado DESC) u
          WHERE ($1 = '' OR rubro = $1) AND ($2 = '' OR proveedor = $2) AND translate(lower(producto), 'áéíóúüñ', 'aeiouun') LIKE ALL($3::text[]) ORDER BY rubro, producto, precio LIMIT 300000",
         &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
-    let campo = |t: String| if t.contains([',', '"', '\n']) { format!("\"{}\"", t.replace('"', "\"\"")) } else { t };
+    // Una celda que empieza con = + - @ se abriría como fórmula en una hoja de cálculo: se neutraliza.
+    let campo = |t: String| { let t = if t.starts_with(['=', '+', '-', '@', '\t', '\r']) { format!("'{t}") } else { t }; if t.contains([',', '"', '\n']) { format!("\"{}\"", t.replace('"', "\"\"")) } else { t } };
     let mut csv = String::from("rubro,tienda,producto,marca,precio_q,precio_lista_q,codigo_barras,categoria_tienda,url,fecha_consulta\n");
     for f in &filas {
         let texto = |i: usize| campo(f.get::<_, String>(i));
@@ -1794,7 +1868,7 @@ async fn plantilla(State(e): State<Compartido>, Ruta(id): Ruta<String>) -> Respo
 /// institucion) como equivalencias confirmadas por quien la sube. Las filas que no cuadran con
 /// el catálogo se rechazan una por una y se devuelven.
 async fn api_tabla_equivalencias(State(e): State<Compartido>, cabeceras: HeaderMap, Query(q): Query<HashMap<String, String>>, cuerpo: String) -> Res<Json<Value>> {
-    let quien = autorizar(&e, &cabeceras).await?;
+    let quien = autorizar_en(&e, &cabeceras, "memoria").await?;
     let usuario = quien.nombre.as_str();
     let _ = &q;
     let mut lector = csv::ReaderBuilder::new().trim(csv::Trim::All).flexible(true).from_reader(cuerpo.trim_start_matches('\u{feff}').as_bytes());
@@ -1855,6 +1929,8 @@ struct Sesion {
     nombre: String,
     rol: String,
     debe_cambiar: bool,
+    /// Secciones del portal que su grupo puede usar; vacío = todas las que su rol permite.
+    secciones: Option<Vec<String>>,
 }
 
 const ROLES: [&str; 3] = ["admin", "analista", "consulta"];
@@ -1881,12 +1957,14 @@ fn llave_de(cabeceras: &HeaderMap) -> Option<String> {
 
 async fn sesion_de(e: &Estado, cabeceras: &HeaderMap) -> Res<Option<Sesion>> {
     let Some(llave) = llave_de(cabeceras) else { return Ok(None) };
-    let f = e.bd.query_opt("SELECT u.id, u.usuario, u.nombre, u.rol, u.debe_cambiar FROM sesiones s JOIN usuarios u ON u.id = s.usuario_id WHERE s.huella = $1 AND s.expira > now() AND u.activo", &[&huella_de_llave(&llave)]).await.map_err(interno)?;
-    Ok(f.map(|f| Sesion { id: f.get(0), usuario: f.get(1), nombre: f.get(2), rol: f.get(3), debe_cambiar: f.get(4) }))
+    let f = e.bd.query_opt("SELECT u.id, u.usuario, u.nombre, u.rol, u.debe_cambiar, g.secciones, g.nombre FROM sesiones s JOIN usuarios u ON u.id = s.usuario_id LEFT JOIN grupos g ON g.id = u.grupo_id WHERE s.huella = $1 AND s.expira > now() AND u.activo", &[&huella_de_llave(&llave)]).await.map_err(interno)?;
+    Ok(f.map(|f| Sesion { id: f.get(0), usuario: f.get(1), nombre: f.get(2), rol: f.get(3), debe_cambiar: f.get(4), secciones: f.get(5) }))
 }
 
 fn galleta(llave: &str, segundos: i64) -> (&'static str, String) {
-    ("set-cookie", format!("faro_sesion={llave}; HttpOnly; SameSite=Strict; Path=/; Max-Age={segundos}"))
+    // Con FARO_HTTPS=1 (portal detrás de TLS) la galleta solo viaja cifrada.
+    let segura = if std::env::var("FARO_HTTPS").is_ok_and(|v| v == "1") { "; Secure" } else { "" };
+    ("set-cookie", format!("faro_sesion={llave}; HttpOnly; SameSite=Strict; Path=/; Max-Age={segundos}{segura}"))
 }
 
 async fn api_sesion(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
@@ -1902,15 +1980,44 @@ struct Ingreso {
     clave: String,
 }
 
+/// Fallos seguidos de ingreso por usuario y hasta cuándo queda bloqueado.
+static INTENTOS: std::sync::LazyLock<std::sync::Mutex<HashMap<String, (u32, std::time::Instant)>>> = std::sync::LazyLock::new(Default::default);
+/// Verificaciones de contraseña simultáneas.
+static ARGON: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(3);
+/// Consultas pesadas simultáneas (precios publicados, descargas, informes).
+static PESADAS: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(3);
+fn turno_pesado() -> Res<tokio::sync::SemaphorePermit<'static>> {
+    PESADAS.try_acquire().map_err(|_| Fallo(StatusCode::SERVICE_UNAVAILABLE, "el portal está atendiendo otras consultas grandes: intente de nuevo en unos segundos".into()))
+}
+
 async fn api_ingresar(State(e): State<Compartido>, Json(i): Json<Ingreso>) -> Result<Response, Fallo> {
     let f = e.bd.query_opt("SELECT id, usuario, nombre, rol, debe_cambiar, clave FROM usuarios WHERE usuario = $1 AND activo", &[&i.usuario.trim().to_lowercase()]).await.map_err(interno)?;
+    // Freno a los intentos: tras cinco fallos seguidos de un usuario se le bloquea medio minuto, y
+    // el bloqueo se duplica con cada fallo más (tope de 15 minutos). Un ingreso correcto lo borra.
+    let quien = i.usuario.trim().to_lowercase();
+    if let Some(espera) = INTENTOS.lock().map_err(interno)?.get(&quien).and_then(|(_, hasta)| hasta.checked_duration_since(std::time::Instant::now())) {
+        return Err(Fallo(StatusCode::TOO_MANY_REQUESTS, format!("demasiados intentos fallidos: espere {} segundos", espera.as_secs() + 1)));
+    }
     let (clave, guardada) = (i.clave.clone(), f.as_ref().map(|f| f.get::<_, String>(5)));
-    // Verificar cuesta lo mismo exista o no el usuario, y un fallo se demora: frena los intentos en serie.
+    // Verificar cuesta lo mismo exista o no el usuario; solo tres verificaciones a la vez para que
+    // una ráfaga de intentos no agote la memoria.
+    let _turno = ARGON.acquire().await.map_err(interno)?;
     let bien = tokio::task::spawn_blocking(move || guardada.is_some_and(|g| clave_correcta(&clave, &g))).await.map_err(interno)?;
+    drop(_turno);
     let Some(f) = f.filter(|_| bien) else {
+        {
+            let mut intentos = INTENTOS.lock().map_err(interno)?;
+            if intentos.len() > 10_000 { intentos.clear(); }
+            let (fallos, hasta) = intentos.entry(quien).or_insert((0, std::time::Instant::now()));
+            *fallos += 1;
+            if *fallos >= 5 {
+                *hasta = std::time::Instant::now() + std::time::Duration::from_secs((30u64 << (*fallos - 5).min(5)).min(900));
+            }
+        }
         tokio::time::sleep(std::time::Duration::from_millis(700)).await;
         return Err(Fallo(StatusCode::UNAUTHORIZED, "usuario o contraseña incorrectos".into()));
     };
+    INTENTOS.lock().map_err(interno)?.remove(&quien);
     let llave = {
         use rand_core::{OsRng, RngCore};
         let mut b = [0u8; 32];
@@ -1921,7 +2028,8 @@ async fn api_ingresar(State(e): State<Compartido>, Json(i): Json<Ingreso>) -> Re
     e.bd.execute("DELETE FROM sesiones WHERE expira < now()", &[]).await.map_err(interno)?;
     e.bd.execute("INSERT INTO sesiones (huella, usuario_id, expira) VALUES ($1, $2, now() + make_interval(hours => $3))", &[&huella_de_llave(&llave), &id, &(HORAS_DE_SESION as i32)]).await.map_err(interno)?;
     e.bd.execute("UPDATE usuarios SET ultimo_ingreso = now() WHERE id = $1", &[&id]).await.map_err(interno)?;
-    let s = Sesion { id, usuario: f.get(1), nombre: f.get(2), rol: f.get(3), debe_cambiar: f.get(4) };
+    let secciones: Option<Vec<String>> = e.bd.query_one("SELECT g.secciones FROM usuarios u LEFT JOIN grupos g ON g.id = u.grupo_id WHERE u.id = $1", &[&id]).await.map_err(interno)?.get(0);
+    let s = Sesion { id, usuario: f.get(1), nombre: f.get(2), rol: f.get(3), debe_cambiar: f.get(4), secciones };
     Ok(([galleta(&llave, HORAS_DE_SESION * 3600)], Json(json!({ "sesion": true, "usuario": s }))).into_response())
 }
 
@@ -1932,9 +2040,15 @@ async fn api_salir(State(e): State<Compartido>, cabeceras: HeaderMap) -> Result<
     Ok(([galleta("", 0)], Json(json!({ "sesion": false }))).into_response())
 }
 
-fn clave_aceptable(clave: &str) -> Res<()> {
-    if clave.chars().count() < 8 {
-        return Err(pedido("la contraseña debe tener al menos 8 caracteres"));
+fn clave_aceptable(clave: &str, usuario: &str) -> Res<()> {
+    const COMUNES: [&str; 14] = ["password", "contraseña", "contrasena", "12345678", "123456789", "1234567890", "qwertyuiop", "guatemala", "administrador", "admin12345", "bienvenido", "abcdefghij", "0123456789", "ine2026ine"];
+    let baja = clave.to_lowercase();
+    let clases = [clave.chars().any(|c| c.is_lowercase()), clave.chars().any(|c| c.is_uppercase()), clave.chars().any(|c| c.is_ascii_digit()), clave.chars().any(|c| !c.is_alphanumeric())].iter().filter(|x| **x).count();
+    if clave.chars().count() < 10 {
+        return Err(pedido("la contraseña debe tener al menos 10 caracteres"));
+    }
+    if clases < 2 || COMUNES.iter().any(|c| baja.contains(c)) || (!usuario.is_empty() && baja.contains(&usuario.to_lowercase())) {
+        return Err(pedido("la contraseña es demasiado fácil de adivinar: combine letras con números o signos y no use su usuario ni palabras comunes"));
     }
     Ok(())
 }
@@ -1952,25 +2066,32 @@ async fn api_perfil(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c): 
         e.bd.execute("UPDATE usuarios SET nombre = $1 WHERE id = $2", &[&nombre, &s.id]).await.map_err(interno)?;
     }
     if let Some(nueva) = c.clave_nueva.filter(|n| !n.is_empty()) {
-        clave_aceptable(&nueva)?;
+        clave_aceptable(&nueva, &s.usuario)?;
         let guardada: String = e.bd.query_one("SELECT clave FROM usuarios WHERE id = $1", &[&s.id]).await.map_err(interno)?.get(0);
         let actual = c.clave_actual.unwrap_or_default();
         let huella = tokio::task::spawn_blocking(move || if clave_correcta(&actual, &guardada) { huella_de_clave(&nueva).map(Some) } else { Ok(None) }).await.map_err(interno)?.map_err(interno)?;
         let huella = huella.ok_or_else(|| pedido("la contraseña actual no es correcta"))?;
         e.bd.execute("UPDATE usuarios SET clave = $1, debe_cambiar = FALSE WHERE id = $2", &[&huella, &s.id]).await.map_err(interno)?;
+        // Las otras sesiones abiertas de este usuario dejan de valer.
+        let esta = llave_de(&cabeceras).map(|l| huella_de_llave(&l)).unwrap_or_default();
+        e.bd.execute("DELETE FROM sesiones WHERE usuario_id = $1 AND huella <> $2", &[&s.id, &esta]).await.map_err(interno)?;
     }
     Ok(Json(json!({ "guardado": true })))
 }
 
 async fn solo_admin(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
-    sesion_de(e, cabeceras).await?.filter(|s| s.rol == "admin").ok_or(Fallo(StatusCode::FORBIDDEN, "solo un administrador puede manejar usuarios".into()))
+    let s = sesion_de(e, cabeceras).await?.filter(|s| s.rol == "admin").ok_or(Fallo(StatusCode::FORBIDDEN, "solo un administrador puede manejar usuarios".into()))?;
+    if s.debe_cambiar {
+        return Err(Fallo(StatusCode::FORBIDDEN, "antes de manejar usuarios debe cambiar su contraseña inicial en «Mi perfil»".into()));
+    }
+    Ok(s)
 }
 
 async fn api_usuarios(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     solo_admin(&e, &cabeceras).await?;
-    let filas = e.bd.query("SELECT id, usuario, nombre, rol, activo, debe_cambiar, to_char(creado, 'YYYY-MM-DD'), to_char(ultimo_ingreso, 'YYYY-MM-DD HH24:MI') FROM usuarios ORDER BY id", &[]).await.map_err(interno)?;
+    let filas = e.bd.query("SELECT id, usuario, nombre, rol, activo, debe_cambiar, to_char(creado, 'YYYY-MM-DD'), to_char(ultimo_ingreso, 'YYYY-MM-DD HH24:MI'), grupo_id FROM usuarios ORDER BY id", &[]).await.map_err(interno)?;
     Ok(Json(json!(filas.iter().map(|f| json!({ "id": f.get::<_, i64>(0), "usuario": f.get::<_, String>(1), "nombre": f.get::<_, String>(2), "rol": f.get::<_, String>(3), "activo": f.get::<_, bool>(4),
-        "debe_cambiar": f.get::<_, bool>(5), "creado": f.get::<_, String>(6), "ultimo_ingreso": f.get::<_, Option<String>>(7) })).collect::<Vec<_>>())))
+        "debe_cambiar": f.get::<_, bool>(5), "creado": f.get::<_, String>(6), "ultimo_ingreso": f.get::<_, Option<String>>(7), "grupo_id": f.get::<_, Option<i64>>(8) })).collect::<Vec<_>>())))
 }
 
 #[derive(Deserialize)]
@@ -1990,7 +2111,7 @@ async fn api_usuario_crear(State(e): State<Compartido>, cabeceras: HeaderMap, Js
     if u.nombre.trim().is_empty() || !ROLES.contains(&u.rol.as_str()) {
         return Err(pedido("indique el nombre y un rol: admin, analista o consulta"));
     }
-    clave_aceptable(&u.clave)?;
+    clave_aceptable(&u.clave, &usuario)?;
     let clave = u.clave.clone();
     let huella = tokio::task::spawn_blocking(move || huella_de_clave(&clave)).await.map_err(interno)?.map_err(interno)?;
     let n = e.bd.execute("INSERT INTO usuarios (usuario, nombre, rol, clave, debe_cambiar) VALUES ($1,$2,$3,$4, TRUE) ON CONFLICT (usuario) DO NOTHING", &[&usuario, &u.nombre.trim(), &u.rol, &huella]).await.map_err(interno)?;
@@ -2006,6 +2127,8 @@ struct CambioUsuario {
     rol: Option<String>,
     activo: Option<bool>,
     clave: Option<String>,
+    /// Grupo al que pasa; 0 lo deja sin grupo (todas las secciones que su rol permite).
+    grupo_id: Option<i64>,
 }
 
 async fn api_usuario_cambiar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap, Json(c): Json<CambioUsuario>) -> Res<Json<Value>> {
@@ -2037,12 +2160,132 @@ async fn api_usuario_cambiar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, c
             e.bd.execute("DELETE FROM sesiones WHERE usuario_id = $1", &[&id]).await.map_err(interno)?;
         }
     }
+    if let Some(g) = c.grupo_id {
+        let g = (g > 0).then_some(g);
+        e.bd.execute("UPDATE usuarios SET grupo_id = $1 WHERE id = $2", &[&g, &id]).await.map_err(|_| pedido("no existe ese grupo"))?;
+    }
     if let Some(clave) = c.clave.filter(|k| !k.is_empty()) {
-        clave_aceptable(&clave)?;
+        clave_aceptable(&clave, "")?;
         let huella = tokio::task::spawn_blocking(move || huella_de_clave(&clave)).await.map_err(interno)?.map_err(interno)?;
         // Contraseña puesta por el administrador: el usuario debe cambiarla y sus sesiones se cierran.
         e.bd.execute("UPDATE usuarios SET clave = $1, debe_cambiar = TRUE WHERE id = $2", &[&huella, &id]).await.map_err(interno)?;
         e.bd.execute("DELETE FROM sesiones WHERE usuario_id = $1", &[&id]).await.map_err(interno)?;
     }
     Ok(Json(json!({ "guardado": true })))
+}
+
+// ---------------------------------------------------------------------------------------------
+// Grupos de usuarios
+// ---------------------------------------------------------------------------------------------
+
+/// Secciones del portal que un grupo puede tener.
+const SECCIONES: [&str; 22] = ["mapa", "proceso", "tableros", "recibir", "pendientes", "memoria", "resultados", "crecimiento", "vial", "operadores", "alimentaria", "construccion", "precios", "canasta", "rubros", "balance", "muestreos", "ine", "capas", "acerca", "perfil", "usuarios"];
+
+async fn api_grupos(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    solo_admin(&e, &cabeceras).await?;
+    let filas = e.bd.query("SELECT g.id, g.nombre, g.descripcion, g.secciones, (SELECT count(*) FROM usuarios u WHERE u.grupo_id = g.id) FROM grupos g ORDER BY g.nombre", &[]).await.map_err(interno)?;
+    Ok(Json(json!({ "secciones": SECCIONES, "grupos": filas.iter().map(|f| json!({ "id": f.get::<_, i64>(0), "nombre": f.get::<_, String>(1), "descripcion": f.get::<_, String>(2), "secciones": f.get::<_, Vec<String>>(3), "usuarios": f.get::<_, i64>(4) })).collect::<Vec<_>>() })))
+}
+
+#[derive(Deserialize)]
+struct GrupoDatos {
+    nombre: String,
+    #[serde(default)]
+    descripcion: String,
+    secciones: Vec<String>,
+}
+
+fn grupo_valido(g: &GrupoDatos) -> Res<Vec<String>> {
+    if g.nombre.trim().len() < 3 || g.nombre.chars().count() > 60 {
+        return Err(pedido("el grupo necesita un nombre de 3 a 60 caracteres"));
+    }
+    if let Some(mala) = g.secciones.iter().find(|s| !SECCIONES.contains(&s.as_str())) {
+        return Err(pedido(format!("sección desconocida: {mala}")));
+    }
+    // "usuarios" es solo de administradores; el perfil propio siempre se puede ver.
+    let mut secciones: Vec<String> = g.secciones.iter().filter(|s| *s != "usuarios").cloned().collect();
+    if !secciones.iter().any(|s| s == "perfil") {
+        secciones.push("perfil".into());
+    }
+    Ok(secciones)
+}
+
+async fn api_grupo_guardar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(g): Json<GrupoDatos>) -> Res<Json<Value>> {
+    solo_admin(&e, &cabeceras).await?;
+    let secciones = grupo_valido(&g)?;
+    let id: i64 = e.bd.query_one("INSERT INTO grupos (nombre, descripcion, secciones) VALUES ($1,$2,$3) RETURNING id", &[&g.nombre.trim(), &g.descripcion.trim(), &secciones]).await.map_err(|_| pedido("ya existe un grupo con ese nombre"))?.get(0);
+    Ok(Json(json!({ "id": id })))
+}
+
+async fn api_grupo_guardar_id(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap, Json(g): Json<GrupoDatos>) -> Res<Json<Value>> {
+    solo_admin(&e, &cabeceras).await?;
+    let secciones = grupo_valido(&g)?;
+    let n = e.bd.execute("UPDATE grupos SET nombre = $1, descripcion = $2, secciones = $3 WHERE id = $4", &[&g.nombre.trim(), &g.descripcion.trim(), &secciones, &id]).await.map_err(|_| pedido("ya existe un grupo con ese nombre"))?;
+    if n == 0 { return Err(pedido("no existe ese grupo")); }
+    Ok(Json(json!({ "guardado": true })))
+}
+
+async fn api_grupo_borrar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    solo_admin(&e, &cabeceras).await?;
+    // Sus usuarios quedan sin grupo (la llave foránea los pone en nulo).
+    e.bd.execute("DELETE FROM grupos WHERE id = $1", &[&id]).await.map_err(interno)?;
+    Ok(Json(json!({ "borrado": true })))
+}
+
+// ---------------------------------------------------------------------------------------------
+// Tableros
+// ---------------------------------------------------------------------------------------------
+
+#[derive(Deserialize)]
+struct Solicitado {
+    texto: String,
+}
+
+/// De una frase a la definición de un tablero (sin guardar nada).
+async fn api_tablero_interpretar(State(e): State<Compartido>, Json(s): Json<Solicitado>) -> Res<Json<Value>> {
+    if s.texto.trim().is_empty() || s.texto.chars().count() > 500 {
+        return Err(pedido("escriba la solicitud en una frase (hasta 500 caracteres)"));
+    }
+    Ok(Json(json!({ "interpretacion": tablero::interpretar(&s.texto, &e.catalogo), "indicadores": tablero::INDICADORES.iter().map(|i| json!({ "id": i.0, "nombre": i.1, "unidad": i.2 })).collect::<Vec<_>>(), "tipos": tablero::TIPOS })))
+}
+
+async fn api_tableros(State(e): State<Compartido>) -> Res<Json<Value>> {
+    let filas = e.bd.query("SELECT id, titulo, solicitud, autor, to_char(cambiado, 'YYYY-MM-DD HH24:MI'), jsonb_array_length(definicion->'piezas'), definicion->'territorio'->>'nombre' FROM tableros WHERE publico ORDER BY cambiado DESC LIMIT 200", &[]).await.map_err(interno)?;
+    Ok(Json(json!({ "indicadores": tablero::INDICADORES.iter().map(|i| json!({ "id": i.0, "nombre": i.1, "unidad": i.2 })).collect::<Vec<_>>(), "tipos": tablero::TIPOS,
+        "tableros": filas.iter().map(|f| json!({ "id": f.get::<_, i64>(0), "titulo": f.get::<_, String>(1), "solicitud": f.get::<_, String>(2), "autor": f.get::<_, String>(3), "cambiado": f.get::<_, String>(4), "piezas": f.get::<_, Option<i32>>(5), "territorio": f.get::<_, Option<String>>(6) })).collect::<Vec<_>>() })))
+}
+
+async fn api_tablero(State(e): State<Compartido>, Ruta(id): Ruta<i64>) -> Res<Json<Value>> {
+    let f = e.bd.query_opt("SELECT id, titulo, solicitud, definicion, autor FROM tableros WHERE id = $1 AND publico", &[&id]).await.map_err(interno)?.ok_or_else(|| pedido("no existe ese tablero"))?;
+    Ok(Json(json!({ "id": f.get::<_, i64>(0), "titulo": f.get::<_, String>(1), "solicitud": f.get::<_, String>(2), "definicion": f.get::<_, Value>(3), "autor": f.get::<_, String>(4) })))
+}
+
+#[derive(Deserialize)]
+struct TableroDatos {
+    #[serde(default)]
+    solicitud: String,
+    definicion: tablero::Tablero,
+}
+
+async fn api_tablero_guardar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(t): Json<TableroDatos>) -> Res<Json<Value>> {
+    let quien = autorizar_en(&e, &cabeceras, "tableros").await?;
+    tablero::validar(&t.definicion, &e.catalogo).map_err(pedido)?;
+    let id: i64 = e.bd.query_one("INSERT INTO tableros (titulo, solicitud, definicion, autor) VALUES ($1,$2,$3,$4) RETURNING id", &[&t.definicion.titulo.trim(), &t.solicitud.chars().take(500).collect::<String>(), &json!(t.definicion), &quien.nombre]).await.map_err(interno)?.get(0);
+    Ok(Json(json!({ "id": id })))
+}
+
+async fn api_tablero_guardar_id(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap, Json(t): Json<TableroDatos>) -> Res<Json<Value>> {
+    let quien = autorizar_en(&e, &cabeceras, "tableros").await?;
+    tablero::validar(&t.definicion, &e.catalogo).map_err(pedido)?;
+    // Lo cambia su autor o un administrador.
+    let n = e.bd.execute("UPDATE tableros SET titulo = $1, definicion = $2, cambiado = now() WHERE id = $3 AND (autor = $4 OR $5)", &[&t.definicion.titulo.trim(), &json!(t.definicion), &id, &quien.nombre, &(quien.rol == "admin")]).await.map_err(interno)?;
+    if n == 0 { return Err(Fallo(StatusCode::FORBIDDEN, "solo su autor o un administrador puede cambiar este tablero".into())); }
+    Ok(Json(json!({ "id": id })))
+}
+
+async fn api_tablero_borrar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let quien = autorizar_en(&e, &cabeceras, "tableros").await?;
+    let n = e.bd.execute("DELETE FROM tableros WHERE id = $1 AND (autor = $2 OR $3)", &[&id, &quien.nombre, &(quien.rol == "admin")]).await.map_err(interno)?;
+    if n == 0 { return Err(Fallo(StatusCode::FORBIDDEN, "solo su autor o un administrador puede borrar este tablero".into())); }
+    Ok(Json(json!({ "borrado": true })))
 }

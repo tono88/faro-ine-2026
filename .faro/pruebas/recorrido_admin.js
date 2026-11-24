@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
   const errores = []; p.on('pageerror', e => errores.push(String(e).slice(0, 200)));
   await p.goto(process.argv[2]); await p.waitForSelector('#lienzo path.leaflet-interactive');
-  await p.click('#entrar'); await p.fill('#iusuario', 'admin'); await p.fill('#iclave', 'admin'); await p.click('#formingreso button[type=submit]'); await p.waitForTimeout(1500);
+  await require('./_sesion').entrar(p);
   const secciones = await p.locator('nav button[data-s]').evaluateAll(bs => bs.filter(x => !x.hidden).map(x => x.dataset.s)); console.log('secciones visibles para admin:', secciones.length);
   for (const s of secciones) { await p.click(`nav button[data-s=${s}]`); await p.waitForTimeout(450); }
   await p.click('nav button[data-s=alimentaria]'); await p.waitForSelector('#ttalla tbody tr td b'); console.log('talla:', (await p.textContent('#ttalla tbody tr:first-child')).replace(/\s+/g, ' ').slice(0, 90), '| filas', await p.locator('#ttalla tbody tr').count());

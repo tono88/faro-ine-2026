@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
   const p = await ctx.newPage(); const errores = []; p.on('pageerror', e => errores.push(String(e).slice(0, 200)));
   const dir = process.argv[3];
   await p.goto(process.argv[2]); await p.waitForSelector('#lienzo path.leaflet-interactive');
-  await p.click('#entrar'); await p.fill('#iusuario', 'admin'); await p.fill('#iclave', 'admin'); await p.click('#formingreso button[type=submit]'); await p.waitForTimeout(1200);
+  await require('./_sesion').entrar(p);
   const secciones = await p.locator('nav button[data-s]').evaluateAll(bs => bs.filter(x => !x.hidden).map(x => x.dataset.s));
   for (const s of secciones) {
     await p.click('#menu'); await p.click(`nav button[data-s=${s}]`); await p.waitForTimeout(900);

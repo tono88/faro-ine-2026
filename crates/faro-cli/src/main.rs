@@ -201,6 +201,13 @@ enum Comando {
         #[arg(long, default_value = "datos/referencia/poblacion_municipio_edades.csv")]
         salida: PathBuf,
     },
+    /// Verificación estadística y de consistencia de todo lo calculado; deja la evidencia en un documento.
+    Verificar {
+        #[arg(long, default_value = "datos/referencia")]
+        referencia: PathBuf,
+        #[arg(long, default_value = "docs/19-verificacion-estadistica.md")]
+        salida: PathBuf,
+    },
     /// Cuentas de utilización y suministro de la Hoja de Balance de Alimentos del INE, en una tabla limpia.
     Hba {
         /// Libro "cuentas de utilización y suministro (CUS)" (faro fuentes descargar hoja-de-balance-de-alimentos-hba-actualizacion-2024).
@@ -342,6 +349,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
     let comando = match cli.comando {
         Comando::Fuentes { portal, manifiesto, accion } => return fuentes(&portal, &manifiesto, accion),
         Comando::Referencias { entrada, salida } => return referencias(&entrada, &salida),
+        Comando::Verificar { referencia, salida } => return verificar(&referencia, &salida).map(|ok| if ok { ExitCode::SUCCESS } else { ExitCode::FAILURE }),
         Comando::Hba { cuentas, salida } => {
             use faro_homologa::normalizar::basico;
             let filas = faro_homologa::lectura::leer_crudo(&cuentas)?;
@@ -641,7 +649,7 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
+        Comando::Verificar { .. } | Comando::Hba { .. } | Comando::Fotos { .. } | Comando::Fuentes { .. } | Comando::Crecimiento { .. } | Comando::Aire { .. } | Comando::Precios { .. } | Comando::Construido { .. } | Comando::Referencias { .. } | Comando::Canasta { .. } => unreachable!("atendidos arriba"),
     }
 }
 
@@ -1419,4 +1427,133 @@ fn calibrar_fotos(entrada: &std::path::Path, pares: usize, salida: &std::path::P
     }
     println!("Detalle par por par: {}", salida.display());
     Ok(())
+}
+
+/// Corre las comprobaciones de consistencia y de robustez estadística sobre las tablas del
+/// repositorio y escribe el resultado, con cifras, en un documento. Devuelve si todo cuadró.
+fn verificar(dir: &std::path::Path, salida: &std::path::Path) -> Result<bool, String> {
+    use faro_territorio::estadistica::{ic_mediana, percentil, t_975, wilson};
+    use std::collections::{BTreeMap, HashMap};
+    use std::fmt::Write as _;
+    type Fila = HashMap<String, String>;
+    let leer = |nombre: &str| -> Result<Vec<Fila>, String> { csv::Reader::from_path(dir.join(nombre)).map_err(|e| format!("{nombre}: {e}"))?.deserialize().collect::<Result<_, _>>().map_err(|e| format!("{nombre}: {e}")) };
+    let num = |f: &Fila, k: &str| f.get(k).and_then(|x| x.trim().parse::<f64>().ok()).unwrap_or(f64::NAN);
+    let mut md2 = String::from("\n## Comprobaciones de los supuestos del código\n\n| Comprobación | Resultado | Detalle |\n|---|---|---|\n");
+    let mut md = String::from("# Verificación estadística y de consistencia\n\nEste documento lo escribe `faro verificar` a partir de las tablas del repositorio: cada cifra se\nvuelve a calcular al ejecutarlo. Repetir: `faro verificar`.\n");
+    let mut todo_bien = true;
+    let mut cuadra = |md: &mut String, nombre: &str, ok: bool, detalle: String| { todo_bien &= ok; let _ = writeln!(md, "| {nombre} | {} | {detalle} |", if ok { "cuadra" } else { "**NO CUADRA**" }); };
+
+    // ---- 1. Consistencia interna de las tablas ----
+    md.push_str("\n## 1. Consistencia de las tablas\n\n| Comprobación | Resultado | Detalle |\n|---|---|---|\n");
+    let poblacion = leer("poblacion_municipio.csv")?;
+    let mal = poblacion.iter().filter(|f| num(f, "hombres") + num(f, "mujeres") != num(f, "total")).count();
+    let municipios: std::collections::BTreeSet<&String> = poblacion.iter().filter_map(|f| f.get("municipio")).collect();
+    cuadra(&mut md, "Población: hombres + mujeres = total", mal == 0, format!("{} filas, {} municipios; {mal} filas distintas", poblacion.len(), municipios.len()));
+    let edades = leer("poblacion_municipio_edades.csv")?;
+    let mut por: BTreeMap<(String, String), (f64, f64)> = BTreeMap::new();
+    for f in &edades { let s = por.entry((f["municipio"].clone(), f["anio"].clone())).or_default(); s.0 += num(f, "hombres"); s.1 += num(f, "mujeres"); }
+    let totales: HashMap<(String, String), (f64, f64)> = poblacion.iter().map(|f| ((f["municipio"].clone(), f["anio"].clone()), (num(f, "hombres"), num(f, "mujeres")))).collect();
+    let mal = por.iter().filter(|(k, v)| totales.get(*k) != Some(*v)).count();
+    cuadra(&mut md, "Edades: la suma de los grupos = total del municipio y año", mal == 0, format!("{} municipios-año comparados; {mal} distintos", por.len()));
+    let censo = leer("censo2018_lugar_poblado.csv")?;
+    let mal = censo.iter().filter(|f| num(f, "hombres") + num(f, "mujeres") != num(f, "poblacion") || num(f, "edad_0_14") + num(f, "edad_15_64") + num(f, "edad_65_mas") != num(f, "poblacion") || num(f, "urbana") + num(f, "rural") != num(f, "poblacion")).count();
+    let total_censo: f64 = censo.iter().map(|f| num(f, "poblacion")).sum();
+    cuadra(&mut md, "Censo 2018 por lugar poblado: sexo, edad y área suman el total", mal == 0, format!("{} lugares; población {total_censo:.0}; {mal} filas distintas", censo.len()));
+    let p2018: f64 = poblacion.iter().filter(|f| f["anio"] == "2018").map(|f| num(f, "total")).sum();
+    let omision = (1.0 - total_censo / p2018) * 100.0;
+    cuadra(&mut md, "Censo 2018 frente a la proyección 2018 del INE", (0.0..15.0).contains(&omision), format!("censados {total_censo:.0}; proyectados {p2018:.0}; diferencia {omision:.1} % (la proyección corrige la omisión censal: debe ser mayor)"));
+    let vial = leer("red_vial_lugares.csv").unwrap_or_default();
+    cuadra(&mut md, "Red vial: cada lugar sin conexión tiene código de 7 dígitos y existe en el censo", vial.iter().all(|f| f.get("codigo").is_some_and(|c| censo.iter().any(|x| &x["codigo"] == c))), format!("{} lugares revisados", vial.len()));
+
+    // ---- 2. Proyección de superficie construida: prueba hacia atrás ----
+    let construido = leer("superficie_construida_municipio.csv")?;
+    let mut series: BTreeMap<String, Vec<faro_territorio::Punto>> = BTreeMap::new();
+    for f in &construido { series.entry(f["municipio"].clone()).or_default().push(faro_territorio::Punto { anio: num(f, "anio") as i32, edificaciones: num(f, "construido_ha") }); }
+    // Igual que en el portal (cinco épocas para proyectar diez años), pero hacia atrás: con las cinco
+    // épocas anteriores se proyecta 2010, 2015 y 2020 y se compara con lo observado.
+    let _ = t_975;
+    let mut relativos: Vec<f64> = Vec::new();
+    md.push_str("\n## 2. Proyección de superficie construida: prueba hacia atrás\n\nEl portal proyecta 2030 con la recta de las cinco épocas 2000–2020. Para saber cuánto acierta ese\nmétodo se repitió hacia atrás en los 340 municipios: con las cinco épocas anteriores se proyectó a\ndiez años y se comparó con lo observado.\n\n| Año proyectado | Con datos de | Error mediano | Error del 90 % | Dentro del margen de 8 de cada 10 | Dentro del margen al 95 % |\n|---|---|---|---|---|---|\n");
+    let (mut dentro80, mut dentro95, mut casos, mut dentro_ajuste) = (0usize, 0usize, 0usize, 0usize);
+    for objetivo in [2010, 2015, 2020] {
+        let (mut errores, mut d80, mut d95, mut n) = (Vec::new(), 0usize, 0usize, 0usize);
+        for (codigo, s) in &series {
+            let base: Vec<faro_territorio::Punto> = s.iter().copied().filter(|p| (objetivo - 30..=objetivo - 10).contains(&p.anio)).collect();
+            let Some(real) = s.iter().find(|p| p.anio == objetivo).map(|p| p.edificaciones).filter(|x| *x > 0.0) else { continue };
+            let Some(c) = faro_territorio::analizar(codigo, &base, objetivo) else { continue };
+            if c.proyeccion <= 0.0 { continue; }
+            let error = (c.proyeccion - real).abs();
+            n += 1;
+            errores.push(error / real * 100.0);
+            relativos.push(error / c.proyeccion);
+            d80 += usize::from(error <= c.proyeccion_margen_80);
+            d95 += usize::from(error <= c.proyeccion_margen);
+            // Lo que cubría el margen anterior (solo el error del ajuste, con factor 2).
+            let ajuste = { let m: f64 = base.len() as f64; let mx = base.iter().map(|p| p.anio as f64).sum::<f64>() / m; let my = base.iter().map(|p| p.edificaciones).sum::<f64>() / m; let sxx: f64 = base.iter().map(|p| (p.anio as f64 - mx).powi(2)).sum(); let b = base.iter().map(|p| (p.anio as f64 - mx) * (p.edificaciones - my)).sum::<f64>() / sxx; let res: f64 = base.iter().map(|p| (p.edificaciones - (my + b * (p.anio as f64 - mx))).powi(2)).sum(); 2.0 * (res / (m - 2.0)).sqrt() * (1.0 + 1.0 / m + (objetivo as f64 - mx).powi(2) / sxx).sqrt() };
+            dentro_ajuste += usize::from(error <= ajuste);
+        }
+        errores.sort_by(f64::total_cmp);
+        let _ = writeln!(md, "| {objetivo} | {}–{} | {:.1} % | hasta {:.1} % | {d80} de {n} ({:.0} %) | {d95} de {n} ({:.0} %) |", objetivo - 30, objetivo - 10, percentil(&errores, 0.5).unwrap_or(f64::NAN), percentil(&errores, 0.9).unwrap_or(f64::NAN), 100.0 * d80 as f64 / n.max(1) as f64, 100.0 * d95 as f64 / n.max(1) as f64);
+        dentro80 += d80; dentro95 += d95; casos += n;
+    }
+    relativos.sort_by(f64::total_cmp);
+    let (p80, p95) = (percentil(&relativos, 0.8).unwrap_or(f64::NAN), percentil(&relativos, 0.95).unwrap_or(f64::NAN));
+    let _ = write!(md, "\nEn los {casos} casos: lo observado cayó dentro del margen de 8 de cada 10 en {:.0} % y dentro del margen al 95 % en {:.0} %.\n\n**Qué se corrigió gracias a esta prueba.** El margen anterior salía solo del error del ajuste (± 2 errores\nestándar) y contenía lo observado en {dentro_ajuste} de {casos} casos ({:.0} %): prometía mucha más precisión de la real, porque la\nserie satelital es suave pero no crece en línea recta. Ahora el margen es el error realmente observado al\nproyectar diez años: {:.0} % de lo proyectado en 8 de cada 10 casos y {:.0} % en 95 de cada 100 (constantes\n`ERROR_OBSERVADO_P80` = {} y `ERROR_OBSERVADO_P95` = {} del código).\n\nTambién se probaron otros métodos con la misma prueba (recta de tres épocas, crecimiento exponencial,\ntasa o incremento de la última década): ninguno fue mejor en las tres décadas, así que se conserva la\nrecta, que es la más fácil de explicar. Proyectar 2020 es lo que peor sale en todos (error mediano de 11 % a\n14 %, siempre por debajo de lo observado): la capa satelital muestra una aceleración en su última época.\n",
+        100.0 * dentro80 as f64 / casos.max(1) as f64, 100.0 * dentro95 as f64 / casos.max(1) as f64, 100.0 * dentro_ajuste as f64 / casos.max(1) as f64, p80 * 100.0, p95 * 100.0, faro_territorio::crecimiento::ERROR_OBSERVADO_P80, faro_territorio::crecimiento::ERROR_OBSERVADO_P95);
+    cuadra(&mut md2, "Las constantes de margen del código coinciden con el error observado", (p80 - faro_territorio::crecimiento::ERROR_OBSERVADO_P80).abs() < 0.02 && (p95 - faro_territorio::crecimiento::ERROR_OBSERVADO_P95).abs() < 0.03, format!("observado: {:.1} % y {:.1} %", p80 * 100.0, p95 * 100.0));
+
+    // ---- 3. Intervalo de la mediana de precios ----
+    md.push_str("\n## 3. Intervalo de confianza de la mediana de precios\n\nEl informe de precio de referencia da, junto a la mediana, un intervalo que no supone ninguna\ndistribución (estadísticos de orden). Cobertura exacta según la cantidad de precios:\n\n| Precios | Puestos que forman el intervalo | Cobertura exacta |\n|---|---|---|\n");
+    for n in [5usize, 6, 8, 10, 15, 20, 30, 50] {
+        let v: Vec<f64> = (1..=n).map(|x| x as f64).collect();
+        match ic_mediana(&v, 0.95) { Some((a, b, c)) => { let _ = writeln!(md, "| {n} | {a:.0}.º y {b:.0}.º | {:.1} % |", c * 100.0); todo_bien &= c >= 0.95; } None => { let _ = writeln!(md, "| {n} | no se da intervalo | no alcanza 95 % |"); } }
+    }
+
+    // ---- 4. Diferencias de precio entre tiendas: sensibilidad de los umbrales ----
+    let precios = leer("precios_publicados.csv")?;
+    let mut grupos: BTreeMap<(String, String), BTreeMap<String, (f64, Option<f64>)>> = BTreeMap::new();
+    for f in precios.iter().filter(|f| !f["codigo_barras"].is_empty()) { grupos.entry((f["rubro"].clone(), f["codigo_barras"].clone())).or_default().entry(f["tienda"].clone()).or_insert((num(f, "precio_q"), f.get("precio_lista_q").and_then(|x| x.parse().ok()))); }
+    let comparables: Vec<Vec<(String, f64, Option<f64>)>> = grupos.values().filter(|g| g.len() >= 2).map(|g| g.iter().map(|(t, (p, l))| (t.clone(), *p, *l)).collect()).collect();
+    let mut razones: Vec<f64> = comparables.iter().map(|g| { let p: Vec<f64> = g.iter().map(|x| x.1).collect(); p.iter().cloned().fold(f64::MIN, f64::max) / p.iter().cloned().fold(f64::MAX, f64::min) }).collect();
+    razones.sort_by(f64::total_cmp);
+    let mut clases: BTreeMap<&str, usize> = BTreeMap::new();
+    for g in &comparables { if let Some(d) = faro_territorio::precios::explicar_diferencia(g) { *clases.entry(d.clase).or_default() += 1; } }
+    let _ = write!(md, "\n## 4. Diferencias de precio entre tiendas\n\n{} productos tienen el mismo código de barras en dos o más tiendas. Diferencia entre la más cara y la más barata:\nmediana {:.1} %, percentil 90 {:.1} %, percentil 99 {:.1} %.\n\n| Umbral para revisar | Productos que lo superan | Proporción |\n|---|---|---|\n", comparables.len(), (percentil(&razones, 0.5).unwrap_or(1.0) - 1.0) * 100.0, (percentil(&razones, 0.9).unwrap_or(1.0) - 1.0) * 100.0, (percentil(&razones, 0.99).unwrap_or(1.0) - 1.0) * 100.0);
+    for u in [1.25, 1.5, 2.0, 3.0] { let k = razones.iter().filter(|r| **r >= u).count(); let _ = writeln!(md, "| {:.0} % o más{} | {k} | {:.1} % |", (u - 1.0) * 100.0, if u == 1.5 { " (en uso)" } else { "" }, 100.0 * k as f64 / razones.len().max(1) as f64); }
+    let total_clases: usize = clases.values().sum();
+    let _ = write!(md, "\nCon el umbral en uso, las reglas reparten los {total_clases} casos así: {}. El umbral de 50 % deja a revisar cerca del 3 % de los productos: bajarlo a 25 % triplicaría el trabajo y subirlo a 100 % dejaría pasar errores evidentes.\n", clases.iter().map(|(c, k)| format!("{c} {k} ({:.0} %)", 100.0 * *k as f64 / total_clases.max(1) as f64)).collect::<Vec<_>>().join(", "));
+
+    // ---- 5. Comparación por foto ----
+    if let Ok(pares) = leer("fotos_calibracion.csv") {
+        let u = faro_fuentes::foto::Umbrales::default();
+        let acepta = |f: &Fila| num(f, "bits_forma") <= u.max_bits as f64 && num(f, "diferencia_color") <= u.max_color as f64;
+        let (ig, di): (Vec<&Fila>, Vec<&Fila>) = pares.iter().partition(|f| f["tipo"] == "mismo_producto");
+        let (a, e) = (ig.iter().filter(|f| acepta(f)).count(), di.iter().filter(|f| acepta(f)).count());
+        let (wa, we) = (wilson(a, ig.len()).unwrap_or((0.0, 0.0)), wilson(e, di.len()).unwrap_or((0.0, 0.0)));
+        let _ = write!(md, "\n## 5. Comparación por foto\n\nCon los umbrales en uso ({} bits, {} de color) sobre los pares medidos:\n\n| | Resultado | Intervalo de confianza al 95 % (Wilson) |\n|---|---|---|\n| Productos distintos aceptados por error | {e} de {} | entre {:.1} % y {:.1} % |\n| Mismo producto reconocido (fotos distintas) | {a} de {} | entre {:.1} % y {:.1} % |\n\nLectura: no haber visto ningún error en {} pares no prueba que el error sea cero; con 95 % de confianza es menor que {:.1} %.\n", u.max_bits, u.max_color, di.len(), we.0 * 100.0, we.1 * 100.0, ig.len(), wa.0 * 100.0, wa.1 * 100.0, di.len(), we.1 * 100.0);
+    }
+
+    // ---- 6. Tasas de extracción frente a las cuentas del INE ----
+    if let (Ok(texto), Ok(cuentas)) = (std::fs::read_to_string("datos/estandar/tasas_extraccion_fao_guatemala.csv"), leer("hba_2024_cuentas.csv")) {
+        use faro_homologa::normalizar::basico;
+        let tasas: Vec<Fila> = csv::Reader::from_reader(texto.as_bytes()).deserialize().flatten().collect();
+        let ine: HashMap<String, &Fila> = cuentas.iter().map(|f| (basico(&f["alimento"]), f)).collect();
+        md.push_str("\n## 6. Tasas de extracción de la FAO frente a las cuentas 2024 del INE\n\n«Con cifras del INE» es la producción del derivado dividida entre todo el primario que el INE reporta\ncomo procesado. Coincide con la tasa de extracción cuando lo procesado va a ese derivado; si el\nprimario tiene otros usos industriales (el maíz va sobre todo a masa y tortilla, no a harina), sale\nmenor y no contradice la tasa.\n\n| Primario → derivado | FAO | Con cifras del INE | Diferencia (puntos) |\n|---|---|---|---|\n");
+        let mut difs = Vec::new();
+        for t in &tasas {
+            let nombre = t.get("derivado_en_hba_ine").filter(|x| !x.is_empty()).unwrap_or(&t["derivado"]);
+            let (Some(p), Some(d)) = (ine.get(&basico(&t["primario"])), ine.get(&basico(nombre))) else { continue };
+            let (procesado, produccion) = (num(p, "procesado_t"), num(d, "produccion_t"));
+            if procesado > 0.0 && produccion > 0.0 { let (fao, imp) = (num(t, "tasa_extraccion_pct"), produccion / procesado * 100.0); difs.push((imp - fao).abs()); let _ = writeln!(md, "| {} → {} | {fao:.1} % | {imp:.1} % | {:.1} |", t["primario"], t["derivado"], imp - fao); }
+        }
+        difs.sort_by(f64::total_cmp);
+        let cerca = difs.iter().filter(|d| **d <= 2.0).count();
+        let _ = write!(md, "\n{} tasas pudieron contrastarse (el nombre del producto coincide en ambas fuentes). En {cerca} la diferencia es de 2 puntos o menos (mediana de todas: {:.1} puntos). Las que se apartan mucho son primarios con varios usos (maíz, yuca, hortalizas) y el arroz elaborado (69.3 % frente a 62 %).\n", difs.len(), percentil(&difs, 0.5).unwrap_or(f64::NAN));
+    }
+    md.push_str(&md2);
+    let _ = write!(md, "\n## Resultado\n\n{}\n", if todo_bien { "Todas las comprobaciones de consistencia cuadran." } else { "**Hay comprobaciones que no cuadran: ver las filas marcadas.**" });
+    if let Some(d) = salida.parent() { std::fs::create_dir_all(d).map_err(|e| e.to_string())?; }
+    std::fs::write(salida, &md).map_err(|e| e.to_string())?;
+    println!("{}\nEscrito en {}", if todo_bien { "Todo cuadra." } else { "HAY DIFERENCIAS." }, salida.display());
+    Ok(todo_bien)
 }

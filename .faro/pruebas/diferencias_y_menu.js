@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
   const errores = []; p.on('pageerror', e => errores.push(String(e).slice(0, 200))); const dir = process.argv[3];
   const t = async s => (await p.textContent(s)).replace(/\s+/g, ' ').trim();
   await p.goto(process.argv[2]); await p.waitForSelector('#lienzo path.leaflet-interactive');
-  await p.click('#entrar'); await p.fill('#iusuario', 'admin'); await p.fill('#iclave', 'admin'); await p.click('#formingreso button[type=submit]'); await p.waitForTimeout(1200);
+  await require('./_sesion').entrar(p);
   await p.waitForSelector('#menurubros button[data-rubro]'); console.log('menú:', await t('#menurubros'));
   await p.click('#menurubros button[data-rubro=tecnologia]'); await p.waitForResponse(r => r.url().includes('rubro=tecnologia')); await p.waitForTimeout(1200); console.log('rubro elegido:', await p.inputValue('#rubrosel'), '|', (await t('#rubroresumen')).slice(0, 60));
   await p.click('#menurubros button[data-rubro=supermercado]'); await p.waitForResponse(r => r.url().includes('rubro=supermercado')); await p.waitForTimeout(1200);

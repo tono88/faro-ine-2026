@@ -1,59 +1,60 @@
 # Manual de usuario
 
-FARO se abre en el navegador (por omisión <http://localhost:8082>). Se puede ver todo sin entrar;
-para **cambiar** algo (recibir un envío, decidir un pendiente, ejecutar un muestreo) hay que
-iniciar sesión. Usuario inicial: `admin` / `admin`; el portal pide cambiar la contraseña.
+FARO reúne en una sola pantalla lo que hoy está repartido en correos, hojas de cálculo y portales:
+**pedir y recibir registros de otras instituciones, entenderlos sin adivinar, y aprovecharlos junto a
+los datos del propio INE**. Se abre en el navegador (<http://localhost:8082>), funciona en laptop,
+tableta y celular, y cada cifra dice de dónde sale.
+
+## Primer ingreso
+
+Entre con `admin` / `admin`. El portal le pedirá cambiar la contraseña en «Mi perfil» y, por
+seguridad, no dejará hacer cambios hasta que lo haga. Después cree a las personas en «Usuarios».
 
 | Rol | Puede |
 |---|---|
-| Administrador | Todo, incluido crear y desactivar usuarios |
-| Analista | Recibir envíos, decidir pendientes, cargar tablas, manejar muestreos y precios |
-| Consulta | Solo ver |
+| Administrador | Todo, incluido manejar usuarios y grupos |
+| Analista | Recibir envíos, decidir pendientes, manejar precios, muestreos y tableros |
+| Consulta | Ver |
 
-## Registros administrativos
+Los **grupos** limitan a qué secciones entra cada quien (por ejemplo, «Precios e índices» no ve la
+recepción de registros). El menú de cada persona muestra solo lo suyo.
 
-1. **Recibir envío.** Elija la solicitud (qué se le pidió a la institución), descargue la plantilla
-   si la institución aún no tiene el formato, y suba el archivo (Excel o CSV). El portal lo valida
-   contra la solicitud, homologa los lugares y muestra el resultado. El archivo original no se guarda.
-2. **Revisar pendientes.** Lo que el sistema no quiso adivinar. Elija a qué corresponde cada texto
-   buscando en el catálogo; la decisión queda grabada con su nombre y no se vuelve a preguntar.
-3. **Equivalencias.** Todo lo aprendido; aquí se carga también una tabla de códigos propia de una
-   institución.
-4. **Resultados y avance.** Qué se pidió, qué llegó y con qué calidad; cobertura por departamento
-   (22 delegaciones) y conteos con tasa por 100 mil habitantes.
+## Lo que resuelve, sección por sección
 
-## Territorio
+### Registros administrativos: de un archivo cualquiera a un dato oficial
+1. **Recibir envío.** Elija la solicitud y suba el Excel o CSV tal como lo tiene la institución. En
+   segundos sabe qué filas sirven, cuáles no y por qué. El archivo original no se guarda.
+2. **Revisar pendientes.** Lo que el sistema no quiso adivinar. Usted elige una vez; queda aprendido
+   para todas las instituciones, con su nombre y fecha.
+3. **Equivalencias.** La memoria institucional: todo lo aprendido, y la carga de tablas de códigos propias.
+4. **Resultados y avance.** Qué se pidió, qué llegó, con qué calidad y cómo va cada departamento.
 
-- **Mapa.** Tres niveles (departamentos, municipios, lugares poblados). Elija qué colorear, toque
-  un territorio para su ficha, use el buscador para ir a un lugar por nombre o código, «Ver solo
-  este…» para aislarlo y ⌂ para volver al país. La ficha del municipio trae población, censo 2018,
-  pirámide de edades, superficie construida y un reporte para imprimir.
-- **Población y crecimiento.** Proyecciones del INE y superficie construida vista por satélite; el
-  cálculo de población se puede repetir desde la pantalla, paso a paso.
-- **Red vial.** Lugares poblados sin conexión y enlaces que probablemente faltan; «Ver en el mapa»
-  lleva al enlace.
-- **Operadores de campo.** Suba operadores y puestos; el portal los reparte con la menor distancia total.
-- **Seguridad alimentaria.** Inseguridad alimentaria aguda por departamento y desnutrición crónica
-  en escolares por municipio (SESAN).
+### Territorio: el país hasta el lugar poblado
+- **Mapa** en tres niveles con buscador, ficha, vista aislada y reporte imprimible. La ficha de un
+  municipio trae población, Censo 2018 por lugar poblado, pirámide de edades y crecimiento construido.
+- **Población y crecimiento**, con el cálculo repetible paso a paso y márgenes comprobados contra lo ocurrido.
+- **Red vial**: lugares sin conexión y enlaces que probablemente faltan en el mapa.
+- **Operadores de campo**: reparto con la menor distancia total.
+- **Seguridad alimentaria**: datos de SESAN por departamento y municipio.
 
-## Precios
+### Precios: evidencia para cada precio
+- **Precios por rubro** (con su menú): más de 85 mil precios publicados; el mismo producto entre
+  tiendas por código de barras; diferencias grandes explicadas o por confirmar; **informe de precio
+  de referencia** listo para imprimir, con foto, intervalo de confianza y fuentes.
+- **Materiales de construcción** frente a la canasta del IPMC; **precios de referencia** desde
+  cotizaciones; **canasta básica** con su histórico; **hoja de balance** con tasas oficiales.
+- **Muestreos automáticos**: el portal vuelve a leer las tiendas solo, cuando usted decida.
 
-- **Materiales de construcción.** Productos publicados por proveedores frente a la canasta del IPMC.
-- **Precios de referencia.** Suba cotizaciones y obtenga media, mediana, moda y el precio
-  recomendado; busque antecedentes en los precios ya emitidos por el INE.
-- **Canasta básica.** Precio promedio del INE por producto; toque la gráfica para ampliar el histórico.
-- **Precios por rubro** (y el menú de rubros debajo). Busque un producto; vea el mismo producto
-  entre tiendas por código de barras; revise las **diferencias de 50 % o más** (el portal dice si
-  es una oferta, una tienda atípica o si necesita su confirmación: «es correcto» / «es un error»);
-  haga el **informe de precio de referencia** de una búsqueda.
-- **Hoja de balance: derivados.** Elija el producto primario y la cantidad procesada.
-- **Muestreos automáticos.** Encienda cada tarea, cambie su frecuencia, ejecútela ahora o use
-  «Ejecutar todas ahora».
+### Tableros a pedido
+Escriba lo que necesita —«mapa y tabla de desnutrición y población en Sololá, los 5 más altos»— y
+el portal arma el tablero y le dice qué entendió. Edítelo pieza por pieza, guárdelo, imprímalo.
 
-## Datos
+### Datos y transparencia
+**Portal del INE** (conjuntos vigilados), **capas publicadas** para cualquier SIG, **proceso** (qué
+hace cada etapa y quién) y **acerca y fuentes** (cada dato con su cita).
 
-- **Portal del INE.** Conjuntos del portal de datos abiertos vigilados por FARO.
-- **Capas publicadas.** Direcciones estables (GeoJSON y CSV) para un SIG u otro portal.
-- **Acerca y fuentes.** Qué es, cómo decide y las citas de todo lo usado.
+## Tres garantías
 
-Junto a cada resultado hay un enlace para descargar el procedimiento que lo reproduce fuera del portal.
+- **No adivina.** Asigna un código solo con coincidencia exacta y única, o con una decisión humana registrada.
+- **No inventa.** Todo dato es real, con fuente, fecha y licencia; lo calculado se puede repetir con un comando.
+- **Se revisa a sí mismo.** Verificación estadística, de interfaz y de seguridad, con sus informes en `docs/19` a `docs/21`.

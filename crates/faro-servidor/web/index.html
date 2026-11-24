@@ -86,7 +86,18 @@
   .rampa { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--gris); } .rampa i { display:block; height:10px; flex:1; border-radius:3px; background:linear-gradient(90deg,#fff3c4,#f9b24a,#e0561b,#8f1d0c); }
   tr.clic { cursor:pointer; } .etq.clic { cursor:pointer; text-decoration:underline dotted; }
   details.como { margin-top:12px; border:1px solid var(--borde); border-radius:8px; padding:8px 12px; background:#fbfcfe; } details.como summary { cursor:pointer; font-weight:600; color:var(--azul-oscuro); } details.como li { margin:4px 0; }
-  .proc { font-size:13px; } small.pista { display:block; max-width:300px; margin-top:4px; color:var(--alerta); line-height:1.35; }
+  .proc { font-size:13px; }
+  textarea { width:100%; padding:8px 10px; font:inherit; border:1px solid #8a96a3; border-radius:7px; resize:vertical; }
+  .ejemplos { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0; } .ejemplos button { border:1px dashed var(--celeste); background:var(--cielo); color:var(--azul-oscuro); border-radius:16px; padding:4px 12px; font:inherit; font-size:13px; cursor:pointer; text-align:left; }
+  .casillas { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:2px 12px; padding:6px 4px; } .casillas label { font-weight:400; margin:3px 0; display:flex; gap:6px; align-items:center; }
+  .tablero { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:16px; }
+  .tablero > h2 { grid-column:1 / -1; font-size:20px; margin:4px 0 -4px; } .tablero > p { grid-column:1 / -1; margin:0; color:var(--gris); font-size:13px; }
+  .pieza { background:#fff; border:1px solid var(--borde); border-radius:var(--radio); padding:14px; grid-column:span 2; min-width:0; } .pieza.tarjeta { grid-column:span 1; border-top:3px solid var(--celeste); }
+  .pieza h3 { font-size:13.5px; margin:0 0 8px; color:var(--azul-oscuro); } .pieza.tarjeta b { display:block; font-size:26px; color:var(--azul-oscuro); font-variant-numeric:tabular-nums; } .pieza small { color:var(--gris); }
+  .pieza svg { width:100%; height:auto; display:block; } .pieza .tabla { max-height:340px; }
+  .barrah { display:grid; grid-template-columns:minmax(90px, 34%) 1fr auto; gap:8px; align-items:center; font-size:13px; margin:3px 0; } .barrah i { display:block; height:14px; border-radius:3px; background:var(--azul); min-width:2px; } .barrah span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .barrah b { font-variant-numeric:tabular-nums; }
+  @media (max-width: 1100px) { .tablero { grid-template-columns:repeat(2, minmax(0, 1fr)); } } @media (max-width: 700px) { .tablero { grid-template-columns:1fr; } .pieza, .pieza.tarjeta { grid-column:span 1; } }
+  @media print { header, nav, #aviso-clave, #tableros > .titulo, #tableros > .panel { display:none !important; } body { display:block; background:#fff; } main { overflow:visible; padding:0; } .pieza { break-inside:avoid; } } small.pista { display:block; max-width:300px; margin-top:4px; color:var(--alerta); line-height:1.35; }
   button.ampliar { border:1px solid transparent; background:none; padding:2px 4px; border-radius:6px; cursor:zoom-in; font:inherit; text-align:right; display:block; } button.ampliar:hover { border-color:var(--celeste); background:var(--cielo); } button.ampliar small { color:var(--azul); font-size:11px; }
   #volverpais { font-size:18px; line-height:30px; text-decoration:none; color:var(--azul-oscuro); }
   .filtros { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:flex-end; } .filtros > div { flex:1 1 180px; min-width:0; } .filtros label { margin-top:0; } .filtros .accion { margin-top:0; }
@@ -125,7 +136,7 @@
     .panel { padding:12px; } .tarjetas { grid-template-columns:1fr 1fr; gap:8px; } .tarjeta { padding:9px 10px; } .tarjeta b { font-size:19px; }
     select, input[type=text], input[type=password], input[type=number], input[type=file] { font-size:16px; max-width:none; }
     button.accion { min-height:44px; } button.chico { min-height:36px; }
-    table { font-size:13px; } th, td { padding:6px 7px; } .tabla { max-height:62vh; -webkit-overflow-scrolling:touch; }
+    table { font-size:13px; } th, td { padding:6px 7px; } small, td small, th small, .tarjeta small, .mini small, .pieza small { font-size:12px; } .barrah { font-size:12.5px; } .tabla { max-height:62vh; -webkit-overflow-scrolling:touch; }
     #lienzo { height:58vh; min-height:340px; }
     .buscalugar { flex-basis:100%; margin:0; }
     .niveles { gap:5px; } .niveles button { padding:8px 11px; flex:1 1 auto; } .niveles button small { display:none; } #migas { flex-basis:100%; margin:0; }
@@ -139,6 +150,9 @@
     #aviso { left:10px; right:10px; bottom:10px; max-width:none; }
     .leaflet-touch .leaflet-bar a { width:36px; height:36px; line-height:36px; }
   }
+  /* Pantallas táctiles (tabletas y teléfonos): los controles chicos crecen para el dedo. */
+  @media (pointer: coarse), (max-width: 1100px) { button.chico, .dec button, .ejemplos button, .niveles button { min-height:36px; } input[type=number], select { min-height:36px; } nav .submenu button { min-height:36px; } }
+  code { overflow-wrap:anywhere; }
   @media (prefers-reduced-motion: no-preference) { nav button, button.accion { transition:background .15s; } }
 </style>
 </head>
@@ -153,6 +167,7 @@
   <h3>Panorama</h3>
   <button data-s="mapa" aria-selected="true">Mapa</button>
   <button data-s="proceso">Proceso</button>
+  <button data-s="tableros">Tableros</button>
   <h3>Registros administrativos</h3>
   <button data-s="recibir">Recibir envío</button>
   <button data-s="pendientes">Revisar pendientes <b id="npend" hidden></b></button>
@@ -357,14 +372,42 @@
       <button class="accion" id="pclave">Cambiar contraseña</button></div>
   </section>
 
+  <section id="tableros">
+    <div class="titulo"><h2>Tableros a pedido</h2><p>Escriba qué quiere ver, con sus palabras, y el portal arma el tablero: reconoce el territorio, los indicadores y el tipo de pieza. No usa ningún modelo: son reglas a la vista, y le dice qué entendió. Después puede editarlo pieza por pieza, guardarlo y compartirlo.</p></div>
+    <div class="panel">
+      <label for="tabtexto" style="margin-top:0">¿Qué tablero necesita?</label>
+      <textarea id="tabtexto" rows="2" maxlength="500" placeholder="Por ejemplo: mapa y tabla de desnutrición y población en Sololá, los 5 municipios más altos"></textarea>
+      <div class="ejemplos" id="tabejemplos"></div>
+      <button class="accion" id="tabarmar">Armar tablero</button> <button class="accion suave" id="tabvacio">Empezar uno en blanco</button>
+      <div id="tabentendido"></div>
+    </div>
+    <div class="panel" id="tabeditor" hidden>
+      <h2>Editar</h2>
+      <div class="filtros"><div style="flex:2 1 280px"><label for="tabtitulo">Título</label><input type="text" id="tabtitulo" maxlength="120" style="max-width:none"></div>
+        <div><label for="tabnivel">Territorio</label><select id="tabnivel"><option value="pais">Todo el país</option><option value="departamento">Un departamento</option><option value="municipio">Un municipio</option></select></div>
+        <div><label for="tablugar">Cuál</label><select id="tablugar" disabled></select></div></div>
+      <div class="tabla" style="margin-top:12px;max-height:none"><table id="tabpiezas"></table></div>
+      <p style="margin:10px 0 0"><button class="accion chico suave" id="tabagregar">+ Agregar pieza</button> <button class="accion chico" id="tabguardar">Guardar tablero</button> <button class="accion chico suave" id="tabimprimir">Imprimir</button> <span class="nota" id="tabestado"></span></p>
+    </div>
+    <div id="tabvista" class="tablero" aria-live="polite"></div>
+    <div class="panel"><h2>Tableros guardados</h2><div class="tabla"><table id="ttableros"></table></div></div>
+  </section>
+
   <section id="usuarios">
     <div class="titulo"><h2>Usuarios</h2><p>Quién puede entrar y qué puede hacer. <b>Administrador</b>: todo, incluido manejar usuarios. <b>Analista</b>: recibir envíos, decidir pendientes, cargar tablas y manejar muestreos. <b>Consulta</b>: solo ver.</p></div>
     <div class="panel"><div class="tabla"><table id="tusuarios"></table></div></div>
+    <div class="panel"><h2>Grupos</h2><p class="nota">Un grupo define a qué secciones del portal entra un usuario: solo esas aparecen en su menú y solo en ellas puede hacer cambios. Un usuario sin grupo ve todas las que su rol permite. Los administradores siempre ven todo.</p>
+      <div class="tabla"><table id="tgrupos"></table></div>
+      <div id="grupoform" hidden style="margin-top:12px;border-top:1px solid var(--borde);padding-top:10px">
+        <div class="filtros"><div><label for="gnombre">Nombre del grupo</label><input type="text" id="gnombre" maxlength="60"></div><div style="flex:2 1 300px"><label for="gdesc">Descripción</label><input type="text" id="gdesc" maxlength="200" style="max-width:none"></div></div>
+        <fieldset style="border:1px solid var(--borde);border-radius:8px;margin:10px 0 0"><legend style="font-weight:600;font-size:14px">Secciones a las que entra</legend><div id="gsecciones" class="casillas"></div></fieldset>
+        <button class="accion chico" id="gguardar">Guardar grupo</button> <button class="accion chico suave" id="gcancelar">Cancelar</button></div>
+      <p style="margin:10px 0 0"><button class="accion chico suave" id="gnuevo">+ Crear grupo</button></p></div>
     <div class="panel"><h2>Crear usuario</h2>
       <label for="uusuario">Usuario (para entrar)</label><input type="text" id="uusuario" autocomplete="off" style="max-width:320px">
       <label for="unombre">Nombre</label><input type="text" id="unombre" autocomplete="off">
       <label for="urol">Rol</label><select id="urol" style="max-width:320px"><option value="analista">Analista</option><option value="consulta">Consulta</option><option value="admin">Administrador</option></select>
-      <label for="uclave">Contraseña inicial (al menos 8 caracteres; deberá cambiarla al entrar)</label><input type="password" id="uclave" autocomplete="new-password" style="max-width:320px">
+      <label for="uclave">Contraseña inicial (al menos 10 caracteres, con letras y números o signos; deberá cambiarla al entrar)</label><input type="password" id="uclave" autocomplete="new-password" style="max-width:320px">
       <button class="accion" id="ucrear">Crear usuario</button></div>
   </section>
 
@@ -409,7 +452,7 @@
       <details class="como"><summary>De dónde salen las tasas y cómo se calcula</summary><ul>
         <li><b>Tasas</b>: FAO, <i>Technical Conversion Factors for Agricultural Commodities</i>, sección Guatemala (págs. 222–225): promedios nacionales de 1992–1996 informados por el país; el documento se declara provisional. Están en <code>datos/estandar/tasas_extraccion_fao_guatemala.csv</code>, con una columna que dice si el producto primario aparece en la fuente justo antes del derivado o se dedujo del nombre.</li>
         <li><b>Derivado</b> = cantidad procesada × tasa de extracción ÷ 100. La fuente no trae porcentajes de utilización, así que cada derivado se calcula sobre toda la cantidad: los que salen juntos del mismo proceso (harina y salvado) se obtienen a la vez; los que son usos alternativos (queso o leche en polvo) no se suman.</li>
-        <li><b>Contraste con el INE</b>: producción del derivado ÷ cantidad del primario «procesado», ambas de las cuentas de utilización y suministro de la HBA 2024 (portal de datos abiertos del INE). Es un cálculo de FARO con cifras del INE, no una tasa que el INE publique. Solo se muestra cuando el nombre del producto coincide.</li>
+        <li><b>Contraste con el INE</b>: producción del derivado ÷ cantidad del primario «procesado», ambas de las cuentas de utilización y suministro de la HBA 2024 (portal de datos abiertos del INE). Es un cálculo de FARO con cifras del INE, no una tasa que el INE publique. Coincide con la tasa de extracción cuando lo procesado va a ese derivado; si el primario tiene otros usos industriales (el maíz va sobre todo a masa y tortilla), sale menor y no contradice la tasa. Solo se muestra cuando el nombre del producto coincide.</li>
         <li>La cantidad que aparece al elegir un producto es la que el INE reporta como procesada en 2024, cuando existe; puede cambiarla.</li></ul></details>
     </div>
     <div class="panel"><h2>Probar con otra tabla</h2><p class="nota">Si el INE tiene tasas más recientes, o porcentajes de utilización por derivado, se cargan aquí y el cálculo los aplica. Formato (CSV): <code>primario, derivado, tasa_extraccion_pct</code> y, opcional, <code>utilizacion_pct</code>. No se guarda en el servidor. <a href="/ejemplos/tasas_extraccion_ficticias.csv">Archivo de muestra para probar el formato</a> (sus productos y porcentajes son ficticios).</p>
@@ -858,7 +901,7 @@ async function ficha(p) {
     ${d.edades ? `<h3>Edad y sexo, ${d.anio_actual} y 2018 (proyecciones del INE)</h3>${piramide(d.edades, d.anio_actual, 2018)}` : ''}
     ${d.talla ? `<h3>Desnutrición crónica en escolares</h3><p class="nota" style="margin:0"><b>${esc(d.talla.retardo_en_talla_pct)} %</b> con retardo en talla (${num(d.talla.escolares_evaluados)} escolares evaluados, ${esc(d.talla.censo)}) · vulnerabilidad <span class="etq ${/alta/.test(d.talla.vulnerabilidad) ? 'mal' : d.talla.vulnerabilidad === 'moderada' ? 'alerta' : 'ok'}">${esc(d.talla.vulnerabilidad)}</span>. Fuente: SESAN, Censo de Talla.</p>` : ''}
     ${d.cif ? `<h3>Inseguridad alimentaria aguda en ${esc(d.departamento)} (dato del departamento)</h3><p class="nota" style="margin:0">Área en <b>Fase ${esc(d.cif.fase_area)}</b> de la CIF: ${num(d.cif.fase3_o_superior)} personas (${esc(d.cif.fase3_o_superior_pct)} %) en Fase 3 o superior, ${esc(d.cif.periodo)}. Fuente: SESAN, CIF Guatemala.</p>` : ''}
-    ${a ? `<p class="nota" style="margin:4px 0">Proyección a ${a.anio_proyectado}: ${num(a.proyeccion)} ± ${num(a.proyeccion_margen)} ha · confianza <span class="etq clic ${a.confianza === 'alta' ? 'ok' : a.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(d.codigo)}">${esc(a.confianza)}</span></p>` : ''}
+    ${a ? `<p class="nota" style="margin:4px 0">Proyección a ${a.anio_proyectado}: <b>${num(a.proyeccion)} ha</b>, entre ${num(a.proyeccion - a.proyeccion_margen_80)} y ${num(a.proyeccion + a.proyeccion_margen_80)} en 8 de cada 10 casos (al 95 %: ± ${num(a.proyeccion_margen)}) · confianza <span class="etq clic ${a.confianza === 'alta' ? 'ok' : a.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(d.codigo)}">${esc(a.confianza)}</span></p>` : ''}
     ${reg ? `<h3>Registros recibidos</h3><ul style="margin:0;padding-left:18px;font-size:13px">${reg}</ul>` : ''}
     ${d.proveedores.length ? `<h3>Proveedores de construcción</h3><p class="nota" style="margin:0">${d.proveedores.slice(0, 6).map(esc).join(' · ')}${d.proveedores.length > 6 ? ` y ${d.proveedores.length - 6} más` : ''}</p>` : ''}
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="accion chico" data-det="${esc(d.codigo)}" style="margin:0">▶ Ver crecimiento</button><button class="accion chico suave" data-solo="${esc(d.codigo)}" data-nombre="${esc(d.nombre)}" style="margin:0">Ver solo este municipio</button><a class="accion chico suave" style="margin:0;text-decoration:none;display:inline-block;border-radius:7px;padding:4px 10px" href="/reporte?municipio=${esc(d.codigo)}" target="_blank" rel="noopener">Exportar reporte</a></div>`;
@@ -884,7 +927,7 @@ async function detalle(codigo) {
       <tr><td>Tendencia (pendiente de la recta)</td><td class="num">${num(a.tendencia_por_anio)} ha por año</td></tr>
       <tr><td>Ajuste de la recta (R²)</td><td class="num"><b>${Number(a.r2).toFixed(3)}</b></td></tr>
       <tr><td>Proyección a ${a.anio_proyectado}</td><td class="num">${num(a.proyeccion)} ha</td></tr>
-      <tr><td>Margen de la proyección (± 2 errores estándar, ampliado por la distancia)</td><td class="num">± ${num(a.proyeccion_margen)} ha (${num(100 * a.proyeccion_margen / (a.proyeccion || 1))} %)</td></tr>
+      <tr><td>Margen de la proyección al 95 % (error observado al proyectar diez años en 340 municipios y tres décadas; ver la verificación estadística)</td><td class="num">± ${num(a.proyeccion_margen)} ha (${num(100 * a.proyeccion_margen / (a.proyeccion || 1))} %)</td></tr>
     </tbody></table></div>
     <p class="nota">Regla: confianza <b>alta</b> si R² ≥ 0.90 con al menos 6 épocas; <b>media</b> si R² ≥ 0.70; <b>baja</b> en otro caso. Aquí R² = ${Number(a.r2).toFixed(3)} con ${d.construido.filter(x => x[0] >= 2000).length} épocas${a.r2 >= 0.9 && d.construido.filter(x => x[0] >= 2000).length < 6 ? ': el ajuste es bueno, pero con menos de 6 épocas la regla no permite decir "alta"' : ''}. R² es la parte de la variación que explica la recta; el margen dice cuánto puede apartarse el valor real de la proyección.</p>` : '<p class="nota">No hay serie suficiente para calcular la tendencia.</p>'}`;
   const lienzo = $('#animlienzo'), x = lienzo.getContext('2d'), anillos = figura ? figura.geometry.coordinates.flatMap(pol => pol) : [];
@@ -1074,6 +1117,67 @@ $('#tmuestreos').onchange = async e => { const c = e.target, id = c.dataset.m ||
   try { await api('/api/muestreos/' + encodeURIComponent(id), {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(c.dataset.m ? {activa: c.checked} : {cada_horas: +c.value})}); aviso('Guardado.'); muestreos(); } catch (x) { aviso(x.message, true); muestreos(); } };
 $('#tmuestreos').onclick = async e => { const b = e.target.closest('button[data-e]'); if (!b) return; b.disabled = true; b.textContent = 'Consultando…';
   try { const r = await api('/api/muestreos/' + encodeURIComponent(b.dataset.e) + '/ejecutar', {method:'POST'}); aviso(r.en_curso ? 'Corrida iniciada: tarda unos minutos y sigue aunque cambie de sección.' : `${num(r.precios)} precios guardados.`); } catch (x) { aviso(x.message, true); } muestreos(); };
+// ---- Tableros a pedido ----
+const EJEMPLOS_TABLERO = ['Mapa y tabla de desnutrición y población en Sololá, los 5 municipios más altos', 'Resumen y ranking de lugares sin conexión vial en Alta Verapaz', 'Crecimiento urbano del país: barras de los 15 municipios que más crecen', 'Pirámide de edades y evolución de la población del municipio de Mixco'];
+const NOMBRE_TIPO = {tarjeta:'Tarjeta (una cifra)', barras:'Barras (ranking)', tabla:'Tabla', mapa:'Mapa', piramide:'Pirámide de edades', serie:'Serie de población'};
+let tabDef = null, tabId = null, tabSolicitud = '', tabIndicadores = [], tabAutor = null;
+const valorInd = (p, id) => id === 'sin_conexion' ? (p.lugares_en_tramo_suelto || 0) + (p.lugares_sin_camino || 0) : p[id];
+const infoInd = id => tabIndicadores.find(i => i.id === id) || {nombre: id, unidad: ''};
+async function geoDeMunicipios() { return geoMuni || (geoMuni = await (await fetch('/capas/municipios.geojson')).json()); }
+function alcanceTablero(t, g) { const ps = g.features.map(f => f.properties), dep = t.nivel === 'departamento' ? t.codigo : t.nivel === 'municipio' ? t.codigo.slice(0, 2) : null; return dep ? ps.filter(p => p.departamento_codigo === dep) : ps; }
+// Mapa de la pieza: los municipios del alcance, coloreados por cuantiles, en una proyección plana.
+function mapaPieza(g, alcance, id, resaltar) { const cods = new Set(alcance.map(p => p.codigo)), fs = g.features.filter(f => cods.has(f.properties.codigo)); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  const anillos = f => f.geometry.type === 'Polygon' ? f.geometry.coordinates : f.geometry.coordinates.flat(); fs.forEach(f => anillos(f).forEach(a => a.forEach(([x, y]) => { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); })));
+  const k = Math.cos((y0 + y1) / 2 * Math.PI / 180), W = 400, H = Math.max(120, Math.min(420, W * (y1 - y0) / ((x1 - x0) * k || 1))), X = x => (x - x0) / (x1 - x0 || 1) * W, Y = y => (y1 - y) / (y1 - y0 || 1) * H;
+  const c = cortes(fs.map(f => valorInd(f.properties, id))), tonos = TONOS.azul.slice(-(c.length + 1)), color = v => v == null || !isFinite(v) ? '#f1f3f5' : tonos[c.filter(x => v >= x).length], inf = infoInd(id);
+  return `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" role="img" aria-label="Mapa de ${esc(inf.nombre)}">${fs.map(f => `<path d="${anillos(f).map(a => 'M' + a.map(([x, y]) => X(x).toFixed(1) + ' ' + Y(y).toFixed(1)).join('L') + 'Z').join('')}" fill="${color(valorInd(f.properties, id))}" stroke="${f.properties.codigo === resaltar ? '#f5a623' : '#fff'}" stroke-width="${f.properties.codigo === resaltar ? 2.5 : .5}"><title>${esc(f.properties.nombre)}: ${num(valorInd(f.properties, id))} ${esc(inf.unidad)}</title></path>`).join('')}</svg>
+    <small>${c.length ? 'De claro a oscuro: de menos a más (' + c.map(x => num(x)).join(' · ') + ' ' + esc(inf.unidad) + ')' : 'Sin datos'}</small>`; }
+async function pintarTablero() {
+  if (!tabDef) { $('#tabvista').innerHTML = ''; return; }
+  const g = await geoDeMunicipios(), t = tabDef.territorio, alcance = alcanceTablero(t, g), propio = t.nivel === 'municipio' ? g.features.find(f => f.properties.codigo === t.codigo)?.properties : null;
+  const total = propio || resumenDepartamento(t.codigo, t.nombre, alcance), ficha = t.nivel === 'municipio' && tabDef.piezas.some(p => p.tipo === 'piramide' || p.tipo === 'serie') ? await datosMunicipio(t.codigo) : null;
+  const piezas = tabDef.piezas.map(p => { const inf = infoInd(p.indicador), tit = esc(p.titulo || inf.nombre), filas = alcance.map(m => [m, valorInd(m, p.indicador)]).filter(x => x[1] != null && isFinite(x[1])).sort((a, b) => p.orden === 'asc' ? a[1] - b[1] : b[1] - a[1]), ver = filas.slice(0, p.n), max = Math.max(...ver.map(x => Math.abs(x[1])), 1e-9), marca = m => m.codigo === t.codigo && t.nivel === 'municipio';
+    if (p.tipo === 'tarjeta') return `<div class="pieza tarjeta"><h3>${tit}</h3><b>${num(valorInd(total, p.indicador))} <small>${esc(inf.unidad)}</small></b><small>${esc(t.nombre)}${t.nivel === 'municipio' ? '' : ` · ${alcance.length} municipios`}</small></div>`;
+    if (p.tipo === 'barras') return `<div class="pieza"><h3>${tit}: ${p.orden === 'asc' ? 'los ' + ver.length + ' menores' : 'los ' + ver.length + ' mayores'} (${esc(inf.unidad)})</h3>${ver.map(([m, v]) => `<div class="barrah"><span title="${esc(m.nombre)}">${marca(m) ? '<b>' + esc(m.nombre) + '</b>' : esc(m.nombre)}</span><i style="width:${Math.abs(v) / max * 100}%;${marca(m) ? 'background:#f5a623' : ''}"></i><b>${num(v)}</b></div>`).join('') || '<small>Sin datos.</small>'}</div>`;
+    if (p.tipo === 'tabla') return `<div class="pieza"><h3>${tit}</h3><div class="tabla"><table><thead><tr><th scope="col">#</th><th scope="col">Municipio</th><th scope="col">Departamento</th><th scope="col" class="num">${esc(inf.unidad)}</th></tr></thead><tbody>${ver.map(([m, v], i) => `<tr><td>${i + 1}</td><td>${marca(m) ? '<b>' + esc(m.nombre) + '</b>' : esc(m.nombre)}</td><td>${esc(m.departamento)}</td><td class="num">${num(v)}</td></tr>`).join('')}</tbody></table></div></div>`;
+    if (p.tipo === 'mapa') return `<div class="pieza"><h3>${tit}</h3>${mapaPieza(g, alcance, p.indicador, t.nivel === 'municipio' ? t.codigo : null)}</div>`;
+    if (p.tipo === 'piramide') return `<div class="pieza"><h3>${esc(p.titulo || 'Edad y sexo')}</h3>${ficha && ficha.edades ? piramide(ficha.edades, ficha.anio_actual, 2018) : '<small>La pirámide se muestra cuando el territorio es un municipio.</small>'}</div>`;
+    return `<div class="pieza"><h3>${esc(p.titulo || 'Población 2015–2030 (habitantes)')}</h3>${ficha ? mini(ficha.poblacion.map(x => [x[0], x[1]]), {unidad:'hab.'}) : '<small>La serie se muestra cuando el territorio es un municipio.</small>'}</div>`; });
+  $('#tabvista').innerHTML = `<h2>${esc(tabDef.titulo)}</h2><p>${esc(t.nombre)}${tabAutor ? ' · tablero de ' + esc(tabAutor) : ''} · datos del INE y fuentes citadas en "Acerca y fuentes"</p>` + piezas.join('');
+}
+function pintarEditor() {
+  if (!tabDef) { $('#tabeditor').hidden = true; return; } $('#tabeditor').hidden = false; $('#tabtitulo').value = tabDef.titulo; $('#tabnivel').value = tabDef.territorio.nivel;
+  const g = geoMuni, lista = tabDef.territorio.nivel === 'departamento' ? [...new Map(g.features.map(f => [f.properties.departamento_codigo, f.properties.departamento])).entries()].sort((a, b) => a[1].localeCompare(b[1])) : tabDef.territorio.nivel === 'municipio' ? g.features.map(f => [f.properties.codigo, f.properties.nombre + ', ' + f.properties.departamento]).sort((a, b) => a[1].localeCompare(b[1])) : [];
+  $('#tablugar').disabled = !lista.length; $('#tablugar').innerHTML = lista.map(([c, n]) => `<option value="${esc(c)}" ${c === tabDef.territorio.codigo ? 'selected' : ''}>${esc(n)}</option>`).join('');
+  tabla('#tabpiezas', [{t:'#', f:p => tabDef.piezas.indexOf(p) + 1}, {t:'Pieza', f:p => `<select data-k="tipo" aria-label="Tipo de pieza" style="padding:4px;max-width:200px">${Object.entries(NOMBRE_TIPO).map(([k, v]) => `<option value="${k}" ${k === p.tipo ? 'selected' : ''}>${v}</option>`).join('')}</select>`},
+    {t:'Indicador', f:p => `<select data-k="indicador" aria-label="Indicador" style="padding:4px;max-width:320px" ${p.tipo === 'piramide' || p.tipo === 'serie' ? 'disabled' : ''}>${tabIndicadores.map(i => `<option value="${i.id}" ${i.id === p.indicador ? 'selected' : ''}>${esc(i.nombre)}</option>`).join('')}</select>`},
+    {t:'Filas', f:p => `<input type="number" data-k="n" min="1" max="50" value="${p.n}" aria-label="Cantidad de filas" style="max-width:74px;padding:4px" ${p.tipo === 'barras' || p.tipo === 'tabla' ? '' : 'disabled'}>`},
+    {t:'Orden', f:p => `<select data-k="orden" aria-label="Orden" style="padding:4px" ${p.tipo === 'barras' || p.tipo === 'tabla' ? '' : 'disabled'}><option value="desc" ${p.orden === 'desc' ? 'selected' : ''}>mayores primero</option><option value="asc" ${p.orden === 'asc' ? 'selected' : ''}>menores primero</option></select>`},
+    {t:'', f:p => `<button class="accion chico suave" data-m="-1" aria-label="Subir">↑</button><button class="accion chico suave" data-m="1" aria-label="Bajar">↓</button><button class="accion chico suave" data-m="0" aria-label="Quitar">✕</button>`}], tabDef.piezas, 'Sin piezas: agregue una.');
+  $('#tabestado').textContent = tabId ? `Tablero guardado n.º ${tabId}.` : 'Sin guardar.';
+}
+async function abrirTablero(def, id, solicitud, autor) { await geoDeMunicipios(); tabDef = def; tabId = id; tabSolicitud = solicitud || ''; tabAutor = autor || null; pintarEditor(); await pintarTablero(); }
+async function tableros() { const r = await api('/api/tableros'); tabIndicadores = r.indicadores;
+  $('#tabejemplos').innerHTML = EJEMPLOS_TABLERO.map(x => `<button type="button">${esc(x)}</button>`).join('');
+  tabla('#ttableros', [{t:'Tablero', f:f => `<b>${esc(f.titulo)}</b>${f.solicitud ? `<br><small>«${esc(f.solicitud)}»</small>` : ''}`}, {t:'Territorio', f:f => esc(f.territorio || '')}, {t:'Piezas (cantidad)', num:1, f:f => num(f.piezas)}, {t:'Autor', f:f => esc(f.autor)}, {t:'Cambiado', f:f => esc(f.cambiado)},
+    {t:'', f:f => `<button class="accion chico" data-abrir="${f.id}">Abrir</button><button class="accion chico suave" data-borrar="${f.id}">Borrar</button>`}], r.tableros, 'Todavía no hay tableros guardados.'); }
+$('#tabejemplos').onclick = e => { const b = e.target.closest('button'); if (b) { $('#tabtexto').value = b.textContent; $('#tabarmar').click(); } };
+$('#tabarmar').onclick = async () => { try { const r = await api('/api/tableros/interpretar', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({texto: $('#tabtexto').value})}), i = r.interpretacion; tabIndicadores = r.indicadores;
+  $('#tabentendido').innerHTML = `<p class="nota" style="margin:12px 0 0"><b>Lo que entendí:</b> ${i.entendido.map(esc).join(' · ')}.</p>` + (i.avisos.length ? `<p class="nota" style="color:var(--alerta);margin:4px 0 0">${i.avisos.map(esc).join(' ')}</p>` : '');
+  await abrirTablero(i.tablero, null, $('#tabtexto').value); $('#tabvista').scrollIntoView({behavior:'smooth', block:'start'}); } catch (x) { aviso(x.message, true); } };
+$('#tabtexto').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#tabarmar').click(); } };
+$('#tabvacio').onclick = () => abrirTablero({titulo:'Tablero nuevo', territorio:{nivel:'pais', codigo:'', nombre:'Guatemala'}, piezas:[{tipo:'tarjeta', indicador:'poblacion_actual', titulo:'', n:10, orden:'desc'}]}, null, '').catch(x => aviso(x.message, true));
+$('#tabtitulo').oninput = () => { tabDef.titulo = $('#tabtitulo').value; pintarTablero(); };
+$('#tabnivel').onchange = () => { const n = $('#tabnivel').value, f = geoMuni.features[0].properties; tabDef.territorio = n === 'pais' ? {nivel:n, codigo:'', nombre:'Guatemala'} : n === 'departamento' ? {nivel:n, codigo:f.departamento_codigo, nombre:f.departamento} : {nivel:n, codigo:f.codigo, nombre:f.nombre}; pintarEditor(); $('#tablugar').onchange(); };
+$('#tablugar').onchange = () => { const o = $('#tablugar').selectedOptions[0]; if (o) { tabDef.territorio.codigo = o.value; tabDef.territorio.nombre = o.textContent.split(',')[0]; } pintarTablero().catch(x => aviso(x.message, true)); };
+$('#tabpiezas').onchange = e => { const c = e.target, fila = c.closest('tr'); if (!c.dataset.k || !fila) return; const p = tabDef.piezas[fila.rowIndex - 1]; p[c.dataset.k] = c.dataset.k === 'n' ? Math.max(1, Math.min(50, +c.value || 10)) : c.value; if (c.dataset.k === 'tipo') pintarEditor(); pintarTablero().catch(x => aviso(x.message, true)); };
+$('#tabpiezas').onclick = e => { const b = e.target.closest('button[data-m]'); if (!b) return; const i = b.closest('tr').rowIndex - 1, m = +b.dataset.m, ps = tabDef.piezas; if (m === 0) ps.splice(i, 1); else if (ps[i + m]) [ps[i], ps[i + m]] = [ps[i + m], ps[i]]; pintarEditor(); pintarTablero(); };
+$('#tabagregar').onclick = () => { tabDef.piezas.push({tipo:'barras', indicador:'poblacion_actual', titulo:'', n:10, orden:'desc'}); pintarEditor(); pintarTablero(); };
+$('#tabimprimir').onclick = () => window.print();
+$('#tabguardar').onclick = async () => { try { const r = await api('/api/tableros' + (tabId ? '/' + tabId : ''), {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({solicitud: tabSolicitud, definicion: tabDef})}); tabId = r.id; aviso('Tablero guardado.'); pintarEditor(); tableros(); } catch (x) { aviso(x.message, true); } };
+$('#ttableros').onclick = async e => { const a = e.target.closest('button[data-abrir]'), b = e.target.closest('button[data-borrar]');
+  try { if (a) { const r = await api('/api/tableros/' + a.dataset.abrir); await abrirTablero(r.definicion, r.id, r.solicitud, r.autor); $('#tabvista').scrollIntoView({behavior:'smooth', block:'start'}); }
+    if (b && confirm('¿Borrar este tablero?')) { await api('/api/tableros/' + b.dataset.borrar, {method:'DELETE'}); if (tabId === +b.dataset.borrar) tabId = null; aviso('Tablero borrado.'); tableros(); pintarEditor(); } } catch (x) { aviso(x.message, true); } };
 // ---- Hoja de balance: derivados ----
 let hbaTexto = '', hbaPrimarios = [];
 function hbaPedir(producto, cantidad) { const p = new URLSearchParams(producto ? {producto, cantidad: cantidad ?? ''} : {});
@@ -1092,7 +1196,7 @@ async function hbaCalcular() {
   tabla('#thba', [{t:'Derivado', f:d => `<b>${esc(d.derivado)}</b>${c(d).relacion && !/justo antes/.test(c(d).relacion) ? `<br><small class="pista">${esc(c(d).relacion)}</small>` : ''}`}].concat(con ? [{t:'Utilización (%)', num:1, f:d => num(d.utilizacion_pct)}, {t:'Destinado (t)', num:1, f:d => num(d.destinado)}] : [])
     .concat([{t:'Tasa de extracción (%)', num:1, f:d => num(d.tasa_extraccion_pct)}, {t:'Derivado calculado (t)', num:1, f:d => `<b>${num(d.cantidad)}</b>`}])
     .concat(hbaTexto ? [] : [{t:'Producción INE 2024 (t)', num:1, f:d => c(d).produccion_ine_t == null ? '<small>sin dato con ese nombre</small>' : num(c(d).produccion_ine_t)},
-      {t:'Tasa que resulta de las cifras del INE (%)', num:1, f:d => { const x = c(d).tasa_implicita_ine_pct; if (x == null) return ''; const dif = Math.abs(x - d.tasa_extraccion_pct); return `<span class="etq ${dif <= 2 ? 'ok' : dif <= 8 ? 'alerta' : 'mal'}">${num(x)} %</span><br><small>${dif <= 2 ? 'coincide con FAO' : `difiere ${num(dif)} puntos`}</small>`; }}]), b.derivados, 'Sin derivados.');
+      {t:'Derivado ÷ primario procesado, INE 2024 (%)', num:1, f:d => { const x = c(d).tasa_implicita_ine_pct; if (x == null) return ''; const dif = Math.abs(x - d.tasa_extraccion_pct); return `<span class="etq ${dif <= 2 ? 'ok' : x < d.tasa_extraccion_pct - 8 ? '' : 'alerta'}">${num(x)} %</span><br><small>${dif <= 2 ? 'coincide con FAO' : x < d.tasa_extraccion_pct - 8 ? 'menor: lo procesado tiene otros usos' : `difiere ${num(dif)} puntos`}</small>`; }}]), b.derivados, 'Sin derivados.');
   $('#hbaavisos').innerHTML = b.avisos.length ? `<p class="nota" style="margin-top:10px"><b>Tenga en cuenta:</b> ${b.avisos.map(esc).join('; ')}.</p>` : '';
 }
 $('#hbatabla').onchange = async e => { const a = e.target.files[0]; if (!a) return; const antes = hbaTexto; hbaTexto = await a.text(); hbaIniciar().catch(x => { hbaTexto = antes; aviso(x.message, true); }); };
@@ -1213,6 +1317,12 @@ function pintarSesion() {
   $('#acceso').innerHTML = yo ? `<span class="quien"><span><b>${esc(yo.nombre)}</b> · ${esc(ROL[yo.rol] || yo.rol)}</span><button class="accion chico suave" id="salir" style="margin:0">Cerrar sesión</button></span>` : '<button class="accion" id="entrar" style="margin:0">Iniciar sesión</button>';
   document.querySelectorAll('.con-sesion').forEach(x => x.hidden = !yo); document.querySelectorAll('.solo-admin').forEach(x => x.hidden = !(yo && yo.rol === 'admin'));
   $('#aviso-clave').hidden = !(yo && yo.debe_cambiar);
+  // Si su grupo limita las secciones, el menú muestra solo esas (los administradores ven todo).
+  const permitidas = yo && yo.rol !== 'admin' && yo.secciones ? new Set(yo.secciones) : null;
+  document.querySelectorAll('nav > button[data-s]').forEach(b => { if (!b.classList.contains('con-sesion') && !b.classList.contains('solo-admin')) b.hidden = !!permitidas && !permitidas.has(b.dataset.s); });
+  $('#menurubros').hidden = !!permitidas && !permitidas.has('rubros');
+  document.querySelectorAll('nav h3').forEach(h => { let x = h.nextElementSibling, alguno = false; while (x && x.tagName !== 'H3') { if (x.tagName === 'BUTTON' && !x.hidden) alguno = true; x = x.nextElementSibling; } if (!h.classList.contains('con-sesion')) h.hidden = !alguno; });
+  if (permitidas && !permitidas.has(document.querySelector('section.activa')?.id)) document.querySelector('nav > button[data-s]:not([hidden])')?.click();
 }
 async function verSesion() { const r = await api('/api/sesion'); yo = r.sesion ? r.usuario : null; pintarSesion(); }
 $('#acceso').onclick = async e => {
@@ -1227,17 +1337,29 @@ async function perfil() { if (!yo) return; $('#perfilinfo').textContent = `Usuar
 $('#pguardar').onclick = async () => { try { await api('/api/perfil', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({nombre: $('#pnombre').value})}); await verSesion(); aviso('Nombre guardado.'); } catch (x) { aviso(x.message, true); } };
 $('#pclave').onclick = async () => { if ($('#pnueva').value !== $('#pnueva2').value) return aviso('Las dos contraseñas nuevas no coinciden.', true);
   try { await api('/api/perfil', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({clave_actual: $('#pactual').value, clave_nueva: $('#pnueva').value})}); ['#pactual', '#pnueva', '#pnueva2'].forEach(c => $(c).value = ''); await verSesion(); aviso('Contraseña cambiada.'); } catch (x) { aviso(x.message, true); } };
+const NOMBRE_SECCION = {mapa:'Mapa', proceso:'Proceso', tableros:'Tableros', recibir:'Recibir envío', pendientes:'Revisar pendientes', memoria:'Equivalencias', resultados:'Resultados y avance', crecimiento:'Población y crecimiento', vial:'Red vial', operadores:'Operadores de campo', alimentaria:'Seguridad alimentaria', construccion:'Materiales de construcción', precios:'Precios de referencia', canasta:'Canasta básica', rubros:'Precios por rubro', balance:'Hoja de balance', muestreos:'Muestreos automáticos', ine:'Portal del INE', capas:'Capas publicadas', acerca:'Acerca y fuentes', perfil:'Mi perfil'};
+let grupos = [], grupoEditado = null, seccionesPosibles = [];
+function formGrupo(g) { grupoEditado = g ? g.id : null; $('#grupoform').hidden = false; $('#gnombre').value = g ? g.nombre : ''; $('#gdesc').value = g ? g.descripcion : '';
+  $('#gsecciones').innerHTML = seccionesPosibles.filter(x => x !== 'usuarios' && x !== 'perfil').map(x => `<label><input type="checkbox" value="${x}" ${!g || g.secciones.includes(x) ? 'checked' : ''}> ${esc(NOMBRE_SECCION[x] || x)}</label>`).join(''); $('#gnombre').focus(); }
+$('#gnuevo').onclick = () => formGrupo(null); $('#gcancelar').onclick = () => { $('#grupoform').hidden = true; };
+$('#gguardar').onclick = async () => { try { await api('/api/grupos' + (grupoEditado ? '/' + grupoEditado : ''), {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({nombre: $('#gnombre').value, descripcion: $('#gdesc').value, secciones: [...document.querySelectorAll('#gsecciones input:checked')].map(c => c.value)})}); $('#grupoform').hidden = true; aviso('Grupo guardado.'); usuarios(); } catch (x) { aviso(x.message, true); } };
+$('#tgrupos').onclick = async e => { const ed = e.target.closest('button[data-ed]'), bo = e.target.closest('button[data-bo]'); if (ed) formGrupo(grupos.find(g => g.id === +ed.dataset.ed));
+  if (bo && confirm('¿Borrar el grupo? Sus usuarios quedarán sin grupo.')) { try { await api('/api/grupos/' + bo.dataset.bo, {method:'DELETE'}); aviso('Grupo borrado.'); usuarios(); } catch (x) { aviso(x.message, true); } } };
 async function usuarios() {
+  const g = await api('/api/grupos'); grupos = g.grupos; seccionesPosibles = g.secciones;
+  tabla('#tgrupos', [{t:'Grupo', f:f => `<b>${esc(f.nombre)}</b><br><small>${esc(f.descripcion)}</small>`}, {t:'Secciones a las que entra', f:f => `<small>${f.secciones.filter(x => x !== 'perfil').map(x => esc(NOMBRE_SECCION[x] || x)).join(' · ')}</small>`},
+    {t:'Usuarios (cantidad)', num:1, f:f => num(f.usuarios)}, {t:'', f:f => `<button class="accion chico suave" data-ed="${f.id}">Editar</button><button class="accion chico suave" data-bo="${f.id}">Borrar</button>`}], grupos, 'Sin grupos.');
   const l = await api('/api/usuarios');
   tabla('#tusuarios', [{t:'Usuario', f:f => `<b>${esc(f.usuario)}</b>${f.debe_cambiar ? ' <span class="etq alerta">contraseña inicial</span>' : ''}`}, {t:'Nombre', f:f => esc(f.nombre)},
     {t:'Rol', f:f => `<select data-rol="${f.id}" aria-label="Rol de ${esc(f.usuario)}" style="max-width:170px;padding:4px">${Object.entries(ROL).map(([k, v]) => `<option value="${k}" ${k === f.rol ? 'selected' : ''}>${v}</option>`).join('')}</select>`},
+    {t:'Grupo', f:f => `<select data-grupo="${f.id}" aria-label="Grupo de ${esc(f.usuario)}" style="max-width:210px;padding:4px"><option value="0">(sin grupo: todo lo de su rol)</option>${grupos.map(g => `<option value="${g.id}" ${g.id === f.grupo_id ? 'selected' : ''}>${esc(g.nombre)}</option>`).join('')}</select>`},
     {t:'Activo', f:f => `<label class="opcion" style="margin:0"><input type="checkbox" data-act="${f.id}" ${f.activo ? 'checked' : ''}> ${f.activo ? 'sí' : 'no'}</label>`},
     {t:'Creado', f:f => esc(f.creado)}, {t:'Último ingreso', f:f => esc(f.ultimo_ingreso || 'nunca')},
     {t:'Contraseña', f:f => `<button class="accion chico suave" data-clave="${f.id}" data-u="${esc(f.usuario)}">Poner una nueva</button>`}], l, 'Sin usuarios.');
 }
 const cambiarUsuario = async (id, cambio) => { try { await api('/api/usuarios/' + id, {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(cambio)}); aviso('Guardado.'); } catch (x) { aviso(x.message, true); } usuarios(); };
-$('#tusuarios').onchange = e => { const c = e.target; if (c.dataset.rol) cambiarUsuario(c.dataset.rol, {rol: c.value}); if (c.dataset.act) cambiarUsuario(c.dataset.act, {activo: c.checked}); };
-$('#tusuarios').onclick = e => { const b = e.target.closest('button[data-clave]'); if (!b) return; const nueva = prompt(`Contraseña nueva para ${b.dataset.u} (al menos 8 caracteres). Deberá cambiarla al entrar.`); if (nueva) cambiarUsuario(b.dataset.clave, {clave: nueva}); };
+$('#tusuarios').onchange = e => { const c = e.target; if (c.dataset.rol) cambiarUsuario(c.dataset.rol, {rol: c.value}); if (c.dataset.act) cambiarUsuario(c.dataset.act, {activo: c.checked}); if (c.dataset.grupo) cambiarUsuario(c.dataset.grupo, {grupo_id: +c.value}); };
+$('#tusuarios').onclick = e => { const b = e.target.closest('button[data-clave]'); if (!b) return; const nueva = prompt(`Contraseña nueva para ${b.dataset.u} (al menos 10 caracteres, con letras y números o signos). Deberá cambiarla al entrar.`); if (nueva) cambiarUsuario(b.dataset.clave, {clave: nueva}); };
 $('#ucrear').onclick = async () => { try { await api('/api/usuarios', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({usuario: $('#uusuario').value, nombre: $('#unombre').value, rol: $('#urol').value, clave: $('#uclave').value})});
   ['#uusuario', '#unombre', '#uclave'].forEach(c => $(c).value = ''); aviso('Usuario creado.'); usuarios(); } catch (x) { aviso(x.message, true); } };
 // ---- Seguridad alimentaria (CIF) ----
@@ -1254,7 +1376,7 @@ async function alimentaria() {
     {t:'Con retardo en talla (%)', num:1, f:f => `<div class="barra" style="min-width:70px"><i style="width:${f.retardo_en_talla_pct}%;background:var(--mal)"></i></div><b>${esc(f.retardo_en_talla_pct)} %</b>`},
     {t:'Vulnerabilidad nutricional', f:f => `<span class="etq ${/alta/.test(f.vulnerabilidad) ? 'mal' : f.vulnerabilidad === 'moderada' ? 'alerta' : 'ok'}">${esc(f.vulnerabilidad)}</span>`}], r.talla || [], 'Este servidor no tiene cargado el censo de talla (se genera con "faro talla").');
 }
-const cargar = {balance: hbaIniciar, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
+const cargar = {tableros, balance: hbaIniciar, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: async () => {}};
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 // Enlaces internos del tipo <a href="#seccion"> llevan a esa sección del menú.
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const b = a && document.querySelector(`nav button[data-s="${a.getAttribute('href').slice(1)}"]`); if (b) { e.preventDefault(); b.click(); } });
@@ -1311,7 +1433,8 @@ $('#reproducir').onclick = async () => {
 $('#consanio').onchange = () => construido().catch(e => aviso(e.message, true));
 $('#pobdesde').onchange = $('#pobhasta').onchange = () => poblacion().catch(e => aviso(e.message, true));
 $('#anio').onchange = () => crecimiento().catch(e => aviso(e.message, true));
-estado().then(cargarSolicitudes).then(envios).catch(e => aviso(e.message, true));
+// La lista de envíos pide sesión: se carga al entrar a "Recibir envío", no al abrir la página.
+estado().then(cargarSolicitudes).catch(e => aviso(e.message, true));
 iniciarMapa().catch(e => aviso(e.message, true));
 verSesion().catch(() => {});
 </script>

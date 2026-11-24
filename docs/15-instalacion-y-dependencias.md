@@ -12,7 +12,7 @@ cp .env.example .env        # cambie las tres claves
 docker compose up -d --build
 ```
 
-Abra <http://localhost:8082> (usuario `admin`, contraseña `admin`; cámbiela al entrar). En Windows
+Abra <http://localhost:8082> (usuario `admin`, contraseña `admin`). El portal exige cambiarla en «Mi perfil» antes de permitir cualquier cambio: al menos 10 caracteres, con letras y números o signos. En Windows
 puede usar `iniciar.bat`, que crea `.env` y busca un puerto libre. Para actualizar a una versión nueva:
 
 ```bash
@@ -47,6 +47,8 @@ export FARO_TOKEN=... FARO_SAL=... FARO_PUERTO=8082
 | `FARO_TOKEN` | Clave de servicio para procesos automáticos | — |
 | `FARO_SAL` | Sal para seudonimizar identificadores | — |
 | `FARO_PUERTO` | Puerto de la pantalla | 8082 |
+| `FARO_ESCUCHA` | Dirección donde se atiende; `0.0.0.0` lo abre a la red (úselo detrás de un proxy con HTTPS) | 127.0.0.1 |
+| `FARO_HTTPS` | `1` si el portal está detrás de HTTPS: la galleta de sesión solo viaja cifrada | 0 |
 | `FARO_SYNC_HORAS` | Cada cuánto se consulta el portal del INE (0 = nunca) | 24 |
 
 ## Dependencias (todas de código abierto)

@@ -65,6 +65,9 @@ pub struct PrecioReferencia {
     /// "media", "mediana" o "" si no se recomienda ninguno.
     pub medida: String,
     pub precio_referencia: Option<f64>,
+    /// Intervalo de confianza de la mediana (inferior, superior, cobertura), sin suponer
+    /// distribución; vacío si hay menos de 6 precios (no alcanza 95 %).
+    pub ic_mediana: Option<(f64, f64, f64)>,
     /// Por qué se eligió esa medida y qué conviene revisar.
     pub notas: Vec<String>,
 }
@@ -92,6 +95,7 @@ pub fn analizar(producto: &str, cotizaciones: &[&Cotizacion], p: &Parametros) ->
     precios.sort_by(f64::total_cmp);
     let n = precios.len();
     let mut r = PrecioReferencia {
+        ic_mediana: crate::estadistica::ic_mediana(&precios, 0.95),
         producto: producto.to_string(),
         unidad: unidades.first().map(|u| u.to_string()).unwrap_or_default(),
         cotizaciones: n,

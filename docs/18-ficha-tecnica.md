@@ -14,6 +14,8 @@
 | **Modelos de IA en ejecución** | Ninguno: reglas deterministas y a la vista |
 | **Instalación** | `docker compose up -d --build` → <http://localhost:8082>. Detalle: `docs/15-instalacion-y-dependencias.md` |
 | **Reproducibilidad** | Cada tabla derivada tiene un comando `faro …` y un procedimiento descargable; las descargas quedan en un manifiesto con fecha y huella SHA-256 |
+| **Verificación** | Estadística (`docs/19`), de interfaz en laptop de 15.6", tableta y celular (`docs/20`) y de seguridad (`docs/21`), las tres con informe regenerable |
+| **Acceso** | Usuarios con rol (administrador, analista, consulta) y grupo por secciones; contraseñas con Argon2; bitácora de decisiones |
 | **Pruebas** | Pruebas automáticas del núcleo (`cargo test`) y recorridos de la pantalla en Chromium, incluidos teléfono y clic real en el mapa |
 | **Datos personales** | Ninguno en el repositorio; los archivos reales se procesan en un temporal y no se guardan |
 | **Limitaciones conocidas** | Ver la tabla de estado en `docs/01-necesidades-ine.md` y los avisos de cada sección |

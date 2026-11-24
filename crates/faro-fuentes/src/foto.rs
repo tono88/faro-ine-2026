@@ -50,7 +50,12 @@ pub fn se_ven_iguales(a: &Huella, b: &Huella, u: &Umbrales) -> bool {
 
 /// Calcula la huella de una imagen (JPEG, PNG o WebP). `None` si no se puede leer.
 pub fn huella(bytes: &[u8]) -> Option<Huella> {
-    let imagen = image::load_from_memory(bytes).ok()?;
+    // Tope de tamaño al decodificar: una imagen preparada para agotar la memoria no pasa.
+    let mut lector = image::ImageReader::new(std::io::Cursor::new(bytes)).with_guessed_format().ok()?;
+    let mut limites = image::Limits::default();
+    (limites.max_image_width, limites.max_image_height, limites.max_alloc) = (Some(6000), Some(6000), Some(96 * 1024 * 1024));
+    lector.limits(limites);
+    let imagen = lector.decode().ok()?;
     if imagen.width() < 8 || imagen.height() < 8 {
         return None;
     }
@@ -143,7 +148,7 @@ pub fn huella_de_url(agente: &ureq::Agent, url: &str) -> Option<Huella> {
 }
 
 pub fn agente() -> ureq::Agent {
-    ureq::AgentBuilder::new().timeout(std::time::Duration::from_secs(25)).try_proxy_from_env(true).user_agent("faro-muestreo/0.1 (fotos publicadas; consulta de baja frecuencia)").build()
+    ureq::AgentBuilder::new().timeout(std::time::Duration::from_secs(25)).redirects(0).try_proxy_from_env(true).user_agent("faro-muestreo/0.1 (fotos publicadas; consulta de baja frecuencia)").build()
 }
 
 #[cfg(test)]

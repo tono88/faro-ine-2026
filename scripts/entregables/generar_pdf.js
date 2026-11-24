@@ -32,6 +32,8 @@ function aHtml(md) {
   tomas.push(await toma('04-diferencias', 'Precios por rubro: diferencias de 50 % o más entre tiendas, explicadas por regla o por confirmar.'));
   await p.click('nav > button[data-s=balance]'); await p.waitForSelector('#thba tbody tr td b'); await p.waitForTimeout(500);
   tomas.push(await toma('05-balance', 'Hoja de balance: tasas de la FAO para Guatemala contrastadas con la HBA 2024 del INE.'));
+  await p.click('nav > button[data-s=tableros]'); await p.waitForSelector('#tabejemplos button'); await p.click('#tabejemplos button'); await p.waitForSelector('#tabvista .pieza svg path'); await p.evaluate(() => document.querySelector('#tabvista').scrollIntoView()); await p.waitForTimeout(600);
+  tomas.push(await toma('07-tablero', 'Tablero armado a partir de una frase escrita por el usuario.'));
   await p.click('nav > button[data-s=proceso]'); await p.waitForTimeout(1500);
   tomas.push(await toma('06-proceso', 'Proceso: qué hace cada etapa y quién.'));
   const leer = f => fs.readFileSync(path.join(raiz, f), 'utf8'); const img = n => 'data:image/png;base64,' + fs.readFileSync(path.join(cap, n + '.png')).toString('base64');
@@ -51,6 +53,9 @@ function aHtml(md) {
   <div class="sec"><h2>El portal en imágenes</h2>${tomas.map(figura).join('')}</div>
   <div class="sec">${aHtml(leer('docs/01-necesidades-ine.md'))}</div>
   <div class="sec">${aHtml(leer('docs/09-logros.md'))}</div>
+  <div class="sec">${aHtml(leer('docs/19-verificacion-estadistica.md'))}</div>
+  <div class="sec">${aHtml(leer('docs/20-verificacion-interfaz.md'))}</div>
+  <div class="sec">${aHtml(leer('docs/21-seguridad.md'))}</div>
   <div class="sec">${aHtml(leer('docs/14-manual-de-usuario.md'))}</div>
   <div class="sec">${aHtml(leer('docs/15-instalacion-y-dependencias.md'))}</div>
   <div class="sec">${aHtml(leer('docs/11-fuentes-y-citas.md'))}</div></body></html>`;

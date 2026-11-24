@@ -29,8 +29,11 @@ services:
       FARO_TOKEN: ${FARO_TOKEN:?defina FARO_TOKEN en .env}
       FARO_SAL: ${FARO_SAL:?defina FARO_SAL en .env}
       FARO_SYNC_HORAS: ${FARO_SYNC_HORAS:-24}
+      FARO_HTTPS: ${FARO_HTTPS:-0}
     ports:
-      - "${FARO_PUERTO:-8082}:8080"
+      # Por omisión solo se atiende en esta máquina. Para abrirlo a la red (detrás de un proxy con
+      # TLS), ponga FARO_ESCUCHA=0.0.0.0 en .env.
+      - "${FARO_ESCUCHA:-127.0.0.1}:${FARO_PUERTO:-8082}:8080"
     volumes:
       # Salidas fila por fila (sin nombres ni identificadores directos). No se versiona.
       - faro_privado:/app/datos/privado

@@ -3,7 +3,8 @@
 $PuertoInicial = 8082
 $ruta = Join-Path (Get-Location) ".env"
 
-function Clave { -join ((48..57) + (97..122) | Get-Random -Count 32 | ForEach-Object { [char]$_ }) }
+# Claves con el generador criptográfico del sistema (Get-Random no lo es en PowerShell 5.1).
+function Clave { $b = New-Object byte[] 24; [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); -join ($b | ForEach-Object { $_.ToString('x2') }) }
 
 # Un puerto está libre si esta máquina deja abrirlo para escuchar.
 function PuertoLibre([int]$puerto) {

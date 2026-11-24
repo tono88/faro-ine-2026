@@ -146,6 +146,17 @@ tabla `decisiones_precio`, `POST /api/publicados/decision`, pestaña "Diferencia
 `paises_ine.csv`). Entregables: `entregables/FARO-documento-tecnico.pdf` (generar con
 `scripts/entregables/generar_pdf.js <url>`; regenerarlo al cerrar versión), `docs/14`–`docs/18`.
 
+Agregado después (v0.15.0): `faro verificar` → `docs/19` (márgenes de proyección = error observado,
+constantes `ERROR_OBSERVADO_P80/P95` en `crecimiento.rs`; `estadistica.rs`: `ic_mediana`, `wilson`, `t_975`);
+`.faro/pruebas/verificacion_interfaz.js` → `docs/20`; seguridad (`docs/21`): middleware `seguridad()`,
+`con_sesion()`, `autorizar_en(seccion)`, `INTENTOS`/`ARGON`/`PESADAS`, `clave_aceptable(clave, usuario)`,
+contraseña inicial que BLOQUEA los cambios hasta cambiarla, `FARO_ESCUCHA` (127.0.0.1 por omisión) y
+`FARO_HTTPS`. Grupos (`grupos`, `usuarios.grupo_id`, `/api/grupos`). Tableros (`tablero.rs`, tabla
+`tableros`, `/api/tableros*`, sección "Tableros"). Los guiones de prueba entran con
+`.faro/pruebas/_sesion.js` (cambia admin/admin por `Faro-Prueba-2026` en bases nuevas).
+Pendiente de seguridad: grupo de conexiones a la base, HMAC en la llave de pareo, envío en una
+transacción, tipografía servida localmente, `cargo audit`.
+
 ## Pendiente, en orden
 1. Volver a pasar los archivos reales de RENAP/PNC/SE-CONRED por la pantalla y actualizar
    `docs/06-hallazgos-datos-reales.md`; si RENAP trae columna con el nombre del municipio,

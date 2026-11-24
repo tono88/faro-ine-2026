@@ -133,6 +133,19 @@ y cómo repetirlo.
     protección contra descargas automáticas; del Censo 1994 no se halló nada descargable. Esa
     comparación queda pendiente y no se aproximó con otras fuentes.
 
+## El portal se revisa a sí mismo
+
+10j. **Una prueba hacia atrás corrigió el margen de las proyecciones.** Proyectando diez años con
+    datos anteriores en 340 municipios y tres décadas (1,020 casos), lo observado caía dentro del
+    margen que el portal mostraba solo 45 % de las veces. El margen se cambió por el error
+    realmente observado (20 % de lo proyectado en 8 de cada 10 casos; 47 % en 95 de cada 100) y
+    ahora cumple lo que dice. Ningún método alternativo (exponencial, tres épocas, última década)
+    fue mejor en las tres décadas. Detalle: [`19-verificacion-estadistica.md`](19-verificacion-estadistica.md).
+10k. **Interfaz comprobada en seis tamaños de pantalla y seguridad auditada.** 22 secciones sin
+    desbordes ni controles difíciles de tocar en laptop, tableta y celular
+    ([`20-verificacion-interfaz.md`](20-verificacion-interfaz.md)); auditoría sin inyección SQL ni
+    fallos de rol, con 16 de 20 hallazgos corregidos ([`21-seguridad.md`](21-seguridad.md)).
+
 ## Operadores de campo (necesidad planteada por la Gerencia)
 
 11. **Asignación con la menor distancia total posible**, calculada de forma exacta. Con el ejemplo
