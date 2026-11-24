@@ -2,6 +2,13 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.16.3 · 24-nov-2026
+- Sin sesión ya no aparecen en el menú las secciones que piden entrar («Recibir envío», «Revisar
+  pendientes», «Equivalencias», «Operadores de campo»), y los paneles para cargar archivos y los
+  botones que cambian algo solo se muestran a quien tiene permiso en esa sección; en su lugar
+  queda una nota. Cargar una tabla propia en la hoja de balance ahora pide sesión.
+- README e instalación: usuario y contraseña iniciales (`admin` / `admin`) a la vista.
+
 ## v0.16.2 · 24-nov-2026
 - Red vial: tipo y superficie de cada vía. El dato ya venía en el archivo de OpenStreetMap y solo
   se usaba para armar el grafo. Ahora `faro vial` suma por municipio los kilómetros de vías

@@ -24,7 +24,7 @@ recepción de registros, y «Operadores de campo» ve solo el mapa y su ruta). E
 muestra solo lo suyo.
 
 **Lo que ve quien no tiene cuenta:** el mapa, los tableros publicados, las cifras agregadas y las
-fuentes. Los conteos menores que 3 aparecen como «protegido». Lo que llegó de las instituciones
+fuentes. No ve en el menú las secciones de recepción ni los paneles para cargar archivos. Los conteos menores que 3 aparecen como «protegido». Lo que llegó de las instituciones
 (envíos y pendientes) pide sesión.
 
 ## Lo que resuelve, sección por sección

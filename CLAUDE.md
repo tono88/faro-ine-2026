@@ -211,6 +211,12 @@ solo si nombre y código coinciden con el catálogo) y `red_vial_principal.geojs
 Superficie anotada solo en 38 % de la red: nunca presentar «% pavimentado» sin decirlo. RIC y
 Dirección General de Caminos: no se halló capa abierta de vías (búsqueda del 24-nov).
 
+Agregado después (v0.16.3): visibilidad por permiso. `puede(seccion)` en `index.html`; botones de menú con
+`data-sesion` (no aparecen sin sesión; el manejador del menú no abre un botón oculto); elementos con
+`data-requiere="seccion"` (paneles de carga y botones de cambio) se ocultan sin permiso y dejan una
+`.nota-acceso`. Al agregar un panel de carga o un botón que cambie datos: ponerle `data-requiere`.
+`POST /api/balance` pide sesión. Prueba: `.faro/pruebas/visibilidad_sin_sesion.js`.
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)

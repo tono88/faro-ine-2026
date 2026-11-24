@@ -208,14 +208,14 @@
   <button data-s="proceso">Proceso</button>
   <button data-s="tableros">Tableros</button>
   <h3>Registros administrativos</h3>
-  <button data-s="recibir">Recibir envío</button>
-  <button data-s="pendientes">Revisar pendientes <b id="npend" hidden></b></button>
-  <button data-s="memoria">Equivalencias</button>
+  <button data-s="recibir" data-sesion="1">Recibir envío</button>
+  <button data-s="pendientes" data-sesion="1">Revisar pendientes <b id="npend" hidden></b></button>
+  <button data-s="memoria" data-sesion="1">Equivalencias</button>
   <button data-s="resultados">Resultados y avance</button>
   <h3>Territorio</h3>
   <button data-s="crecimiento">Población y crecimiento</button>
   <button data-s="vial">Red vial</button>
-  <button data-s="operadores">Operadores de campo</button>
+  <button data-s="operadores" data-sesion="1">Operadores de campo</button>
   <button data-s="campo" class="de-campo" hidden>Mi ruta de campo</button>
   <button data-s="alimentaria">Seguridad alimentaria</button>
   <h3>Precios</h3>
@@ -308,7 +308,7 @@
     <div class="panel"><h2>Registros por departamento</h2><p class="nota">Conteos de los envíos recibidos, ya con código oficial. Si un periodo se reenvía, cuenta solo el envío más reciente. La tasa divide entre la población que el INE proyecta para ese departamento y año, y cubre solo los meses recibidos (no es una tasa anual).</p><div class="tabla"><table id="thechos"></table></div></div>
   </section>
 
-  <section id="ine"><div class="panel"><h2>Conjuntos del portal de datos abiertos del INE</h2><p class="nota" id="ineinfo"></p><button class="accion" id="sync">Sincronizar ahora</button><div class="tabla" style="margin-top:12px"><table id="tine"></table></div></div></section>
+  <section id="ine"><div class="panel"><h2>Conjuntos del portal de datos abiertos del INE</h2><p class="nota" id="ineinfo"></p><button class="accion" id="sync" data-requiere="ine">Sincronizar ahora</button><div class="tabla" style="margin-top:12px"><table id="tine"></table></div></div></section>
 
   <section id="crecimiento">
     <div class="panel">
@@ -331,7 +331,7 @@
       <p class="proc" data-proc="poblacion"></p>
       <h2 style="margin-top:18px">Repetir el cálculo desde el portal del INE</h2>
       <p class="nota">Vuelve a hacer, ahora mismo y a la vista, todo el proceso que produjo esta tabla: consulta el conjunto en el portal de datos abiertos, descarga el libro y su diccionario, suma las edades, cruza los códigos con el catálogo y compara el resultado con la tabla en uso. Requiere internet y la clave. Por línea de comandos: <code>faro poblacion --entrada &lt;libro&gt; --diccionario &lt;diccionario&gt;</code>.</p>
-      <button class="accion" id="reproducir">Repetir el proceso ahora</button>
+      <button class="accion" id="reproducir" data-requiere="crecimiento">Repetir el proceso ahora</button>
       <div id="reproducido" aria-live="polite"></div>
     </div>
     <div class="panel">
@@ -352,7 +352,7 @@
       <p class="proc" data-proc="construido"></p>
       <p class="proc" data-proc="uso_suelo"></p>
     </div>
-    <div class="panel">
+    <div class="panel" data-requiere="crecimiento">
       <h2>Crecimiento de edificaciones por municipio (serie propia)</h2>
       <p class="nota">Edificaciones observadas por satélite cada año (Google Open Buildings 2.5D Temporal, 2016–2023) y su proyección. Son edificaciones, no viviendas ni personas: sirve para priorizar la actualización cartográfica. La serie real se obtiene con <code>scripts/open_buildings_por_municipio.js</code> en Google Earth Engine; mientras tanto puede probar con el <a href="/ejemplos/edificaciones_ficticias.csv">archivo de ejemplo (ficticio)</a>.</p>
       <label for="anio">Proyectar al año</label><input type="number" id="anio" value="2030" min="2024" max="2050" style="max-width:120px">
@@ -492,8 +492,8 @@
         <button class="accion chico suave solo-edicion" id="tabdeshacer" title="Deshacer (Ctrl+Z)" aria-label="Deshacer">↶</button>
         <button class="accion chico suave solo-edicion" id="tabrehacer" title="Rehacer (Ctrl+Y)" aria-label="Rehacer">↷</button>
         <button class="accion chico suave" id="tabmodo">Vista previa</button>
-        <button class="accion chico solo-edicion" id="tabguardar">Guardar</button>
-        <button class="accion chico solo-edicion" id="tabpublicar">Publicar</button>
+        <button class="accion chico solo-edicion" id="tabguardar" data-requiere="tableros">Guardar</button>
+        <button class="accion chico solo-edicion" id="tabpublicar" data-requiere="tableros">Publicar</button>
         <button class="accion chico suave" id="tabenlace">Copiar enlace</button>
         <button class="accion chico suave" id="tabimprimir">Imprimir</button>
       </div>
@@ -574,18 +574,18 @@
         <li><b>Contraste con el INE</b>: producción del derivado ÷ cantidad del primario «procesado», ambas de las cuentas de utilización y suministro de la HBA 2024 (portal de datos abiertos del INE). Es un cálculo de FARO con cifras del INE, no una tasa que el INE publique. Coincide con la tasa de extracción cuando lo procesado va a ese derivado; si el primario tiene otros usos industriales (el maíz va sobre todo a masa y tortilla), sale menor y no contradice la tasa. Solo se muestra cuando el nombre del producto coincide.</li>
         <li>La cantidad que aparece al elegir un producto es la que el INE reporta como procesada en 2024, cuando existe; puede cambiarla.</li></ul></details>
     </div>
-    <div class="panel"><h2>Probar con otra tabla</h2><p class="nota">Si el INE tiene tasas más recientes, o porcentajes de utilización por derivado, se cargan aquí y el cálculo los aplica. Formato (CSV): <code>primario, derivado, tasa_extraccion_pct</code> y, opcional, <code>utilizacion_pct</code>. No se guarda en el servidor. <a href="/ejemplos/tasas_extraccion_ficticias.csv">Archivo de muestra para probar el formato</a> (sus productos y porcentajes son ficticios).</p>
+    <div class="panel" data-requiere="balance"><h2>Probar con otra tabla</h2><p class="nota">Si el INE tiene tasas más recientes, o porcentajes de utilización por derivado, se cargan aquí y el cálculo los aplica. Formato (CSV): <code>primario, derivado, tasa_extraccion_pct</code> y, opcional, <code>utilizacion_pct</code>. No se guarda en el servidor. <a href="/ejemplos/tasas_extraccion_ficticias.csv">Archivo de muestra para probar el formato</a> (sus productos y porcentajes son ficticios).</p>
       <input type="file" id="hbatabla" accept=".csv" aria-label="Tabla propia de tasas"> <button class="accion chico suave" id="hbaoficial" hidden>Volver a las tasas de FAO</button></div>
   </section>
 
   <section id="muestreos">
     <div class="titulo"><h2>Muestreos automáticos</h2><p>Tareas que el propio portal repite sin intervención: consultan la búsqueda pública de una tienda en línea (sin sesión ni claves, una consulta por término y con pausa), y guardan cada precio con su dirección y la fecha. Usted decide cuáles corren y cada cuánto. La vigilancia del portal de datos abiertos del INE funciona igual y está en "Portal del INE".</p></div>
-    <div class="panel"><p style="margin:0 0 12px"><button class="accion" id="muestreostodas" style="margin:0">↻ Ejecutar todas ahora</button> <span class="nota" id="muestreostodasnota">Vuelve a leer todas las tiendas: corre en segundo plano, una tienda a la vez por sitio, y puede tardar más de una hora. Puede seguir usando el portal.</span></p><div class="tabla"><table id="tmuestreos"></table></div>
+    <div class="panel"><p style="margin:0 0 12px" data-requiere="muestreos"><button class="accion" id="muestreostodas" style="margin:0">↻ Ejecutar todas ahora</button> <span class="nota" id="muestreostodasnota">Vuelve a leer todas las tiendas: corre en segundo plano, una tienda a la vez por sitio, y puede tardar más de una hora. Puede seguir usando el portal.</span></p><div class="tabla"><table id="tmuestreos"></table></div>
     <p class="nota">Cómo se agrega una tienda o un rubro: una tarea más en <code>datos/estandar/muestreos.toml</code> con la dirección base de la tienda, el rubro y los términos de búsqueda. Se admiten cuatro lecturas: búsqueda por términos y catálogo completo por categorías (tiendas con tecnología VTEX), mapa del sitio con datos estructurados de cada producto, y listado paginado (tiendas Magento). Un catálogo completo tarda varios minutos y corre en segundo plano. Los precios de construcción entran solos a la comparación contra el IPMC; los de alimentos aparecen en "Canasta básica"; todos se consultan en "Precios por rubro". Suma, Super del Barrio y Mi Super Fresh no publican catálogo con precios en línea (solo páginas informativas), y PriceSmart exige un navegador con sesión: no se muestrean.</p></div>
   </section>
 
   <section id="precios">
-    <div class="panel">
+    <div class="panel" data-requiere="precios">
       <h2>Precio de referencia a partir de cotizaciones</h2>
       <p class="nota">Calcula media, mediana y moda por producto y elige como lo explica la Dirección de Precios e Índices de Referencia: mediana si hay precios extremos, media si los precios son parecidos. Avisa si menos de la mitad de las fuentes son cotizaciones directas o si se mezclan unidades. Las cotizaciones no se guardan. Para probar: <a href="/ejemplos/cotizaciones_ficticias.csv">cotizaciones de ejemplo (ficticias)</a>.</p>
       <label for="csvprecios">Cotizaciones (CSV: producto, precio, fuente, tipo_fuente, unidad)</label><input type="file" id="csvprecios" accept=".csv">
@@ -1369,11 +1369,11 @@ async function muestreos() {
   const t = await api('/api/muestreos');
   const alcance = f => f.tipo === 'vtex' ? `${f.terminos.length} términos: ${esc(f.terminos.slice(0, 6).join(', '))}${f.terminos.length > 6 ? '…' : ''}` : f.tipo === 'vtex-catalogo' ? (f.categorias.length ? `categorías: ${esc(f.categorias.join(', '))}` : 'todas las categorías') + ` · hasta ${num(f.max_resultados)} productos` : `hasta ${num(f.max_resultados)} productos`;
   tabla('#tmuestreos', [{t:'Tarea', f:f => `<b>${esc(f.titulo)}</b><br><small>${esc(f.base)} · rubro <b>${esc(f.rubro)}</b> · ${TIPOS_MUESTREO[f.tipo] || esc(f.tipo)}<br>${alcance(f)}</small>`},
-    {t:'Activa', f:f => `<label class="opcion" style="margin:0"><input type="checkbox" data-m="${esc(f.id)}" ${f.activa ? 'checked' : ''}> ${f.activa ? 'sí' : 'no'}</label>`},
-    {t:'Cada (horas)', f:f => `<input type="number" min="1" max="2160" value="${f.cada_horas}" data-h="${esc(f.id)}" style="max-width:90px;padding:4px" aria-label="Frecuencia en horas de ${esc(f.titulo)}">`},
+    {t:'Activa', f:f => `<label class="opcion" style="margin:0"><input type="checkbox" data-m="${esc(f.id)}" ${f.activa ? 'checked' : ''} ${puede('muestreos') ? '' : 'disabled'}> ${f.activa ? 'sí' : 'no'}</label>`},
+    {t:'Cada (horas)', f:f => `<input type="number" min="1" max="2160" value="${f.cada_horas}" data-h="${esc(f.id)}" ${puede('muestreos') ? '' : 'disabled'} style="max-width:90px;padding:4px" aria-label="Frecuencia en horas de ${esc(f.titulo)}">`},
     {t:'Última corrida', f:f => f.en_curso ? '<span class="etq alerta">en curso…</span>' : f.ultima ? `${esc(f.ultima)}<br><span class="etq ${f.ultimo_ok ? 'ok' : 'mal'}">${f.ultimo_ok ? 'con precios' : 'sin precios'}</span>` : '<span class="etq">nunca</span>'},
     {t:'Precios guardados (cantidad)', num:1, f:f => `${num(f.precios)}<br><small>${num(f.productos)} productos · ${num(f.corridas)} día(s)</small>`},
-    {t:'', f:f => `<button class="accion chico" data-e="${esc(f.id)}" ${f.en_curso ? 'disabled' : ''}>${f.en_curso ? 'Consultando…' : 'Ejecutar ahora'}</button>${f.detalle ? `<br><small title="${esc(f.detalle)}">${esc(f.detalle.slice(0, 160))}${f.detalle.length > 160 ? '…' : ''}</small>` : ''}`}], t, 'No hay tareas definidas.');
+    {t:'', f:f => `${puede('muestreos') ? `<button class="accion chico" data-e="${esc(f.id)}" ${f.en_curso ? 'disabled' : ''}>${f.en_curso ? 'Consultando…' : 'Ejecutar ahora'}</button>` : ''}${f.detalle ? `<br><small title="${esc(f.detalle)}">${esc(f.detalle.slice(0, 160))}${f.detalle.length > 160 ? '…' : ''}</small>` : ''}`}], t, 'No hay tareas definidas.');
   // Mientras haya una corrida en curso se vuelve a consultar cada 8 segundos.
   clearTimeout(relojMuestreos);
   if (t.some(f => f.en_curso) && $('#muestreos').classList.contains('activa')) relojMuestreos = setTimeout(() => muestreos().catch(() => {}), 8000);
@@ -1756,7 +1756,7 @@ function pintarRubro() {
   else if (rubroVista === 'diferencias') { const c = r.conteo_diferencias || {}, ETQ = {oferta:['ok', 'oferta'], atipico:['mal', 'precio atípico'], por_confirmar:['alerta', 'por confirmar']};
     $('#rubroresumen').innerHTML += `<br><b>${num(r.total_diferencias)}</b> producto(s) con 50 % o más de diferencia entre tiendas: <b>${num(c.oferta || 0)}</b> se explican por oferta, <b>${num(c.atipico || 0)}</b> con una tienda atípica y <b>${num(c.por_confirmar || 0)}</b> sin regla esperan su decisión; <b>${num(c.decididos || 0)}</b> ya decididos.`;
     tabla('#trubros', [{t:'Producto (código de barras)', f:f => `<b>${esc(f.producto)}</b><br><code>${esc(f.ean)}</code>`},
-      {t:'Precio por tienda (Q) y su decisión', f:f => f.ofertas.map(o => `<div class="dec">${enlace(o.url, o.proveedor)} <b>${q(o.precio)}</b>${o.precio_lista > o.precio ? ` <small>regular ${q(o.precio_lista)}</small>` : ''}${f.clase === 'oferta' ? '' : ` <button class="si" data-dec="correcto" data-ean="${esc(f.ean)}" data-prov="${esc(o.proveedor)}" aria-pressed="${o.decision === 'correcto'}">es correcto</button><button class="no" data-dec="error" data-ean="${esc(f.ean)}" data-prov="${esc(o.proveedor)}" aria-pressed="${o.decision === 'error'}">es un error</button>${o.decidio ? `<small>${esc(o.decidio)}</small>` : ''}`}</div>`).join('')},
+      {t:'Precio por tienda (Q) y su decisión', f:f => f.ofertas.map(o => `<div class="dec">${enlace(o.url, o.proveedor)} <b>${q(o.precio)}</b>${o.precio_lista > o.precio ? ` <small>regular ${q(o.precio_lista)}</small>` : ''}${f.clase === 'oferta' || !puede('rubros') ? (o.decision ? ` <small>(${o.decision === 'error' ? 'marcado como error' : 'confirmado'})</small>` : '') : ` <button class="si" data-dec="correcto" data-ean="${esc(f.ean)}" data-prov="${esc(o.proveedor)}" aria-pressed="${o.decision === 'correcto'}">es correcto</button><button class="no" data-dec="error" data-ean="${esc(f.ean)}" data-prov="${esc(o.proveedor)}" aria-pressed="${o.decision === 'error'}">es un error</button>${o.decidio ? `<small>${esc(o.decidio)}</small>` : ''}`}</div>`).join('')},
       {t:'Diferencia (%)', num:1, f:f => `${num((f.razon - 1) * 100)} %${f.razon_regular < f.razon ? `<br><small>regular: ${num((f.razon_regular - 1) * 100)} %</small>` : ''}`},
       {t:'Qué dice la regla', f:f => `<span class="etq ${f.resuelto && f.clase !== 'oferta' ? 'ok' : ETQ[f.clase][0]}">${f.resuelto && f.clase !== 'oferta' ? 'decidido' : ETQ[f.clase][1]}</span><br><small>${esc(f.explicacion)}</small>`}], r.diferencias, 'Ningún producto de este rubro tiene 50 % o más de diferencia entre tiendas.'); }
   else if (rubroVista === 'informantes') tabla('#trubros', [{t:'Tienda informante', f:f => `<b>${esc(f.proveedor)}</b><br><small>${esc(f.sitio || '')}</small>`}, {t:'Productos con precio (cantidad)', num:1, f:f => num(f.productos)},
@@ -1825,6 +1825,8 @@ $('#tvialenl').onclick = async e => { const b = e.target.closest('button[data-ve
 // ---- Sesión ----
 let yo = null;
 const ROL = {admin:'Administrador', analista:'Analista', consulta:'Consulta', operador:'Operador de campo'};
+// ¿Quien está en pantalla puede hacer cambios en esa sección? (analista o administrador, y su grupo la incluye).
+const puede = sec => !!yo && (yo.rol === 'admin' || (yo.rol === 'analista' && (!yo.secciones || yo.secciones.includes(sec))));
 function pintarSesion() {
   $('#acceso').innerHTML = yo ? `<span class="quien"><span><b>${esc(yo.nombre)}</b> · ${esc(ROL[yo.rol] || yo.rol)}</span><button class="accion chico suave" id="salir" style="margin:0">Cerrar sesión</button></span>` : '<button class="accion" id="entrar" style="margin:0">Iniciar sesión</button>';
   document.querySelectorAll('.con-sesion').forEach(x => x.hidden = !yo); document.querySelectorAll('.solo-admin').forEach(x => x.hidden = !(yo && yo.rol === 'admin'));
@@ -1833,6 +1835,12 @@ function pintarSesion() {
   const permitidas = yo && yo.rol !== 'admin' && yo.secciones ? new Set(yo.secciones) : null;
   document.querySelectorAll('nav > button[data-s]').forEach(b => { if (!b.classList.contains('con-sesion') && !b.classList.contains('solo-admin')) b.hidden = !!permitidas && !permitidas.has(b.dataset.s); });
   $('#menurubros').hidden = !!permitidas && !permitidas.has('rubros');
+  // Secciones que muestran lo recibido de las instituciones o solo sirven para cargar archivos: sin sesión no aparecen.
+  document.querySelectorAll('nav > button[data-sesion]').forEach(b => { b.hidden = !yo || (!!permitidas && !permitidas.has(b.dataset.s)) || (b.dataset.s === 'operadores' && !puede('operadores')); });
+  // Paneles y botones que cargan archivos o cambian algo: solo se muestran a quien puede usarlos. En su lugar queda una nota.
+  document.querySelectorAll('[data-requiere]').forEach(x => { const ok = puede(x.dataset.requiere); x.hidden = !ok;
+    if (x.classList.contains('panel')) { let n = x.nextElementSibling; if (!n || !n.classList.contains('nota-acceso')) { n = document.createElement('p'); n.className = 'nota nota-acceso'; n.textContent = 'Aquí se pueden cargar archivos propios. Inicie sesión con un usuario que tenga acceso a esta sección para verlo.'; x.after(n); } n.hidden = ok; } });
+  const activa = document.querySelector('section.activa')?.id, boton = activa && document.querySelector(`nav > button[data-s="${activa}"]`); if (boton && boton.hidden) document.querySelector('nav button[data-s=mapa]').click();
   // «Mi ruta de campo» pide sesión y que el grupo incluya el trabajo de campo (o su coordinación).
   document.querySelector('nav button[data-s=campo]').hidden = !yo || yo.rol === 'consulta' || (!!permitidas && !permitidas.has('campo') && !permitidas.has('operadores'));
   document.querySelectorAll('nav h3').forEach(h => { let x = h.nextElementSibling, alguno = false; while (x && x.tagName !== 'H3') { if (x.tagName === 'BUTTON' && !x.hidden) alguno = true; x = x.nextElementSibling; } if (!h.classList.contains('con-sesion')) h.hidden = !alguno; });
@@ -1896,6 +1904,8 @@ $('#menu').onclick = () => { const abierto = document.querySelector('nav').class
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const b = a && document.querySelector(`nav button[data-s="${a.getAttribute('href').slice(1)}"]`); if (b) { e.preventDefault(); b.click(); } });
 api('/api/publicados').then(r => { $('#menurubros').innerHTML = r.rubros.map(x => `<button data-rubro="${esc(x.rubro)}">${esc(rubroNombre(x.rubro))} <small>${num(x.productos)}</small></button>`).join(''); }).catch(() => {});
 document.querySelectorAll('nav > button').forEach(b => b.onclick = () => {
+  // Un enlace interno puede apuntar a una sección que este visitante no tiene en su menú: no se abre; se ofrece entrar.
+  if (b.hidden) { if (!yo && !$('#ingreso').open) { $('#ingerror').textContent = 'Esa sección pide iniciar sesión.'; $('#ingreso').showModal(); } else if (yo) aviso('Su usuario no tiene acceso a esa sección.', true); return; }
   document.querySelector('nav').classList.remove('abierto');
   document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
   document.querySelectorAll('section').forEach(s => s.classList.toggle('activa', s.id === b.dataset.s));

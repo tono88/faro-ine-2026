@@ -1850,7 +1850,9 @@ async fn huellas_de(e: &Compartido, imagenes: &[String], bajar: bool) -> Res<Has
 }
 
 /// Calculadora de derivados de la Hoja de Balance de Alimentos: el cuerpo es la tabla de tasas (CSV).
-async fn api_balance(Query(q): Query<HashMap<String, String>>, cuerpo: String) -> Res<Json<Value>> {
+async fn api_balance(State(e): State<Compartido>, cabeceras: HeaderMap, Query(q): Query<HashMap<String, String>>, cuerpo: String) -> Res<Json<Value>> {
+    // Cargar una tabla propia es una acción de quien trabaja el dato: pide sesión, como las demás cargas.
+    autorizar_en(&e, &cabeceras, "balance").await?;
     let tasas = faro_territorio::balance::leer_tasas(cuerpo.as_bytes()).map_err(pedido)?;
     let primarios = faro_territorio::balance::primarios(&tasas);
     let balance = match q.get("producto").filter(|p| !p.is_empty()) {

@@ -26,6 +26,9 @@ El portal funciona sin internet con los datos que trae. Necesita internet para: 
 portal del INE, ejecutar muestreos, bajar fotos de productos, el mapa base de OpenStreetMap y la
 tipografía (si no hay, usa la del sistema).
 
+**Usuario y contraseña iniciales: `admin` / `admin`.** El portal obliga a cambiar la contraseña
+antes de permitir cambios. Sin sesión no aparecen las secciones de recepción ni los paneles de carga.
+
 ## Sin Docker
 
 Requisitos: Rust estable (1.82 o posterior; probado con 1.97) y PostgreSQL 16.

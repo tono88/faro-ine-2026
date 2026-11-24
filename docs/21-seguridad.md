@@ -61,7 +61,9 @@ que se revisó y cómo quedó:
 | 28 | Constancia | No había un registro general de acciones | Bitácora: envíos, equivalencias, cuentas, tableros, rutas y visitas, con quién y cuándo. Solo la leen los administradores |
 | 29 | Fotos satelitales | El navegador pide imágenes a NASA y EOX | Son opcionales y solo imágenes (`img-src`); el servidor no las pide ni envía datos a esos servicios |
 
-Pruebas: `trabajo_de_campo.js` (permisos del operador, visitas, formulario), `disenador_tableros.js`
+| 30 | Menús y paneles de carga | Sin sesión se veían secciones y controles de carga que no se podían usar | Las secciones que piden sesión no aparecen en el menú ni se abren por enlace; los paneles de carga y los botones de cambio solo se muestran con permiso. La carga de una tabla propia en la hoja de balance, que estaba abierta, ahora pide sesión. Es una mejora de claridad: el control real sigue estando en el servidor |
+
+Pruebas: `visibilidad_sin_sesion.js`, `trabajo_de_campo.js` (permisos del operador, visitas, formulario), `disenador_tableros.js`
 (borradores y publicados) y `tableros_grupos_seguridad.js`.
 
 Siguen pendientes los puntos 3, 10, 15, 18 y 20 de la tabla anterior, y dos nuevos: publicar el

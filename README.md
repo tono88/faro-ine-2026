@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.16.2.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.16.3.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -232,10 +232,22 @@ Cambie las tres claves de `.env` y después:
 docker compose up -d --build
 ```
 
-Abra <http://localhost:8082> y entre con el usuario inicial `admin` y la contraseña `admin`. El
-portal le pedirá cambiarla en «Mi perfil» antes de permitir cambios. Los demás usuarios se crean en
-«Usuarios». Si el puerto está ocupado, cambie `FARO_PUERTO` en `.env` (`iniciar.bat`, en Windows,
-busca uno libre).
+Abra <http://localhost:8082>.
+
+**Usuario y contraseña iniciales:**
+
+| Usuario | Contraseña |
+|---|---|
+| `admin` | `admin` |
+
+Al entrar, el portal le pide cambiar la contraseña en «Mi perfil» y **no deja hacer ningún cambio
+hasta que la cambie**. Los demás usuarios se crean en «Usuarios», con su rol y su grupo.
+
+Sin iniciar sesión se ven el mapa, los tableros publicados, las cifras y las fuentes. Las secciones
+que muestran lo recibido de las instituciones («Recibir envío», «Revisar pendientes»,
+«Equivalencias») y los paneles para cargar archivos solo aparecen con sesión y con permiso.
+
+Si el puerto está ocupado, cambie `FARO_PUERTO` en `.env` (`iniciar.bat`, en Windows, busca uno libre).
 
 Configuración (archivo `.env`):
 
