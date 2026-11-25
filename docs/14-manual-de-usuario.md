@@ -14,11 +14,33 @@ tableta y celular, y cada cifra dice de dónde sale.
 
 | Quién | Qué ve en el menú |
 |---|---|
-| Cualquier visitante, sin cuenta | Mapa, tableros publicados, territorio (población, red vial, seguridad alimentaria), precios (menos los muestreos), portal del INE, capas y fuentes |
+| Cualquier visitante, sin cuenta | Guía para evaluadores, mapa, comparador de territorios, tableros publicados, territorio (población, red vial, seguridad alimentaria), precios (menos los muestreos), portal del INE, capas y fuentes |
 | Cuenta de una institución | Lo anterior, más «Recibir envío» para subir los archivos de su institución |
 | Operador de campo | Lo público, más «Mi ruta de campo» |
-| Personal del INE (consulta, analista) | Además, según su grupo: los registros administrativos («Recibir envío», «Revisar pendientes», «Equivalencias», «Resultados y avance»), «Operadores de campo», «Antes y ahora», «Proceso», «Muestreos automáticos» y el panel para armar tableros (analista) |
+| Personal del INE (consulta, analista) | Además, según su grupo: los registros administrativos («Recibir envío», «Revisar pendientes», «Equivalencias», «Resultados y avance»), «Operadores de campo», «Proceso», «Muestreos automáticos» y el panel para armar tableros (analista) |
 | Administrador | Todo, y «Usuarios» |
+
+## Comparar territorios
+
+En «Comparar territorios» elija si compara municipios o departamentos y escriba el nombre de cada
+uno (hasta cuatro). Aparecen un mapa que los ubica y una tabla con los 37 indicadores lado a lado;
+la barra de cada celda es proporcional al valor más alto de la fila y, con dos territorios, se
+muestra la diferencia. «Descargar la comparación (CSV)» se la lleva a una hoja de cálculo.
+
+## Certificar un reporte (grupo «Acceso a la información»)
+
+1. Abra el reporte de un municipio (botón «Reporte» de su ficha).
+2. Pulse **«Certificar reporte»**. Solo lo ven los administradores y los analistas cuyo grupo tiene
+   ese permiso.
+3. Llene el número de expediente, quién solicita, su correo, qué pidió, la unidad que responde y
+   quién firma.
+4. Se agrega al inicio una **constancia** con un folio y la huella de los datos entregados.
+5. **«Descargar»** la guarda como PDF junto con el reporte; **«Enviar por correo»** abre su programa
+   de correo con el mensaje ya escrito (el PDF se adjunta a mano: el portal no envía correos).
+
+La constancia es un **borrador con marca de agua «PRUEBA» y sin firma**: no es un documento oficial
+hasta que el INE la revisa y la firma. El portal anota quién certificó, qué municipio y qué
+expediente; **no guarda el nombre ni el correo de quien solicita**.
 
 ## Recorridos guiados
 

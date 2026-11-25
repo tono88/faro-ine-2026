@@ -28,7 +28,7 @@ Abreviaturas de las fuentes más citadas:
 | Ley de Derecho de Autor (D. 33-98), arts. 15, 16, 24, 30 y 35 | El programa es una obra protegida; los datos en sí no | Código escrito en el evento, dependencias de licencia libre, autoría del equipo y licencia perpetua al INE (`LICENCIA.md`) | Cumple |
 | Código Penal, arts. 274 "A" a "G" | Delitos informáticos: obtener datos sin autorización, alterar registros | Solo se leen páginas públicas, sin saltar bloqueos ni sesiones | Cumple |
 | Licencias de los datos (ODbL, CC BY 4.0, portal del INE) | Atribuir, indicar cambios y, en ODbL, compartir igual la base derivada | Cada descarga guarda su licencia; el mapa y las capas citan la fuente | Cumple |
-| Ley de Idiomas Nacionales (D. 19-2003), arts. 8, 10, 11, 14 y 15 | Uso de los idiomas mayas, garífuna y xinka; respeto a la escritura de los nombres de lugares; atención gradual en el idioma de cada comunidad | La pantalla admite otros idiomas como archivos; los nombres de lugares nunca se traducen; kaqchikel en borrador (36 % de los rótulos) | Avance parcial: falta la revisión de una persona experta |
+| Ley de Idiomas Nacionales (D. 19-2003), arts. 8, 10, 11, 14 y 15 | Uso de los idiomas mayas, garífuna y xinka; respeto a la escritura de los nombres de lugares; atención gradual en el idioma de cada comunidad | La pantalla admite otros idiomas como archivos; los nombres de lugares nunca se traducen; kaqchikel en borrador (34 % de los rótulos) | Avance parcial: falta la revisión de una persona experta |
 | Principios de la ONU (A/RES/68/261) y Código Regional de la CEPAL | Registros administrativos como fuente válida; confidencialidad | Es el propósito del proyecto | Alineado |
 
 ## 2. Norma por norma
@@ -234,6 +234,9 @@ la foto, y cuánto tiempo se conservan las visitas.
 | Portal de datos abiertos del INE | La de cada conjunto (50 con CC BY, 22 con ODC-BY y 33 sin licencia declarada, de 105) | Citar | El manifiesto guarda la licencia de cada descarga |
 | Imágenes Landsat (NASA GIBS) | Uso libre | Reconocer a NASA GIBS/ESDIS | El pie de cada cuadro de la animación nombra la foto |
 | SESAN (CIF y Censo de Talla) | Publicación oficial | Citar | Citada; la licencia no se pudo verificar |
+| SAT (parque vehicular) | «© Superintendencia de Administración Tributaria 2026. Todos los derechos reservados» en su portal; no declara licencia abierta | Es información pública; a falta de licencia, lo prudente es citar y no redistribuir el archivo | Se publica solo la **suma por municipio** hecha por FARO, con la cita; el archivo original no está en el repositorio. **Conviene que el INE lo confirme con la SAT** |
+| Banco de Guatemala (PIB departamental) | «Derechos Reservados - Banco de Guatemala»; no declara licencia abierta | Igual que la anterior | Se publican 22 cifras de 2024 con la cita y el aviso de que son preliminares |
+| SEGEPLAN (Ranking de la Gestión Municipal) | No declara licencia | Citar | Se publican los seis índices por municipio con la cita |
 
 ### 2.14 Ley de Idiomas Nacionales (Decreto 19-2003)
 
@@ -256,12 +259,29 @@ Texto consultado el 25-nov-2026: <https://digi.usac.edu.gt/bvsalud/documentos/eb
   la comunicación en el idioma de la comunidad lingüística, con salud, educación, justicia y
   seguridad como sectores prioritarios y «la incorporación gradual de los demás servicios». *FARO:*
   es una herramienta interna del INE y de las instituciones que le envían datos, no un servicio de
-  atención al público; el kaqchikel está como borrador en 36 % de los rótulos, armado con
+  atención al público; el kaqchikel está como borrador en 34 % de los rótulos, armado con
   vocabulario de la propia Academia de Lenguas Mayas y de la memoria de Mozilla. **Falta** la
   revisión por una persona experta, sin la cual no debe tenerse por traducción oficial; el art. 9
   encarga las traducciones oficiales a la Academia de Lenguas Mayas de Guatemala.
 
 Detalle de cómo se traduce y qué se protege: [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
+
+### 2.14a Certificación de reportes para solicitudes de información
+
+La Ley de Acceso a la Información Pública (Decreto 57-2008) dispone que a toda solicitud recaiga
+una resolución por escrito. FARO ayuda a prepararla: desde el reporte de un municipio genera una
+**constancia de entrega** con el expediente, lo solicitado, el municipio, un folio y la huella de
+los datos.
+
+- **No es un documento oficial.** Lleva marca de agua «PRUEBA», va sin firma y lo dice en un
+  recuadro. El texto y los fundamentos definitivos los fija la asesoría jurídica del INE; la
+  firma, electrónica o manuscrita, la pone la autoridad competente (ver 2.7).
+- **Datos de quien solicita.** Su nombre y su correo se escriben en el documento, en el navegador de
+  quien certifica, y **no se envían ni se guardan en el servidor**. Queda anotado quién certificó,
+  qué municipio, qué expediente y cuándo.
+- **Lo que se entrega** es estadística agregada por municipio: no contiene datos de personas,
+  hogares ni empresas (secreto estadístico, Decreto Ley 3-85).
+- **El correo** no lo envía el portal: «Enviar por correo» abre el programa de correo de la persona.
 
 ### 2.15 Referentes internacionales
 

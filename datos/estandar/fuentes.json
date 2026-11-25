@@ -546,6 +546,45 @@
    "consultado": "25 de noviembre de 2026",
    "uso": "Tipografía del portal y de los documentos, según la guía de diseño del INE; incluida en el repositorio, reducida a los caracteres usados.",
    "cita": "Canonical Ltd. y Dalton Maag. (2023). Ubuntu Sans (familia tipográfica) [programa]. Canonical. https://design.ubuntu.com/font Consultado el 25 de noviembre de 2026."
+  },
+  {
+   "id": "sat-parque-vehicular",
+   "autor": "Superintendencia de Administración Tributaria (SAT)",
+   "anio": "2026",
+   "titulo": "Tabla de datos para el análisis estadístico del parque vehicular, octubre de 2026",
+   "tipo": "conjunto de datos",
+   "editor": "SAT",
+   "url": "https://portal.sat.gob.gt/portal/parque-vehicular/",
+   "licencia": "© SAT, todos los derechos reservados; información pública, no declara licencia abierta",
+   "consultado": "25 de noviembre de 2026",
+   "uso": "Vehículos y motocicletas registrados por municipio. El archivo trae solo nombres: FARO les pone código con su homologación (337 municipios; tres nombres no llevan a un solo municipio y no se asignan). Se publica la suma por municipio, no el archivo original.",
+   "cita": "Superintendencia de Administración Tributaria (SAT). (2026). Tabla de datos para el análisis estadístico del parque vehicular, octubre de 2026 [conjunto de datos]. SAT. https://portal.sat.gob.gt/portal/parque-vehicular/ Consultado el 25 de noviembre de 2026."
+  },
+  {
+   "id": "banguat-pib-departamental",
+   "autor": "Banco de Guatemala",
+   "anio": "2025",
+   "titulo": "Cuentas regionales y departamentales anuales 2013–2024: PIB total por departamento (cuadro 5) y PIB per cápita por departamento (cuadro 8)",
+   "tipo": "conjunto de datos",
+   "editor": "Banco de Guatemala",
+   "url": "https://banguat.gob.gt/page/cuadros-estadisticos-por-departamento-2013-2024",
+   "licencia": "derechos reservados, Banco de Guatemala; información pública, no declara licencia abierta",
+   "consultado": "25 de noviembre de 2026",
+   "uso": "PIB de 2024 a precios corrientes y por habitante, por departamento (cifras preliminares). Dato del departamento, no del municipio.",
+   "cita": "Banco de Guatemala. (2025). Cuentas regionales y departamentales anuales 2013–2024: PIB total por departamento (cuadro 5) y PIB per cápita por departamento (cuadro 8) [conjunto de datos]. Banco de Guatemala. https://banguat.gob.gt/page/cuadros-estadisticos-por-departamento-2013-2024 Consultado el 25 de noviembre de 2026."
+  },
+  {
+   "id": "segeplan-ranking-municipal",
+   "autor": "Secretaría de Planificación y Programación de la Presidencia (SEGEPLAN)",
+   "anio": "2024",
+   "titulo": "Ranking de la Gestión Municipal 2020–2021: resultados",
+   "tipo": "conjunto de datos",
+   "editor": "SEGEPLAN",
+   "url": "https://portal.segeplan.gob.gt/segeplan/wp-content/uploads/2024/06/Resultados_RGM_2020_2021-1.xlsx",
+   "licencia": "publicación oficial; no indica licencia",
+   "consultado": "25 de noviembre de 2026",
+   "uso": "Seis índices de gestión municipal (de 0 a 1) para los 340 municipios, con su código.",
+   "cita": "Secretaría de Planificación y Programación de la Presidencia (SEGEPLAN). (2024). Ranking de la Gestión Municipal 2020–2021: resultados [conjunto de datos]. SEGEPLAN. https://portal.segeplan.gob.gt/segeplan/wp-content/uploads/2024/06/Resultados_RGM_2020_2021-1.xlsx Consultado el 25 de noviembre de 2026."
   }
  ]
 }

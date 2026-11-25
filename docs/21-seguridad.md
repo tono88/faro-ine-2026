@@ -93,6 +93,7 @@ posición), y la protección de conteos no compara tablas entre sí.
 | 42 | Datos mostrados | Una traducción podría cambiar un dato a la vista | Solo se traduce lo que está en el diccionario, que no contiene datos; dentro de tablas no se aplican moldes; nombres de personas y citas van marcados para no tocarse. El idioma no llega a la base, a las capas ni a las descargas |
 | 43 | Privacidad | El idioma elegido es una preferencia de la persona | Se guarda solo en su navegador (`localStorage`); el servidor no lo registra. Los diccionarios se sirven sin sesión porque no contienen nada reservado |
 | 44 | Menú según quién mira (v0.21.1) | Un visitante, una institución o un operador veían secciones de trabajo interno («Antes y ahora», «Proceso», «Muestreos automáticos», «Resultados y avance») y el panel para armar tableros | Solo las ve el personal del INE cuyo grupo las incluya; los demás ven lo público y lo suyo. Es una regla de pantalla: las lecturas reservadas ya pedían sesión en el servidor (fila 7) |
+| 45 | Certificación de reportes (v0.22.0) | Una constancia generada por el portal podría tomarse por un documento oficial, o guardar datos de quien solicita | Solo certifica quien tiene el permiso `certificar` (el servidor lo comprueba y lo anota en la bitácora); la constancia lleva marca de agua «PRUEBA», va sin firma y dice que es un borrador; el nombre y el correo del solicitante no se envían al servidor; el folio y la huella SHA-256 permiten comprobar después qué se entregó |
 
 ## Lo que debe hacer quien lo instale
 

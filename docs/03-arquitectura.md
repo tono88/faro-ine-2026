@@ -70,10 +70,10 @@ la salida fila por fila, ya sin nombres ni identificadores, queda en un volumen 
 | `faro-servidor` | Rust, axum, tokio | API, sesiones y permisos, esquema de la base (`esquema.sql`), tableros (`tablero`), trabajo de campo (`campo`) y la pantalla (`web/index.html`, incluida en el ejecutable) |
 | `faro-cli` | Rust, clap | Ejecutable `faro`: los mismos módulos desde la línea de comandos, para regenerar cada tabla y cada informe |
 | Base de datos | PostgreSQL 16 | 20 tablas y dos vistas (`envios_vigentes`, `precios_ultimos`) |
-| Pantalla | HTML, CSS y JavaScript sin marcos; Leaflet 1.9.4 | 24 secciones, recorridos guiados, diseñador de tableros, mapa; funciona en teléfono |
+| Pantalla | HTML, CSS y JavaScript sin marcos; Leaflet 1.9.4 | 25 secciones, recorridos guiados, diseñador de tableros, mapa; funciona en teléfono |
 | Idiomas de la pantalla | JavaScript sin marcos (`web/idiomas.js`); diccionarios JSON | Español de origen, inglés completo y kaqchikel en borrador; `datos/estandar/idiomas/`; se traduce la interfaz, no los datos |
 | Despliegue | Docker Compose | `docker compose up -d --build`; probado desde un clon limpio |
-| Pruebas | `cargo test`; Playwright con Chromium | 96 pruebas de reglas y 21 guiones de pantalla (`.faro/pruebas/`) |
+| Pruebas | `cargo test`; Playwright con Chromium | 96 pruebas de reglas y 22 guiones de pantalla (`.faro/pruebas/`) |
 
 Bibliotecas y licencias: [`27-componentes-de-terceros.md`](27-componentes-de-terceros.md).
 Instalación y dependencias: [`15-instalacion-y-dependencias.md`](15-instalacion-y-dependencias.md).

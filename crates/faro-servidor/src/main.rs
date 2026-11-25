@@ -1292,6 +1292,8 @@ fn leer_censo_indicadores(dir: &std::path::Path) -> HashMap<String, HashMap<Stri
 /// entrada, esa capa no se publica. Devuelve las capas y su catálogo (título, fuente, licencia).
 fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion, vial: &Value, construido: &BTreeMap<String, Vec<faro_territorio::Punto>>, construccion: &Construccion, cif: &[HashMap<String, String>], talla: &HashMap<String, HashMap<String, String>>) -> (HashMap<String, (&'static str, String)>, Vec<Value>) {
     const GEOJSON: &str = "application/geo+json; charset=utf-8";
+    let tabla = |archivo: &str, llave: &str| -> HashMap<String, HashMap<String, String>> { csv::Reader::from_path(dir.join(archivo)).map(|mut l| l.deserialize::<HashMap<String, String>>().flatten().filter_map(|f| Some((f.get(llave)?.clone(), f))).collect()).unwrap_or_default() };
+    let (vehiculos, pib, gestion) = (tabla("parque_vehicular_municipio.csv", "municipio"), tabla("pib_departamento.csv", "departamento"), tabla("gestion_municipal.csv", "municipio"));
     let mut capas = HashMap::new();
     let mut descripcion = Vec::new();
     let mut publicar = |archivo: &str, tipo: &'static str, texto: String, titulo: &str, detalle: &str, fuente: &str, licencia: &str| {
@@ -1349,6 +1351,26 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
             let del_depto = cif.iter().find(|f| f.get("departamento").map(String::as_str) == Some(&codigo[..2]));
             p["cif_fase_area_departamento"] = json!(del_depto.and_then(|f| f.get("fase_area")?.parse::<i64>().ok()));
             p["cif_fase3_o_superior_pct_departamento"] = json!(del_depto.and_then(|f| f.get("fase3_o_superior_pct")?.parse::<f64>().ok()));
+            // Fuentes sumadas el 25-nov: parque vehicular (SAT, por municipio), PIB (Banguat, dato del departamento)
+            // y Ranking de la Gestión Municipal (SEGEPLAN, por municipio).
+            if let Some(v) = vehiculos.get(&codigo) {
+                let n = |k: &str| v.get(k).and_then(|x| x.parse::<f64>().ok());
+                p["vehiculos"] = json!(n("vehiculos"));
+                p["motocicletas"] = json!(n("motocicletas"));
+                p["vehiculos_corte"] = json!(v.get("corte"));
+                p["vehiculos_por_mil_hab"] = json!(n("vehiculos").zip(p["poblacion_actual"].as_f64()).filter(|(_, h)| *h > 0.0).map(|(x, h)| (x / h * 1000.0).round()));
+                p["motocicletas_pct"] = json!(n("motocicletas").zip(n("vehiculos")).filter(|(_, x)| *x > 0.0).map(|(m, x)| (m / x * 1000.0).round() / 10.0));
+            }
+            if let Some(d) = pib.get(&codigo[..2]) {
+                p["pib_per_capita_q_departamento"] = json!(d.get("pib_per_capita_q").and_then(|x| x.parse::<f64>().ok()));
+                p["pib_millones_q_departamento"] = json!(d.get("pib_millones_q").and_then(|x| x.parse::<f64>().ok()));
+                p["pib_anio"] = json!(d.get("anio"));
+            }
+            if let Some(g) = gestion.get(&codigo) {
+                for k in ["participacion_ciudadana", "informacion_ciudadania", "servicios_publicos", "gestion_administrativa", "gestion_financiera", "gestion_estrategica"] {
+                    p[format!("gm_{k}")] = json!(g.get(k).and_then(|x| x.parse::<f64>().ok()));
+                }
+            }
             p["retardo_en_talla_pct"] = json!(talla.get(&codigo).and_then(|f| f.get("retardo_en_talla_pct")?.parse::<f64>().ok()));
             p["vulnerabilidad_nutricional"] = json!(talla.get(&codigo).and_then(|f| f.get("vulnerabilidad")));
             p["escolares_evaluados"] = json!(talla.get(&codigo).and_then(|f| f.get("escolares_evaluados")?.parse::<f64>().ok()));
@@ -1433,6 +1455,9 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
         }
     }
     for (archivo, tipo, titulo, detalle, fuente, licencia) in [
+        ("parque_vehicular_municipio.csv", "text/csv; charset=utf-8", "Parque vehicular por municipio, octubre de 2026", "Vehículos y motocicletas registrados por municipio, con código INE puesto por FARO a partir del nombre (tres nombres no llevan a un solo municipio y no se asignaron).", "SAT, tabla de datos para el análisis estadístico del parque vehicular, octubre de 2026. Suma y códigos: FARO.", "© SAT, todos los derechos reservados; información pública: cite la fuente"),
+        ("pib_departamento.csv", "text/csv; charset=utf-8", "PIB por departamento, 2024", "Producto interno bruto a precios corrientes (millones de quetzales) y por habitante (quetzales), por departamento. Cifras preliminares.", "Banco de Guatemala, cuentas regionales y departamentales anuales 2013–2024 (cuadros 5 y 8).", "derechos reservados, Banco de Guatemala; información pública: cite la fuente"),
+        ("gestion_municipal.csv", "text/csv; charset=utf-8", "Ranking de la Gestión Municipal 2020–2021", "Seis índices de 0 a 1 por municipio: participación ciudadana, información a la ciudadanía, servicios públicos, gestión administrativa, gestión financiera y gestión estratégica.", "SEGEPLAN, Ranking de la Gestión Municipal 2020–2021 (libro de resultados).", "no declara licencia; cite la fuente"),
         ("censo_talla_municipio.csv", "text/csv; charset=utf-8", "Retardo en talla en escolares por municipio, Censo de Talla 2024", "Porcentaje de escolares con retardo en talla (desnutrición crónica), escolares evaluados y categoría de vulnerabilidad nutricional, con código INE.", "SESAN, SIINSAN: V Censo Nacional de Talla en Escolares, 2024.", "publicación oficial; cite la fuente"),
         ("cif_departamentos.csv", "text/csv; charset=utf-8", "Inseguridad alimentaria aguda por departamento (CIF), octubre 2026 – febrero 2027", "Personas en cada fase de la CIF, fase del área y Fase 3 o superior, con código INE del departamento.", "SESAN y Grupo Técnico de la CIF Guatemala, actualización publicada el 19-nov-2026 y corregida el 20-nov-2026.", "publicación oficial; cite la fuente"),
         ("departamentos.geojson", GEOJSON, "Departamentos", "22 departamentos con código INE, para mapas a menor detalle.", "FARO, a partir de CONRED / OCHA (COD-AB Guatemala): contornos simplificados y unidos por departamento.", "CC BY-IGO"),

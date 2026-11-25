@@ -9,8 +9,8 @@ qué está comprobado y qué falta.
 | Idioma de la pantalla | Estado | Cuánto cubre | De dónde sale |
 |---|---|---|---|
 | **Español** | Idioma de origen | 100 % | Así está escrito el portal |
-| **Inglés** | Completo | 100 % de los 1,873 textos de la pantalla | Traducción del equipo con el asistente de IA declarado en el README; sin revisión de un traductor profesional |
-| **Kaqchikel** | **Borrador sin revisar** | 680 rótulos (36.3 %): menú, botones, títulos, encabezados | Armado con vocabulario escrito por hablantes (Mozilla y la Academia de Lenguas Mayas). Falta la revisión de una persona experta. Lo demás aparece en español |
+| **Inglés** | Completo | 100 % de los 1,995 textos de la pantalla | Traducción del equipo con el asistente de IA declarado en el README; sin revisión de un traductor profesional |
+| **Kaqchikel** | **Borrador sin revisar** | 680 rótulos (34.1 %): menú, botones, títulos, encabezados | Armado con vocabulario escrito por hablantes (Mozilla y la Academia de Lenguas Mayas). Falta la revisión de una persona experta. Lo demás aparece en español |
 
 El idioma se cambia con el botón del globo, en el encabezado, en cualquier pantalla y sin iniciar
 sesión. La elección se recuerda en ese navegador. Un enlace puede fijarla: `…/?idioma=en`.
@@ -68,7 +68,7 @@ traducción, funciona sin internet y ningún texto del portal sale del servidor 
 ### Cómo se protege el dato
 
 1. **Solo cambia lo que está en el diccionario, y en el diccionario solo hay textos de la pantalla.**
-   La lista de esos textos (`plantilla.json`, 1,873) la arma `scripts/idiomas/extraer.js`
+   La lista de esos textos (`plantilla.json`, 1,995) la arma `scripts/idiomas/extraer.js`
    recorriendo el portal: un texto entra si está escrito en el código de la pantalla o en los textos
    propios del servidor. En la misma pasada quedaron fuera 2,394 textos que eran datos (lugares,
    productos, tiendas).
@@ -110,7 +110,7 @@ y esto es exactamente lo que hay y lo que no.
    evidencia, cuidar el sentido (un «registro» de programa no es el registro de una persona) y
    dejar el rótulo en español si a alguna palabra le falta respaldo en el sentido correcto.
 4. **Comprobación automática.** Un programa descartó todo rótulo con una palabra que no conste en
-   las fuentes. Quedaron **680** (36.3 % de la pantalla); **455** se dejaron en español por falta de
+   las fuentes. Quedaron **680** (34.1 % de la pantalla); **455** se dejaron en español por falta de
    respaldo.
 
 **Qué tan confiable es**
@@ -195,7 +195,7 @@ mayas, garífuna y xinka. Lo que toca a una herramienta como esta:
 | 8. Utilización | Los idiomas mayas, garífuna y xinka pueden usarse sin restricciones en el ámbito público y privado | La pantalla admite cualquier idioma como un archivo más |
 | 10. Estadísticas | Las instituciones del Estado deben llevar y reportar datos sobre la pertenencia sociolingüística de quienes usan sus servicios | Una solicitud puede pedir esa variable y homologarla contra su catálogo, como ya se hace con «pueblo» |
 | 11. Registros | La escritura propia de los nombres de personas y de lugares debe respetarse en los actos registrales | Los nombres de lugares no se traducen ni se reescriben en ningún idioma |
-| 14 y 15. Servicios públicos | El Estado vela por que se informe y se atienda en el idioma de cada comunidad lingüística, de forma gradual | Kaqchikel en borrador en 36 % de los rótulos; falta la revisión de una persona experta |
+| 14 y 15. Servicios públicos | El Estado vela por que se informe y se atienda en el idioma de cada comunidad lingüística, de forma gradual | Kaqchikel en borrador en 34 % de los rótulos; falta la revisión de una persona experta |
 
 Esto no es un dictamen: describe qué hace la herramienta frente al texto de la ley. El detalle de
 las demás normas está en [`23-conformidad-legal.md`](23-conformidad-legal.md).
@@ -204,7 +204,7 @@ las demás normas está en [`23-conformidad-legal.md`](23-conformidad-legal.md).
 
 Lo que ya estaba y también es inclusión, con su comprobación:
 
-- **Funciona en el teléfono.** Las 24 secciones se revisan en seis tamaños de pantalla, de un
+- **Funciona en el teléfono.** Las 25 secciones se revisan en seis tamaños de pantalla, de un
   celular de 360 px a una laptop Full HD: sin desborde, sin texto de menos de 11 px y con controles
   que se pueden tocar ([`20-verificacion-interfaz.md`](20-verificacion-interfaz.md)).
 - **Se explica solo.** Cada sección tiene un recorrido guiado, paso a paso, con un botón siempre a
@@ -226,11 +226,11 @@ personas usuarias; la medición del contraste de cada color; versiones en otros 
 | El código de idioma no deja leer otros archivos del servidor | `cargo test` (`el_codigo_de_idioma_no_deja_salir_de_la_carpeta`) |
 | En un navegador real: el menú, los recorridos, los avisos y el reporte cambian de idioma; **los nombres de los departamentos, las cifras y las citas no cambian**; el encabezado cabe en un teléfono; el kaqchikel avisa que es un borrador sin revisar | `.faro/pruebas/idiomas.js` (41 comprobaciones) |
 | Cobertura de cada idioma y entradas mal formadas | `node scripts/idiomas/comprobar.js` |
-| La pantalla en inglés no se desborda en ningún tamaño (25-nov-2026: 24 secciones en seis tamaños, sin hallazgos) | `FARO_IDIOMA=en node .faro/pruebas/verificacion_interfaz.js <url>` |
+| La pantalla en inglés no se desborda en ningún tamaño (25-nov-2026: 25 secciones en seis tamaños, sin hallazgos) | `FARO_IDIOMA=en node .faro/pruebas/verificacion_interfaz.js <url>` |
 
 ## 10. Límites
 
-- El kaqchikel es un borrador sin revisar: 36 % de la pantalla, con 570 rótulos compuestos cuya
+- El kaqchikel es un borrador sin revisar: 34 % de la pantalla, con 570 rótulos compuestos cuya
   gramática no ha visto una persona hablante. No debe usarse como traducción oficial.
 - El inglés no tiene revisión profesional.
 - Los documentos (`docs/`), el manual y la presentación están solo en español.

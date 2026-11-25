@@ -312,10 +312,43 @@
       "antes": "El portal solo estaba en español. Traducir una herramienta suele significar reescribirla o contratar un servicio, y para un idioma maya no hay traducción automática que se pueda comprobar.",
       "origen": "Pedido del equipo el 25-nov-2026; Ley de Idiomas Nacionales (Decreto 19-2003)",
       "ahora": "La pantalla cambia de idioma con un botón: inglés completo y kaqchikel como borrador, armado con vocabulario escrito por hablantes (Mozilla y la Academia de Lenguas Mayas) y pendiente de revisión experta. Se traduce la interfaz, nunca los datos: nombres oficiales, cifras y citas salen iguales.",
-      "cifra": "1,873",
-      "cifra_de": "textos de la pantalla también en inglés; 680 rótulos en kaqchikel (36 %), en borrador y con la fuente de cada palabra; ningún dato traducido",
+      "cifra": "1,995",
+      "cifra_de": "textos de la pantalla también en inglés; 680 rótulos en kaqchikel (34 %), en borrador y con la fuente de cada palabra; ningún dato traducido",
       "ver": "acerca",
       "escala": "Otro idioma nacional es un archivo más, sin programar; una corrección se ve al recargar la página."
+    },
+    {
+      "area": "Territorio",
+      "tema": "Comparar territorios lado a lado",
+      "antes": "Para comparar dos municipios había que abrir la ficha de cada uno y copiar las cifras a una hoja de cálculo; para comparar departamentos, sumar a mano sus municipios.",
+      "origen": "Pedido del equipo el 25-nov-2026",
+      "ahora": "«Comparar territorios» pone lado a lado hasta cuatro municipios o departamentos, con los mismos indicadores del mapa, una barra por valor, la diferencia cuando son dos y un mapa que los ubica. El departamento se calcula con sus municipios: las tasas se recalculan, no se promedian.",
+      "cifra": "37",
+      "cifra_de": "indicadores comparables entre 340 municipios y 22 departamentos; la comparación se descarga en CSV",
+      "ver": "comparar",
+      "escala": "Un indicador nuevo en el mapa aparece solo en el comparador."
+    },
+    {
+      "area": "Territorio",
+      "tema": "Datos de otras instituciones que llegan solo con nombres",
+      "antes": "La SAT publica el parque vehicular por municipio solo con el nombre del municipio, sin código: no se puede cruzar con la población ni con el censo sin homologarlo antes.",
+      "origen": "Fuentes sugeridas al equipo el 25-nov-2026 (SAT, Banguat, SEGEPLAN)",
+      "ahora": "FARO sumó 4.35 millones de líneas del archivo de la SAT y le puso código a cada municipio con la misma regla de siempre: solo coincidencia exacta y única. Tres nombres no llevan a un solo municipio y no se asignaron; se dice cuáles. Se sumaron además el PIB por departamento (Banguat) y el Ranking de la Gestión Municipal (SEGEPLAN), comprobando nombre contra código.",
+      "cifra": "99.79 %",
+      "cifra_de": "de 7,020,972 vehículos quedó con código de municipio (337 municipios); 3 nombres sin asignar, a la vista",
+      "ver": "mapa",
+      "escala": "Cada fuente nueva es un comando que deja su tabla, su cita y su huella; el mes siguiente se repite con el archivo nuevo."
+    },
+    {
+      "area": "Seguridad y cumplimiento",
+      "tema": "Responder una solicitud de información con constancia",
+      "antes": "Responder una solicitud de acceso a la información con cifras de un municipio pide armar el cuadro, redactar la resolución y dejar constancia de qué se entregó, a mano y por separado.",
+      "origen": "Pedido del equipo el 25-nov-2026, con una resolución real como modelo de formato",
+      "ahora": "Desde el reporte de un municipio, el grupo «Acceso a la información» pulsa «Certificar reporte», llena el expediente y obtiene una constancia con folio y la huella de los datos entregados, lista para descargar o enviar por correo. Es un borrador con marca de agua «PRUEBA» y sin firma: lo oficial lo firma el INE. Del solicitante no se guarda nada.",
+      "cifra": "1",
+      "cifra_de": "folio por certificación, con huella SHA-256 que permite comprobar después que los datos no cambiaron",
+      "ver": "mapa",
+      "escala": "El texto de la constancia y sus fundamentos los fija la asesoría jurídica del INE; el mismo mecanismo sirve para cualquier reporte."
     }
   ]
 }

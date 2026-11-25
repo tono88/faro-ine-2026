@@ -135,8 +135,8 @@ una lista con su fuente; `cargo test` rechaza una palabra que no esté ahí.
 | Qué | Cómo |
 |---|---|
 | Reglas del núcleo | `cargo test`: 96 pruebas (homologación, recepción, curvas, rutas, cruce de visitas, precios, protección de celdas, diccionarios de idiomas) |
-| La pantalla | 21 guiones en `.faro/pruebas/` con Chromium: clic real en el mapa, teléfono con posición simulada, permisos por rol, recorridos, carga de precios, idiomas (los datos no cambian al traducir) |
-| Seis tamaños de pantalla × 24 secciones | `.faro/pruebas/verificacion_interfaz.js` → [`20-verificacion-interfaz.md`](20-verificacion-interfaz.md) |
+| La pantalla | 22 guiones en `.faro/pruebas/` con Chromium: clic real en el mapa, teléfono con posición simulada, permisos por rol, recorridos, carga de precios, idiomas (los datos no cambian al traducir) |
+| Seis tamaños de pantalla × 25 secciones | `.faro/pruebas/verificacion_interfaz.js` → [`20-verificacion-interfaz.md`](20-verificacion-interfaz.md) |
 | Estadística | `faro verificar` → [`19-verificacion-estadistica.md`](19-verificacion-estadistica.md) |
 | Instalación | Clon limpio → `.env` → `docker compose up -d --build` → portal arriba (probado el 25-nov-2026) |
 | Archivos reales | RENAP, PNC y SE-CONRED pasados localmente; solo conteos en [`06-hallazgos-datos-reales.md`](06-hallazgos-datos-reales.md) |

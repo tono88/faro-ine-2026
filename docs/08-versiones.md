@@ -2,6 +2,35 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.22.0 · 25-nov-2026 · Guía para evaluadores, comparador, certificación y más fuentes
+
+- **Guía para evaluadores.** «Antes y ahora» pasa a llamarse así y es lo primero del menú, en rojo,
+  visible para cualquiera: abre con una tabla de qué revisar en cada criterio de la nota
+  conceptual y dónde está. Existe para el concurso: `FARO_GUIA_EVALUACION=0` la quita.
+- **Comparar territorios** (sección nueva, pública): hasta cuatro municipios o departamentos lado a
+  lado, 37 indicadores, diferencia entre dos, mapa y descarga en CSV.
+- **Certificación de reportes.** Grupo nuevo «Acceso a la información» (lo de Territorio y
+  cartografía más el permiso `certificar`). En el reporte de un municipio, «Certificar reporte»
+  pide el expediente y agrega una constancia con folio y huella SHA-256 de los datos; «Enviar por
+  correo» abre el programa de correo (`mailto`), sin servidor de correo. La constancia es un
+  **borrador con marca de agua «PRUEBA» y sin firma**. El servidor anota quién certificó y qué
+  (`certificaciones`, bitácora) y **no guarda nada del solicitante**. El folio se comprueba en
+  `/api/certificaciones/<folio>`.
+- **Tres fuentes nuevas**, de las que sugirieron al equipo: parque vehicular por municipio (SAT,
+  octubre de 2026; llega solo con nombres y FARO le pone código: 337 municipios, 99.79 % de los
+  vehículos, tres nombres sin asignar), PIB por departamento (Banguat, 2024) y Ranking de la
+  Gestión Municipal (SEGEPLAN, 2020–2021). Comandos `faro vehiculos`, `faro pib` y
+  `faro gestion-municipal`; siete indicadores más (37). No se pudieron leer: SENACYT y el
+  Observatorio para las Ciudades de la UNIS (bloquean clientes automáticos) y Mintrab (solo PDF y
+  tableros). Ninguna de las tres declara licencia abierta: se publican sumas con su cita.
+- **Encabezado:** «FARO for» y el logotipo del INE, en pequeño. El pie del menú sigue diciendo
+  «Proyecto participante del Datatón INE 2026».
+- **Entregables numerados** en `00-ENTREGABLES/` (copia de `entregables/`,
+  `scripts/entregables/copiar_entregables.js`) y listados al inicio del README, con el enlace al
+  portal en línea del equipo y el llamado a usar la guía para evaluadores.
+- 121 textos nuevos de la pantalla, traducidos al inglés. El kaqchikel sigue en 680 rótulos, que
+  ahora son 34 % de la pantalla. Prueba nueva: `.faro/pruebas/comparar_y_certificar.js`.
+
 ## v0.21.1 · 25-nov-2026 · Lo interno, solo para el personal del INE
 
 Pedido del equipo: que un visitante, una institución o un operador de campo no vean las secciones

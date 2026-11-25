@@ -3,7 +3,34 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.21.1.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.22.0.
+
+## Entregables
+
+Están numerados en la carpeta [`00-ENTREGABLES/`](00-ENTREGABLES/) (copia de [`entregables/`](entregables/)):
+
+| N.º | Entregable | Archivo |
+|---|---|---|
+| 1 | **Repositorio con el código fuente y la documentación** | Este repositorio: <https://github.com/tono88/faro-ine-2026> · documentación en este README y en [`docs/`](docs/) |
+| 2 | **Presentación en PDF** para la exposición ante el jurado | [`2-Presentacion-FARO.pdf`](00-ENTREGABLES/2-Presentacion-FARO.pdf) · [editable en PowerPoint](00-ENTREGABLES/2-Presentacion-FARO-editable.pptx) |
+| 3 | **Video demostrativo** de 2 a 3 minutos | [`3-Video-demostrativo-FARO.mp4`](00-ENTREGABLES/3-Video-demostrativo-FARO.mp4) · [subtítulos](00-ENTREGABLES/3-Video-demostrativo-FARO-subtitulos.srt) |
+| 4 | Manual de usuario gráfico | [`4-Manual-de-usuario-FARO.pdf`](00-ENTREGABLES/4-Manual-de-usuario-FARO.pdf) |
+| 5 | Documento técnico | [`5-Documento-tecnico-FARO.pdf`](00-ENTREGABLES/5-Documento-tecnico-FARO.pdf) |
+| 6 | Preguntas probables y respuestas | [`6-Preguntas-y-respuestas-FARO.pdf`](00-ENTREGABLES/6-Preguntas-y-respuestas-FARO.pdf) |
+
+Los tres primeros son los que pide la nota conceptual; los demás los acompañan.
+
+> **Para quien evalúa: use la «Guía para evaluadores».** Es lo primero del menú del portal, en rojo. Dice,
+> criterio por criterio (funcionalidad, aplicabilidad institucional, calidad técnica, innovación, rigor
+> y usabilidad), **qué revisar y en qué sección está**, y debajo trae el comparativo «antes y ahora» con
+> una cifra comprobable por punto. La misma guía, en texto: [`docs/22`](docs/22-antes-y-ahora.md) y
+> [`docs/26`](docs/26-conformidad-nota-conceptual.md).
+
+**Portal en línea:** <https://faro.test-tecnodyne.site/> (despliegue del equipo en un servidor propio;
+puede ir una versión atrás de este repositorio mientras se actualiza). Para instalarlo en su
+máquina: [«Cómo desplegarlo»](#cómo-desplegarlo), cuatro pasos.
+
+## Qué es
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -83,8 +110,8 @@ Todas salen de datos reales procesados durante el evento y se pueden comprobar e
 | **82 → 15** columnas: lo que entra y lo que pasa del archivo de defunciones, sin nombres ni documentos | **20,036** lugares poblados del Censo 2018, verificados código por código |
 | **93,297 ha** construidas en 2020 (eran 30,722 en 1975), para los 340 municipios | **707** lugares poblados sin conexión vial y **83** enlaces que probablemente faltan |
 | **85,907** precios publicados por 18 tiendas, leídos por el propio portal | **16,291** productos comparables entre supermercados por su código de barras |
-| **29** indicadores por municipio en el mapa y los tableros | **96** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
-| **1,873** textos de la pantalla también en inglés; **680** rótulos (36 %) en kaqchikel, en borrador y por revisar | **0** datos traducidos: nombres oficiales, cifras y citas salen iguales en cualquier idioma |
+| **37** indicadores por municipio en el mapa y los tableros | **96** pruebas automáticas, 25 secciones revisadas en seis tamaños de pantalla |
+| **1,995** textos de la pantalla también en inglés; **680** rótulos (34 %) en kaqchikel, en borrador y por revisar | **0** datos traducidos: nombres oficiales, cifras y citas salen iguales en cualquier idioma |
 
 ## Qué hace
 
@@ -111,8 +138,16 @@ Secciones: *Recibir envío*, *Revisar pendientes*, *Equivalencias*, *Resultados 
 
 ### 2. Territorio
 
-- **Mapa en tres niveles** (departamento, municipio, lugar poblado) con 29 indicadores, buscador,
+- **Mapa en tres niveles** (departamento, municipio, lugar poblado) con 37 indicadores, buscador,
   ficha y reporte imprimible por municipio.
+- **Comparar territorios**: hasta cuatro municipios o departamentos lado a lado, con los 37
+  indicadores, la diferencia cuando son dos, un mapa que los ubica y descarga en CSV. El
+  departamento se calcula con sus municipios (las tasas se recalculan, no se promedian).
+- **Datos de otras instituciones, homologados**: parque vehicular por municipio (SAT, octubre de
+  2026: 4.35 millones de líneas que llegan solo con nombres; FARO les puso código a 99.79 % de
+  los vehículos y dejó sin asignar tres nombres que no llevan a un solo municipio), PIB por
+  departamento (Banguat, 2024) y Ranking de la Gestión Municipal (SEGEPLAN, 2020–2021)
+  (`faro vehiculos`, `faro pib`, `faro gestion-municipal`).
 - **Censo 2018**: población, hogares y viviendas por lugar poblado; pirámide de edades; quince
   indicadores de condiciones de vida por municipio (alfabetismo, internet, agua, drenaje,
   electricidad, leña, techo, piso, empleo, educación, basura, tenencia) (`faro censo-indicadores`).
@@ -182,11 +217,17 @@ Secciones: *Tableros*, *Antes y ahora*, *Proceso*, *Capas publicadas*, *Portal d
 
 - **Cuentas** con contraseña, cinco roles (administrador, analista, consulta, operador de campo e
   institución) y **grupos** que definen a qué secciones entra cada persona.
+- **Certificación de reportes.** El grupo «Acceso a la información» (lo mismo que Territorio y
+  cartografía, más este permiso) pulsa «Certificar reporte» en el reporte de un municipio, llena el
+  expediente y obtiene una constancia con folio y la huella de los datos entregados, para
+  descargar o enviar por correo (abre el programa de correo; el portal no envía nada). Es un
+  **borrador con marca de agua «PRUEBA» y sin firma**: lo oficial lo firma el INE. Del solicitante
+  no se guarda nada.
 - **Cuentas de institución.** El enlace de PNC, RENAP o SE-CONRED entra con su usuario, ve todo lo
   público y sube solo los archivos de las solicitudes de su institución; no ve lo que enviaron las
   demás. El servidor lo exige en cada pedido, no solo el menú.
 - **Recorridos guiados.** El botón «Recorrido guiado», siempre en el encabezado, y un botón en cada
-  una de las 24 secciones explican la pantalla paso a paso, señalando cada elemento. Sin biblioteca
+  una de las 25 secciones explican la pantalla paso a paso, señalando cada elemento. Sin biblioteca
   externa; con teclado y en teléfono.
 - **Protección estadística.** Los conteos menores que 3 no se muestran a quien no es analista, con
   supresión complementaria para que no se obtengan por resta.
@@ -200,12 +241,12 @@ Secciones: *Tableros*, *Antes y ahora*, *Proceso*, *Capas publicadas*, *Portal d
 ### 7. Idiomas e inclusión
 
 - **La pantalla cambia de idioma con un botón**, en cualquier sección y sin iniciar sesión:
-  **español** (origen), **inglés** (completo: 1,873 textos, con los recorridos guiados y los
+  **español** (origen), **inglés** (completo: 1,995 textos, con los recorridos guiados y los
   reportes) y **kaqchikel** como **borrador**.
 - **Se traduce la interfaz, nunca los datos.** Los nombres de departamentos, municipios, lugares,
   instituciones y productos, los valores de los catálogos, las cifras y las citas se muestran como
   los publica su fuente. Lo que se descarga y lo que guarda la base no cambian con el idioma.
-- **El kaqchikel es un borrador amplio, y lo dice.** 680 rótulos (36 % de la pantalla: menú,
+- **El kaqchikel es un borrador amplio, y lo dice.** 680 rótulos (34 % de la pantalla: menú,
   botones, títulos y encabezados) están en kaqchikel. Se armaron **solo con vocabulario escrito por
   hablantes**: la memoria de traducción de Mozilla (59 mil frases de Firefox y otros programas, MPL
   2.0) y el *Kaqchikel Choltzij* de la Comunidad Lingüística Kaqchikel de la Academia de Lenguas
@@ -370,10 +411,10 @@ Abra <http://localhost:8082>.
 Al entrar, el portal le pide cambiar la contraseña en «Mi perfil» y **no deja hacer ningún cambio
 hasta que la cambie**. Los demás usuarios se crean en «Usuarios», con su rol y su grupo.
 
-Sin iniciar sesión se ven el mapa, los tableros publicados, el territorio, los precios y las
-fuentes. **Lo interno solo lo ve el personal del INE** (administrador, analista o consulta, según
+Sin iniciar sesión se ven la guía para evaluadores, el mapa, el comparador de territorios, los
+tableros publicados, el territorio, los precios y las fuentes. **Lo interno solo lo ve el personal del INE** (administrador, analista o consulta, según
 su grupo): todo «Registros administrativos» («Recibir envío», «Revisar pendientes»,
-«Equivalencias», «Resultados y avance»), «Operadores de campo», «Antes y ahora», «Proceso» y
+«Equivalencias», «Resultados y avance»), «Operadores de campo», «Proceso» y
 «Muestreos automáticos», además del panel para armar tableros y los paneles para cargar archivos.
 Una cuenta de institución ve lo público y «Recibir envío»; un operador de campo, lo público y
 «Mi ruta de campo».
@@ -396,6 +437,7 @@ Configuración (archivo `.env`):
 | `FARO_UMBRAL_CELDA` | Conteo mínimo que se publica a quien no es analista | 3 |
 | `FARO_FORMULARIOS` | Servicios admitidos para la encuesta de campo | Microsoft Forms |
 | `FARO_SYNC_HORAS` | Cada cuánto se consulta el portal del INE | 24 |
+| `FARO_GUIA_EVALUACION` | `0` quita del menú la «Guía para evaluadores», que existe para el concurso | 1 |
 
 **Para el trabajo de campo el portal debe publicarse con HTTPS**: los teléfonos solo entregan su
 posición a páginas seguras. Instalación paso a paso: [`docs/15`](docs/15-instalacion-y-dependencias.md).
@@ -467,7 +509,7 @@ Quien quiera compilarlo sin Docker encuentra los pasos en [`docs/15`](docs/15-in
 **La fuente principal es el Instituto Nacional de Estadística (INE) de Guatemala.** FARO usa siete
 conjuntos de su portal de datos abiertos ([datos.ine.gob.gt](https://datos.ine.gob.gt), el portal
 de datos de [www.ine.gob.gt](https://www.ine.gob.gt)); las demás fuentes son abiertas y lo
-complementan. Cada fila dice cuándo se descargó. La cita completa de cada una (37 en total) está en
+complementan. Cada fila dice cuándo se descargó. La cita completa de cada una (45 en total) está en
 [`docs/11`](docs/11-fuentes-y-citas.md) y en la sección «Acerca y fuentes» del portal.
 
 | Fuente | Uso | Estado |
@@ -483,6 +525,9 @@ complementan. Cada fila dice cuándo se descargó. La cita completa de cada una 
 | **INE**, Precios de referencia ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/precios-de-referencia), ODC-BY), descargado el 24-nov-2026 | Antecedentes: 4,990 precios emitidos de 2016 a 2023 | `datos/catalogo_precios/precios_referencia_ine.csv` |
 | SESAN y Grupo Técnico de la CIF Guatemala, análisis de inseguridad alimentaria aguda, octubre 2026 – febrero 2027 ([informe](https://portal.sesan.gob.gt/wp-content/uploads/2026/11/CIF_Guatemala-ct2026-Feb2027.pdf)), descargado el 24-nov-2026 | Personas por fase de la CIF en cada departamento | `datos/referencia/cif_departamentos.csv` |
 | SESAN, SIINSAN, "Retardo en talla, Censo 2024" ([libro](https://portal.siinsan.gob.gt/wp-content/uploads/VULNERABILIDAD_DC_MUNICIPAL_QUINTO_CENSO_2024_2.xlsx)), descargado el 24-nov-2026 | Desnutrición crónica en escolares por municipio | `datos/referencia/censo_talla_municipio.csv` |
+| **SAT**, "Tabla de datos para el análisis estadístico del parque vehicular", octubre de 2026 ([portal.sat.gob.gt](https://portal.sat.gob.gt/portal/parque-vehicular/); © SAT, no declara licencia abierta), descargado el 25-nov-2026 | Vehículos y motocicletas por municipio. Llega solo con nombres: FARO les pone código | `datos/referencia/parque_vehicular_municipio.csv` (`faro vehiculos`): 337 municipios; tres nombres sin asignar. Se publica la suma, no el archivo original |
+| **Banco de Guatemala**, cuentas regionales y departamentales 2013–2024, cuadros 5 y 8 ([banguat.gob.gt](https://banguat.gob.gt/page/cuadros-estadisticos-por-departamento-2013-2024); derechos reservados, no declara licencia abierta), descargado el 25-nov-2026 | PIB de 2024 por departamento, total y por habitante (cifras preliminares) | `datos/referencia/pib_departamento.csv` (`faro pib`): 22 departamentos, número y nombre comprobados contra el catálogo |
+| **SEGEPLAN**, Ranking de la Gestión Municipal 2020–2021 ([portal.segeplan.gob.gt](https://portal.segeplan.gob.gt/segeplan/wp-content/uploads/2024/06/Resultados_RGM_2020_2021-1.xlsx); no declara licencia), descargado el 25-nov-2026 | Seis índices de gestión por municipio | `datos/referencia/gestion_municipal.csv` (`faro gestion-municipal`): 340 municipios |
 | **INE**, Censo 2018, cuadros por municipio y lugar poblado (mismo conjunto del listado de lugares; CC BY), descargados el 24-nov-2026 | Población, hogares y viviendas por lugar poblado; quince indicadores de condiciones de vida por municipio; material del techo por lugar poblado | `datos/referencia/censo2018_lugar_poblado.csv`, `censo2018_indicadores_municipio.csv` y `censo2018_techos_lugar_poblado.csv` |
 | Comisión Europea, JRC, GHSL GHS-BUILT-S R2023A, componente no residencial (CC BY 4.0), descargado el 24-nov-2026 | Superficie residencial y no residencial | `datos/referencia/uso_construido_municipio.csv` y `uso_construido_bloques.csv` |
 | NASA GIBS (mosaicos anuales Landsat) y EOX (mosaico Sentinel-2 sin nubes de 2016, CC BY 4.0) | Foto de fondo de la animación del crecimiento urbano y capa satelital del mapa | No se descargan: las pide el navegador de quien mira. Son referencia visual; no se mide sobre ellas |
@@ -501,7 +546,7 @@ complementan. Cada fila dice cuándo se descargó. La cita completa de cada una 
 | `datos/ejemplos/` | Envío, solicitud, serie de edificaciones, operadores y puestos **ficticios** para demostración ([detalle](datos/ejemplos/LEEME.md)) | Incluido |
 
 El repositorio no contiene datos de personas. Los ejemplos son inventados. Cada descarga quedó
-anotada en [`datos/crudo/manifiesto.jsonl`](datos/crudo/manifiesto.jsonl) (111 descargas) con su
+anotada en [`datos/crudo/manifiesto.jsonl`](datos/crudo/manifiesto.jsonl) (115 descargas) con su
 dirección exacta, fecha y hora, licencia y huella SHA-256; `faro fuentes citar` las lista.
 
 ## Arquitectura y tecnologías
@@ -576,7 +621,7 @@ LICENCIA.md             autoría del equipo y licencia al INE
 | [Preguntas y respuestas para el jurado (PDF)](entregables/FARO-preguntas-y-respuestas.pdf) | |
 | [Presentación para el jurado (PDF)](entregables/FARO-presentacion.pdf) | [Presentación editable (PowerPoint)](entregables/FARO-presentacion.pptx) |
 
-## Entregables
+## Entregables, en detalle
 
 | Lo que pide la nota conceptual | Dónde está |
 |---|---|
@@ -611,7 +656,7 @@ LICENCIA.md             autoría del equipo y licencia al INE
 - **Intercambio entre sistemas**: hoy se suben archivos; el diseño prevé recibir lo mismo por
   X-Road ([arquitectura](docs/03-arquitectura.md)).
 - **No probado en Windows**: `iniciar.bat` y los guiones `.ps1`.
-- **El kaqchikel es un borrador sin revisar**: 680 rótulos (36 % de la pantalla) armados con
+- **El kaqchikel es un borrador sin revisar**: 680 rótulos (34 % de la pantalla) armados con
   vocabulario de fuentes escritas por hablantes, 570 de ellos compuestos sin que una persona
   hablante haya revisado la gramática. Faltan además los términos sin fuente («lugar poblado»,
   «red vial», «canasta básica», «homologar») y todos los textos largos. Debe completarse con
@@ -727,11 +772,11 @@ también dentro del [documento técnico](entregables/FARO-documento-tecnico.pdf)
 | Lo que pide | Cómo lo cumple FARO | Dónde se comprueba |
 |---|---|---|
 | Equipo de 3 a 4 integrantes; entrega el 26-nov a las 09:00 | Tres integrantes; repositorio, presentación y video listos | Esta página; [`entregables/`](entregables/) |
-| Datos: una base pública del portal del INE como fuente principal; las demás, abiertas y citadas, con fecha de descarga | Siete conjuntos del portal del INE; 42 fuentes citadas; 111 descargas con dirección, fecha, licencia y huella | [«Datos»](#datos); [`docs/11`](docs/11-fuentes-y-citas.md); `datos/crudo/manifiesto.jsonl` |
+| Datos: una base pública del portal del INE como fuente principal; las demás, abiertas y citadas, con fecha de descarga | Siete conjuntos del portal del INE; 45 fuentes citadas; 115 descargas con dirección, fecha, licencia y huella | [«Datos»](#datos); [`docs/11`](docs/11-fuentes-y-citas.md); `datos/crudo/manifiesto.jsonl` |
 | Tecnología de código abierto o sin costo; declarar servicios de pago o en la nube | Rust, PostgreSQL, Leaflet y Docker; ningún servicio de pago; los gratuitos están declarados | [«Servicios en la nube»](#servicios-en-la-nube) |
 | Desarrollado durante el evento; no presentar proyectos anteriores | Todo el código se escribió del 23 al 25 de noviembre; solo bibliotecas públicas preexistentes | Historial del repositorio; [`docs/08`](docs/08-versiones.md) |
 | Repositorio Git creado desde el día 1, con acceso para el jurado | Primer cambio el 23-nov-2026; una versión publicada por bloque de trabajo | Historial y *releases* |
-| Prototipo funcional, local o en línea | Corre completo con un comando; 24 secciones en uso | [«Cómo desplegarlo»](#cómo-desplegarlo) |
+| Prototipo funcional, local o en línea | Corre completo con un comando; 25 secciones en uso | [«Cómo desplegarlo»](#cómo-desplegarlo) |
 | Reproducibilidad: instalación, ejecución y dependencias | Cuatro pasos; probado desde un clon limpio; dependencias con su licencia | [`docs/15`](docs/15-instalacion-y-dependencias.md); [`docs/27`](docs/27-componentes-de-terceros.md) |
 | README con problema y usuarios, arquitectura, instalación y uso, datos, limitaciones y mejoras | Las cinco partes están en esta página | Secciones de arriba |
 | Secreto estadístico; no identificar personas, hogares o empresas | Solo conteos; celdas pequeñas protegidas; nombres y documentos se quitan al recibir; el archivo original no se guarda | [`docs/23`](docs/23-conformidad-legal.md); [`docs/21`](docs/21-seguridad.md) |

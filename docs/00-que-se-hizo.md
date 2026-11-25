@@ -70,7 +70,7 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 - Se entra con usuario y contraseña; cinco roles (administrador, analista, consulta, operador de
   campo e institución); una bitácora registra quién hizo qué y cuándo.
 - Cada institución tiene su propia cuenta: ve lo público y sube solo sus archivos.
-- Recorridos guiados en las 24 secciones y un manual de usuario gráfico de 37 páginas, generado
+- Recorridos guiados en las 25 secciones y un manual de usuario gráfico de 37 páginas, generado
   desde el portal con las mismas marcas que el recorrido.
 
 ## 8. Tableros, grupos y verificación
@@ -100,12 +100,18 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 - Protección estadística: los conteos menores que 3 no se publican a quien no es analista.
 - Análisis de conformidad legal, norma por norma ([`23`](23-conformidad-legal.md)).
-- Comparativo «antes y ahora» de 28 puntos ([`22`](22-antes-y-ahora.md)).
+- Comparativo «antes y ahora» de 31 puntos ([`22`](22-antes-y-ahora.md)).
 - Conformidad con la nota conceptual del Datatón, lineamiento por lineamiento
   ([`26`](26-conformidad-nota-conceptual.md)); resumen para aclaraciones en el README.
 - Identidad según la guía de diseño gráfico del INE: paleta, Ubuntu Sans y logotipo del INE en el
   cintillo ([`25`](25-identidad.md)). Carta de presentación del equipo al cierre de cada pieza.
-- Guía de ensayo con 52 preguntas probables del jurado y 26 de seguimiento
+- «Guía para evaluadores» al inicio del menú: qué revisar en cada criterio y dónde está.
+- Certificación de reportes para solicitudes de información: constancia con folio y huella, en
+  borrador (marca «PRUEBA», sin firma), sin guardar nada del solicitante.
+- Comparador de hasta cuatro municipios o departamentos, con 37 indicadores.
+- Tres fuentes más: parque vehicular (SAT), PIB departamental (Banguat) y gestión municipal
+  (SEGEPLAN).
+- Guía de ensayo con 55 preguntas probables del jurado y 29 de seguimiento
   ([`30`](30-preguntas-del-jurado.md)).
 
 ## 8d. Idiomas e inclusión
@@ -113,7 +119,7 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 - La pantalla cambia de idioma con un botón: **español**, **inglés** (completo) y **kaqchikel**
   (borrador). Se traduce la interfaz, **nunca los datos**: nombres oficiales, cifras y citas salen
   iguales en cualquier idioma, y lo que se descarga no cambia.
-- El kaqchikel es un borrador amplio: 680 rótulos (36 % de la pantalla), armados solo con
+- El kaqchikel es un borrador amplio: 680 rótulos (34 % de la pantalla), armados solo con
   vocabulario escrito por hablantes (Mozilla y la Academia de Lenguas Mayas), cada palabra con su
   fuente. Ninguna persona hablante lo ha revisado todavía: la pantalla lo avisa y debe completarse
   con asesoría experta.
@@ -138,7 +144,7 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 | Precios publicados en el levantamiento | 85,907 (18 tiendas, 6 rubros) |
 | Capas publicadas | 21 |
 | Fuentes citadas | 42 |
-| Idiomas de la pantalla | español, inglés (1,873 textos) y kaqchikel en borrador (680 rótulos, 36 %, por revisar) |
+| Idiomas de la pantalla | español, inglés (1,995 textos) y kaqchikel en borrador (680 rótulos, 34 %, por revisar) |
 | Hallazgos documentados | [más de 35](09-logros.md) |
 
 <!-- equipo -->

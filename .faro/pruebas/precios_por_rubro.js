@@ -1,11 +1,11 @@
 // Prueba la sección "Precios por rubro" (búsqueda, pestañas, tiendas) y el globo del enlace probable.
 // Uso: NO_PROXY=localhost node precios_por_rubro.js http://localhost:8099 carpeta_de_capturas
-const { chromium } = require('playwright');
+const { chromium } = require('playwright'); const { entrar } = require('./_sesion.js');
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
   const errores = []; p.on('pageerror', e => errores.push(String(e).slice(0, 200))); const dir = process.argv[3];
   const t = async s => (await p.textContent(s)).replace(/\s+/g, ' ').trim();
-  await p.goto(process.argv[2]); await p.waitForSelector('#lienzo path.leaflet-interactive');
+  await p.goto(process.argv[2]); await p.waitForSelector('#lienzo path.leaflet-interactive'); await entrar(p); // «Muestreos automáticos» solo lo ve el personal del INE
   await p.click('nav button[data-s=rubros]'); await p.waitForSelector('#trubros tbody tr td a', { timeout: 20000 });
   console.log('tarjetas:', await t('#rubrotarjetas')); console.log('resumen:', await t('#rubroresumen'));
   await p.click('#rubrovistas button[data-v=iguales]'); console.log('iguales:', (await t('#trubros tbody tr:first-child')).slice(0, 200));

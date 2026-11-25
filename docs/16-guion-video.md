@@ -78,7 +78,7 @@ un asistente de IA para programar y está declarado en el README; además, el cl
 es un modelo, aunque local. Tampoco nombrar ni aludir a otros equipos.
 
 **Sobre la mención de inclusión.** «En más de un idioma» es exacto: español e inglés completos. No
-decir «traducido al kaqchikel»: es un borrador de 36 % de los rótulos que ninguna persona hablante
+decir «traducido al kaqchikel»: es un borrador de 34 % de los rótulos que ninguna persona hablante
 ha revisado, y la tarjeta lo dice como «en borrador, por revisar con hablantes»
 ([`29`](29-idiomas-e-inclusion.md)). Si se
 quiere alargar la frase al grabar: «Y se lee en más de un idioma: inglés ya, y los idiomas

@@ -19,6 +19,8 @@ dónde.
   que improvisar una cifra. El proyecto entero se apoya en no inventar: la respuesta tampoco.
 - **No discutir con el jurado.** Si señalan una debilidad cierta, reconocerla y decir qué se haría:
   casi todas ya están escritas en las limitaciones del README.
+- **Recordarle al jurado la «Guía para evaluadores»**: es lo primero del menú, en rojo, y dice qué
+  revisar en cada criterio.
 - **Tener abiertos** el portal, la diapositiva 15 (cumplimiento) y la 16 (lo que no hace).
 
 **Cuatro frases que hay que cuidar.**
@@ -62,7 +64,7 @@ de internet para lo esencial.
 
 ### 1.4 ¿Qué tan terminado está? ¿Es un prototipo o un producto?
 
-Es un prototipo funcional completo: 24 secciones en uso, cuentas con cinco roles, bitácora,
+Es un prototipo funcional completo: 25 secciones en uso, cuentas con cinco roles, bitácora,
 manual, instalación con un comando probada desde un clon limpio, 96 pruebas automáticas y 21
 recorridos de pantalla. Para ser producto le falta lo que escribimos como pendiente: publicarlo
 con HTTPS, pruebas en Windows, y tres mejoras de seguridad de baja prioridad. *(`docs/21`,
@@ -153,7 +155,29 @@ Lo medido: 30 mil registros en 1.7 segundos en una laptop. A la base no llegan l
 los conteos, así que la base no crece con cada persona registrada. No lo hemos probado con
 millones de filas en un solo archivo: eso lo diría el piloto.
 
-### 2.7 ¿Funciona sin internet? ¿Y en las delegaciones?
+### 2.7 ¿Para qué sirve «Certificar reporte»?
+
+Para responder solicitudes de acceso a la información. Quien está en el grupo «Acceso a la
+información» abre el reporte de un municipio, llena el expediente y obtiene una constancia con
+folio y con la huella de los datos entregados, lista para descargar o enviar por correo.
+*(`docs/23`, sección 2.14a.)*
+
+**Seguimiento: ¿ese documento tiene validez legal?** No, y lo dice: es un borrador con marca de
+agua «PRUEBA» y sin firma. La resolución oficial la firma la autoridad del INE con el texto que
+fije su asesoría jurídica. Lo que FARO aporta es el cuadro listo, el folio y la prueba de qué se
+entregó.
+
+**Seguimiento: ¿guardan los datos de quien solicita?** No. Su nombre y su correo se escriben en el
+documento, en el navegador de quien certifica, y no llegan al servidor. Se anota quién certificó,
+qué municipio, qué expediente y cuándo.
+
+### 2.8 En el encabezado dice «FARO for INE». ¿Es un producto del INE?
+
+No. Es una propuesta de un equipo participante hecha para el INE, y el pie del menú lo dice:
+«Proyecto participante del Datatón INE 2026». Usamos la paleta, la tipografía y el logotipo de la
+guía de diseño que el INE envió a los equipos.
+
+### 2.9 ¿Funciona sin internet? ¿Y en las delegaciones?
 
 Sí: el portal trae sus datos y funciona en una red interna. Internet solo hace falta para lo
 opcional: el mapa de fondo, las fotos satelitales, sincronizar con el portal del INE y leer
@@ -308,9 +332,21 @@ Las cifras de superficie construida vienen del GHSL de la Comisión Europea, que
 Landsat y Sentinel-2. No distingue techos: el tipo de techo lo tomamos del Censo 2018. La
 animación se dibuja sobre mosaicos públicos de NASA y de EOX, con su licencia citada.
 
-### 5.7 ¿Cómo sé de dónde salió cada cifra?
+### 5.7 Sumaron datos de la SAT, el Banguat y SEGEPLAN. ¿Con qué permiso?
 
-Cada fuente tiene autor, año, título, dirección, licencia y fecha de consulta: 42 fuentes. Cada
+Son publicaciones oficiales y públicas, descargadas sin iniciar sesión. Hay que decirlo completo:
+la SAT y el Banguat ponen «derechos reservados» en su portal y ninguna de las tres declara una
+licencia abierta. Por eso publicamos solo sumas con su cita, no los archivos, y recomendamos que
+el INE lo confirme con cada institución. *(`docs/23`, sección 2.13.)*
+
+**Seguimiento: el archivo de la SAT no trae código de municipio. ¿Cómo lo cruzaron?** Con la misma
+regla del núcleo: coincidencia exacta y única. Quedó con código 99.79 % de los vehículos, en 337
+municipios. Tres nombres no llevan a un solo municipio y no los asignamos: están listados.
+*(`docs/09`, punto 17.)*
+
+### 5.8 ¿Cómo sé de dónde salió cada cifra?
+
+Cada fuente tiene autor, año, título, dirección, licencia y fecha de consulta: 45 fuentes. Cada
 descarga quedó en un manifiesto con su huella: 111. Y cada tabla derivada se rehace con un
 comando. *(`docs/11`; `datos/crudo/manifiesto.jsonl`.)*
 
@@ -438,7 +474,7 @@ cualquiera es una decisión que el equipo todavía no toma. Para el INE no cambi
 
 ### 8.1 ¿Está en idiomas mayas?
 
-En kaqchikel hay un **borrador** de 680 rótulos: 36 % de la pantalla. No hablamos kaqchikel, así
+En kaqchikel hay un **borrador** de 680 rótulos: 34 % de la pantalla. No hablamos kaqchikel, así
 que se armó solo con palabras que constan en textos escritos por hablantes: la memoria de
 traducción de Mozilla y el diccionario de la Comunidad Lingüística Kaqchikel de la Academia de
 Lenguas Mayas. La propia pantalla avisa que es un borrador sin revisar. *(`docs/29`.)*
@@ -507,10 +543,10 @@ lunes.
 | 707 · 83 | Lugares sin conexión vial mapeada · enlaces que probablemente faltan |
 | 85,907 · 18 | Precios publicados · tiendas |
 | 1,020 | Proyecciones comprobadas contra lo ocurrido |
-| 96 · 21 | Pruebas automáticas · recorridos de pantalla |
-| 42 · 111 | Fuentes citadas · descargas con huella |
+| 96 · 22 | Pruebas automáticas · recorridos de pantalla |
+| 45 · 115 | Fuentes citadas · descargas con huella |
 | 20 · 16 | Hallazgos de seguridad · corregidos |
-| 680 · 36 % | Rótulos en kaqchikel (borrador) · parte de la pantalla |
+| 680 · 34 % | Rótulos en kaqchikel (borrador) · parte de la pantalla |
 | Q 0 | Licencias |
 
 <!-- equipo -->

@@ -22,7 +22,8 @@ const ROLES = { todos: ['Cualquier visitante', '#1a7f4b'], institucion: ['Instit
 // Sección, bloque, quién la usa, para qué sirve y qué la hace valiosa. Las cifras entre llaves se leen del portal al generar.
 const SECCIONES = [
   ['mapa', 'panorama', ['todos'], 'Ver el país por departamento, municipio o lugar poblado, y abrir la ficha de cualquier territorio.', 'Un solo mapa reúne población, censo, vías, huella construida y registros recibidos de {municipios} municipios y casi 20 mil lugares poblados. Cada color tiene su fuente y su año.'],
-  ['mejoras', 'panorama', ['consulta', 'analista', 'admin'], 'Comparar, punto por punto, cómo se trabajaba antes y qué cambia con FARO.', '{mejoras} comparaciones con una cifra medida cada una: nada de promesas, solo lo que se puede comprobar.'],
+  ['comparar', 'panorama', ['todos'], 'Poner lado a lado hasta cuatro municipios o departamentos, con los mismos indicadores del mapa.', 'El departamento se calcula con sus municipios: las tasas se recalculan, no se promedian. La comparación se descarga en CSV.'],
+  ['mejoras', 'panorama', ['todos'], 'Para quien evalúa: qué revisar en cada criterio y, punto por punto, cómo se trabajaba antes y qué cambia con FARO.', '{mejoras} comparaciones con una cifra medida cada una: nada de promesas, solo lo que se puede comprobar.'],
   ['proceso', 'panorama', ['consulta', 'analista', 'admin'], 'Entender el camino completo de un dato: de la solicitud a la estadística.', 'Cuatro flujos dibujados que dicen qué hace cada etapa y quién. Lo que el portal hace no es una caja negra.'],
   ['tableros', 'panorama', ['todos', 'analista', 'admin'], 'Armar un tablero escribiendo qué se quiere ver, filtrarlo y publicarlo con un enlace.', 'De una frase a un tablero publicado sin programar: {indicadores} indicadores, mapas, tablas y gráficas. Lo publicado lo abre cualquiera, sin cuenta.'],
   ['recibir', 'registros', ['institucion', 'analista', 'admin'], 'Subir el archivo de una institución y recibirlo validado, con códigos oficiales y sin datos personales.', 'El archivo llega como sale del sistema de la institución: FARO reconoce las columnas aunque cambien de nombre u orden. El original nunca se guarda.'],
@@ -94,6 +95,7 @@ const chip = r => `<span class="chip" style="--c:${ROLES[r][1]}">${ROLES[r][0]}<
   for (const [id, bloque, roles, para, virtud] of SECCIONES) {
     await p.click(`nav > button[data-s="${id}"]`); await p.waitForTimeout(id === 'rubros' || id === 'mapa' ? 2500 : 1400);
     if (id === 'rubros') await p.waitForSelector('#trubros tbody tr', { timeout: 30000 }).catch(() => {});
+    if (id === 'comparar') { for (const n of ['Mixco, Guatemala', 'Cobán, Alta Verapaz', 'Sololá, Sololá']) { await p.fill('#compbuscar', n); await p.dispatchEvent('#compbuscar', 'input'); await p.waitForTimeout(300); } await p.waitForSelector('#tcomp tbody tr').catch(() => {}); await p.waitForTimeout(900); }
     // «Mi ruta de campo» se muestra con la ruta de demostración del propio portal (rotulada), que se quita después.
     let demo = false; if (id === 'campo' && await p.isVisible('#campodemo').catch(() => false)) { await p.click('#campodemo'); await p.waitForTimeout(1800); demo = true; }
     const pasos = (await pasosDe(id)); await p.waitForTimeout(150);
@@ -182,7 +184,7 @@ const chip = r => `<span class="chip" style="--c:${ROLES[r][1]}">${ROLES[r][0]}<
     ${v('Recuerda', 'Cada decisión queda en la memoria con nombre y fecha: no se corrige dos veces lo mismo.')}
     ${v('Se puede repetir', 'Cada resultado tiene un procedimiento que lo vuelve a obtener desde la fuente.')}
     ${v('Cada quien ve lo suyo', 'Roles, grupos y cuentas por institución; cada acción queda en la bitácora.')}
-    ${v('Se explica solo', 'Recorridos guiados en las 24 secciones y una frase que dice qué muestra cada pantalla. También en inglés, y en kaqchikel como borrador por revisar.')}
+    ${v('Se explica solo', 'Recorridos guiados en las 25 secciones y una frase que dice qué muestra cada pantalla. También en inglés, y en kaqchikel como borrador por revisar.')}
     ${v('Queda en el INE', 'Hecho con software libre; corre en un servidor propio, sin servicios de pago. El INE recibe licencia perpetua para usarlo y modificarlo.')}</div>`);
   // Preguntas
   const q = (a, b) => `<div class="q"><h4>${a}</h4><p>${b}</p></div>`;

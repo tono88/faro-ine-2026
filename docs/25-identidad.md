@@ -91,6 +91,13 @@ La carta cierra cada pieza del proyecto: el README y cada documento (la agrega
 página del manual, del documento técnico y de las preguntas y respuestas, la diapositiva de cierre
 y la tarjeta final del video. No lleva fotografías de los integrantes.
 
+### «FARO for INE» en el encabezado
+
+Por decisión del equipo (25-nov), junto a la palabra FARO del encabezado va, en pequeño, «for» y
+el logotipo del INE: dice para quién se hizo la propuesta. No sustituye al cintillo inferior que
+pide la guía, que sigue al pie del menú con «Proyecto participante del Datatón INE 2026». FARO es
+una propuesta de un equipo participante, no un producto oficial del INE.
+
 ## Colores
 
 | Color | Código | Uso |

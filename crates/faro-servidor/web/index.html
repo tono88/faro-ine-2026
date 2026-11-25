@@ -59,6 +59,7 @@
   table { border-collapse:collapse; width:100%; font-size:14px; } th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--borde); vertical-align:top; }
   th { background:var(--cielo); color:var(--azul-oscuro); position:sticky; top:0; font-weight:600; z-index:1; } td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
   tbody tr:hover { background:#fafcff; }
+  .tabla-ancha { overflow-x:auto; max-width:100%; }
   .tabla { overflow:auto; max-height:520px; border:1px solid var(--borde); border-radius:8px; }
   a { color:var(--azul); } code { background:var(--cielo); padding:1px 5px; border-radius:4px; font-size:.92em; }
   .etq { display:inline-block; padding:1px 9px; border-radius:10px; font-size:12px; font-weight:600; background:#e6ebf0; white-space:nowrap; }
@@ -245,7 +246,8 @@
   #idiomalista button:hover, #idiomalista button:focus-visible { background:var(--fondo); } #idiomalista button[aria-selected="true"] { background:var(--cielo); } #idiomalista button[aria-selected="true"] span { font-weight:600; color:var(--azul-oscuro); }
   #idiomalista small { color:var(--gris); font-size:12px; } #idiomalista p { margin:6px 4px 2px; padding:8px 6px 4px; border-top:1px solid var(--borde); font-size:12px; line-height:1.4; color:var(--gris); }
   #aviso-idioma { background:#fffbe5; border:1px solid #ffd500; border-radius:var(--radio); padding:10px 14px; margin-bottom:14px; font-size:14px; }
-  @media (max-width: 400px) { #idiomabtn b { display:none; } header { gap:6px; } header .marca h1 { display:none; } header .marca .para { display:none; } }
+  @media (max-width: 400px) { #idiomabtn b { display:none; } header { gap:6px; } header .marca h1 { display:none; } }
+  @media (max-width: 1000px) { header .marca .para { display:none; } .guia-criterios td:first-child { white-space:normal; } .guia-criterios { min-width:640px; } }
   /* En otro idioma el rótulo de salir o entrar puede ser más largo: en teléfono se recorta en vez de empujar el encabezado. */
   @media (max-width: 700px) { header .acceso, header .acceso .quien { flex:0 1 auto; min-width:0; } header .acceso button { flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; } }
   @media (max-width: 700px) { #idiomabtn { padding:5px 7px; } #idiomalista { position:fixed; left:10px; right:10px; top:58px; width:auto; } #idiomalista button { min-height:44px; } }
@@ -548,14 +550,14 @@
   <section id="mejoras">
     <div class="titulo"><h2>Guía para evaluadores</h2><p>Esta página existe para el Datatón INE 2026: reúne, para quien califica, qué revisar en cada criterio de la nota conceptual y dónde está en el portal. Abajo, punto por punto, qué se tenía antes y qué hace FARO.</p></div>
     <div class="panel"><h2>Qué revisar en cada criterio</h2>
-      <table class="guia-criterios"><thead><tr><th>Criterio</th><th>Peso</th><th>Qué revisar</th><th>Dónde está</th></tr></thead><tbody>
+      <div class="tabla-ancha"><table class="guia-criterios"><thead><tr><th>Criterio</th><th>Peso</th><th>Qué revisar</th><th>Dónde está</th></tr></thead><tbody>
         <tr><td>Funcionalidad</td><td>25 %</td><td>Una institución sube su archivo y queda homologado; una persona decide lo dudoso una sola vez; la ficha de un municipio; los precios; un tablero publicado.</td><td><a href="#recibir">Recibir envío</a> y <a href="#pendientes">Revisar pendientes</a> (con sesión) · <a href="#mapa">Mapa</a> · <a href="#rubros">Precios por rubro</a> · <a href="#tableros">Tableros</a></td></tr>
         <tr><td>Aplicabilidad institucional</td><td>20 %</td><td>Responde a necesidades que planteó el INE; se instala con un comando; sumar una institución es escribir un archivo; certifica reportes para solicitudes de información.</td><td>La lista de abajo · <a href="#proceso">Proceso</a> · <a href="#comparar">Comparar territorios</a> · reporte de un municipio (botón «Reporte» de su ficha)</td></tr>
         <tr><td>Calidad técnica</td><td>20 %</td><td>Código en cinco módulos, pruebas automáticas, instalación reproducible y documentación numerada.</td><td><a href="#acerca">Acerca y fuentes</a> · README y carpeta <code>docs/</code> del repositorio</td></tr>
         <tr><td>Innovación</td><td>15 %</td><td>El sistema no adivina y recuerda cada decisión; la red vial como grafo; el margen de proyección es el medido, no el supuesto.</td><td><a href="#vial">Red vial</a> · <a href="#crecimiento">Población y crecimiento</a> · <a href="#memoria">Equivalencias</a> (con sesión)</td></tr>
         <tr><td>Rigor en el uso de los datos</td><td>10 %</td><td>El INE es la fuente principal; cada cifra tiene fuente, fecha y licencia; lo que no es oficial está rotulado.</td><td><a href="#acerca">Acerca y fuentes</a> · <a href="#ine">Portal del INE</a> · <a href="#capas">Capas publicadas</a></td></tr>
         <tr><td>Presentación y usabilidad</td><td>10 %</td><td>Recorrido guiado en cada pantalla (botón amarillo del encabezado); funciona en teléfono; pantalla en inglés y, como borrador, en kaqchikel.</td><td>Botón «Recorrido guiado» · botón del globo, en el encabezado</td></tr>
-      </tbody></table>
+      </tbody></table></div>
       <p class="nota">En caso de empate prevalece la aplicabilidad institucional. Las secciones marcadas «con sesión» piden entrar con un usuario del INE.</p>
     </div>
     <div class="titulo"><h2>Antes y ahora: qué se tenía, qué hace FARO y cómo crece</h2><p>Cada fila es un punto: a la izquierda lo que se tenía y quién lo planteó; al centro lo que hace FARO, con una cifra que se puede comprobar en la sección enlazada; a la derecha cómo se extiende sin rehacer el sistema. Las cifras salen de los datos reales procesados durante el evento.</p></div>
@@ -997,6 +999,13 @@ const INDICADORES = [
   {id:'construido_ha_2020', t:'Superficie construida 2020 (satélite)', f:p => p.construido_ha_2020, u:'ha', nota:() => 'Hectáreas construidas en 2020 según GHSL (Comisión Europea, 100 m).', tonos:'azul'},
   {id:'construido_crecimiento_anual_pct', t:'Crecimiento anual de lo construido 2000–2020', f:p => p.construido_crecimiento_anual_pct, u:'%', nota:() => 'Ritmo anual de la superficie construida entre 2000 y 2020 (GHSL).', tonos:'naranja', dec:2},
   {id:'construido_m2_por_habitante_2020', t:'Metros construidos por habitante 2020', f:p => p.construido_m2_por_habitante_2020, u:'m²/hab.', nota:() => 'Superficie construida de 2020 (GHSL) entre la población proyectada por el INE para 2020.', tonos:'azul'},
+  {id:'vehiculos', t:'Vehículos registrados (SAT, oct. 2026)', f:p => p.vehiculos, u:'vehículos', nota:() => 'Vehículos registrados por municipio a octubre de 2026. SAT, parque vehicular. El archivo trae solo el nombre del municipio: FARO le puso código; tres nombres no llevan a un solo municipio y quedaron sin asignar.', tonos:'azul'},
+  {id:'vehiculos_por_mil_hab', t:'Vehículos por cada mil habitantes (SAT e INE)', f:p => p.vehiculos_por_mil_hab, u:'vehículos', nota:p => `Vehículos registrados (SAT, octubre de 2026) entre la población proyectada por el INE para ${p.anio_actual}. El vehículo se cuenta donde está registrado, que no siempre es donde circula.`, tonos:'azul'},
+  {id:'motocicletas_pct', t:'Motocicletas en el parque vehicular (SAT)', f:p => p.motocicletas_pct, u:'%', nota:() => 'Parte del parque vehicular registrado que son motocicletas. SAT, octubre de 2026.', tonos:'naranja', dec:1},
+  {id:'pib_per_capita_q_departamento', t:'PIB por habitante 2024 (dato del departamento)', f:p => p.pib_per_capita_q_departamento, u:'Q', nota:() => 'Producto interno bruto por habitante, a precios corrientes, 2024. Banco de Guatemala, cuentas departamentales (cifras preliminares). El dato es del departamento: todos sus municipios muestran el mismo valor.', tonos:'azul'},
+  {id:'gm_servicios_publicos', t:'Índice de servicios públicos municipales 2020–2021', f:p => p.gm_servicios_publicos, u:'índice', nota:() => 'Índice de 0 a 1. SEGEPLAN, Ranking de la Gestión Municipal 2020–2021.', tonos:'azul', dec:2},
+  {id:'gm_gestion_financiera', t:'Índice de gestión financiera municipal 2020–2021', f:p => p.gm_gestion_financiera, u:'índice', nota:() => 'Índice de 0 a 1. SEGEPLAN, Ranking de la Gestión Municipal 2020–2021.', tonos:'azul', dec:2},
+  {id:'gm_informacion_ciudadania', t:'Índice de información a la ciudadanía 2020–2021', f:p => p.gm_informacion_ciudadania, u:'índice', nota:() => 'Índice de 0 a 1. SEGEPLAN, Ranking de la Gestión Municipal 2020–2021.', tonos:'azul', dec:2},
   {id:'retardo_en_talla_pct', t:'Desnutrición crónica en escolares (retardo en talla)', f:p => p.retardo_en_talla_pct, u:'%', nota:() => 'Porcentaje de escolares con retardo en talla. SESAN, V Censo de Talla 2024. Dato por municipio.', tonos:'naranja', dec:1},
   {id:'cif_pct', t:'Inseguridad alimentaria: % en Fase 3 o superior (dato del departamento)', f:p => p.cif_fase3_o_superior_pct_departamento, u:'%', nota:() => 'CIF, SESAN, octubre 2026 – febrero 2027. El dato es del departamento: todos sus municipios muestran el mismo valor.', tonos:'naranja'},
   {id:'proveedores_construccion', t:'Proveedores de construcción perfilados', f:p => p.proveedores_construccion, u:'proveedores', nota:() => 'Negocios de materiales de construcción con ubicación reconocida, del levantamiento en páginas públicas.', tonos:'azul'},
@@ -1059,6 +1068,8 @@ function resumenDepartamento(codigo, nombre, ms) {
     construido_ha_2000: c00, construido_ha_2020: c20, construido_crecimiento_anual_pct: c00 ? redondo(((c20 / c00) ** (1 / 20) - 1) * 100, 2) : null,
     construido_m2_por_habitante_2020: pob2020 ? redondo(c20 * 10000 / pob2020, 0) : null,
     retardo_en_talla_pct: redondo(ponderado(ms, 'retardo_en_talla_pct', 'escolares_evaluados'), 1), escolares_evaluados: suma(ms, 'escolares_evaluados'),
+    vehiculos: suma(ms, 'vehiculos'), motocicletas: suma(ms, 'motocicletas'), vehiculos_por_mil_hab: suma(ms, 'poblacion_actual') ? redondo(suma(ms, 'vehiculos') * 1000 / suma(ms, 'poblacion_actual'), 0) : null, motocicletas_pct: suma(ms, 'vehiculos') ? redondo(suma(ms, 'motocicletas') * 100 / suma(ms, 'vehiculos'), 1) : null,
+    pib_per_capita_q_departamento: ms[0]?.pib_per_capita_q_departamento, pib_millones_q_departamento: ms[0]?.pib_millones_q_departamento,
     cif_fase3_o_superior_pct_departamento: ms[0]?.cif_fase3_o_superior_pct_departamento, cif_fase_area_departamento: ms[0]?.cif_fase_area_departamento,
     proveedores_construccion: suma(ms, 'proveedores_construccion'), lugares_poblados: suma(ms, 'lugares_poblados'), lugares_en_tramo_suelto: suma(ms, 'lugares_en_tramo_suelto'), lugares_sin_camino: suma(ms, 'lugares_sin_camino'),
     lugares_dentro_de_su_limite_pct: redondo(ponderado(ms, 'lugares_dentro_de_su_limite_pct', 'lugares_poblados'), 1),

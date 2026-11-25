@@ -67,10 +67,15 @@ está en kaqchikel como borrador, armado con vocabulario escrito por hablantes y
 revisión experta. Se traduce la pantalla, nunca los datos». Si hay diez segundos, mostrarlo en
 vivo: el botón del globo, kaqchikel, el menú cambia y aparece el aviso de borrador; señalar que
 los nombres de los municipios no cambiaron. Lo que **no** hay que decir: «el portal está traducido
-al kaqchikel». Es un borrador de 680 rótulos (36 %) que ninguna persona hablante ha revisado; lo
+al kaqchikel». Es un borrador de 680 rótulos (34 %) que ninguna persona hablante ha revisado; lo
 defendible es que no tiene palabras inventadas (cada una consta en la memoria de Mozilla o en el
 diccionario de la Academia de Lenguas Mayas), que la pantalla dice que es un borrador y que hay
 una hoja de revisión lista para una persona experta ([`29`](29-idiomas-e-inclusion.md)).
+
+**La guía para evaluadores (v0.22.0).** Al cerrar la demostración, señalar el primer botón del
+menú, en rojo: «Aquí está, criterio por criterio, qué revisar y dónde». Es la forma más rápida de
+que el jurado recorra el portal por su cuenta. También está el portal en línea del equipo:
+<https://faro.test-tecnodyne.site/>.
 
 **Ensayo.** Tres pasadas con reloj. Decidir quién maneja el portal y quién habla, y en qué momento
 se cambia al video si la demostración falla. Dejar el portal preparado con
@@ -93,16 +98,16 @@ se cambia al video si la demostración falla. Dejar el portal preparado con
 - 707 lugares sin conexión vial mapeada y 83 enlaces probables (51 km).
 - 85,907 precios de 18 tiendas; 16 mil productos comparables por código de barras; 3 de cada 4 diferencias grandes son ofertas.
 - Tasas de extracción de la FAO que coinciden con la Hoja de Balance 2024 del INE (trigo: 72 %).
-- 1,020 proyecciones comprobadas contra lo ocurrido; 6 tamaños de pantalla × 24 secciones; 20 hallazgos de seguridad, 16 corregidos.
-- 29 indicadores por municipio, quince de ellos del Censo 2018 (alfabetismo 81.5 %, internet 29.3 %, piso de tierra 26.5 %).
+- 1,020 proyecciones comprobadas contra lo ocurrido; 6 tamaños de pantalla × 25 secciones; 20 hallazgos de seguridad, 16 corregidos.
+- 37 indicadores por municipio, quince de ellos del Censo 2018 (alfabetismo 81.5 %, internet 29.3 %, piso de tierra 26.5 %).
 - 93,297 hectáreas construidas en 2020; solo 1.6 % es no residencial.
 - Curvas de población contra el INE: error mediano de 1.05 % (exponencial) y 0.17 % (logística) a cinco años.
 - Clasificador de fotos: 11 aciertos, 0 errores y 5 no concluyentes en 16 fachadas.
-- Idiomas: 1,873 textos de la pantalla en inglés; 680 rótulos en kaqchikel (36 %), en borrador: 110 idénticos a la fuente y 570 compuestos con sus palabras, sin revisión de hablantes; 2,394 textos que eran datos quedaron fuera del diccionario; ningún dato traducido.
+- Idiomas: 1,995 textos de la pantalla en inglés; 680 rótulos en kaqchikel (34 %), en borrador: 110 idénticos a la fuente y 570 compuestos con sus palabras, sin revisión de hablantes; 2,394 textos que eran datos quedaron fuera del diccionario; ningún dato traducido.
 
 ## Preguntas probables y respuesta corta
 
-La guía completa para ensayar, con 52 preguntas ordenadas por criterio de evaluación y las
+La guía completa para ensayar, con 55 preguntas ordenadas por criterio de evaluación y las
 preguntas de seguimiento de las más difíciles, está en [`30-preguntas-del-jurado.md`](30-preguntas-del-jurado.md)
 (en PDF: [`entregables/FARO-preguntas-y-respuestas.pdf`](../entregables/FARO-preguntas-y-respuestas.pdf)).
 Esta tabla es el resumen.
@@ -117,7 +122,7 @@ Esta tabla es el resumen.
 | ¿Y los datos personales? | Los archivos reales se procesan en un temporal que se borra siempre; la salida no lleva nombres ni identificadores; en el repositorio no hay ninguno. |
 | ¿Cómo se relaciona con X-Road? | X-Road transporta; FARO define qué se pide y comprueba lo que llega. Se complementan. |
 | ¿Qué tan difícil es agregar una institución? | Un archivo de solicitud con sus columnas. Sin programar. |
-| ¿Está en idiomas mayas? | En kaqchikel hay un **borrador** de 680 rótulos (36 % de la pantalla: menú, botones, títulos). No hablamos kaqchikel, así que lo armamos solo con palabras que aparecen en textos escritos por hablantes: la memoria de traducción de Mozilla y el diccionario de la Comunidad Lingüística Kaqchikel de la Academia de Lenguas Mayas. Un programa comprueba que no haya ninguna palabra fuera de esas fuentes. Lo que no podemos garantizar es la gramática: por eso la pantalla dice que es un borrador y hay una hoja de revisión lista para una persona experta. Otro idioma se suma igual: es un archivo. |
+| ¿Está en idiomas mayas? | En kaqchikel hay un **borrador** de 680 rótulos (34 % de la pantalla: menú, botones, títulos). No hablamos kaqchikel, así que lo armamos solo con palabras que aparecen en textos escritos por hablantes: la memoria de traducción de Mozilla y el diccionario de la Comunidad Lingüística Kaqchikel de la Academia de Lenguas Mayas. Un programa comprueba que no haya ninguna palabra fuera de esas fuentes. Lo que no podemos garantizar es la gramática: por eso la pantalla dice que es un borrador y hay una hoja de revisión lista para una persona experta. Otro idioma se suma igual: es un archivo. |
 | ¿Tradujeron los datos? | No. Se traduce la pantalla; los nombres de lugares, las cifras y las citas salen como los publica su fuente, y lo que se descarga es idéntico en cualquier idioma. Hay una prueba automática que lo comprueba. |
 | ¿Quién tradujo? | El equipo, con el asistente de IA declarado en el README: el inglés sobre un glosario fijo; el kaqchikel, solo con vocabulario de las fuentes citadas. Quedaron como diccionarios en el repositorio; el portal no llama a ningún servicio de traducción. Ninguno tiene revisión profesional, y el kaqchikel está rotulado como borrador. |
 | ¿Y si se equivoca al homologar? | Solo asigna con coincidencia exacta y única o con una decisión humana registrada, que se puede revertir. |

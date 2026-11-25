@@ -164,7 +164,7 @@ y cómo repetirlo.
     realmente observado (20 % de lo proyectado en 8 de cada 10 casos; 47 % en 95 de cada 100) y
     ahora cumple lo que dice. Ningún método alternativo (exponencial, tres épocas, última década)
     fue mejor en las tres décadas. Detalle: [`19-verificacion-estadistica.md`](19-verificacion-estadistica.md).
-10k. **Interfaz comprobada en seis tamaños de pantalla y seguridad auditada.** 24 secciones sin
+10k. **Interfaz comprobada en seis tamaños de pantalla y seguridad auditada.** 25 secciones sin
     desbordes ni controles difíciles de tocar en laptop, tableta y celular
     ([`20-verificacion-interfaz.md`](20-verificacion-interfaz.md)); auditoría sin inyección SQL ni
     fallos de rol, con 16 de 20 hallazgos corregidos ([`21-seguridad.md`](21-seguridad.md)).
@@ -254,7 +254,7 @@ Detalle: [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
 13. **Cada institución sube solo lo suyo.** Una cuenta atada a PNC no puede subir un archivo de
    RENAP ni ver sus envíos: el servidor responde 403, comprobado en la prueba
    `institucion_y_recorridos.js` junto con otros 30 puntos.
-14. **El portal se explica solo.** 24 secciones con recorrido guiado propio; el manual gráfico
+14. **El portal se explica solo.** 25 secciones con recorrido guiado propio; el manual gráfico
    (37 páginas) se genera desde el portal y usa las mismas marcas, así que no se desactualiza.
 15. **La instalación se comprobó desde cero.** Un clon limpio del repositorio, los pasos del README
    y un comando: la imagen se construyó en 4 minutos y el portal quedó arriba con sus 85,907 precios
@@ -264,6 +264,18 @@ Detalle: [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
    departamento se podía despejar. Ahora todas las respuestas usan la misma lista de celdas
    ocultas (`celdas_ocultas`). También se corrigieron dos licencias del INE mal declaradas
    (precios de referencia es ODC-BY; la canasta básica no declara licencia).
+17. **Un archivo de la SAT que llega solo con nombres, homologado sin adivinar.** El parque
+    vehicular por municipio (octubre de 2026) trae 4,351,675 líneas con el nombre del departamento
+    y del municipio, sin código. FARO lo sumó y le puso código con su regla de siempre
+    (coincidencia exacta y única): 337 municipios y 7,005,955 de 7,020,972 vehículos (99.79 %).
+    **Tres nombres no llevan a un solo municipio y no se asignaron**: «CONCEPCIÓN»
+    (Huehuetenango), «QUEZADA» (Jutiapa) y «SAN JOSE OJETENAN» (San Marcos); suman 15,017
+    vehículos. Quedan para que una persona los decida una vez.
+18. **Dos nombres mal escritos en el Ranking de la Gestión Municipal.** El libro de SEGEPLAN trae
+    código y nombre para los 340 municipios; en dos el nombre no lleva solo al mismo código:
+    «Santa Lucía Cotzulmalguapa» (0502) y «San Felipe Retalhuleu» (1105). Se usó el código y se
+    anotó la diferencia. El PIB departamental del Banguat numera los departamentos del 1 al 22 sin
+    decir que es el código del INE: se comprobó con el nombre, y coincide en los 22.
 
 <!-- equipo -->
 ---

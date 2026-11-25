@@ -28,8 +28,8 @@ const pruebas = (() => { let n = 0; const rec = d => fs.readdirSync(d, { withFil
 // duración de su escena (palabras ÷ 2.3 ≈ segundos de voz) y vuelva a grabar.
 const GUION = [
   { id: 'apertura', dur: 13, voz: 'El INE ya tiene los datos que necesita. Pero cada institución los envía a su manera, y no llegan en una forma que se pueda usar. Para eso construimos FARO.' },
-  { id: 'caso', dur: 25.5, voz: CFG.vozCaso || 'Este es el archivo de una institución, tal como sale de su sistema. La institución entra con su propia cuenta y lo sube. En segundos, FARO reconoce las columnas, pone el código oficial a cada lugar y deja fuera los datos personales. El archivo original no se guarda.' },
-  { id: 'decision', dur: 11.5, voz: 'Y cuando hay duda, FARO no adivina: propone, una persona decide una sola vez, y esa decisión queda aprendida para todas las instituciones.' },
+  { id: 'caso', dur: 24.5, voz: CFG.vozCaso || 'Este es el archivo de una institución, tal como sale de su sistema. La institución entra con su propia cuenta y lo sube. En segundos, FARO reconoce las columnas, pone el código oficial a cada lugar y deja fuera los datos personales. El archivo original no se guarda.' },
+  { id: 'decision', dur: 10.5, voz: 'Y cuando hay duda, FARO no adivina: propone, una persona decide una sola vez, y esa decisión queda aprendida para todas las instituciones.' },
   { id: 'territorio', dur: 21, voz: 'Lo mismo, en cada frente del INE. Para Censos y Encuestas y las delegaciones: el país hasta el lugar poblado, con población, censo y crecimiento urbano visto desde el satélite. Y la red vial como un grafo: setecientos siete lugares sin conexión mapeada.' },
   { id: 'campo', dur: 15, voz: 'Para el trabajo de campo: cada operador ve su ruta en el teléfono, y cada visita se comprueba con ubicación y foto.' },
   { id: 'precios', dur: 18, voz: 'Para Precios e Índices: más de ochenta y cinco mil precios leídos de dieciocho tiendas, comparados por código de barras, con su informe de precio de referencia.' },
@@ -37,7 +37,8 @@ const GUION = [
   { id: 'convergencia', dur: 9, voz: 'No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.' },
   { id: 'autonomia', dur: 23, voz: 'Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado.' },
   { id: 'escala', dur: 12, voz: `Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, ${pruebas} pruebas automáticas, y se instala con un comando.` },
-  { id: 'cierre', dur: 8, voz: 'Y en más de un idioma. FARO: que cada dato llegue a puerto.' },
+  { id: 'guia', dur: 5.5, voz: 'Para quien evalúa: la guía para evaluadores, al inicio del menú.' },
+  { id: 'cierre', dur: 7, voz: 'Y en más de un idioma. FARO: que cada dato llegue a puerto.' },
 ];
 const G = id => GUION.find(g => g.id === id);
 
@@ -204,7 +205,9 @@ async function imagen(html, archivo, transparente) { const nav = await chromium.
     ['convergencia', async A => { await A.vz('sinRotulo'); await A.tarjeta(T.convergencia()); }],
     ['autonomia', async A => { await A.vz('tarjeta', T.autonomia()); await dormir(11000); await A.vz('tarjeta', T.riesgo()); }],
     ['escala', async A => { await A.vz('tarjeta', T.escala()); }],
-    ['cierre', async A => { await A.vz('tarjeta', T.cierre()); }],
+    // Mención final: la guía para evaluadores, lo primero del menú, en rojo.
+    ['guia', async A => { const { p } = A; await p.click('nav > button[data-s=mejoras]'); await p.waitForSelector('.guia-criterios'); await p.evaluate(() => document.querySelector('main').scrollTo(0, 0)); await A.sinTarjeta(); await A.vz('rotulo', 'Para quien evalúa', 'Guía para evaluadores', 'Lo primero del menú, en rojo: qué revisar en cada criterio y dónde está'); await A.sobre('nav > button[data-s=mejoras]'); }],
+    ['cierre', async A => { await A.vz('sinRotulo'); await A.vz('tarjeta', T.cierre()); }],
   ], async A => { await A.vz('tarjeta', T.frente(4, 'Precios e índices', 'Precios e Índices de Referencia, IPP, IPMC y Hoja de Balance'), true); });
 
   // --- Composición: el teléfono sobre un fondo, y las tres partes con fundidos ---

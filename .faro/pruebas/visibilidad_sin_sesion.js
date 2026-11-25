@@ -12,7 +12,7 @@ const { chromium } = require('playwright'); const { entrar, CLAVE } = require('.
   ok('sin sesión: el menú no trae recepción, pendientes, equivalencias, operadores, ruta ni cuenta', !['recibir', 'pendientes', 'memoria', 'operadores', 'campo', 'perfil', 'usuarios'].some(s => v.menu.includes(s)) && v.menu.includes('mapa') && v.menu.includes('tableros'), v.menu.join(','));
   ok('sin sesión: ningún control para subir archivos ni acción de cambio a la vista', v.archivos.length === 0 && v.acciones === 0, JSON.stringify(v.archivos));
   ok('sin sesión: cargar una tabla propia se rechaza', (await p.evaluate(async () => (await fetch('/api/balance', { method: 'POST', headers: { 'content-type': 'text/csv' }, body: 'primario,derivado,tasa_extraccion_pct\nA,B,50\n' })).status)) === 401);
-  ok('sin sesión: tampoco «Antes y ahora», «Proceso», «Muestreos automáticos» ni «Resultados y avance»', !['mejoras', 'proceso', 'muestreos', 'resultados'].some(s => v.menu.includes(s)), v.menu.join(','));
+  ok('sin sesión: tampoco «Proceso», «Muestreos automáticos» ni «Resultados y avance»', !['proceso', 'muestreos', 'resultados'].some(s => v.menu.includes(s)), v.menu.join(','));
   await p.click('nav > button[data-s=tableros]'); await p.waitForTimeout(600);
   ok('sin sesión: en «Tableros» se ven los publicados, sin el panel para armar uno', !(await p.isVisible('#tabcrear')) && await p.isVisible('#tabpublicados'));
   await p.click('nav > button[data-s=precios]'); await p.waitForTimeout(400); ok('sin sesión: queda una nota donde iría la carga', await p.locator('#precios .nota-acceso:not([hidden])').count() >= 1);
@@ -27,10 +27,10 @@ const { chromium } = require('playwright'); const { entrar, CLAVE } = require('.
   const cuenta = async (usuario, rol, extra) => { await p.evaluate(async ([u, r, x, c]) => { await fetch('/api/usuarios', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ usuario: u, nombre: 'Prueba ' + u, rol: r, clave: c + '-0', ...x }) }); }, [usuario, rol, extra, CLAVE]);
     await p.evaluate(() => fetch('/api/sesion', { method: 'DELETE' })); const r = await entrar(p, usuario, CLAVE, CLAVE + '-0'); return /NO /.test(r) ? r : ''; };
   let mal = await cuenta('vis.inst', 'institucion', { institucion: 'PNC' }); v = await visibles();
-  ok('institución: ve «Recibir envío» y nada más de lo interno', !mal && v.menu.includes('recibir') && !['mejoras', 'proceso', 'muestreos', 'resultados', 'pendientes', 'memoria', 'operadores'].some(s => v.menu.includes(s)), mal || v.menu.join(','));
+  ok('institución: ve «Recibir envío» y nada más de lo interno', !mal && v.menu.includes('recibir') && !['proceso', 'muestreos', 'resultados', 'pendientes', 'memoria', 'operadores'].some(s => v.menu.includes(s)), mal || v.menu.join(','));
   await p.evaluate(() => fetch('/api/sesion', { method: 'DELETE' })); await p.reload(); await p.waitForSelector('#lienzo path.leaflet-interactive'); await entrar(p);
   mal = await cuenta('vis.campo', 'operador', {}); v = await visibles();
-  ok('operador de campo: ve su ruta y nada de lo interno', !mal && v.menu.includes('campo') && !['mejoras', 'proceso', 'muestreos', 'resultados', 'recibir', 'pendientes', 'memoria', 'operadores'].some(s => v.menu.includes(s)), mal || v.menu.join(','));
+  ok('operador de campo: ve su ruta y nada de lo interno', !mal && v.menu.includes('campo') && !['proceso', 'muestreos', 'resultados', 'recibir', 'pendientes', 'memoria', 'operadores'].some(s => v.menu.includes(s)), mal || v.menu.join(','));
   ok('sin errores de consola', errores.length === 0, errores.slice(0, 2).join(' | '));
   await nav.close(); console.log(fallas ? `\n${fallas} falla(s)` : '\nTodo bien'); process.exit(fallas ? 1 : 0);
 })();

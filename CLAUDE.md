@@ -304,7 +304,7 @@ Idiomas Nacionales, Decreto 19-2003). El video y la presentación llevan una men
 Los documentos (`docs/`), el manual y la presentación siguen solo en español.
 
 Agregado después (v0.20.1): kaqchikel ampliado por pedido expreso del equipo («un porcentaje considerable,
-dejando dicho que se completaría con asesoría de un experto»). 680 rótulos (36.3 %): 110 de nivel `fuente`
+dejando dicho que se completaría con asesoría de un experto»). 680 rótulos (34.1 %): 110 de nivel `fuente`
 (idénticos a la fuente) y 570 `compuesto` (armados con palabras de las fuentes; gramática SIN revisar).
 Fuentes: memoria de traducción de Mozilla en Pontoon (`https://pontoon.mozilla.org/translation-memory/cak.all-projects.tmx`,
 59,421 frases; MPL 2.0) y *Kaqchikel Choltzij* de la ALMG-CLK (2011). Archivos: `cak.json`, `cak_revision.csv`
@@ -352,6 +352,26 @@ INE cuyo grupo los incluya; los `data-sesion` tampoco los ve el rol `operador`; 
 tableros) solo con `puede('tableros')`. **Al agregar una sección interna: ponerle `data-ine` o `data-sesion`.**
 Es regla de pantalla, no de servidor. `generar_pdf.js <url> <usuario> <clave>` entra para sus capturas.
 Prueba: `.faro/pruebas/visibilidad_sin_sesion.js` (sin sesión, admin, institución, operador).
+
+Agregado después (v0.22.0): **«Guía para evaluadores»** = la sección `mejoras` renombrada, primer botón del
+menú (`.guia-eval`, rojo `#c8102e`), visible para todos (ya no lleva `data-ine`); tabla `.guia-criterios` al
+inicio; `FARO_GUIA_EVALUACION=0` la oculta (`guia_de_evaluacion()` → `/api/sesion.guia_evaluacion`).
+**Comparar territorios**: sección `comparar` (pública; acompaña a `mapa` en los grupos), `comparar()`,
+`compPintar()`, `COMP_COLOR`, usa `INDICADORES` y `resumenDepartamento`. **Certificación**: permiso/sección
+`certificar` en `SECCIONES`, grupo «Acceso a la información», tabla `certificaciones`, `POST /api/certificaciones`
+(`autorizar_en(.., "certificar")`), `GET /api/certificaciones/:folio`; en `reporte.html`: `prepararCertificacion`,
+`#certificar`, `#certform`, `#constancia` (marca de agua «PRUEBA» por `data-marca`, «SIN FIRMA»), `#correo` (mailto).
+**Reglas:** la constancia SIEMPRE es borrador sin firma; el nombre y correo del solicitante NO van al servidor.
+Los PDF de la resolución que envió el equipo como modelo traen datos personales: no van al repositorio.
+**Fuentes nuevas**: `faro vehiculos` (SAT, 327 MB por líneas, Latin-1, `|`; 337 municipios; 3 nombres sin asignar),
+`faro pib` (Banguat), `faro gestion-municipal` (SEGEPLAN) → `datos/referencia/{parque_vehicular_municipio,
+pib_departamento,gestion_municipal}.csv`; se leen en `armar_capas` (`tabla()`); 37 indicadores. SAT y Banguat
+dicen «derechos reservados»: se publican sumas, nunca el original. Bloqueados: SENACYT, UNIS; Mintrab solo PDF.
+Encabezado: `.marca .para` («for» + `/vendor/ine-horizontal.svg`), pedido expreso del equipo.
+`00-ENTREGABLES/` = copia numerada de `entregables/` (`scripts/entregables/copiar_entregables.js`; **correrlo
+después de regenerar cualquier entregable**). Portal en línea del equipo: https://faro.test-tecnodyne.site/.
+Idiomas: al extraer, la plantilla cambia según la base usada; se conserva lo anterior y se suma lo nuevo.
+Prueba: `.faro/pruebas/comparar_y_certificar.js`.
 
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que

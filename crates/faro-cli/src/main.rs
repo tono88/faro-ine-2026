@@ -304,6 +304,38 @@ enum Comando {
         #[arg(long, default_value = "datos/referencia/cif_departamentos.csv")]
         salida: PathBuf,
     },
+    /// Parque vehicular por municipio (SAT): suma el archivo mensual y pone código a cada municipio por su nombre.
+    Vehiculos {
+        /// Archivo de texto del ZIP mensual «Tabla de datos, análisis del parque vehicular» (separado por |, Latin-1).
+        #[arg(long)]
+        entrada: PathBuf,
+        /// Corte del archivo, AAAA-MM (el mes que dice su nombre).
+        #[arg(long)]
+        corte: String,
+        #[arg(long, default_value = "datos/referencia/parque_vehicular_municipio.csv")]
+        salida: PathBuf,
+    },
+    /// PIB por departamento (Banguat, cuentas regionales): total a precios corrientes y por habitante.
+    Pib {
+        /// Libro «5_PIB_total_por_departamento.xlsx».
+        #[arg(long)]
+        total: PathBuf,
+        /// Libro «8_PIB_Per_Capita_por_departamento.xlsx».
+        #[arg(long)]
+        per_capita: PathBuf,
+        #[arg(long, default_value = "datos/referencia/pib_departamento.csv")]
+        salida: PathBuf,
+    },
+    /// Ranking de la Gestión Municipal (SEGEPLAN): seis índices por municipio.
+    GestionMunicipal {
+        /// Libro «Resultados_RGM_2020_2021».
+        #[arg(long)]
+        entrada: PathBuf,
+        #[arg(long, default_value = "2020-2021")]
+        periodo: String,
+        #[arg(long, default_value = "datos/referencia/gestion_municipal.csv")]
+        salida: PathBuf,
+    },
     /// Retardo en talla (desnutrición crónica) en escolares por municipio: Censo de Talla de SESAN.
     Talla {
         /// Libro "Retardo en talla, Censo 2024" del SIINSAN.
@@ -540,6 +572,124 @@ fn ejecutar(cli: Cli) -> Result<ExitCode, String> {
         Comando::Catalogo { accion } => catalogo_censo(&catalogo, &cli.catalogo, accion),
         Comando::Asignar { operadores, puestos, salida } => asignar(&catalogo, &operadores, &puestos, &salida),
         Comando::Cif { texto, periodo, salida } => cif(&catalogo, &memoria, &texto, &periodo, &salida),
+        Comando::Vehiculos { entrada, corte, salida } => {
+            use std::io::{BufRead, BufReader};
+            // El archivo pesa cientos de MB: se lee por líneas y se suma por (departamento, municipio).
+            let mut sumas: std::collections::BTreeMap<(String, String), (u64, u64)> = Default::default();
+            let (mut lineas, mut malas) = (0u64, 0u64);
+            for (i, l) in BufReader::new(std::fs::File::open(&entrada).map_err(|e| format!("{}: {e}", entrada.display()))?).split(b'\n').enumerate() {
+                let l = l.map_err(|e| e.to_string())?;
+                let texto: String = l.iter().map(|&b| b as char).collect(); // Latin-1: cada byte es su carácter
+                let c: Vec<&str> = texto.trim_end_matches(['\r', '|']).split('|').collect();
+                if i == 0 {
+                    if c.get(2) != Some(&"NOMBRE_DEPARTAMENTO") || c.get(3) != Some(&"NOMBRE_MUNICIPIO") || c.get(6) != Some(&"TIPO_VEHICULO") || c.get(9) != Some(&"CANTIDAD") {
+                        return Err(format!("{}: no parece el archivo del parque vehicular de la SAT (cabecera: {texto})", entrada.display()));
+                    }
+                    continue;
+                }
+                if texto.trim().is_empty() { continue; }
+                let Some(n) = c.get(9).and_then(|x| x.trim().parse::<u64>().ok()) else { malas += 1; continue };
+                lineas += 1;
+                let s = sumas.entry((c[2].trim().to_string(), c[3].trim().to_string())).or_default();
+                s.0 += n;
+                if c[6].trim() == "MOTO" { s.1 += n; }
+            }
+            let h = Homologador::new(&catalogo, &memoria);
+            let (mut salen, mut sin, mut total, mut puesto): (std::collections::BTreeMap<String, (String, u64, u64)>, Vec<String>, u64, u64) = Default::default();
+            for ((dep, muni), (n, motos)) in &sumas {
+                total += n;
+                // El sistema no adivina: el departamento y el municipio deben llevar, cada uno, a un solo código.
+                let d = h.homologar(dep, Nivel::Departamento, None);
+                let m = d.codigo.as_deref().map(|cd| h.homologar(muni, Nivel::Municipio, Some(cd)));
+                match m.and_then(|m| m.codigo) {
+                    Some(codigo) => { let nombre = catalogo.por_codigo(&codigo).map(|l| l.nombre.clone()).unwrap_or_default(); let e = salen.entry(codigo).or_insert((nombre, 0, 0)); e.1 += n; e.2 += motos; puesto += n; }
+                    None => sin.push(format!("{muni} ({dep}): {n} vehículos")),
+                }
+            }
+            if let Some(d) = salida.parent() { std::fs::create_dir_all(d).map_err(|e| e.to_string())?; }
+            let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(&salida).map_err(|e| e.to_string())?;
+            w.write_record(["municipio", "nombre", "corte", "vehiculos", "motocicletas"]).map_err(|e| e.to_string())?;
+            for (codigo, (nombre, n, motos)) in &salen {
+                w.write_record([codigo.as_str(), nombre.as_str(), corte.as_str(), &n.to_string(), &motos.to_string()]).map_err(|e| e.to_string())?;
+            }
+            w.flush().map_err(|e| e.to_string())?;
+            println!("{lineas} líneas leídas ({malas} sin cantidad); {} nombres de municipio distintos; {total} vehículos", sumas.len());
+            println!("{} municipios con código -> {} ({puesto} vehículos, {:.2} % del archivo)", salen.len(), salida.display(), puesto as f64 * 100.0 / total.max(1) as f64);
+            println!("sin código por nombre (no se asignan): {}{}", sin.len(), if sin.is_empty() { String::new() } else { format!(": {}", sin.join("; ")) });
+            Ok(ExitCode::SUCCESS)
+        }
+        Comando::Pib { total, per_capita, salida } => {
+            use faro_homologa::normalizar::basico;
+            let h = Homologador::new(&catalogo, &memoria);
+            // Cada hoja: cabecera «No. | Departamento | 2013 … 2024 | Variación…»; se toma el último año y solo el primer bloque (22 filas).
+            let leer = |ruta: &PathBuf, hoja: &str| -> Result<(String, std::collections::BTreeMap<String, f64>), String> {
+                let filas = faro_homologa::lectura::leer_hoja_cruda(ruta, hoja)?;
+                let pos = filas.iter().position(|f| f.iter().any(|c| basico(c) == "departamento") && f.iter().any(|c| basico(c) == "no")).ok_or(format!("{}: no se halló la cabecera en la hoja {hoja}", ruta.display()))?;
+                let (ino, inom) = (filas[pos].iter().position(|c| basico(c) == "no").unwrap(), filas[pos].iter().position(|c| basico(c) == "departamento").unwrap());
+                let (ia, anio) = filas[pos].iter().enumerate().filter_map(|(i, c)| { let a = c.trim().trim_end_matches(".0"); (a.len() == 4 && a.parse::<i32>().is_ok_and(|x| (2000..2100).contains(&x))).then(|| (i, a.to_string())) }).last().ok_or("no hay columnas de año")?;
+                let mut m = std::collections::BTreeMap::new();
+                for f in filas.iter().skip(pos + 1) {
+                    let no = f.get(ino).map(|x| x.trim().trim_end_matches(".0")).unwrap_or("");
+                    let Ok(n) = no.parse::<u32>() else { if !m.is_empty() && f.iter().all(|c| c.trim().is_empty() || c.parse::<f64>().is_err()) && f.get(inom).is_some_and(|c| c.trim().is_empty()) { break } else { continue } };
+                    let codigo = format!("{n:02}");
+                    if m.contains_key(&codigo) { break; } // empieza el bloque de estructura porcentual
+                    let nombre = f.get(inom).map(|x| x.trim()).unwrap_or("");
+                    // El libro numera 1–22 sin decir que es el código del INE: se comprueba con el nombre.
+                    if h.homologar(nombre, Nivel::Departamento, None).codigo.as_deref() != Some(codigo.as_str()) {
+                        return Err(format!("{}: el número {n} dice {nombre:?}, que no es el departamento {codigo} del catálogo", ruta.display()));
+                    }
+                    let v: f64 = f.get(ia).and_then(|x| x.trim().parse().ok()).ok_or(format!("{codigo}: valor no numérico en {anio}"))?;
+                    m.insert(codigo, v);
+                }
+                if m.len() != 22 { return Err(format!("{}: se esperaban 22 departamentos y hay {}", ruta.display(), m.len())); }
+                Ok((anio, m))
+            };
+            let (anio, tot) = leer(&total, "PIB Corriente")?;
+            let (anio2, pc) = leer(&per_capita, "PIB Per Cápita")?;
+            if anio != anio2 { return Err(format!("los dos libros terminan en años distintos: {anio} y {anio2}")); }
+            if let Some(d) = salida.parent() { std::fs::create_dir_all(d).map_err(|e| e.to_string())?; }
+            let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(&salida).map_err(|e| e.to_string())?;
+            w.write_record(["departamento", "nombre", "anio", "pib_millones_q", "pib_per_capita_q"]).map_err(|e| e.to_string())?;
+            for (codigo, v) in &tot {
+                w.write_record([codigo.as_str(), catalogo.por_codigo(codigo).map(|l| l.nombre.as_str()).unwrap_or(""), anio.as_str(), &format!("{v:.1}"), &format!("{:.0}", pc[codigo])]).map_err(|e| e.to_string())?;
+            }
+            w.flush().map_err(|e| e.to_string())?;
+            println!("22 departamentos, año {anio} -> {} (suma: {:.1} millones de quetzales; nombre y número coinciden en los 22)", salida.display(), tot.values().sum::<f64>());
+            Ok(ExitCode::SUCCESS)
+        }
+        Comando::GestionMunicipal { entrada, periodo, salida } => {
+            use faro_homologa::normalizar::basico;
+            let filas = faro_homologa::lectura::leer_crudo(&entrada)?;
+            let pos = filas.iter().position(|f| f.first().is_some_and(|c| basico(c).starts_with("codigo departamento"))).ok_or(format!("{}: no parece el libro del Ranking de la Gestión Municipal", entrada.display()))?;
+            let enc: Vec<String> = filas[pos].iter().map(|c| basico(c)).collect();
+            let col = |n: &str| enc.iter().position(|c| c.starts_with(n)).ok_or(format!("{}: falta la columna {n:?}", entrada.display()));
+            let (im, inom) = (col("codigo municipio")?, col("municipio")?);
+            let indices = [("participacion_ciudadana", "indice de participacion"), ("informacion_ciudadania", "indice de informacion"), ("servicios_publicos", "indice de servicios"), ("gestion_administrativa", "indice de gestion administrativa"), ("gestion_financiera", "indice de gestion financiera"), ("gestion_estrategica", "indice de gestion estrategica")];
+            let cols: Vec<usize> = indices.iter().map(|(_, n)| col(n)).collect::<Result<_, _>>()?;
+            let h = Homologador::new(&catalogo, &memoria);
+            let (mut salen, mut distintos) = (std::collections::BTreeMap::new(), Vec::new());
+            for f in filas.iter().skip(pos + 1) {
+                let c = |i: usize| f.get(i).map(|x| x.trim()).unwrap_or("");
+                let Ok(n) = c(im).trim_end_matches(".0").parse::<u32>() else { continue };
+                let codigo = format!("{n:04}");
+                let l = catalogo.por_codigo(&codigo).filter(|l| l.nivel == Nivel::Municipio).ok_or(format!("el código {codigo} ({}) no es un municipio del catálogo", c(inom)))?;
+                if h.homologar(c(inom), Nivel::Municipio, Some(&codigo[..2])).codigo.as_deref() != Some(codigo.as_str()) {
+                    distintos.push(format!("{codigo} {} (el libro lo llama {:?})", l.nombre, c(inom)));
+                }
+                let vs: Vec<String> = cols.iter().map(|&i| c(i).parse::<f64>().ok().filter(|v| (0.0..=1.0).contains(v)).map(|v| format!("{v:.3}")).unwrap_or_default()).collect();
+                if salen.insert(codigo.clone(), (l.nombre.clone(), vs)).is_some() { return Err(format!("el municipio {codigo} está repetido")); }
+            }
+            if let Some(d) = salida.parent() { std::fs::create_dir_all(d).map_err(|e| e.to_string())?; }
+            let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_path(&salida).map_err(|e| e.to_string())?;
+            w.write_record(["municipio", "nombre", "periodo"].into_iter().chain(indices.iter().map(|i| i.0))).map_err(|e| e.to_string())?;
+            for (codigo, (nombre, vs)) in &salen {
+                w.write_record([codigo.as_str(), nombre.as_str(), periodo.as_str()].into_iter().chain(vs.iter().map(String::as_str))).map_err(|e| e.to_string())?;
+            }
+            w.flush().map_err(|e| e.to_string())?;
+            println!("{} municipios, periodo {periodo} -> {}", salen.len(), salida.display());
+            println!("nombre y código coinciden en {}; el nombre no lleva solo al mismo código en {}{}", salen.len() - distintos.len(), distintos.len(), if distintos.is_empty() { String::new() } else { format!(": {}", distintos.join("; ")) });
+            Ok(ExitCode::SUCCESS)
+        }
         Comando::Talla { entrada, salida } => {
             use faro_homologa::normalizar::basico;
             let filas = faro_homologa::lectura::leer_crudo(&entrada)?;
