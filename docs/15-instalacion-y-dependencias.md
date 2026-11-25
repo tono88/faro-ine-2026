@@ -37,6 +37,44 @@ recepción ni los paneles de carga. La contraseña inicial no está en el códig
 `FARO_CLAVE_INICIAL` (el despliegue con Docker la deja en `admin`; puede poner otra en `.env` antes
 del primer arranque).
 
+## Cómo generar las claves de `.env`
+
+`POSTGRES_PASSWORD`, `FARO_TOKEN` y `FARO_SAL` deben ser largas, al azar y distintas entre sí. Corra
+el comando tres veces y pegue cada resultado en una línea de `.env` (64 caracteres, solo letras de
+la `a` a la `f` y números: sin comillas ni signos que el archivo pueda leer mal).
+
+Linux y macOS:
+
+```bash
+openssl rand -hex 32
+```
+
+Sin `openssl`:
+
+```bash
+head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n'; echo
+```
+
+Windows (PowerShell):
+
+```powershell
+$b = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); -join ($b | ForEach-Object { $_.ToString('x2') })
+```
+
+En Windows, `iniciar.bat` llama a `crear_env.ps1`, que hace lo mismo y escribe el archivo. Los
+comandos de Linux se probaron el 25-nov-2026; el de PowerShell usa el mismo generador que
+`crear_env.ps1`, que **no se ha probado en Windows** desde esta sesión.
+
+- No use generadores en línea ni pegue las claves en chats, correos o capturas. Si una clave se vio
+  fuera del servidor, genere otra.
+- `POSTGRES_PASSWORD` solo se toma al crear la base. Para cambiarla después: `ALTER USER` dentro de
+  PostgreSQL y el mismo valor en `.env`; o empezar de cero con `docker compose down -v`.
+- `FARO_SAL` se fija una vez: con ella se calculan las llaves que sustituyen al CUI, y si cambia,
+  los registros nuevos de una persona dejan de coincidir con los anteriores. Guárdela, con una
+  copia de `.env`, en el gestor de contraseñas de la institución.
+- `FARO_TOKEN` se puede cambiar cuando haga falta (`.env` y `docker compose up -d`).
+- En Linux: `chmod 600 .env`.
+
 ## Sin Docker
 
 Requisitos: Rust estable (1.82 o posterior; probado con 1.97) y PostgreSQL 16.

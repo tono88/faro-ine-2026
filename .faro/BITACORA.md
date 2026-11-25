@@ -142,4 +142,7 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - Para que un agente no invente palabras: darle un paquete de evidencia por rótulo y validar después que cada ficha exista en el corpus. «mes» (basura) choca con el español: lista de excepciones. Las unidades (ha, km) se admiten aparte.
 - Los agentes leen CLAUDE.md del repositorio y dos de ellos avisaron que la regla anterior («no componer frases») chocaba con el encargo: la regla se cambió por decisión del equipo y quedó escrita.
 - En teléfono, un rótulo traducido más largo rompe el encabezado: `flex:0 1 auto; min-width:0; text-overflow:ellipsis` en el botón de sesión, y a ≤ 400 px se oculta la palabra de la marca.
-
+- v0.21.0. Guía de diseño del INE: tipografía local en woff2 reducido (fonttools) y servida por rutas propias; los SVG del INE comparten nombres de clase: incrustarlos con `<img>`. Un `include_str!` fuera de `crates/` rompe la imagen de Docker.
+- Carta del equipo: QR con segno en SVG y comprobados con OpenCV; el emblema se dibujó de cero (la foto enviada era de un emblema ajeno). Un pie idempotente tras una marca (`<!-- equipo -->`) permite ponerlo en 32 documentos sin tocarlos a mano; los generadores lo quitan con `sinPie`.
+- Un guion que ejecuta al cargarse no se puede reutilizar: `if (require.main === module)` + `module.exports` para compartir `aHtml`.
+- Preguntas del jurado: una pregunta por título `###` y los seguimientos como párrafos `**Seguimiento: …**` bastan para armar el PDF con cajas sin otro formato.

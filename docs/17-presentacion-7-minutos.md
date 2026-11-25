@@ -50,7 +50,7 @@ trae en las notas del orador lo que hay que decir.
 | 11 | Crece sin programar | 5:00 | Calidad técnica (20 %) | Una institución nueva es un archivo; las reglas son parámetros |
 | 12 | Se revisa a sí mismo y dice sus límites | 5:35 | Rigor (10 %) | INE fuente principal, secreto estadístico, verificación |
 | 13 | Antes y ahora, y la petición | 6:10 | Aplicabilidad | Seis cifras; **un piloto con una institución, en un servidor del INE, un mes** |
-| 14 | Cierre | 6:50 | — | **Mención de inclusión, una frase** (ver abajo); lema y preguntas |
+| 14 | Cierre | 6:50 | — | **Mención de inclusión, una frase** (ver abajo); lema y preguntas. Queda en pantalla la **carta de presentación del equipo** (emblema, nombres y el código QR del LinkedIn de cada integrante) durante las preguntas |
 | 15 | *Apéndice:* cumple cada lineamiento | preguntas | Calidad técnica | Ocho lineamientos con su prueba |
 | 16 | *Apéndice:* lo que todavía no hace | preguntas | Calidad técnica | Limitaciones y mejoras, dichas por el equipo |
 
@@ -101,6 +101,11 @@ se cambia al video si la demostración falla. Dejar el portal preparado con
 - Idiomas: 1,873 textos de la pantalla en inglés; 680 rótulos en kaqchikel (36 %), en borrador: 110 idénticos a la fuente y 570 compuestos con sus palabras, sin revisión de hablantes; 2,394 textos que eran datos quedaron fuera del diccionario; ningún dato traducido.
 
 ## Preguntas probables y respuesta corta
+
+La guía completa para ensayar, con 52 preguntas ordenadas por criterio de evaluación y las
+preguntas de seguimiento de las más difíciles, está en [`30-preguntas-del-jurado.md`](30-preguntas-del-jurado.md)
+(en PDF: [`entregables/FARO-preguntas-y-respuestas.pdf`](../entregables/FARO-preguntas-y-respuestas.pdf)).
+Esta tabla es el resumen.
 
 | Pregunta | Respuesta |
 |---|---|

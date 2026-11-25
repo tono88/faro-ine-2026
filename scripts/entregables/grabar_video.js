@@ -27,23 +27,24 @@ const pruebas = (() => { let n = 0; const rec = d => fs.readdirSync(d, { withFil
 // Ritmo: unas 140 palabras por minuto, con aire para que se vea la pantalla. Si cambia un texto, ajuste la
 // duración de su escena (palabras ÷ 2.3 ≈ segundos de voz) y vuelva a grabar.
 const GUION = [
-  { id: 'apertura', dur: 14, voz: 'El INE ya tiene los datos que necesita. Pero cada institución los envía a su manera, y no llegan en una forma que se pueda usar. Para eso construimos FARO.' },
-  { id: 'caso', dur: 26, voz: CFG.vozCaso || 'Este es el archivo de una institución, tal como sale de su sistema. La institución entra con su propia cuenta y lo sube. En segundos, FARO reconoce las columnas, pone el código oficial a cada lugar y deja fuera los datos personales. El archivo original no se guarda.' },
-  { id: 'decision', dur: 12, voz: 'Y cuando hay duda, FARO no adivina: propone, una persona decide una sola vez, y esa decisión queda aprendida para todas las instituciones.' },
+  { id: 'apertura', dur: 13, voz: 'El INE ya tiene los datos que necesita. Pero cada institución los envía a su manera, y no llegan en una forma que se pueda usar. Para eso construimos FARO.' },
+  { id: 'caso', dur: 25.5, voz: CFG.vozCaso || 'Este es el archivo de una institución, tal como sale de su sistema. La institución entra con su propia cuenta y lo sube. En segundos, FARO reconoce las columnas, pone el código oficial a cada lugar y deja fuera los datos personales. El archivo original no se guarda.' },
+  { id: 'decision', dur: 11.5, voz: 'Y cuando hay duda, FARO no adivina: propone, una persona decide una sola vez, y esa decisión queda aprendida para todas las instituciones.' },
   { id: 'territorio', dur: 21, voz: 'Lo mismo, en cada frente del INE. Para Censos y Encuestas y las delegaciones: el país hasta el lugar poblado, con población, censo y crecimiento urbano visto desde el satélite. Y la red vial como un grafo: setecientos siete lugares sin conexión mapeada.' },
   { id: 'campo', dur: 15, voz: 'Para el trabajo de campo: cada operador ve su ruta en el teléfono, y cada visita se comprueba con ubicación y foto.' },
   { id: 'precios', dur: 18, voz: 'Para Precios e Índices: más de ochenta y cinco mil precios leídos de dieciocho tiendas, comparados por código de barras, con su informe de precio de referencia.' },
-  { id: 'tableros', dur: 14, voz: 'Y para quien necesita comunicar: un tablero se pide con palabras y se publica con un enlace.' },
-  { id: 'convergencia', dur: 10, voz: 'No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.' },
+  { id: 'tableros', dur: 13, voz: 'Y para quien necesita comunicar: un tablero se pide con palabras y se publica con un enlace.' },
+  { id: 'convergencia', dur: 9, voz: 'No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.' },
   { id: 'autonomia', dur: 23, voz: 'Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado.' },
-  { id: 'escala', dur: 13, voz: `Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, ${pruebas} pruebas automáticas, y se instala con un comando.` },
-  { id: 'cierre', dur: 6.5, voz: 'Y en más de un idioma. FARO: que cada dato llegue a puerto.' },
+  { id: 'escala', dur: 12, voz: `Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, ${pruebas} pruebas automáticas, y se instala con un comando.` },
+  { id: 'cierre', dur: 8, voz: 'Y en más de un idioma. FARO: que cada dato llegue a puerto.' },
 ];
 const G = id => GUION.find(g => g.id === id);
 
 // ---------- Lo que se inyecta en la página: cursor, rótulos, bandas y tarjetas ----------
 const ICONO = `<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0080ff"/><path d="M26 21 5 12v17z" fill="#ffd500" opacity=".9"/><path d="M38 21 59 12v17z" fill="#ffd500" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffe566"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#66b3ff"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#66b3ff"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg>`;
 const INE_BLANCO = require('./_tipografia.js').ine('ine-horizontal-blanco');
+const CARTA = require('./_tipografia.js').carta();
 const HAZ = `<div class="vz-ine"><img src="${INE_BLANCO}" alt="Instituto Nacional de Estadística"></div><svg class="vz-haz" viewBox="0 0 1000 562" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="vzh" x1="1" x2="0"><stop offset="0" stop-color="#ffd500" stop-opacity=".5"/><stop offset="1" stop-color="#ffd500" stop-opacity="0"/></linearGradient></defs><path d="M790 250 L0 30 L0 270 Z" fill="url(#vzh)"/><path d="M790 250 L0 320 L0 450 Z" fill="url(#vzh)" opacity=".45"/><g fill="none" stroke="#66b3ff" stroke-width="2" opacity=".3"><path d="M0 505 q60 -20 120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0"/><path d="M-40 532 q60 -20 120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0" opacity=".7"/></g></svg>`;
 // La última lista del resultado de un envío trae el valor de algunas filas («Fila N · variable · "valor"»).
 // En cámara esa lista no se dibuja en ningún momento (ni mientras aparece la banda que además la cubre):
@@ -63,6 +64,7 @@ const CSS = `
 #vz-tarjeta { inset: 0; background: #004080; color: #fff; opacity: 0; transition: opacity .55s; overflow: hidden; } #vz-tarjeta.ver { opacity: 1; } #vz-tarjeta.velo { background: rgba(7,48,107,.93); }
 .vz-haz { position: absolute; inset: 0; width: 100%; height: 100%; }
 .vz-ine { position: absolute; right: 0; bottom: 0; z-index: 2; background: #0080ff; border-top-left-radius: 22px; padding: 12px 24px 12px 20px; } .vz-ine img { height: 34px; display: block; }
+.vz-cierre-marca { display: flex; align-items: center; gap: 20px; text-align: left; } .vz-cierre-logo { flex: 0 0 78px; width: 78px; height: 78px; } .vz-cierre-logo svg { display: block; width: 78px; height: 78px; filter: drop-shadow(0 6px 14px rgba(0,0,0,.35)); } .vz-carta { width: 800px; margin-top: 26px; } .vz-carta svg { display: block; width: 100%; height: auto; }
 .vz-c { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 90px; } .vz-c.centro { align-items: center; text-align: center; }
 .vz-k { font-size: 15px; font-weight: 700; letter-spacing: 3.5px; text-transform: uppercase; color: #ffe566; } .vz-t { font-size: 50px; font-weight: 800; line-height: 1.12; margin-top: 8px; max-width: 980px; } .vz-s { font-size: 23px; color: #cce6ff; margin-top: 14px; max-width: 900px; line-height: 1.4; }
 .vz-sale { opacity: 0; transform: translateY(18px); animation: vz-sale .7s ease-out forwards; } @keyframes vz-sale { to { opacity: 1; transform: none; } }
@@ -109,7 +111,7 @@ const T = {
   escala: () => { const toml = leer('datos/solicitudes/pnc-detenidos-v1.toml').split('\n').filter(l => l.trim() && !l.trim().startsWith('#')).slice(0, 13).map(l => esc(l.length > 62 ? l.slice(0, 60) + '…' : l).replace(/^(\[\[?[^\]]+\]\]?)/, '<i>$1</i>').replace(/^(\w+)(\s*=)/, '<u>$1</u>$2')).join('\n');
     return `${HAZ}<div class="vz-c">${sale(0, '<div class="vz-k">Configurable, escalable y comprobado</div>')}${sale(0.15, '<div class="vz-t" style="font-size:42px">Crece sin programar</div>')}<div class="vz-dos">${sale(0.7, `<div><div class="vz-codigo">${toml}</div><div class="vz-s" style="font-size:17px;margin-top:10px">Sumar una institución es escribir un archivo como este.</div></div>`)}
       <div class="vz-cifras">${sale(5.2, `<div><b>${esc(M('Un estándar para pedir y recibir datos'))}</b><span>registros reales de RENAP, PNC y SE-CONRED procesados</span></div>`)}${sale(6.6, `<div><b>${pruebas}</b><span>pruebas automáticas, más pruebas de pantalla con clic real</span></div>`)}${sale(8, '<div><b>1 comando</b><span>para instalarlo: comprobado desde un clon limpio</span></div>')}</div></div></div>`; },
-  cierre: () => `${HAZ}<div class="vz-c centro">${sale(0.1, `<div class="vz-logo">${ICONO}</div>`)}${sale(0.3, '<div class="vz-marca">FARO</div>')}${sale(0.6, '<div class="vz-lema">Que cada dato llegue a puerto.</div>')}${sale(1.6, '<div class="vz-s" style="font-size:19px;margin-top:26px;color:#ffe566">También en inglés · kaqchikel en borrador, por revisar con hablantes</div>')}${sale(2.6, '<div class="vz-s" style="font-size:18px;margin-top:14px">La Sociedad de Almas · Datatón INE 2026 · github.com/tono88/faro-ine-2026</div>')}</div>`,
+  cierre: () => `${HAZ}<div class="vz-c centro">${sale(0.1, `<div class="vz-cierre-marca"><div class="vz-cierre-logo">${ICONO}</div><div><div class="vz-marca" style="font-size:54px;line-height:1;margin:0">FARO</div><div class="vz-lema" style="font-size:22px;margin-top:6px">Que cada dato llegue a puerto.</div></div></div>`)}${sale(1.0, `<div class="vz-carta">${CARTA}</div>`)}${sale(2.0, '<div class="vz-s" style="font-size:17px;margin-top:20px;color:#ffe566">También en inglés · kaqchikel en borrador, por revisar con hablantes</div>')}${sale(2.4, '<div class="vz-s" style="font-size:16px;margin-top:8px">Datatón INE 2026 · github.com/tono88/faro-ine-2026</div>')}</div>`,
 };
 
 // ---------- Grabación ----------
@@ -160,7 +162,7 @@ async function imagen(html, archivo, transparente) { const nav = await chromium.
   // --- Parte A: apertura, el caso de principio a fin y el territorio ---
   console.log('Grabando…');
   const a = await grabar('a', [1280, 720], 1.5, null, [
-    ['apertura', async A => { await A.vz('tarjeta', T.apertura()); await dormir(10300); await A.vz('tarjeta', T.marca()); await dormir(3000); }],
+    ['apertura', async A => { await A.vz('tarjeta', T.apertura()); await dormir(9600); await A.vz('tarjeta', T.marca()); await dormir(2900); }],
 
     ['caso', async A => { const { p } = A; await A.sinTarjeta(); await A.vz('rotulo', 'Frente 1 · Registros administrativos', CFG.caso[0], CFG.caso[1]);
       await A.entrar(CFG.institucion); await p.waitForSelector('#enviapor:not([hidden])'); await A.sobre('#enviapor', { dx: 260 }); await dormir(1500);

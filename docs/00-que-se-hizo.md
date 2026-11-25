@@ -101,6 +101,12 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 - Protección estadística: los conteos menores que 3 no se publican a quien no es analista.
 - Análisis de conformidad legal, norma por norma ([`23`](23-conformidad-legal.md)).
 - Comparativo «antes y ahora» de 28 puntos ([`22`](22-antes-y-ahora.md)).
+- Conformidad con la nota conceptual del Datatón, lineamiento por lineamiento
+  ([`26`](26-conformidad-nota-conceptual.md)); resumen para aclaraciones en el README.
+- Identidad según la guía de diseño gráfico del INE: paleta, Ubuntu Sans y logotipo del INE en el
+  cintillo ([`25`](25-identidad.md)). Carta de presentación del equipo al cierre de cada pieza.
+- Guía de ensayo con 52 preguntas probables del jurado y 26 de seguimiento
+  ([`30`](30-preguntas-del-jurado.md)).
 
 ## 8d. Idiomas e inclusión
 

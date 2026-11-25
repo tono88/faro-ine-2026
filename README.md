@@ -294,6 +294,61 @@ cp .env.example .env
 Abra `.env` y cambie las tres claves (`POSTGRES_PASSWORD`, `FARO_TOKEN` y `FARO_SAL`) por valores
 propios. En Windows, `iniciar.bat` hace los pasos 2 y 3 y genera las claves.
 
+<details open>
+<summary><b>Cómo generar las tres claves</b> (Linux, macOS y Windows)</summary>
+
+Cada clave debe ser larga, al azar y distinta de las otras dos. Corra el comando **tres veces** y
+pegue cada resultado en una de las tres líneas de `.env`. Salen 64 caracteres, solo letras de la `a`
+a la `f` y números: así no hay comillas, espacios ni signos que el archivo `.env` o la conexión a la
+base puedan leer mal.
+
+**Linux y macOS** (terminal):
+
+```bash
+openssl rand -hex 32
+```
+
+Si no tiene `openssl`:
+
+```bash
+head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n'; echo
+```
+
+**Windows** (PowerShell; viene con Windows 10 y 11):
+
+```powershell
+$b = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); -join ($b | ForEach-Object { $_.ToString('x2') })
+```
+
+Si tiene Git para Windows, en «Git Bash» sirve el mismo comando de Linux (`openssl rand -hex 32`).
+`crear_env.ps1` (lo llama `iniciar.bat`) hace esto mismo y escribe el archivo.
+
+El archivo debe quedar así, con sus propios valores:
+
+```text
+POSTGRES_PASSWORD=<64 caracteres>
+FARO_TOKEN=<otros 64 caracteres>
+FARO_SAL=<otros 64 caracteres>
+```
+
+Cuatro cuidados:
+
+- **No use un generador de contraseñas en línea** ni pegue las claves en un chat, un correo o una
+  captura de pantalla. Si una clave se vio fuera del servidor, genere otra.
+- **`POSTGRES_PASSWORD` solo se toma la primera vez**, cuando se crea la base. Si la cambia después,
+  el portal ya no podrá conectarse: o la cambia también dentro de PostgreSQL (`ALTER USER`), o
+  empieza de cero con `docker compose down -v` (borra los datos).
+- **`FARO_SAL` se fija una vez y no se cambia.** Con ella se calculan las llaves que sustituyen al
+  CUI: si cambia, los registros nuevos de una persona dejan de coincidir con los anteriores.
+  Guárdela en el gestor de contraseñas de la institución, junto con una copia de `.env`.
+- **`FARO_TOKEN` sí se puede cambiar** cuando haga falta (cámbiela en `.env` y corra
+  `docker compose up -d`). Es la clave de los procesos automáticos; las personas no la usan.
+
+El archivo `.env` no se sube al repositorio (está en `.gitignore`). En Linux conviene dejarlo
+legible solo para su dueño: `chmod 600 .env`.
+
+</details>
+
 **3. Construya y levante el portal.**
 
 ```bash
@@ -513,8 +568,9 @@ LICENCIA.md             autoría del equipo y licencia al INE
 | [12 Flujo de proceso](docs/12-proceso.md) | [25 Identidad: logotipo, lema, misión y visión](docs/25-identidad.md) |
 | [26 Conformidad con la nota conceptual](docs/26-conformidad-nota-conceptual.md) | [27 Componentes de terceros y licencias](docs/27-componentes-de-terceros.md) |
 | [28 Guía para explicar y defender el código](docs/28-defensa-del-codigo.md) | [29 Idiomas e inclusión](docs/29-idiomas-e-inclusion.md) |
-| [Autoría y licencia](LICENCIA.md) | |
+| [30 Preguntas probables del jurado y respuestas](docs/30-preguntas-del-jurado.md) | [Autoría y licencia](LICENCIA.md) |
 | [Documento técnico (PDF)](entregables/FARO-documento-tecnico.pdf) | [Manual de usuario gráfico (PDF)](entregables/FARO-manual-de-usuario.pdf) |
+| [Preguntas y respuestas para el jurado (PDF)](entregables/FARO-preguntas-y-respuestas.pdf) | |
 | [Presentación para el jurado (PDF)](entregables/FARO-presentacion.pdf) | [Presentación editable (PowerPoint)](entregables/FARO-presentacion.pptx) |
 
 ## Entregables
@@ -524,7 +580,7 @@ LICENCIA.md             autoría del equipo y licencia al INE
 | Repositorio con el código y la documentación | <https://github.com/tono88/faro-ine-2026> (historial desde el 23-nov-2026) |
 | Presentación en PDF para la exposición | [`entregables/FARO-presentacion.pdf`](entregables/FARO-presentacion.pdf) (y la misma, editable, en [PowerPoint](entregables/FARO-presentacion.pptx)); guion hablado en [`docs/17`](docs/17-presentacion-7-minutos.md) |
 | Video demostrativo de 2 a 3 minutos | Clip de 2:58 grabado del portal, sin voz, en [`entregables/FARO-video-demo.mp4`](entregables/FARO-video-demo.mp4), con sus [subtítulos](entregables/FARO-video-demo.srt); guion de la narradora y plan de montaje en [`docs/16`](docs/16-guion-video.md) |
-| Además | [Manual de usuario gráfico](entregables/FARO-manual-de-usuario.pdf) · [documento técnico](entregables/FARO-documento-tecnico.pdf) · [matriz de conformidad](docs/26-conformidad-nota-conceptual.md) |
+| Además | [Manual de usuario gráfico](entregables/FARO-manual-de-usuario.pdf) · [documento técnico](entregables/FARO-documento-tecnico.pdf) · [matriz de conformidad](docs/26-conformidad-nota-conceptual.md) · [preguntas probables y respuestas](entregables/FARO-preguntas-y-respuestas.pdf) |
 
 ## Limitaciones y posibles mejoras
 
@@ -655,6 +711,47 @@ no usa: la serie de crecimiento urbano que se muestra es la de GHSL.
   campo (Places365), que corre dentro del servidor, sin nube, y cuyo resultado solo marca una
   visita para revisión. Todo lo demás son reglas fijas y a la vista: el mismo dato de entrada da
   siempre el mismo resultado.
+
+## Conformidad con el reglamento del Datatón y con la ley
+
+Para cualquier aclaración, dos documentos responden punto por punto y dicen dónde está la prueba:
+la [conformidad con la nota conceptual](docs/26-conformidad-nota-conceptual.md) (el reglamento del
+Datatón INE 2026, categoría 2) y la [conformidad legal](docs/23-conformidad-legal.md). Ambos van
+también dentro del [documento técnico](entregables/FARO-documento-tecnico.pdf).
+
+**Reglamento del Datatón (nota conceptual, categoría 2).**
+
+| Lo que pide | Cómo lo cumple FARO | Dónde se comprueba |
+|---|---|---|
+| Equipo de 3 a 4 integrantes; entrega el 26-nov a las 09:00 | Tres integrantes; repositorio, presentación y video listos | Esta página; [`entregables/`](entregables/) |
+| Datos: una base pública del portal del INE como fuente principal; las demás, abiertas y citadas, con fecha de descarga | Siete conjuntos del portal del INE; 42 fuentes citadas; 111 descargas con dirección, fecha, licencia y huella | [«Datos»](#datos); [`docs/11`](docs/11-fuentes-y-citas.md); `datos/crudo/manifiesto.jsonl` |
+| Tecnología de código abierto o sin costo; declarar servicios de pago o en la nube | Rust, PostgreSQL, Leaflet y Docker; ningún servicio de pago; los gratuitos están declarados | [«Servicios en la nube»](#servicios-en-la-nube) |
+| Desarrollado durante el evento; no presentar proyectos anteriores | Todo el código se escribió del 23 al 25 de noviembre; solo bibliotecas públicas preexistentes | Historial del repositorio; [`docs/08`](docs/08-versiones.md) |
+| Repositorio Git creado desde el día 1, con acceso para el jurado | Primer cambio el 23-nov-2026; una versión publicada por bloque de trabajo | Historial y *releases* |
+| Prototipo funcional, local o en línea | Corre completo con un comando; 24 secciones en uso | [«Cómo desplegarlo»](#cómo-desplegarlo) |
+| Reproducibilidad: instalación, ejecución y dependencias | Cuatro pasos; probado desde un clon limpio; dependencias con su licencia | [`docs/15`](docs/15-instalacion-y-dependencias.md); [`docs/27`](docs/27-componentes-de-terceros.md) |
+| README con problema y usuarios, arquitectura, instalación y uso, datos, limitaciones y mejoras | Las cinco partes están en esta página | Secciones de arriba |
+| Secreto estadístico; no identificar personas, hogares o empresas | Solo conteos; celdas pequeñas protegidas; nombres y documentos se quitan al recibir; el archivo original no se guarda | [`docs/23`](docs/23-conformidad-legal.md); [`docs/21`](docs/21-seguridad.md) |
+| Ninguna credencial, contraseña o llave en el código | Las claves viven en `.env`, que no se versiona | `.env.example`; [`docs/21`](docs/21-seguridad.md) |
+| Inteligencia artificial: permitida si se declara; el equipo debe poder defender el código | Declarada; guía para explicar cada parte del código | [«Uso de inteligencia artificial»](#uso-de-inteligencia-artificial); [`docs/28`](docs/28-defensa-del-codigo.md) |
+| Uso correcto de la información: fiel a las definiciones del INE, sin inducir a error | Las cifras del INE se muestran como se publican; todo cálculo propio va rotulado como no oficial | [`docs/19`](docs/19-verificacion-estadistica.md) |
+| Entregables: repositorio, presentación en PDF y video de 2 a 3 minutos | Los tres, más manual y documento técnico | [«Entregables»](#entregables) |
+| Términos: licencia al INE, componentes de terceros listados, INE citado como fuente | Licencia no exclusiva, gratuita, perpetua e irrevocable al INE; terceros con su licencia; el INE citado en la pantalla y en los documentos | [`LICENCIA.md`](LICENCIA.md); [`docs/27`](docs/27-componentes-de-terceros.md) |
+| Guía de diseño gráfico del Datatón | Paleta, tipografía Ubuntu Sans y logotipo del INE en el cintillo inferior derecho | [`docs/25`](docs/25-identidad.md) |
+
+**Marco legal de Guatemala** (análisis del equipo; **no es un dictamen jurídico**).
+
+| Norma | Qué cuida FARO |
+|---|---|
+| Ley Orgánica del INE (Decreto Ley 3-85): secreto estadístico | Solo se guardan y publican conteos; los conteos pequeños se ocultan a quien no es analista |
+| Ley de Acceso a la Información Pública (Decreto 57-2008): datos personales y datos sensibles | Nombres, documentos y direcciones se eliminan o se sustituyen por una llave al recibir; no hay datos personales en el repositorio |
+| Ley del RENAP (Decreto 90-2005) | El CUI no se guarda: se sustituye por una llave que no permite volver al número |
+| Delitos informáticos (Código Penal, arts. 274 "A" a "G") | Cuentas con contraseña cifrada, roles, bitácora de quién hizo qué; los precios publicados se leen sin saltar bloqueos, captchas ni inicios de sesión |
+| Derecho de autor (Decreto 33-98) y licencias de los datos | Cada fuente y cada componente con su licencia; lo que no permite redistribución no está en el repositorio |
+| Ley de Idiomas Nacionales (Decreto 19-2003) | La pantalla está preparada para los idiomas nacionales; kaqchikel en borrador, por revisar con hablantes |
+
+Lo que todavía no se cumple del todo y lo que le toca hacer al equipo está escrito sin adornos en
+[`docs/26`](docs/26-conformidad-nota-conceptual.md), secciones 7 y 8.
 
 ## Licencia y propiedad intelectual
 

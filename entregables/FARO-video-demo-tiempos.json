@@ -2,77 +2,77 @@
  {
   "escena": "apertura",
   "inicio": 0,
-  "fin": 14,
+  "fin": 13,
   "palabras": 30,
   "voz": "El INE ya tiene los datos que necesita. Pero cada institución los envía a su manera, y no llegan en una forma que se pueda usar. Para eso construimos FARO."
  },
  {
   "escena": "caso",
-  "inicio": 14,
-  "fin": 40.01,
+  "inicio": 13,
+  "fin": 38.51,
   "palabras": 56,
   "voz": "Este es un archivo real de RENAP: diez mil defunciones, con nombres y documentos de identidad. La institución entra con su cuenta y lo sube tal como sale de su sistema. En segundos, FARO reconoce las columnas, pone el código oficial a cada lugar y deja fuera los datos personales. El archivo original no se guarda."
  },
  {
   "escena": "decision",
-  "inicio": 40.01,
-  "fin": 52.01,
+  "inicio": 38.51,
+  "fin": 50.01,
   "palabras": 23,
   "voz": "Y cuando hay duda, FARO no adivina: propone, una persona decide una sola vez, y esa decisión queda aprendida para todas las instituciones."
  },
  {
   "escena": "territorio",
-  "inicio": 52.01,
-  "fin": 73.95,
+  "inicio": 50.01,
+  "fin": 72.28,
   "palabras": 43,
   "voz": "Lo mismo, en cada frente del INE. Para Censos y Encuestas y las delegaciones: el país hasta el lugar poblado, con población, censo y crecimiento urbano visto desde el satélite. Y la red vial como un grafo: setecientos siete lugares sin conexión mapeada."
  },
  {
   "escena": "campo",
-  "inicio": 73.57,
-  "fin": 90.7,
+  "inicio": 71.9,
+  "fin": 88.75,
   "palabras": 22,
   "voz": "Para el trabajo de campo: cada operador ve su ruta en el teléfono, y cada visita se comprueba con ubicación y foto."
  },
  {
   "escena": "precios",
-  "inicio": 90.33,
-  "fin": 110.52,
+  "inicio": 88.38,
+  "fin": 108.16,
   "palabras": 27,
   "voz": "Para Precios e Índices: más de ochenta y cinco mil precios leídos de dieciocho tiendas, comparados por código de barras, con su informe de precio de referencia."
  },
  {
   "escena": "tableros",
-  "inicio": 110.52,
-  "fin": 125.19,
+  "inicio": 108.16,
+  "fin": 122.56,
   "palabras": 17,
   "voz": "Y para quien necesita comunicar: un tablero se pide con palabras y se publica con un enlace."
  },
  {
   "escena": "convergencia",
-  "inicio": 125.19,
-  "fin": 135.19,
+  "inicio": 122.56,
+  "fin": 131.56,
   "palabras": 20,
   "voz": "No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral."
  },
  {
   "escena": "autonomia",
-  "inicio": 135.19,
-  "fin": 158.2,
+  "inicio": 131.56,
+  "fin": 154.57,
   "palabras": 54,
   "voz": "Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado."
  },
  {
   "escena": "escala",
-  "inicio": 158.2,
-  "fin": 171.2,
+  "inicio": 154.57,
+  "fin": 166.57,
   "palabras": 28,
   "voz": "Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, 96 pruebas automáticas, y se instala con un comando."
  },
  {
   "escena": "cierre",
-  "inicio": 171.2,
-  "fin": 177.7,
+  "inicio": 166.57,
+  "fin": 174.58,
   "palabras": 13,
   "voz": "Y en más de un idioma. FARO: que cada dato llegue a puerto."
  }

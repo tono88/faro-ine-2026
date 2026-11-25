@@ -18,7 +18,8 @@ function aHtml(md) {
     const p = []; while (i < L.length && L[i].trim() && !/^(#|\||```|- |\d+\. )/.test(L[i])) p.push(L[i++].trim()); out.push('<p>' + enlinea(p.join(' ')) + '</p>'); }
   return out.join('\n');
 }
-(async () => {
+module.exports = { aHtml, esc };
+if (require.main === module) (async () => {
   fs.mkdirSync(cap, { recursive: true });
   // Si la sesión sale a internet por un proxy, el navegador lo usa para las fotos satelitales (no para el portal).
   const proxy = process.env.HTTPS_PROXY; const b = await chromium.launch(proxy ? { proxy: { server: proxy, bypass: 'localhost,127.0.0.1' } } : {}); const p = await b.newPage({ viewport: { width: 1360, height: 860 }, deviceScaleFactor: 1 });

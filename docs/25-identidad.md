@@ -72,6 +72,25 @@ Reglas de uso:
   (versiones permitidas, en color y en negativo) están en [`identidad/ine/`](identidad/ine/); son
   del INE y no se modifican.
 
+## El equipo y su carta de presentación
+
+El equipo se llama **La Sociedad de Almas**. Su emblema es un diseño propio hecho para este
+proyecto: un escudo azul oscuro con filete amarillo, tres llamas (una por integrante) y el nombre
+dentro. Usa la misma paleta y la misma tipografía que FARO.
+
+![Carta de presentación del equipo](identidad/equipo/carta-de-presentacion.svg)
+
+| Archivo (`docs/identidad/equipo/`) | Qué es |
+|---|---|
+| `sociedad-de-almas.svg` | El emblema, con el nombre dentro |
+| `qr-estuardo-sandoval.svg`, `qr-ana-echeverria.svg`, `qr-alejandro-sandoval.svg` | Código QR al perfil de LinkedIn de cada integrante (comprobados con un lector) |
+| `carta-de-presentacion.svg` | Emblema, nombres y los tres códigos en una sola pieza |
+
+La carta cierra cada pieza del proyecto: el README y cada documento (la agrega
+`scripts/entregables/pie_equipo.js`, que se puede correr las veces que haga falta), la última
+página del manual, del documento técnico y de las preguntas y respuestas, la diapositiva de cierre
+y la tarjeta final del video. No lleva fotografías de los integrantes.
+
 ## Colores
 
 | Color | Código | Uso |

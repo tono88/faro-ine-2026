@@ -21,6 +21,20 @@ logotipo). Se aplicó al portal y a todos los entregables.
 - **Entregables regenerados** con la identidad nueva: presentación (PDF y PowerPoint, con Ubuntu
   Sans como tipografía del tema), manual, documento técnico y video.
 - `docs/25-identidad.md` actualizado. Sin cambios de función.
+- **Carta de presentación del equipo.** Emblema de La Sociedad de Almas con el nombre dentro
+  (`docs/identidad/equipo/sociedad-de-almas.svg`; diseño propio) y un código QR al perfil de
+  LinkedIn de cada integrante, en una sola pieza (`carta-de-presentacion.svg`). Va al final del
+  README y de cada documento (`scripts/entregables/pie_equipo.js`), en la última página del manual
+  y del documento técnico, en la diapositiva de cierre y en la tarjeta final del video.
+- **Preguntas probables del jurado** (`docs/30-preguntas-del-jurado.md` y
+  `entregables/FARO-preguntas-y-respuestas.pdf`, con `scripts/entregables/generar_preguntas.js`):
+  52 preguntas ordenadas por criterio de evaluación, con respuesta corta; las 18 más difíciles
+  llevan sus preguntas de seguimiento (26 en total).
+- **Conformidad a la vista.** El README tiene una sección «Conformidad con el reglamento del
+  Datatón y con la ley», que resume la matriz de la nota conceptual (`docs/26`, vuelta a comparar
+  con el documento que envió el INE) y el análisis legal (`docs/23`), para aclaraciones.
+- **Cómo generar las claves.** El README y `docs/15` explican cómo generar `POSTGRES_PASSWORD`,
+  `FARO_TOKEN` y `FARO_SAL` en Linux, macOS y Windows, y qué pasa si se cambian después.
 
 ## v0.20.1 · 25-nov-2026 · Kaqchikel ampliado (borrador por revisar)
 

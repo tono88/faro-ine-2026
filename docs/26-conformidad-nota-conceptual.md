@@ -15,6 +15,9 @@ equipo todavía debe hacer. Categoría 2: Tecnológica y ciencias de datos.
 | Tema relevante para el país | El intercambio de datos entre instituciones del Sistema Estadístico Nacional: hoy cada una envía a su manera. Las necesidades las planteó el propio INE en el lanzamiento (`01-necesidades-ine.md`) |
 | Equipo | Tres integrantes (la nota pide de 3 a 4) |
 | Entrega | Jueves 26-nov-2026, 09:00; presentación el 27-nov (7 minutos + 3 de preguntas) |
+| Documento revisado | La «Nota Conceptual Datatón INE 2026» que el INE envió a los equipos, leída completa y comparada punto por punto con esta matriz el 25-nov-2026: objetivos, lineamientos generales, cronograma, y de la categoría 2 el alcance, los diez lineamientos, los entregables, los criterios y los términos y condiciones |
+| Guía de diseño gráfico | La que el INE envió el 25-nov: paleta, tipografía Ubuntu Sans y logotipo del INE en el cintillo inferior derecho (`25-identidad.md`). La nota la exige a la categoría 1; FARO la adopta en la pantalla y en todos los entregables |
+| Resumen para aclaraciones | README, sección «Conformidad con el reglamento del Datatón y con la ley»; diapositiva 15 de la presentación; `30-preguntas-del-jurado.md` |
 
 ## 2. Lineamientos de la categoría 2
 
@@ -135,7 +138,8 @@ hizo.
 - [ ] **Grabar la narración** del video y montarla sobre el clip (`16-guion-video.md`); entregarlo
       por el medio que indique el INE.
 - [ ] **Entregar** el enlace al repositorio y la presentación en PDF antes del jueves 26 a las 09:00.
-- [ ] Ensayar la presentación con reloj (7 minutos) y las preguntas de `17` y `28`.
+- [ ] Ensayar la presentación con reloj (7 minutos) y las preguntas de `30` (52 preguntas y 26 de
+      seguimiento; en PDF: `entregables/FARO-preguntas-y-respuestas.pdf`), `17` y `28`.
 - [ ] Probar `iniciar.bat` en una máquina con Windows, si la demostración se hará ahí.
 - [ ] Decidir la licencia para terceros (salvedad 7).
 - [ ] (Después de la entrega) Pedir a una persona experta que revise y complete el borrador en kaqchikel; la

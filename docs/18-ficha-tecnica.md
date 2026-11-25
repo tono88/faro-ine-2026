@@ -25,8 +25,9 @@
 | **Datos personales** | Ninguno en el repositorio; los archivos reales se procesan en un temporal y no se guardan |
 | **Limitaciones conocidas** | Ver la tabla de estado en `docs/01-necesidades-ine.md` y los avisos de cada sección |
 | **Licencia** | Autoría del equipo; licencia no exclusiva, gratuita, perpetua e irrevocable al INE (`LICENCIA.md`). Componentes de terceros con su licencia: `docs/27-componentes-de-terceros.md` |
-| **Conformidad con la nota conceptual** | Lineamiento por lineamiento y criterio por criterio: `docs/26-conformidad-nota-conceptual.md` |
-| **Entregables** | Repositorio; presentación (`entregables/FARO-presentacion.pdf`); manual de usuario gráfico; documento técnico; video de 2 a 3 minutos (guion en `docs/16-guion-video.md`) |
+| **Conformidad con la nota conceptual** | Cumple cada lineamiento de la categoría 2 (datos del INE como fuente principal, desarrollo durante el evento, repositorio desde el día 1, prototipo funcional, reproducibilidad, README con sus cinco mínimos, secreto estadístico, ninguna credencial en el código, IA declarada, uso correcto de la información) y sus términos y condiciones. Lineamiento por lineamiento y criterio por criterio, con la prueba de cada uno y las salvedades: `docs/26-conformidad-nota-conceptual.md` |
+| **Conformidad legal** | Análisis norma por norma (Ley Orgánica del INE, acceso a la información, RENAP, delitos informáticos, derecho de autor, idiomas nacionales): `docs/23-conformidad-legal.md`. No es un dictamen jurídico |
+| **Entregables** | Repositorio; presentación (`entregables/FARO-presentacion.pdf`); manual de usuario gráfico; documento técnico; video de 2 a 3 minutos (guion en `docs/16-guion-video.md`); preguntas probables del jurado con respuestas (`docs/30-preguntas-del-jurado.md`) |
 | **Repositorio** | <https://github.com/tono88/faro-ine-2026> (historial desde el 23-nov-2026) |
 
 <!-- equipo -->

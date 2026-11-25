@@ -331,6 +331,20 @@ participante del Datatón INE 2026» cerca. Archivos del INE en `docs/identidad/
 incrustar varios SVG en una misma página usar `<img>`, porque comparten nombres de clase). El PowerPoint usa
 Ubuntu Sans como tipografía del tema: quien lo edite debe tenerla instalada.
 
+Agregado después (v0.21.0, segunda parte): carta de presentación del equipo en `docs/identidad/equipo/`
+(`sociedad-de-almas.svg` = emblema ORIGINAL dibujado para el proyecto, NO una copia del emblema de la foto
+que envió el equipo, que es de una obra con derechos; `qr-*.svg` con segno; `carta-de-presentacion.svg`).
+`scripts/entregables/pie_equipo.js` pone la carta al final del README y de cada `docs/NN-*.md` tras la marca
+`<!-- equipo -->` (**volver a correrlo después de regenerar docs 11, 20, 22 y 27**); `_tipografia.js`:
+`carta()`, `sinPie()`. La carta va también en la contraportada del manual, la última página del documento
+técnico, la diapositiva de cierre (HTML y PPTX, `cartaPng`) y la tarjeta `cierre` del video (`CARTA`).
+Sin fotos de los integrantes mientras el equipo no las envíe (no tomarlas de LinkedIn).
+`docs/30-preguntas-del-jurado.md` → `entregables/FARO-preguntas-y-respuestas.pdf` con
+`scripts/entregables/generar_preguntas.js` (no necesita el portal; `### N.N pregunta`, párrafos
+`**Seguimiento: …**`). README: sección «Conformidad con el reglamento del Datatón y con la ley» (resumen de
+`docs/26` y `docs/23`; si cambia una cifra allá, cambiarla aquí) y bloque «Cómo generar las tres claves»
+(también en `docs/15`). `generar_pdf.js` exporta `aHtml` y `esc`.
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)
