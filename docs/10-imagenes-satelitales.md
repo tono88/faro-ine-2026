@@ -12,6 +12,7 @@ Detalle y cifras: [`datos/referencia/LEEME.md`](../datos/referencia/LEEME.md).
 
 ```bash
 faro fuentes url "https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_BUILT_S_GLOBE_R2023A/GHS_BUILT_S_E2020_GLOBE_R2023A_54009_100/V1-0/tiles/GHS_BUILT_S_E2020_GLOBE_R2023A_54009_100_V1_0_R8_C10.zip" --fuente ghsl-built-s --editor "Comisión Europea, JRC" --licencia "CC BY 4.0"
+# (queda anotado en datos/crudo/manifiesto.jsonl: dirección, fecha, tamaño y huella)
 faro construido
 ```
 
@@ -62,8 +63,14 @@ tiene además una capa opcional con el mosaico Sentinel-2 de 2016.
 
 | Foto | Servicio | Detalle | Licencia |
 |---|---|---|---|
-| Landsat, mosaico anual | NASA GIBS, capa `Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual` | 30 m; hasta el nivel 12 de acercamiento | Uso libre; se reconoce a NASA GIBS/ESDIS |
-| Sentinel-2, mosaico 2016 | EOX, capa `s2cloudless_3857` | 10 m; hasta el nivel 13 o 14 | CC BY 4.0 |
+| Landsat, mosaico anual | NASA GIBS, capa `Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual` (reflectancia de superficie WELD v3.1) | 30 m | Uso libre; se reconoce a NASA GIBS/ESDIS |
+| Sentinel-2, mosaico 2016 | EOX, capa `s2cloudless` | 10 m | CC BY 4.0: «Sentinel-2 cloudless de EOX IT Services GmbH (contiene datos Copernicus Sentinel modificados, 2016)» |
+
+Desde la v0.17.1 cada foto se pide **entera**, como una sola imagen del recuadro del municipio
+(servicio WMS de cada proveedor), y no por teselas: son cinco imágenes para toda la animación, se
+traen al abrir y la animación no avanza a un cuadro cuya foto no ha llegado. Si el servicio WMS
+falla, esa foto vuelve a pedirse por teselas (WMTS). Los mosaicos de EOX de 2018 en adelante **no**
+se usan: su licencia es no comercial.
 
 Se descartaron: la imagen de Esri (su licencia exige programas o suscripción de Esri), los
 mosaicos de EOX de 2018 en adelante (licencia no comercial) y los de la USGS (piden iniciar sesión).

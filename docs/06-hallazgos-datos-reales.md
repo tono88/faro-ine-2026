@@ -2,10 +2,17 @@
 
 El 23 de noviembre de 2026 la Coordinación del SEN compartió cinco archivos que ejemplifican cómo
 las instituciones remiten sus registros. Se procesaron con FARO **sin modificar los archivos**.
-Aquí solo hay conteos: ningún dato de personas sale de la máquina donde se procesa ni entra al
-repositorio.
+Aquí solo hay conteos. Los archivos **no están en el repositorio, ni en la imagen del portal, ni en
+ningún documento**: se procesaron en el entorno de trabajo privado del equipo (que incluyó la sesión
+del asistente de IA con el que se desarrolló FARO, declarada en el README) y de ese procesamiento
+solo se conservaron los conteos de esta página.
 
-## Resultado
+## Resultado de la primera pasada (23-nov)
+
+Esta tabla es la primera lectura de los archivos, con las reglas del día 1. Los porcentajes de RENAP
+subieron a 100 % el día 3, al entender que sus códigos de municipio solo valen cuando el país es
+Guatemala (las filas «con código que no existe» eran hechos ocurridos en otro país). El resultado
+vigente está más abajo, en «Archivos vueltos a pasar».
 
 | Institución | Registro | Filas | Columnas que llegan | Columnas pedidas | Lugares con código oficial | Tiempo |
 |---|---|---|---|---|---|---|
@@ -30,7 +37,7 @@ repositorio.
 | Fecha | `DD/MM/AAAA` | `DD/MM/AAAA` | fecha de Excel | fecha y hora |
 | Encabezado | fila 1 | fila 1 | fila 1 (dos columnas llamadas `MUNICIPIO`) | fila 4, bajo totales y títulos |
 
-**Errores que hoy pasan inadvertidos y FARO reporta en vez de corregir en silencio:**
+**Lo que FARO reportó en esa primera pasada, en vez de corregir en silencio** (varias de estas filas resultaron ser hechos ocurridos en el extranjero; ver la nota de arriba):
 
 - Defunciones: 23 filas con un código de departamento que no existe y 37 con municipio inexistente.
 - Nacimientos: 1,197 filas con un código de municipio de residencia de la madre que no existe (en 943 de ellas tampoco existe el departamento).

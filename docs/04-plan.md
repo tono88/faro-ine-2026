@@ -1,5 +1,8 @@
 # Plan hasta la entrega (jueves 26 nov, 09:00)
 
+> **Este es el plan original, escrito el lunes 23.** Se conserva como constancia. Lo que pasó
+> después está al final, en «Cómo terminó».
+
 | Día | Meta | Resultado verificable |
 |---|---|---|
 | Lun 23 | Repositorio, núcleo de homologación, documentación base | `cargo test` pasa; demo por línea de comandos |
@@ -13,6 +16,19 @@
 2. Interfaz de revisión.
 3. Asignación de operadores.
 4. Crecimiento urbano, red vial y precios: quedan como propuesta con datos y método identificados.
+
+## Cómo terminó
+
+| Lo planeado | Lo hecho |
+|---|---|
+| Núcleo con datos reales del INE | Hecho el día 1; probado con los archivos reales de RENAP, PNC y SE-CONRED (`06`) |
+| Interfaz de revisión | Hecha el día 2; hoy son 24 secciones con cuentas, grupos y recorridos guiados |
+| Asignación de operadores | Hecha el día 2 (método húngaro); el día 3 se sumó el trabajo de campo completo |
+| Crecimiento urbano, red vial y precios «como propuesta» | Los tres quedaron **funcionando**: GHSL 1975–2020, grafo vial y precios por rubro, de construcción y de referencia |
+| PDF, video y README | README, documento técnico, manual gráfico y presentación en PDF, hechos; el video es el paso que sigue (`16`) |
+
+Versión por versión: [`08-versiones.md`](08-versiones.md). Conformidad con la nota conceptual:
+[`26-conformidad-nota-conceptual.md`](26-conformidad-nota-conceptual.md).
 
 ## Pendientes del equipo
 

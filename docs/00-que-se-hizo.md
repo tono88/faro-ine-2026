@@ -1,6 +1,6 @@
 # Qué se ha hecho
 
-Descripción breve de lo construido durante el Datatón INE 2026 (23–24 de noviembre), en el orden
+Descripción breve de lo construido durante el Datatón INE 2026 (23–25 de noviembre), en el orden
 en que una persona del INE lo usaría. Cada punto dice dónde verlo.
 
 **FARO · Que cada dato llegue a puerto.** Proyecto del equipo La Sociedad de Almas. Misión, visión,
@@ -17,7 +17,8 @@ objetivos e identidad: [`25-identidad.md`](25-identidad.md).
   persona decide y la decisión queda aprendida para todas las instituciones.
 - **Datos personales.** Solo salen las columnas pedidas; los nombres se eliminan y el documento de
   identidad se sustituye por una llave no reversible.
-- Probado con archivos reales de cuatro instituciones: 51,719 filas en menos de 3 segundos.
+- Probado con cuatro archivos reales de tres instituciones (RENAP, PNC y SE-CONRED): 51,719 filas
+  en menos de 3 segundos, con 99.9 % a 100 % de los lugares resueltos.
 
 Dónde: pantalla "Recibir envío", "Revisar pendientes", "Equivalencias", "Resultados y avance".
 
@@ -99,7 +100,7 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 - Protección estadística: los conteos menores que 3 no se publican a quien no es analista.
 - Análisis de conformidad legal, norma por norma ([`23`](23-conformidad-legal.md)).
-- Comparativo «antes y ahora» de 23 puntos ([`22`](22-antes-y-ahora.md)).
+- Comparativo «antes y ahora» de 27 puntos ([`22`](22-antes-y-ahora.md)).
 
 ## 9. Trazabilidad
 
@@ -111,12 +112,12 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 | | |
 |---|---|
-| Pruebas automáticas | 93 |
+| Pruebas automáticas | 94 |
 | Comandos de `faro` | 29 |
 | Secciones de la pantalla | 24 |
 | Indicadores por municipio | 29 |
 | Tareas de muestreo de precios | 26 |
 | Precios publicados en el levantamiento | 85,907 (18 tiendas, 6 rubros) |
 | Capas publicadas | 21 |
-| Fuentes citadas | 34 |
-| Hallazgos documentados | [33](09-logros.md) |
+| Fuentes citadas | 37 |
+| Hallazgos documentados | [más de 35](09-logros.md) |

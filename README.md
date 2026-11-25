@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.17.1.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.18.0.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -14,7 +14,9 @@ territorio y los precios. Corre completo en una computadora, con software libre.
 [hallazgos con datos reales](docs/09-logros.md) ·
 [manual de usuario gráfico (PDF)](entregables/FARO-manual-de-usuario.pdf) ·
 [manual en texto](docs/14-manual-de-usuario.md) ·
-[conformidad legal](docs/23-conformidad-legal.md)
+[conformidad legal](docs/23-conformidad-legal.md) ·
+[conformidad con la nota conceptual](docs/26-conformidad-nota-conceptual.md) ·
+[presentación (PDF)](entregables/FARO-presentacion.pdf)
 
 ## Misión, visión y objetivos
 
@@ -59,6 +61,17 @@ que se pueda usar**. FARO las atiende una por una.
 Cómo responde FARO a cada uno, con su cifra: [Antes y ahora](#antes-y-ahora). La lista completa de
 necesidades y el estado de cada una, incluido lo que no se hizo: [`docs/01`](docs/01-necesidades-ine.md).
 
+## A quién está dirigido
+
+| Usuario | Qué hace con FARO |
+|---|---|
+| **Analistas del INE** (Coordinación del SEN, Censos y Encuestas, Índices y Estadísticas Continuas, Precios e Índices de Referencia) | Escriben las solicitudes, reciben los envíos, deciden lo que el sistema no pudo resolver, consultan territorio y precios, arman tableros |
+| **Enlaces de las instituciones que envían datos** (RENAP, PNC, SE-CONRED y las demás del Sistema Estadístico Nacional) | Entran con la cuenta de su institución y suben solo sus archivos; ven en el momento qué pasó y qué falló |
+| **Coordinación regional y delegaciones** | Ven el avance de la recepción y los datos del censo por municipio y lugar poblado; coordinan rutas de campo |
+| **Operadores de campo** | Siguen su ruta en el teléfono y registran cada visita |
+| **Personal de consulta y directivos** | Ven lo recibido y los tableros, sin poder cambiar nada |
+| **Cualquier persona** | Sin cuenta: el mapa, los tableros publicados, las cifras agregadas, los precios publicados y las capas para descargar, cada una con su fuente |
+
 ## FARO en cifras
 
 Todas salen de datos reales procesados durante el evento y se pueden comprobar en el portal.
@@ -69,7 +82,7 @@ Todas salen de datos reales procesados durante el evento y se pueden comprobar e
 | **82 → 14** columnas: lo que entra y lo que sale del archivo de defunciones, sin datos personales | **20,036** lugares poblados del Censo 2018, verificados código por código |
 | **93,297 ha** construidas en 2020 (eran 30,722 en 1975), para los 340 municipios | **707** lugares poblados sin conexión vial y **83** enlaces que probablemente faltan |
 | **85,907** precios publicados por 18 tiendas, leídos por el propio portal | **16,291** productos comparables entre supermercados por su código de barras |
-| **29** indicadores por municipio en el mapa y los tableros | **93** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
+| **29** indicadores por municipio en el mapa y los tableros | **94** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
 
 ## Qué hace
 
@@ -175,7 +188,7 @@ Secciones: *Tableros*, *Antes y ahora*, *Proceso*, *Capas publicadas*, *Portal d
   externa; con teclado y en teléfono.
 - **Protección estadística.** Los conteos menores que 3 no se muestran a quien no es analista, con
   supresión complementaria para que no se obtengan por resta.
-- **Bitácora** de quién hizo qué y cuándo.
+- **Bitácora** de quién hizo qué y cuándo; los administradores la consultan en «Usuarios».
 - **Seguridad revisada**: auditoría y correcciones en [`docs/21`](docs/21-seguridad.md).
 - **Conformidad legal**: análisis norma por norma en [`docs/23`](docs/23-conformidad-legal.md)
   (Ley del INE, acceso a la información, RENAP, contrataciones, firma electrónica, derecho de
@@ -184,7 +197,7 @@ Secciones: *Tableros*, *Antes y ahora*, *Proceso*, *Capas publicadas*, *Portal d
 
 ## Antes y ahora
 
-Los diez puntos principales; los 23 están en [`docs/22`](docs/22-antes-y-ahora.md) y en el portal.
+Los diez puntos principales; los 27 están en [`docs/22`](docs/22-antes-y-ahora.md) y en el portal.
 
 | Antes | Con FARO | Cómo escala |
 |---|---|---|
@@ -277,7 +290,12 @@ hasta que la cambie**. Los demás usuarios se crean en «Usuarios», con su rol 
 
 Sin iniciar sesión se ven el mapa, los tableros publicados, las cifras y las fuentes. Las secciones
 que muestran lo recibido de las instituciones («Recibir envío», «Revisar pendientes»,
-«Equivalencias») y los paneles para cargar archivos solo aparecen con sesión y con permiso.
+«Equivalencias», «Operadores de campo») y los paneles para cargar archivos solo aparecen con sesión
+y con permiso.
+
+La contraseña inicial no está escrita en el programa: la pone la instalación (`FARO_CLAVE_INICIAL`,
+que el despliegue con Docker deja en `admin`). Si quiere otra, cámbiela en `.env` **antes** del
+primer arranque. Mientras no se cambie, esa cuenta no puede ver nada interno ni hacer cambios.
 
 Si el puerto está ocupado, cambie `FARO_PUERTO` en `.env` (`iniciar.bat`, en Windows, busca uno libre).
 
@@ -286,6 +304,7 @@ Configuración (archivo `.env`):
 | Variable | Para qué | Valor por omisión |
 |---|---|---|
 | `POSTGRES_PASSWORD`, `FARO_TOKEN`, `FARO_SAL` | Clave de la base, clave de servicio y secreto de las llaves que sustituyen al CUI | Hay que definirlas |
+| `FARO_CLAVE_INICIAL` | Contraseña inicial de `admin`; solo se usa al crear la base | `admin` |
 | `FARO_PUERTO` | Puerto en esta máquina | 8082 |
 | `FARO_ESCUCHA` | Desde dónde se atiende | `127.0.0.1` (solo esta máquina) |
 | `FARO_HTTPS` | `1` si se publica detrás de un proxy con HTTPS | 0 |
@@ -312,20 +331,31 @@ git pull
 docker compose up -d --build
 ```
 
-Para usar la línea de comandos sin instalar nada (por ejemplo, volver a calcular las verificaciones):
+La línea de comandos también va dentro del contenedor; para ver sus 29 subcomandos:
 
 ```bash
 docker compose exec faro faro --help
 ```
 
+Los comandos que regeneran tablas y documentos (`faro verificar`, `faro citas`, `faro mejoras`,
+`faro vial`…) escriben en la carpeta del repositorio: se corren desde un clon con Rust instalado
+(pasos en [`docs/15`](docs/15-instalacion-y-dependencias.md)), no dentro del contenedor.
+
+**Instalación comprobada.** El 25-nov-2026 se siguió exactamente esta sección desde un clon limpio:
+la imagen se construyó en 4 minutos y el portal quedó arriba con sus datos. `iniciar.bat` y los
+guiones `.ps1` de Windows no se han podido probar.
+
 Quien quiera compilarlo sin Docker encuentra los pasos en [`docs/15`](docs/15-instalacion-y-dependencias.md).
 
 ## Cómo se comprueba
 
-- **Pruebas automáticas** (`cargo test`, para quien compile el código): 93 pruebas de las reglas (homologación, recepción, curvas, rutas, cruce de visitas).
+- **Pruebas automáticas** (`cargo test`, para quien compile el código): 94 pruebas de las reglas (homologación, recepción, curvas, rutas, cruce de visitas, protección de celdas).
 - **`faro verificar`** vuelve a calcular las cifras y escribe [`docs/19`](docs/19-verificacion-estadistica.md):
   consistencia de las tablas, prueba hacia atrás de las proyecciones, curvas de población,
   intervalos de confianza, umbrales de precios.
+- **Instalación desde cero**: clon limpio, pasos de este README y un comando (25-nov-2026).
+- **Revisión independiente** de fuentes, documentos, seguridad y secreto estadístico el día 3; lo
+  que encontró y cómo se corrigió está en [`docs/26`](docs/26-conformidad-nota-conceptual.md).
 - **Guiones de navegador** (`.faro/pruebas/`): recorren el portal como lo haría una persona, en
   laptop, tableta y teléfono ([`docs/20`](docs/20-verificacion-interfaz.md)).
 - **Seguridad**: auditoría y correcciones en [`docs/21`](docs/21-seguridad.md).
@@ -346,24 +376,33 @@ Quien quiera compilarlo sin Docker encuentra los pasos en [`docs/15`](docs/15-in
 
 ## Datos
 
+**La fuente principal es el Instituto Nacional de Estadística (INE) de Guatemala.** FARO usa siete
+conjuntos de su portal de datos abiertos ([datos.ine.gob.gt](https://datos.ine.gob.gt), el portal
+de datos de [www.ine.gob.gt](https://www.ine.gob.gt)); las demás fuentes son abiertas y lo
+complementan. Cada fila dice cuándo se descargó. La cita completa de cada una (37 en total) está en
+[`docs/11`](docs/11-fuentes-y-citas.md) y en la sección «Acerca y fuentes» del portal.
+
 | Fuente | Uso | Estado |
 |---|---|---|
-| INE, Censo 2018, "Listado de lugares poblados" ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados), CC BY) | Catálogo oficial de lugares con código y coordenadas: fuente principal | Cargado: 20,036 lugares poblados, 19,723 con coordenadas (`faro catalogo importar`) |
+| **INE**, Censo 2018, "Listado de lugares poblados" ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados), CC BY), descargado el 23-nov-2026 | Catálogo oficial de lugares con código y coordenadas: fuente principal | Cargado: 20,036 lugares poblados, 19,723 con coordenadas (`faro catalogo importar`) |
 | `datos/catalogo/` | 22 departamentos, 340 municipios y 20,036 lugares poblados con código INE y alias | Incluido; verificado código por código contra el listado oficial ([detalle](datos/catalogo/LEEME.md)) |
-| INE, "Estimaciones y proyecciones de la población total por municipio, 2015–2030" ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/proyecciones-de-poblacion-2015-2030), ODC-BY), descargado el 24-nov-2026 | Población por municipio y año: denominador de tasas y crecimiento poblacional | Incluido resumido en `datos/referencia/poblacion_municipio.csv` ([detalle](datos/referencia/LEEME.md)) |
+| **INE**, "Estimaciones y proyecciones de la población total por municipio, 2015–2030" ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/proyecciones-de-poblacion-2015-2030), ODC-BY), descargado el 24-nov-2026 | Población por municipio y año: denominador de tasas y crecimiento poblacional | Incluido resumido en `datos/referencia/poblacion_municipio.csv` ([detalle](datos/referencia/LEEME.md)) |
 | © Colaboradores de OpenStreetMap, exportación de carreteras de HOT en [HDX](https://data.humdata.org/dataset/hotosm_gtm_roads) (ODbL 1.0), corte del 3-nov-2026, descargado el 24-nov-2026 | Red vial como grafo | Resultados derivados en `datos/referencia/red_vial_*` (ODbL); el archivo original no se versiona |
 | CONRED / OCHA, límites administrativos de Guatemala ([HDX: cod-ab-gtm](https://data.humdata.org/dataset/cod-ab-gtm), CC BY-IGO), descargado el 24-nov-2026 | Figuras de los municipios para los mapas y para sumar por municipio | Capa simplificada y verificada en `datos/referencia/municipios.geojson` |
-| Comisión Europea, JRC, GHSL GHS-BUILT-S R2023A (datos abiertos con atribución), descargado el 24-nov-2026 | Superficie construida 1975–2020 para crecimiento urbano | Resumida por municipio en `datos/referencia/superficie_construida_municipio.csv` |
-| INE, Índice de Precios de Materiales de Construcción ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/indice-de-precios-de-materiales-de-construccion-ipmc)), descargado el 24-nov-2026 | Catálogo oficial de 89 artículos, con índice y variación | `datos/catalogo_precios/ipmc_articulos.csv` |
+| Comisión Europea, JRC, GHSL GHS-BUILT-S R2023A (CC BY 4.0; se cita también Pesaresi et al., 2024, como pide la fuente), descargado el 24-nov-2026 | Superficie construida 1975–2020 para crecimiento urbano | Resumida por municipio en `datos/referencia/superficie_construida_municipio.csv` |
+| **INE**, Índice de Precios de Materiales de Construcción ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/indice-de-precios-de-materiales-de-construccion-ipmc), CC BY), descargado el 24-nov-2026 | Catálogo oficial de 89 artículos, con índice y variación | `datos/catalogo_precios/ipmc_articulos.csv` |
 | Páginas públicas de 116 negocios de materiales de construcción, consultadas el 24-nov-2026 | Perfil de proveedores y precios publicados | `datos/referencia/proveedores_construccion.csv` y `precios_construccion.csv`, con la dirección de cada página |
-| INE, Precios de referencia ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/precios-de-referencia)), descargado el 24-nov-2026 | Antecedentes: 4,990 precios emitidos de 2016 a 2023 | `datos/catalogo_precios/precios_referencia_ine.csv` |
+| **INE**, Precios de referencia ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/precios-de-referencia), ODC-BY), descargado el 24-nov-2026 | Antecedentes: 4,990 precios emitidos de 2016 a 2023 | `datos/catalogo_precios/precios_referencia_ine.csv` |
 | SESAN y Grupo Técnico de la CIF Guatemala, análisis de inseguridad alimentaria aguda, octubre 2026 – febrero 2027 ([informe](https://portal.sesan.gob.gt/wp-content/uploads/2026/11/CIF_Guatemala-ct2026-Feb2027.pdf)), descargado el 24-nov-2026 | Personas por fase de la CIF en cada departamento | `datos/referencia/cif_departamentos.csv` |
 | SESAN, SIINSAN, "Retardo en talla, Censo 2024" ([libro](https://portal.siinsan.gob.gt/wp-content/uploads/VULNERABILIDAD_DC_MUNICIPAL_QUINTO_CENSO_2024_2.xlsx)), descargado el 24-nov-2026 | Desnutrición crónica en escolares por municipio | `datos/referencia/censo_talla_municipio.csv` |
-| INE, Censo 2018, cuadros por municipio y lugar poblado (mismo conjunto del listado de lugares; CC BY), descargados el 24-nov-2026 | Población, hogares y viviendas por lugar poblado; quince indicadores de condiciones de vida por municipio; material del techo por lugar poblado | `datos/referencia/censo2018_lugar_poblado.csv`, `censo2018_indicadores_municipio.csv` y `censo2018_techos_lugar_poblado.csv` |
+| **INE**, Censo 2018, cuadros por municipio y lugar poblado (mismo conjunto del listado de lugares; CC BY), descargados el 24-nov-2026 | Población, hogares y viviendas por lugar poblado; quince indicadores de condiciones de vida por municipio; material del techo por lugar poblado | `datos/referencia/censo2018_lugar_poblado.csv`, `censo2018_indicadores_municipio.csv` y `censo2018_techos_lugar_poblado.csv` |
 | Comisión Europea, JRC, GHSL GHS-BUILT-S R2023A, componente no residencial (CC BY 4.0), descargado el 24-nov-2026 | Superficie residencial y no residencial | `datos/referencia/uso_construido_municipio.csv` y `uso_construido_bloques.csv` |
 | NASA GIBS (mosaicos anuales Landsat) y EOX (mosaico Sentinel-2 sin nubes de 2016, CC BY 4.0) | Foto de fondo de la animación del crecimiento urbano y capa satelital del mapa | No se descargan: las pide el navegador de quien mira. Son referencia visual; no se mide sobre ellas |
-| MIT CSAIL, modelo Places365-ResNet18 (pesos CC BY; código MIT) | Decir si la foto de una visita de campo parece una vivienda o un comercio | `datos/modelos/` ([procedencia](datos/modelos/PROCEDENCIA.md)) |
-| FAO, factores técnicos de conversión, sección Guatemala; INE, Hoja de Balance de Alimentos 2024 | Calculadora de derivados | `datos/estandar/tasas_extraccion_fao_guatemala.csv` y `datos/referencia/hba_2024_cuentas.csv` |
+| MIT CSAIL, modelo Places365-ResNet18 (pesos CC BY; código MIT), descargado el 24-nov-2026 | Decir si la foto de una visita de campo parece una vivienda o un comercio | `datos/modelos/` ([procedencia](datos/modelos/PROCEDENCIA.md)) |
+| **INE**, Precios promedio de la canasta básica alimentaria ([datos.ine.gob.gt](https://datos.ine.gob.gt/es/dataset/precios-promedio-canasta-basica-alimentaria); el conjunto no declara licencia), descargado el 24-nov-2026 | Precio oficial de 34 productos para compararlo con el publicado | `datos/catalogo_precios/cba_precios.csv` |
+| **INE**, Hoja de Balance de Alimentos, actualización 2024 (datos.ine.gob.gt; no declara licencia), descargada el 24-nov-2026 | Cuentas de utilización y suministro para contrastar las tasas | `datos/referencia/hba_2024_cuentas.csv` |
+| **INE**, diccionario de variables de estadísticas vitales y catálogo del portal (105 conjuntos), 23 y 24-nov-2026 | Códigos «Extranjero» e «Ignorado»; conjuntos vigilados | `datos/crudo/inventario_ine.csv` |
+| FAO, factores técnicos de conversión, sección Guatemala (términos de uso de la FAO: no comercial, citando la fuente), descargado el 24-nov-2026 | Calculadora de derivados | `datos/estandar/tasas_extraccion_fao_guatemala.csv` (transcripción traducida) |
 | Páginas públicas de 18 tiendas en línea, consultadas el 24-nov-2026 | Precios publicados por rubro | `datos/referencia/precios_publicados.csv` (85,907 precios, cada uno con su dirección) |
 | `datos/solicitudes/` | Solicitudes de datos para RENAP (defunciones, nacimientos), PNC (detenidos) y SE-CONRED (emergencias) | Incluido |
 | Archivos de ejemplo de instituciones compartidos por el INE (23-nov-2026) | Diseño y prueba de las solicitudes | **No están en el repositorio** (contienen datos personales) |
@@ -371,8 +410,36 @@ Quien quiera compilarlo sin Docker encuentra los pasos en [`docs/15`](docs/15-in
 | `datos/estandar/` | Núcleo común de variables y mapa de registros e instituciones (borrador del equipo) | Incluido |
 | `datos/ejemplos/` | Envío, solicitud, serie de edificaciones, operadores y puestos **ficticios** para demostración ([detalle](datos/ejemplos/LEEME.md)) | Incluido |
 
-El repositorio no contiene datos de personas. Los ejemplos son inventados. Cada descarga queda en
-`datos/crudo/manifiesto.jsonl` con URL, fecha, licencia y huella SHA-256 (`faro fuentes citar`).
+El repositorio no contiene datos de personas. Los ejemplos son inventados. Cada descarga quedó
+anotada en [`datos/crudo/manifiesto.jsonl`](datos/crudo/manifiesto.jsonl) (88 descargas) con su
+dirección exacta, fecha y hora, licencia y huella SHA-256; `faro fuentes citar` las lista.
+
+## Arquitectura y tecnologías
+
+```
+ navegador (laptop, tableta, teléfono)      una sola página, sin marcos, con Leaflet para los mapas
+        │  HTTP: JSON, CSV, GeoJSON
+        ▼
+ faro-servidor (Rust, axum)                 sesión y permisos · recepción · territorio · precios ·
+        │                                   tableros · trabajo de campo · capas · bitácora
+        ├── faro-homologa                   leer, validar, homologar, memoria, quitar datos personales
+        ├── faro-territorio                 población, crecimiento, red vial, asignación, precios, balance
+        ├── faro-fuentes                    descargas con constancia, muestreos, fotos, clasificador local
+        └── PostgreSQL 16                   solo conteos, equivalencias, cuentas, tableros, rutas, bitácora
+ faro (línea de comandos)                   los mismos módulos: regenera cada tabla y cada informe
+```
+
+| Capa | Tecnología |
+|---|---|
+| Núcleo, servidor y línea de comandos | **Rust** (edición 2021): `axum` y `tokio` para el servidor, `tokio-postgres`, `clap`, `calamine` (Excel), `tract-onnx` (modelo local) |
+| Base de datos | **PostgreSQL 16** |
+| Pantalla | HTML, CSS y JavaScript sin marcos; **Leaflet 1.9.4** |
+| Despliegue | **Docker Compose** (dos contenedores) |
+| Pruebas y entregables | `cargo test`; Playwright con Chromium |
+
+Todo es de código abierto y sin costo de licencias. Detalle, base de datos y razones de cada
+elección: [`docs/03`](docs/03-arquitectura.md). Bibliotecas y licencias:
+[`docs/27`](docs/27-componentes-de-terceros.md).
 
 ## Estructura
 
@@ -389,9 +456,10 @@ datos/referencia/       tablas derivadas de fuentes oficiales y abiertas
 datos/solicitudes/      qué pide el INE a cada institución
 datos/modelos/          modelo del clasificador de fotos y su procedencia
 datos/ejemplos/         archivos ficticios de muestra, rotulados
-scripts/                guiones para repetir cada etapa, exportar el modelo y generar el PDF
-docs/                   documentación
-entregables/            manual de usuario gráfico y documento técnico, en PDF, y capturas
+scripts/                guiones para repetir cada etapa, exportar el modelo, preparar la demostración y generar los PDF
+docs/                   documentación (00 a 28)
+entregables/            presentación, manual de usuario gráfico y documento técnico, en PDF, y capturas
+LICENCIA.md             autoría del equipo y licencia al INE
 ```
 
 ## Documentación
@@ -411,9 +479,23 @@ entregables/            manual de usuario gráfico y documento técnico, en PDF,
 | [10 Imágenes satelitales y uso del suelo](docs/10-imagenes-satelitales.md) | [23 Conformidad legal y protección estadística](docs/23-conformidad-legal.md) |
 | [11 Fuentes y citas](docs/11-fuentes-y-citas.md) | [24 Clasificador de fotos](docs/24-clasificador-de-fotos.md) |
 | [12 Flujo de proceso](docs/12-proceso.md) | [25 Identidad: logotipo, lema, misión y visión](docs/25-identidad.md) |
+| [26 Conformidad con la nota conceptual](docs/26-conformidad-nota-conceptual.md) | [27 Componentes de terceros y licencias](docs/27-componentes-de-terceros.md) |
+| [28 Guía para explicar y defender el código](docs/28-defensa-del-codigo.md) | [Autoría y licencia](LICENCIA.md) |
 | [Documento técnico (PDF)](entregables/FARO-documento-tecnico.pdf) | [Manual de usuario gráfico (PDF)](entregables/FARO-manual-de-usuario.pdf) |
+| [Presentación para el jurado (PDF)](entregables/FARO-presentacion.pdf) | |
 
-## Limitaciones
+## Entregables
+
+| Lo que pide la nota conceptual | Dónde está |
+|---|---|
+| Repositorio con el código y la documentación | <https://github.com/tono88/faro-ine-2026> (historial desde el 23-nov-2026) |
+| Presentación en PDF para la exposición | [`entregables/FARO-presentacion.pdf`](entregables/FARO-presentacion.pdf); guion hablado en [`docs/17`](docs/17-presentacion-7-minutos.md) |
+| Video demostrativo de 2 a 3 minutos | Guion y plan de grabación en [`docs/16`](docs/16-guion-video.md); el video se entrega por el medio que indique el INE |
+| Además | [Manual de usuario gráfico](entregables/FARO-manual-de-usuario.pdf) · [documento técnico](entregables/FARO-documento-tecnico.pdf) · [matriz de conformidad](docs/26-conformidad-nota-conceptual.md) |
+
+## Limitaciones y posibles mejoras
+
+### Limitaciones
 
 - **Los umbrales son parámetros, no normas del INE**: cuándo un nombre es «muy parecido», cuándo un
   precio es «extremo», qué conteo se protege, a qué distancia una visita está «lejos». Deben
@@ -437,15 +519,45 @@ entregables/            manual de usuario gráfico y documento técnico, en PDF,
 - **Intercambio entre sistemas**: hoy se suben archivos; el diseño prevé recibir lo mismo por
   X-Road ([arquitectura](docs/03-arquitectura.md)).
 - **No probado en Windows**: `iniciar.bat` y los guiones `.ps1`.
+- **Los muestreos no leen `robots.txt`** ni se revisaron los términos de uso de cada tienda; vienen
+  apagados y se detienen si una tienda los rechaza.
+- **«Registros por 100 mil habitantes» no es una tasa anual**: suma todos los periodos recibidos.
+- **La salida fila por fila de cada envío** (sin nombres ni documentos, con una llave en lugar del
+  CUI) queda en un volumen privado del servidor hasta que el envío se elimina: es microdato sin
+  identificadores directos, no anónimo, y el INE debe decidir cuánto se conserva.
+
+### Posibles mejoras
+
+1. **Recibir por X-Road** los mismos envíos, sin archivos, con el mismo contrato de contenido.
+2. **Publicar con HTTPS** y firmar electrónicamente las constancias de recepción.
+3. **Medir el clasificador de fotos** con fotos de campo del INE y, si hace falta, ajustarlo.
+4. **Más registros administrativos** ya verificados y con código de municipio: MINEDUC, MSPAS, SAT,
+   INAB, SEGEPLAN, incidentes de CONRED y afectaciones de MAGA.
+5. **Históricos de Guatecompras** (OCDS) para precios de referencia, desde una red que el sitio admita.
+6. **Completar las reglas del IPMC** (hoy 42 de 89 artículos) y sumar cotizaciones directas.
+7. **Control de divulgación entre tablas** y codificación del texto libre (causa de muerte, delito).
+8. **Tiempos de viaje** en lugar de distancias en línea recta para rutas y asignación.
+9. **Respaldo y restauración** de la base con un comando, y recuperación de contraseña.
+10. **Seguridad**: bloqueo por origen, HMAC en la llave de pareo, envío en una sola transacción.
 
 ## Componentes de terceros
 
-- **Bibliotecas de Rust** de código abierto (MIT o Apache-2.0): `serde`, `toml`, `csv`, `strsim`,
-  `unicode-normalization`, `chrono`, `clap`, `ureq`, `sha2`, `calamine`, `zip`, `regex`, `weezl`,
-  `argon2`, `axum`, `tokio`, `tokio-postgres`, `image` y `tract-onnx`. Versiones exactas en `Cargo.lock`.
-- **Mapas**: Leaflet 1.9.4 (BSD de 2 cláusulas), incluido en `crates/faro-servidor/web/vendor/`.
-  La tipografía Noto Sans se carga de Google Fonts si hay internet.
-- **Base de datos**: PostgreSQL 16. Imágenes de Docker oficiales `rust`, `debian` y `postgres`.
+La lista completa, con versión y licencia de cada componente, está en
+[`docs/27-componentes-de-terceros.md`](docs/27-componentes-de-terceros.md) (se genera de `Cargo.lock`).
+Cada uno conserva su licencia original.
+
+- **Bibliotecas de Rust** de código abierto (MIT o Apache-2.0), 21 usadas directamente: `serde`,
+  `serde_json`, `toml`, `csv`, `strsim`, `unicode-normalization`, `chrono`, `clap`, `ureq`, `sha2`,
+  `calamine`, `zip`, `regex`, `weezl`, `argon2`, `rand_core`, `axum`, `tokio`, `tokio-postgres`,
+  `image` y `tract-onnx`. Versiones exactas en `Cargo.lock`.
+- **Mapas**: Leaflet 1.9.4 (BSD de 2 cláusulas), incluido en `crates/faro-servidor/web/vendor/` con
+  su licencia. Mapa base opcional: teselas de OpenStreetMap (© colaboradores, ODbL).
+- **Tipografía**: Noto Sans (SIL Open Font License 1.1), que el navegador pide a Google Fonts si
+  hay internet.
+- **Base de datos**: PostgreSQL 16 (licencia PostgreSQL). Imágenes de Docker oficiales `rust`,
+  `debian` y `postgres`.
+- **Solo para pruebas y para generar los PDF** (no forman parte del portal): Playwright y Chromium;
+  `pdftotext` para leer un informe de SESAN; PyTorch para exportar el modelo una vez.
 - **Modelo de fotos**: Places365-ResNet18, de MIT CSAIL, usado sin cambios (pesos CC BY; código MIT).
   Cita: Zhou, Lapedriza, Khosla, Oliva y Torralba (2017), *Places: A 10 million Image Database for
   Scene Recognition*, IEEE TPAMI.
@@ -460,22 +572,41 @@ FARO no depende de ningún servicio de pago: corre completo en una computadora c
 internet solo para:
 
 - descargar fuentes abiertas (portal del INE, HDX, Comisión Europea) y leer páginas públicas de tiendas;
-- mostrar, en el navegador de quien mira, el mapa base de OpenStreetMap y las fotos satelitales de
-  NASA y EOX (opcionales);
+- mostrar, en el navegador de quien mira, el mapa base de OpenStreetMap, las fotos satelitales de
+  NASA y EOX y la tipografía de Google Fonts (todos opcionales);
+- bajar la foto de un producto para comparar empaques en el informe de precio (se guarda una huella,
+  no la foto);
 - abrir la encuesta de Microsoft Forms del INE desde el teléfono del operador (opcional; las
   respuestas no pasan por FARO).
 
-El desarrollo usó GitHub y un asistente de IA en la nube (ver abajo).
+El desarrollo usó GitHub y un asistente de IA en la nube (ver abajo). El guion opcional
+`scripts/open_buildings_por_municipio.js` es para Google Earth Engine, un servicio externo que FARO
+no usa: la serie de crecimiento urbano que se muestra es la de GHSL.
 
 ## Uso de inteligencia artificial
 
-- **En el desarrollo.** El código y la documentación se escribieron con ayuda de un asistente de
-  IA (Claude, de Anthropic), bajo dirección y revisión del equipo. Los commits hechos con el
-  asistente lo indican en su mensaje.
+- **En el desarrollo.** El código y la documentación se escribieron con un asistente de IA (Claude,
+  de Anthropic), en una sesión en la nube, bajo la dirección y la revisión del equipo: el equipo
+  definió qué construir, revisó cada resultado, corrigió el rumbo y probó el portal. **Los cambios
+  del repositorio los registró el asistente desde esa sesión; por eso figuran con su firma.** Las
+  reglas y las decisiones que el equipo debe poder defender están en
+  [`docs/28`](docs/28-defensa-del-codigo.md).
+- **Con los archivos de ejemplo de las instituciones.** Los archivos que compartió el INE se
+  procesaron con FARO en ese mismo entorno de trabajo privado para diseñar y probar las solicitudes.
+  No están en el repositorio ni en ningún documento: solo se conservaron conteos
+  ([`docs/06`](docs/06-hallazgos-datos-reales.md)).
 - **En el portal.** Una sola pieza usa un modelo entrenado: el clasificador de fotos del trabajo de
   campo (Places365), que corre dentro del servidor, sin nube, y cuyo resultado solo marca una
   visita para revisión. Todo lo demás son reglas fijas y a la vista: el mismo dato de entrada da
   siempre el mismo resultado.
+
+## Licencia y propiedad intelectual
+
+Los integrantes conservan el reconocimiento de la autoría y otorgan al INE una licencia no
+exclusiva, gratuita, perpetua e irrevocable para usar, reproducir, modificar, adaptar y distribuir
+la herramienta y su documentación para fines institucionales, como fijan los términos del Datatón.
+El texto está en [`LICENCIA.md`](LICENCIA.md). Los componentes y los datos de terceros conservan sus
+licencias ([`docs/27`](docs/27-componentes-de-terceros.md), [`docs/11`](docs/11-fuentes-y-citas.md)).
 
 ## Versiones
 

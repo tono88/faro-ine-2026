@@ -10,9 +10,9 @@
    "editor": "Portal de datos abiertos del INE",
    "url": "https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados",
    "licencia": "CC BY",
-   "consultado": "23 de noviembre de 2026",
+   "consultado": "23 de noviembre de 2026 (listado de lugares) y 24 de noviembre de 2026 (cuadros)",
    "uso": "Catálogo oficial de departamentos, municipios y 20,036 lugares poblados con coordenadas; población, hogares y viviendas por lugar poblado (cuadros A1, B8 y C1); quince indicadores de condiciones de vida por municipio (cuadros A5, A9, A11, A12, A13, B1, B2, B3, B4, B6, C2 y C3) y material del techo por lugar poblado (cuadro C2).",
-   "cita": "Instituto Nacional de Estadística (INE). (2025). XII Censo Nacional de Población y VII de Vivienda 2018: Listado de lugares poblados [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados Consultado el 23 de noviembre de 2026."
+   "cita": "Instituto Nacional de Estadística (INE). (2025). XII Censo Nacional de Población y VII de Vivienda 2018: Listado de lugares poblados [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/censo-2018-lugares-poblados Consultado el 23 de noviembre de 2026 (listado de lugares) y 24 de noviembre de 2026 (cuadros)."
   },
   {
    "id": "proyecciones",
@@ -48,7 +48,7 @@
    "tipo": "conjunto de datos",
    "editor": "Portal de datos abiertos del INE",
    "url": "https://datos.ine.gob.gt/es/dataset/precios-de-referencia",
-   "licencia": "CC BY",
+   "licencia": "ODC-BY",
    "consultado": "24 de noviembre de 2026",
    "uso": "4,990 precios de referencia emitidos por el INE, consultables desde la pantalla.",
    "cita": "Instituto Nacional de Estadística (INE). (2023). Precios de referencia (al 2 de octubre de 2023) [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/precios-de-referencia Consultado el 24 de noviembre de 2026."
@@ -56,15 +56,15 @@
   {
    "id": "cba",
    "autor": "Instituto Nacional de Estadística (INE)",
-   "anio": "2023",
+   "anio": "2024",
    "titulo": "Precios promedio de la canasta básica alimentaria, diciembre 2020 a octubre 2023",
    "tipo": "conjunto de datos",
    "editor": "Portal de datos abiertos del INE",
    "url": "https://datos.ine.gob.gt/es/dataset/precios-promedio-canasta-basica-alimentaria",
-   "licencia": "CC BY",
+   "licencia": "el conjunto no declara licencia",
    "consultado": "24 de noviembre de 2026",
    "uso": "Precio promedio mensual de 34 productos de la canasta básica.",
-   "cita": "Instituto Nacional de Estadística (INE). (2023). Precios promedio de la canasta básica alimentaria, diciembre 2020 a octubre 2023 [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/precios-promedio-canasta-basica-alimentaria Consultado el 24 de noviembre de 2026."
+   "cita": "Instituto Nacional de Estadística (INE). (2024). Precios promedio de la canasta básica alimentaria, diciembre 2020 a octubre 2023 [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/es/dataset/precios-promedio-canasta-basica-alimentaria Consultado el 24 de noviembre de 2026."
   },
   {
    "id": "talla",
@@ -113,7 +113,7 @@
    "tipo": "conjunto de datos",
    "editor": "páginas públicas de cada tienda",
    "url": "",
-   "licencia": "información comercial pública; cada precio guarda la dirección de su página",
+   "licencia": "sin licencia expresa: son precios que cada tienda publica en su página. FARO guarda el hecho (producto, precio, código de barras, dirección y fecha) y la dirección de la foto, no la foto ni el catálogo",
    "consultado": "24 de noviembre de 2026 (levantamiento inicial) y la fecha de cada muestreo posterior",
    "uso": "Precios por rubro (supermercado, ferretería, tecnología, hogar, farmacia, vehículos), construcción y alimentos; levantamiento inicial en datos/referencia/precios_publicados.csv.",
    "cita": "FARO (muestreo automático). (2026). Precios publicados en tiendas en línea de Guatemala (catálogos, mapas del sitio y listados públicos): Walmart Guatemala, Paiz, Maxi Despensa, La Torre, Cemaco, Construfácil, EPA, Ferco, Elektra, Siman, Intelaf, Click, iShop, Macrosistemas, Kalea, Farmacias Cruz Verde, Farmacias Meykos y Farmacias Batres [conjunto de datos]. páginas públicas de cada tienda. Consultado el 24 de noviembre de 2026 (levantamiento inicial) y la fecha de cada muestreo posterior."
@@ -121,7 +121,7 @@
   {
    "id": "diccionario-vitales",
    "autor": "Instituto Nacional de Estadística (INE)",
-   "anio": "2023",
+   "anio": "2026",
    "titulo": "Diccionario de variables de estadísticas vitales: nacimientos 2018–2022",
    "tipo": "conjunto de datos",
    "editor": "Portal de datos abiertos del INE",
@@ -129,7 +129,7 @@
    "licencia": "el conjunto no declara licencia",
    "consultado": "24 de noviembre de 2026",
    "uso": "Códigos «Extranjero» (23, 2300) e «Ignorado» (99, 9999) que el INE define para departamento y municipio, mostrados como aclaración en los pendientes.",
-   "cita": "Instituto Nacional de Estadística (INE). (2023). Diccionario de variables de estadísticas vitales: nacimientos 2018–2022 [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/dataset/96888fc0-5ced-4a58-bfd0-2a6a292e3208 Consultado el 24 de noviembre de 2026."
+   "cita": "Instituto Nacional de Estadística (INE). (2026). Diccionario de variables de estadísticas vitales: nacimientos 2018–2022 [conjunto de datos]. Portal de datos abiertos del INE. https://datos.ine.gob.gt/dataset/96888fc0-5ced-4a58-bfd0-2a6a292e3208 Consultado el 24 de noviembre de 2026."
   },
   {
    "id": "portal-ine",
@@ -171,6 +171,19 @@
    "cita": "Colaboradores de OpenStreetMap; Humanitarian OpenStreetMap Team. (2026). Guatemala Roads (OpenStreetMap Export), corte del 3 de noviembre de 2026 [conjunto de datos]. Humanitarian Data Exchange (HDX). https://data.humdata.org/dataset/hotosm_gtm_roads Consultado el 24 de noviembre de 2026."
   },
   {
+   "id": "osm-teselas",
+   "autor": "Colaboradores de OpenStreetMap",
+   "anio": "2026",
+   "titulo": "Mapa base de OpenStreetMap (teselas estándar)",
+   "tipo": "sitio web",
+   "editor": "OpenStreetMap Foundation",
+   "url": "https://www.openstreetmap.org/copyright",
+   "licencia": "ODbL 1.0 (datos); política de uso de teselas de la OSMF",
+   "consultado": "25 de noviembre de 2026",
+   "uso": "Mapa de fondo opcional del mapa principal y del mapa de la ruta de campo. Lo pide el navegador de quien mira, solo si enciende esa capa; FARO no lo descarga ni lo guarda.",
+   "cita": "Colaboradores de OpenStreetMap. (2026). Mapa base de OpenStreetMap (teselas estándar) [sitio web]. OpenStreetMap Foundation. https://www.openstreetmap.org/copyright Consultado el 25 de noviembre de 2026."
+  },
+  {
    "id": "limites",
    "autor": "Coordinadora Nacional para la Reducción de Desastres (CONRED); Oficina de las Naciones Unidas para la Coordinación de Asuntos Humanitarios (OCHA)",
    "anio": "2019",
@@ -180,7 +193,7 @@
    "url": "https://data.humdata.org/dataset/cod-ab-gtm",
    "licencia": "CC BY-IGO",
    "consultado": "24 de noviembre de 2026",
-   "uso": "Figuras de los 340 municipios para mapas y para sumar por municipio.",
+   "uso": "Figuras de los 340 municipios y los 22 departamentos para mapas y para sumar por municipio. FARO las modificó: simplificó los contornos, intercambió los códigos de Sanarate y Sansare (venían cruzados) y quitó dos lagos que figuraban como municipios; el detalle está en datos/referencia/LEEME.md.",
    "cita": "Coordinadora Nacional para la Reducción de Desastres (CONRED); Oficina de las Naciones Unidas para la Coordinación de Asuntos Humanitarios (OCHA). (2019). Guatemala: límites administrativos subnacionales (COD-AB) [conjunto de datos]. Humanitarian Data Exchange (HDX). https://data.humdata.org/dataset/cod-ab-gtm Consultado el 24 de noviembre de 2026."
   },
   {
@@ -193,8 +206,21 @@
    "url": "https://doi.org/10.2905/9F06F36F-4B11-47EC-ABB0-4F8B7B1D72EA",
    "licencia": "CC BY 4.0",
    "consultado": "24 de noviembre de 2026",
-   "uso": "Superficie construida por municipio y por bloque de 1 km, 1975–2020 (capa total), y su parte no residencial en 2000 y 2020 (componente NRES). FARO suma las celdas dentro de cada municipio; no modifica los valores.",
+   "uso": "Superficie construida por municipio y por bloque de 1 km, 1975–2020 (capa total), y su parte no residencial en 2000 y 2020 (componente NRES). FARO suma las celdas dentro de cada municipio; no modifica los valores. Como pide la fuente, se cita también la publicación de referencia (Pesaresi et al., 2024).",
    "cita": "Pesaresi, M. y Politis, P.. (2023). GHS-BUILT-S R2023A: GHS built-up surface grid, derived from Sentinel-2 composite and Landsat, multitemporal (1975–2030) [conjunto de datos]. Comisión Europea, Centro Común de Investigación (JRC). https://doi.org/10.2905/9F06F36F-4B11-47EC-ABB0-4F8B7B1D72EA Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "ghsl-articulo",
+   "autor": "Pesaresi, M., Schiavina, M., Politis, P., Freire, S., Krasnodębska, K., Uhl, J. H., … Kemper, T.",
+   "anio": "2024",
+   "titulo": "Advances on the Global Human Settlement Layer by joint assessment of Earth Observation and population survey data. International Journal of Digital Earth, 17(1)",
+   "tipo": "artículo",
+   "editor": "Taylor & Francis",
+   "url": "https://human-settlement.emergency.copernicus.eu/GHSLhowToCite.php",
+   "licencia": "",
+   "consultado": "25 de noviembre de 2026",
+   "uso": "Publicación de referencia que el GHSL pide citar junto con sus datos (superficie construida).",
+   "cita": "Pesaresi, M., Schiavina, M., Politis, P., Freire, S., Krasnodębska, K., Uhl, J. H., … Kemper, T.. (2024). Advances on the Global Human Settlement Layer by joint assessment of Earth Observation and population survey data. International Journal of Digital Earth, 17(1) [artículo]. Taylor & Francis. https://human-settlement.emergency.copernicus.eu/GHSLhowToCite.php Consultado el 25 de noviembre de 2026."
   },
   {
    "id": "cif",
@@ -217,7 +243,7 @@
    "tipo": "conjunto de datos",
    "editor": "páginas públicas de cada negocio y directorio Páginas Amarillas",
    "url": "",
-   "licencia": "información comercial pública; se cita la página de cada precio",
+   "licencia": "sin licencia expresa: información que cada negocio publica en su página o en el directorio; se cita la página de cada precio",
    "consultado": "24 de noviembre de 2026",
    "uso": "Comparación de precios publicados contra el IPMC. Cada precio lleva la dirección de su página en `datos/referencia/precios_construccion.csv`.",
    "cita": "FARO (levantamiento propio). (2026). Perfiles y precios publicados por 116 negocios de materiales de construcción de Guatemala [conjunto de datos]. páginas públicas de cada negocio y directorio Páginas Amarillas. Consultado el 24 de noviembre de 2026."
@@ -226,14 +252,14 @@
    "id": "nasa-gibs",
    "autor": "NASA, Earth Science Data and Information System (ESDIS), Global Imagery Browse Services (GIBS)",
    "anio": "2026",
-   "titulo": "Landsat WELD Corrected Reflectance (True Color), Global Annual: mosaicos de 1985, 1990, 1998 y 2000",
+   "titulo": "Landsat WELD, reflectancia de superficie en color verdadero, mosaico global anual v3.1 (capa «Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual»): fechas de 1985, 1990, 1998 y 2000",
    "tipo": "conjunto de datos",
    "editor": "NASA GIBS",
    "url": "https://nasa-gibs.github.io/gibs-api-docs/",
    "licencia": "uso libre; se pide reconocer a NASA GIBS/ESDIS",
    "consultado": "24 de noviembre de 2026",
    "uso": "Foto de fondo de la animación del crecimiento urbano en las épocas de 1975 a 2005. Es una referencia visual: FARO no mide sobre ella. La carga el navegador de quien mira, no el servidor.",
-   "cita": "NASA, Earth Science Data and Information System (ESDIS), Global Imagery Browse Services (GIBS). (2026). Landsat WELD Corrected Reflectance (True Color), Global Annual: mosaicos de 1985, 1990, 1998 y 2000 [conjunto de datos]. NASA GIBS. https://nasa-gibs.github.io/gibs-api-docs/ Consultado el 24 de noviembre de 2026."
+   "cita": "NASA, Earth Science Data and Information System (ESDIS), Global Imagery Browse Services (GIBS). (2026). Landsat WELD, reflectancia de superficie en color verdadero, mosaico global anual v3.1 (capa «Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual»): fechas de 1985, 1990, 1998 y 2000 [conjunto de datos]. NASA GIBS. https://nasa-gibs.github.io/gibs-api-docs/ Consultado el 24 de noviembre de 2026."
   },
   {
    "id": "eox-s2",
@@ -403,6 +429,19 @@
    "consultado": "24 de noviembre de 2026",
    "uso": "Modelo que dice si la foto de una visita de campo parece una vivienda o un comercio. Corre dentro del servidor; FARO no lo entrenó. Procedencia en datos/modelos/PROCEDENCIA.md.",
    "cita": "Zhou, B., Lapedriza, A., Khosla, A., Oliva, A. y Torralba, A.. (2017). Places: A 10 million Image Database for Scene Recognition (modelo Places365-ResNet18) [artículo]. IEEE Transactions on Pattern Analysis and Machine Intelligence. http://places2.csail.mit.edu Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "commons-fachadas",
+   "autor": "Autores varios en Wikimedia Commons",
+   "anio": "2026",
+   "titulo": "Dieciséis fotografías de fachadas de viviendas y comercios de Centroamérica, usadas como prueba del clasificador de fotos",
+   "tipo": "conjunto de datos",
+   "editor": "Wikimedia Commons",
+   "url": "https://commons.wikimedia.org",
+   "licencia": "CC BY o CC BY-SA, según cada foto (página, autor y licencia de cada una en datos/referencia/fachadas_prueba.csv)",
+   "consultado": "24 de noviembre de 2026",
+   "uso": "Prueba de humo del clasificador de fachadas (docs/24). Las fotos no se redistribuyen en el repositorio: solo su página, su autor, su licencia y el resultado.",
+   "cita": "Autores varios en Wikimedia Commons. (2026). Dieciséis fotografías de fachadas de viviendas y comercios de Centroamérica, usadas como prueba del clasificador de fotos [conjunto de datos]. Wikimedia Commons. https://commons.wikimedia.org Consultado el 24 de noviembre de 2026."
   },
   {
    "id": "verhulst",

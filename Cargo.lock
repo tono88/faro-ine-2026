@@ -705,7 +705,7 @@ checksum = "4443176a9f2c162692bd3d352d745ef9413eec5782a80d8fd6f8a1ac692a07f7"
 
 [[package]]
 name = "faro-cli"
-version = "0.17.1"
+version = "0.18.0"
 dependencies = [
  "clap",
  "csv",
@@ -718,7 +718,7 @@ dependencies = [
 
 [[package]]
 name = "faro-fuentes"
-version = "0.17.1"
+version = "0.18.0"
 dependencies = [
  "chrono",
  "image",
@@ -733,7 +733,7 @@ dependencies = [
 
 [[package]]
 name = "faro-homologa"
-version = "0.17.1"
+version = "0.18.0"
 dependencies = [
  "calamine",
  "chrono",
@@ -749,7 +749,7 @@ dependencies = [
 
 [[package]]
 name = "faro-servidor"
-version = "0.17.1"
+version = "0.18.0"
 dependencies = [
  "argon2",
  "axum",
@@ -767,7 +767,7 @@ dependencies = [
 
 [[package]]
 name = "faro-territorio"
-version = "0.17.1"
+version = "0.18.0"
 dependencies = [
  "csv",
  "serde",

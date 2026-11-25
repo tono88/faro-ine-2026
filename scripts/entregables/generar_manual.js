@@ -173,7 +173,7 @@ const chip = r => `<span class="chip" style="--c:${ROLES[r][1]}">${ROLES[r][0]}<
     ${v('Se puede repetir', 'Cada resultado tiene un procedimiento que lo vuelve a obtener desde la fuente.')}
     ${v('Cada quien ve lo suyo', 'Roles, grupos y cuentas por institución; cada acción queda en la bitácora.')}
     ${v('Se explica solo', 'Recorridos guiados en las 24 secciones y una frase que dice qué muestra cada pantalla.')}
-    ${v('Es del INE', 'Software libre que corre en un servidor propio, sin servicios de pago ni modelos externos.')}</div>`);
+    ${v('Queda en el INE', 'Hecho con software libre; corre en un servidor propio, sin servicios de pago. El INE recibe licencia perpetua para usarlo y modificarlo.')}</div>`);
   // Preguntas
   const q = (a, b) => `<div class="q"><h4>${a}</h4><p>${b}</p></div>`;
   pag('preguntas', `<header class="cab"><p class="ante">Si algo no sale</p><h2>Preguntas frecuentes</h2></header><div class="qs">

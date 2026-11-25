@@ -277,7 +277,12 @@ pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
     let agente = ureq::AgentBuilder::new().timeout(std::time::Duration::from_secs(40)).try_proxy_from_env(true).user_agent("faro-muestreo/0.1 (precios publicados; consulta de baja frecuencia)").build();
     let (mut ofertas, mut bitacora): (Vec<Oferta>, Vec<String>) = (Vec::new(), Vec::new());
     let mut consultas = 0usize;
+    // Si la tienda responde 403 (prohibido) o 429 (demasiadas consultas), no se insiste: la tarea deja de pedir.
+    let rechazo = std::cell::Cell::new(None::<u16>);
     let mut pedir = |url: &str| -> Result<String, String> {
+        if let Some(codigo) = rechazo.get() {
+            return Err(format!("la tienda respondió {codigo}: no se insiste"));
+        }
         if consultas >= tarea.max_consultas.clamp(1, MAX_CONSULTAS) {
             return Err("se alcanzó el máximo de consultas por corrida".into());
         }
@@ -285,7 +290,14 @@ pub fn ejecutar(tarea: &Tarea) -> (Vec<Oferta>, Vec<String>) {
             std::thread::sleep(std::time::Duration::from_millis(600));
         }
         consultas += 1;
-        agente.get(url).call().map_err(|e| e.to_string().chars().take(90).collect::<String>())?.into_string().map_err(|e| e.to_string())
+        match agente.get(url).call() {
+            Ok(respuesta) => respuesta.into_string().map_err(|e| e.to_string()),
+            Err(ureq::Error::Status(codigo, _)) if codigo == 403 || codigo == 429 => {
+                rechazo.set(Some(codigo));
+                Err(format!("la tienda respondió {codigo}: no admite la consulta automática"))
+            }
+            Err(e) => Err(e.to_string().chars().take(90).collect::<String>()),
+        }
     };
     let json = |texto: String| serde_json::from_str::<Value>(&texto).map_err(|e| e.to_string());
     match tarea.tipo.as_str() {

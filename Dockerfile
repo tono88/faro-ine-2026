@@ -22,6 +22,8 @@ COPY datos/modelos ./datos/modelos
 COPY scripts ./scripts
 RUN mkdir -p /app/datos/privado && chown -R faro /app/datos
 USER faro
-ENV FARO_PUERTO=8080
+# Dentro del contenedor se atiende en todas las interfaces; quién llega desde fuera lo decide el
+# mapeo de puertos de compose.yaml (por omisión, solo esta máquina).
+ENV FARO_PUERTO=8080 FARO_ESCUCHA=0.0.0.0
 EXPOSE 8080
 CMD ["faro-servidor"]

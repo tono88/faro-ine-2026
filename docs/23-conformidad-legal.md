@@ -25,7 +25,7 @@ Abreviaturas de las fuentes más citadas:
 | Ley de Contrataciones (D. 57-92, reformada por D. 9-2015), art. 8 | El INE elabora y publica precios e índices de referencia | Precio de referencia con su respaldo estadístico e informe imprimible | Apoya la función; ver nota |
 | D. 47-2008, arts. 5, 11 y 13 | Las comunicaciones electrónicas valen y se pueden conservar en formato electrónico | Constancia de cada recepción con fecha, huella del archivo y resultado | Cumple en lo básico; sin firma electrónica |
 | D. 5-2021, arts. 2, 30 y 31 | Intercambio de información entre dependencias sin convenios adicionales | Un formato común para el intercambio; aplica de forma obligatoria solo al Ejecutivo | Compatible |
-| Ley de Derecho de Autor (D. 33-98), arts. 15, 16, 24, 30 y 35 | El programa es una obra protegida; los datos en sí no | Código escrito en el evento, dependencias de licencia libre, cesión al INE | Cumple |
+| Ley de Derecho de Autor (D. 33-98), arts. 15, 16, 24, 30 y 35 | El programa es una obra protegida; los datos en sí no | Código escrito en el evento, dependencias de licencia libre, autoría del equipo y licencia perpetua al INE (`LICENCIA.md`) | Cumple |
 | Código Penal, arts. 274 "A" a "G" | Delitos informáticos: obtener datos sin autorización, alterar registros | Solo se leen páginas públicas, sin saltar bloqueos ni sesiones | Cumple |
 | Licencias de los datos (ODbL, CC BY 4.0, portal del INE) | Atribuir, indicar cambios y, en ODbL, compartir igual la base derivada | Cada descarga guarda su licencia; el mapa y las capas citan la fuente | Cumple |
 | Principios de la ONU (A/RES/68/261) y Código Regional de la CEPAL | Registros administrativos como fuente válida; confidencialidad | Es el propósito del proyecto | Alineado |
@@ -46,10 +46,18 @@ propósito que no sea de carácter estadístico». Lo que FARO hace para respeta
 - **No conserva el archivo original.** Se procesa en una carpeta temporal y se borra al terminar,
   también si el proceso falla (la estructura `Temporal` de `api_enviar`, en `crates/faro-servidor/src/main.rs`).
 - **Disocia antes de guardar.** Las columnas marcadas `sensible` en la solicitud no pasan: el nombre
-  se elimina y el CUI se cambia por una llave que no se puede revertir. En el archivo de defunciones
+  se elimina y el CUI se cambia por una llave (SHA-256 con un secreto de la instalación, `FARO_SAL`).
+  Sin el secreto no se puede volver al CUI; **con el secreto, alguien podría probar CUI uno por uno**:
+  por eso el secreto se guarda como una contraseña y la llave nunca se publica. En el archivo de defunciones
   de RENAP, de 82 columnas salen 14.
-- **Guarda conteos, no personas.** La tabla `hechos` solo tiene cuántos casos hubo por municipio,
-  periodo y categoría.
+- **La base guarda conteos, no personas.** La tabla `hechos` solo tiene cuántos casos hubo por
+  municipio, periodo y categoría.
+- **Queda una salida fila por fila, ya disociada, fuera de la base.** Cada envío deja en el volumen
+  privado del servidor (`datos/privado/envios/<n>/homologado.csv`) las columnas pedidas, sin nombres
+  ni documentos y con la llave en lugar del CUI: fecha, municipio, sexo, edad y las demás variables
+  de la solicitud. Es microdato sin identificadores directos, **no anónimo**: lo protege el secreto
+  estadístico, no se sirve por ninguna ruta del portal, no se versiona y se borra al eliminar el
+  envío. El INE debe decidir cuánto tiempo se conserva y quién accede a ese volumen.
 - **Protege las celdas pequeñas** (sección 3).
 - **No repite datos personales en la documentación.** En `docs/` y en el repositorio solo hay conteos.
 
@@ -60,7 +68,8 @@ grave. Los controles que ayudan a prevenirla y a deslindar responsabilidades est
 
 El artículo 31 da a toda persona el «derecho de conocer lo que de ella conste en archivos, fichas o
 cualquier otra forma de registros estatales». FARO no arma un registro de personas: no hay en su
-base un dato que permita buscar a alguien. El artículo 30 exceptúa de la publicidad los datos
+base un dato que permita buscar a alguien (la salida fila por fila del párrafo anterior tampoco
+lleva nombre ni documento). El artículo 30 exceptúa de la publicidad los datos
 dados «bajo garantía de confidencia», que es el caso de lo que las instituciones entregan al INE.
 Fuente: <https://www.constituteproject.org/constitution/Guatemala_1993.pdf?lang=es> (copia no oficial).
 
@@ -69,7 +78,7 @@ Fuente: <https://www.constituteproject.org/constitution/Guatemala_1993.pdf?lang=
 | Artículo | Qué dice | En FARO |
 |---|---|---|
 | 9 | Define datos personales, datos sensibles y hábeas data. Aclara que «los datos impersonales no identificables, como aquellos de carácter demográfico recolectados para mantener estadísticas, no se sujetan al régimen de hábeas data» | Lo que FARO guarda y publica es de esa clase |
-| 22 | Es confidencial lo que otra ley declare así y los datos sensibles | Los envíos y sus pendientes solo se ven con sesión |
+| 22 | Es confidencial lo que otra ley declare así y los datos sensibles | El detalle de los envíos, los pendientes y las equivalencias solo lo ve el personal del INE con sesión; cada institución ve únicamente sus propios envíos. Es público el avance agregado: cuántos archivos y filas ha enviado cada institución y con qué porcentaje de lugares resueltos |
 | 30 | «Administrar datos personales sólo cuando éstos sean adecuados, pertinentes y no excesivos» | La solicitud pide columnas concretas; lo que no se pidió se descarta al recibir |
 | 31 y 32 | Difundir datos personales exige consentimiento, salvo por «razones estadísticas, científicas o de interés general previstas en ley, previo procedimiento por el cual no puedan asociarse los datos personales con el individuo», o entre entidades del Estado | Ese procedimiento previo es la disociación de la recepción |
 | 64 y 65 | Sancionan comercializar, distribuir, alterar o destruir datos personales | Sección 2.4 |
@@ -78,13 +87,18 @@ Fuente: <https://www.constituteproject.org/constitution/Guatemala_1993.pdf?lang=
 
 Sirven a la vez a la Ley del INE, a la LAIP y al Código Penal:
 
-- Cuentas personales con contraseña (Argon2), roles (administrador, analista, consulta, operador de
-  campo) y grupos que limitan las secciones (`docs/21-seguridad.md`).
+- Cuentas personales con contraseña (Argon2), cinco roles (administrador, analista, consulta,
+  operador de campo e institución) y grupos que limitan las secciones (`docs/21-seguridad.md`).
 - **Mínimo privilegio por institución**: una cuenta de rol «institución» sube únicamente los
   archivos de las solicitudes de su institución y ve únicamente sus propios envíos; pendientes y
   equivalencias quedan para el personal del INE. El servidor lo comprueba en cada pedido.
-- La contraseña inicial bloquea los cambios hasta que se cambia.
-- Lo que llegó de las instituciones (envíos, pendientes) pide sesión para verse.
+- La contraseña inicial bloquea los cambios **y la lectura de todo lo interno** (envíos, pendientes,
+  equivalencias, conteos exactos) hasta que se cambia. No está escrita en el código: la da la
+  instalación.
+- El detalle de lo que llegó de las instituciones (envíos, pendientes) pide sesión del personal del
+  INE. Lo que sí es público es el avance agregado por institución (archivos, filas y porcentaje
+  resuelto), que alimenta la sección «Resultados y avance».
+- El nombre con que una persona firma la bitácora y los tableros no puede ser el de otra cuenta.
 - **Bitácora** (tabla `bitacora`): quién publicó un tablero, creó una ruta o registró una visita, y
   cuándo. Las equivalencias guardan quién las confirmó. Solo los administradores la leen.
 - Borrar un envío es una operación explícita, de analista o administrador, que elimina sus conteos.
@@ -115,7 +129,7 @@ y reglamento del INE de 2023
 «Las comunicaciones electrónicas serán admisibles como medios de prueba» (arts. 5 y 11) y pueden
 conservarse en formato electrónico (art. 13). Cada recepción deja fecha, institución, nombre del
 archivo, huella y resultado; cada descarga de una fuente deja dirección, fecha, licencia y huella
-SHA-256 en `datos/crudo/manifiesto.jsonl`. **Lo que falta:** FARO no firma electrónicamente las
+SHA-256 en `datos/crudo/manifiesto.jsonl` (versionado en el repositorio). **Lo que falta:** FARO no firma electrónicamente las
 constancias. Si el INE quiere que valgan como acuse formal, hay que agregar firma electrónica
 avanzada con un prestador autorizado.
 Fuente: <https://www.5b.com.gt/assets/docs/DecretoLey_47_2008.pdf> (escaneo del Diario Oficial en un sitio privado).
@@ -135,9 +149,13 @@ El programa de ordenador se protege como obra literaria (arts. 15 y 30). Las bas
 protegen solo por la originalidad de su selección o disposición, y «esta protección no se extenderá
 a los datos o material contenido en las compilaciones» (art. 16).
 
-- Todo el código de FARO se escribió durante el evento, y los integrantes ceden los derechos al INE,
-  como piden los lineamientos.
-- Las dependencias son de licencia libre (MIT o Apache 2.0 en su mayoría) y están en `Cargo.lock`.
+- Todo el código de FARO se escribió durante el evento. Como fijan los términos de la categoría 2,
+  los integrantes **conservan el reconocimiento de la autoría** y otorgan al INE una **licencia no
+  exclusiva, gratuita, perpetua e irrevocable** para usar, reproducir, modificar, adaptar y
+  distribuir la herramienta y su documentación para fines institucionales. Está escrito en
+  [`LICENCIA.md`](../LICENCIA.md). (No es una cesión de derechos: esa es la regla de la categoría 1.)
+- Las dependencias son de licencia libre (MIT o Apache 2.0 en su mayoría); la lista completa, con la
+  licencia de cada una, está en [`27-componentes-de-terceros.md`](27-componentes-de-terceros.md).
 - Leaflet y la tipografía se usan con sus licencias (BSD-2 y OFL).
 - Los datos de terceros conservan su licencia y su cita (`datos/estandar/fuentes.json`).
 
@@ -152,8 +170,22 @@ precios de FARO:
 - leen solo páginas que cualquier visitante ve, sin cuenta ni clave;
 - no saltan bloqueos, captchas ni inicios de sesión: los sitios que los ponen quedan fuera y se
   anota (Kemik, Platino, Fayco, PriceSmart, entre otros);
-- hacen una consulta a la vez, con una pausa entre consultas, y se identifican como cliente
-  automático (`faro-muestreo`), sin hacerse pasar por un navegador.
+- hacen una consulta a la vez, con una pausa de 0.6 s entre consultas y un tope por tarea, y se
+  identifican como cliente automático (`faro-muestreo`), sin hacerse pasar por un navegador;
+- si una tienda responde 403 o 429 (no admite la consulta o son demasiadas), la tarea se detiene y
+  no insiste;
+- vienen **apagados**: los enciende una persona con permiso.
+
+**Lo que no se hizo y debe saberse:**
+
+- FARO **no lee `robots.txt`** ni revisó los términos de uso de cada tienda. Antes de encender un
+  muestreo de forma periódica, el INE debería revisarlos o, mejor, acordar la consulta con cada
+  tienda.
+- Para el informe de precio, el servidor **baja la foto del producto** para calcular su huella
+  (64 bits de forma y 48 valores de color); guarda la huella y la dirección, no la foto.
+- El repositorio trae el levantamiento del 24-nov (`precios_publicados.csv`, 85,907 precios con su
+  dirección). Son hechos (qué precio publicó qué tienda y cuándo), no el catálogo ni sus fotos; aun
+  así, redistribuirlo a gran escala es una decisión que el INE debe tomar con esa salvedad.
 
 Fuente: <https://mcd.gob.gt/wp-content/uploads/2013/07/Actualizaci%C3%B3n_del_Codigo_Penal_Decreto_17-73.pdf>
 (copia con reformas hasta 2012).
@@ -182,6 +214,8 @@ Es lo más nuevo y lo más delicado, porque la posición de una visita es la de 
   operador en su teléfono; no hay seguimiento continuo.
 - **Las visitas las ven el operador que las hizo y quien coordina.** No se publican ni entran al mapa.
 - **Las respuestas de la encuesta no pasan por FARO**: van a Microsoft Forms, en la cuenta del INE.
+  El enlace que FARO abre lleva el número de visita, el lugar, el operador y la posición, para que el
+  formulario llegue ya lleno: esos datos sí viajan a Microsoft Forms, dentro de la cuenta del INE.
 
 Lo que debe definir el INE: el aviso al informante y al operador sobre el uso de la posición y de
 la foto, y cuánto tiempo se conservan las visitas.
@@ -190,8 +224,12 @@ la foto, y cuánto tiempo se conservan las visitas.
 
 | Fuente | Licencia | Qué pide | En FARO |
 |---|---|---|---|
-| OpenStreetMap (red vial, mapa base) | ODbL 1.0 | Aviso de fuente y licencia en lo que se publique; si se publica una base derivada, compartirla con la misma licencia | El mapa dice «© colaboradores de OpenStreetMap»; las capas `red_vial_*` se publican con ODbL |
-| GHSL (Comisión Europea), FAO, mosaico Sentinel-2 de EOX | CC BY 4.0 | Atribuir e «indicar si Usted modificó el Material Licenciado» | Las capas dicen «FARO, a partir de…» y citan la fuente |
+| OpenStreetMap (red vial, mapa base) | ODbL 1.0 | Aviso de fuente y licencia en lo que se publique; si se publica una base derivada, compartirla con la misma licencia | El mapa dice «© colaboradores de OpenStreetMap (ODbL)» con enlace a la página de derechos; las tablas y capas `red_vial_*` se publican con ODbL |
+| GHSL (Comisión Europea) | CC BY 4.0 | Atribuir, indicar los cambios y citar la publicación de referencia (Pesaresi et al., 2024) | Citado en `fuentes.json`; las tablas dicen que FARO suma las celdas por municipio |
+| Mosaico Sentinel-2 de 2016 de EOX | CC BY 4.0 | Atribución con su texto («contiene datos Copernicus Sentinel modificados, 2016») | La capa y la animación la llevan. Los mosaicos de 2018 en adelante son de uso no comercial y **no se usan** |
+| Límites COD-AB (CONRED / OCHA) | CC BY-IGO | Atribuir e indicar los cambios | Las capas dicen «FARO, a partir de CONRED / OCHA» y qué se cambió |
+| FAO, factores técnicos de conversión | Términos de uso de la FAO: estudio, investigación y productos o servicios **no comerciales**, citando la fuente. No es CC BY (esa licencia cubre solo sus bases estadísticas) | Citar; una adaptación o traducción con otros fines se consulta con la FAO | La tabla es una transcripción traducida, con la cita y esta salvedad junto al archivo |
+| SESAN (CIF y Censo de Talla) | No declaran licencia | — | Se citan como fuente oficial; se usan cifras, no se redistribuyen los documentos |
 | Portal de datos abiertos del INE | La de cada conjunto (50 con CC BY, 22 con ODC-BY y 33 sin licencia declarada, de 105) | Citar | El manifiesto guarda la licencia de cada descarga |
 | Imágenes Landsat (NASA GIBS) | Uso libre | Reconocer a NASA GIBS/ESDIS | El pie de cada cuadro de la animación nombra la foto |
 | SESAN (CIF y Censo de Talla) | Publicación oficial | Citar | Citada; la licencia no se pudo verificar |

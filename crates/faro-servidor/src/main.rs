@@ -94,7 +94,8 @@ fn var(nombre: &str, defecto: &str) -> String {
 
 #[tokio::main]
 async fn main() -> Result<(), String> {
-    let url = var("DATABASE_URL", "host=localhost user=faro password=faro dbname=faro");
+    // La cadena de conexión no tiene valor por omisión: ninguna clave vive en el código.
+    let url = std::env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()).ok_or("defina DATABASE_URL (por ejemplo: host=localhost user=faro password=… dbname=faro)")?;
     // La base puede tardar unos segundos en aceptar conexiones al levantar con Docker.
     let mut intento = 0;
     let (bd, conexion) = loop {
@@ -165,10 +166,26 @@ async fn main() -> Result<(), String> {
     let talla: HashMap<String, HashMap<String, String>> = csv::Reader::from_path(dir_referencia.join("censo_talla_municipio.csv")).map(|mut l| l.deserialize::<HashMap<String, String>>().flatten().filter_map(|f| Some((f.get("municipio")?.clone(), f))).collect()).unwrap_or_default();
     let construccion = Construccion::cargar(&dir_referencia, &catalogo);
     let (capas, catalogo_capas) = armar_capas(&dir_referencia, &catalogo, &poblacion, &vial, &construido, &construccion, &cif, &talla);
-    // Primer arranque: un administrador inicial (admin / admin) que debe cambiar su contraseña.
+    // Primer arranque: un administrador inicial que debe cambiar su contraseña. La contraseña inicial
+    // no está en el código: la da la instalación (FARO_CLAVE_INICIAL; el despliegue con Docker la
+    // deja en «admin», como dice el README) y, si no la da, se genera al azar y se escribe una vez
+    // en el registro del servidor.
     if bd.query_one("SELECT count(*) FROM usuarios", &[]).await.map_err(|e| e.to_string())?.get::<_, i64>(0) == 0 {
-        bd.execute("INSERT INTO usuarios (usuario, nombre, rol, clave, debe_cambiar) VALUES ('admin', 'Administrador', 'admin', $1, TRUE)", &[&huella_de_clave("admin")?]).await.map_err(|e| e.to_string())?;
-        eprintln!("AVISO: se creó el usuario inicial admin con contraseña admin. Cámbiela al entrar.");
+        let (inicial, al_azar) = match std::env::var("FARO_CLAVE_INICIAL").ok().filter(|v| !v.is_empty()) {
+            Some(c) => (c, false),
+            None => {
+                use rand_core::{OsRng, RngCore};
+                let mut b = [0u8; 9];
+                OsRng.fill_bytes(&mut b);
+                (b.iter().map(|x| format!("{x:02x}")).collect::<String>(), true)
+            }
+        };
+        bd.execute("INSERT INTO usuarios (usuario, nombre, rol, clave, debe_cambiar) VALUES ('admin', 'Administrador', 'admin', $1, TRUE)", &[&huella_de_clave(&inicial)?]).await.map_err(|e| e.to_string())?;
+        if al_azar {
+            eprintln!("AVISO: se creó el usuario inicial «admin». Su contraseña inicial, generada al azar, es: {inicial}  (no se volverá a mostrar; cámbiela al entrar)");
+        } else {
+            eprintln!("AVISO: se creó el usuario inicial «admin» con la contraseña inicial indicada en FARO_CLAVE_INICIAL. Cámbiela al entrar.");
+        }
     }
     let estado = Arc::new(Estado {
         bd,
@@ -325,8 +342,10 @@ async fn main() -> Result<(), String> {
         .with_state(estado);
 
     let puerto = var("FARO_PUERTO", "8080");
-    let oyente = tokio::net::TcpListener::bind(format!("0.0.0.0:{puerto}")).await.map_err(|e| e.to_string())?;
-    eprintln!("FARO escuchando en http://0.0.0.0:{puerto}");
+    // Por omisión solo atiende en esta máquina; para abrirlo a la red: FARO_ESCUCHA=0.0.0.0 (detrás de HTTPS).
+    let escucha = var("FARO_ESCUCHA", "127.0.0.1");
+    let oyente = tokio::net::TcpListener::bind(format!("{escucha}:{puerto}")).await.map_err(|e| format!("no se pudo escuchar en {escucha}:{puerto}: {e}"))?;
+    eprintln!("FARO escuchando en http://{escucha}:{puerto}");
     axum::serve(oyente, app)
         .with_graceful_shutdown(async { let _ = tokio::signal::ctrl_c().await; })
         .await
@@ -382,7 +401,12 @@ async fn autorizar(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
 
 /// Lecturas que muestran lo que llegó de las instituciones: piden una sesión de cualquier rol.
 async fn con_sesion(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
-    sesion_de(e, cabeceras).await?.ok_or(Fallo(StatusCode::UNAUTHORIZED, "inicie sesión para ver esta información".into()))
+    let s = sesion_de(e, cabeceras).await?.ok_or(Fallo(StatusCode::UNAUTHORIZED, "inicie sesión para ver esta información".into()))?;
+    // Con la contraseña inicial (conocida por quien instaló o creó la cuenta) no se lee nada interno.
+    if s.debe_cambiar {
+        return Err(Fallo(StatusCode::FORBIDDEN, "cambie su contraseña inicial en «Mi perfil» para ver esta información".into()));
+    }
+    Ok(s)
 }
 
 /// Lo que llegó de todas las instituciones (pendientes, equivalencias) lo ve solo el personal del
@@ -464,6 +488,26 @@ fn huella_de_reglas(sol: &Solicitud) -> String {
 #[cfg(test)]
 mod pruebas_de_reglas {
     use super::*;
+
+    #[test]
+    fn una_celda_protegida_no_se_puede_despejar_por_resta() {
+        let celda = |sol: &str, m: &str, n: i64| (sol.to_string(), m.to_string(), n);
+        let ocultas = |celdas: Vec<(String, String, i64)>, exacto| celdas_ocultas(celdas.into_iter(), exacto, 3);
+        // Un solo municipio con conteo pequeño: se oculta también el siguiente más chico del departamento,
+        // porque el total del departamento sí se publica.
+        let o = ocultas(vec![celda("s", "0101", 1), celda("s", "0102", 4), celda("s", "0103", 50), celda("s", "0201", 9)], false);
+        assert!(o.contains(&("s".into(), "0101".into())) && o.contains(&("s".into(), "0102".into())), "debe ocultar la pequeña y su complemento");
+        assert!(!o.contains(&("s".into(), "0103".into())) && !o.contains(&("s".into(), "0201".into())), "no debe ocultar de más ni en otro departamento");
+        // Dos pequeñas en el mismo departamento ya se cubren entre sí.
+        let o = ocultas(vec![celda("s", "0101", 1), celda("s", "0102", 2), celda("s", "0103", 50)], false);
+        assert_eq!(o.len(), 2);
+        // Cada solicitud se protege por separado; los ceros no cuentan como celda.
+        let o = ocultas(vec![celda("a", "0101", 2), celda("a", "0102", 0), celda("a", "0103", 7), celda("b", "0101", 30)], false);
+        assert!(o.contains(&("a".into(), "0101".into())) && o.contains(&("a".into(), "0103".into())) && !o.contains(&("a".into(), "0102".into())) && !o.contains(&("b".into(), "0101".into())));
+        // Quien es analista ve los conteos exactos; con umbral 0 o 1 no hay protección.
+        assert!(ocultas(vec![celda("s", "0101", 1), celda("s", "0102", 4)], true).is_empty());
+        assert!(celdas_ocultas(vec![celda("s", "0101", 1)].into_iter(), false, 1).is_empty());
+    }
 
     #[test]
     fn la_misma_solicitud_da_siempre_la_misma_huella() {
@@ -562,6 +606,8 @@ async fn api_envio_borrar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabe
     if n == 0 {
         return Err(pedido("no existe ese envío"));
     }
+    // También se borra su salida fila por fila del volumen privado.
+    let _ = std::fs::remove_dir_all(e.dir_privado.join("envios").join(id.to_string()));
     bitacora(&e, &quien.nombre, "envio_borrado", &format!("envío n.º {id}")).await;
     Ok(Json(json!({ "borrado": true })))
 }
@@ -748,6 +794,7 @@ async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c
         )
         .await
         .map_err(interno)?;
+        bitacora(&e, &c.usuario, "equivalencia_confirmada", &format!("producto del IPMC -> {}", c.codigo)).await;
         return Ok(Json(json!({ "grabado": true, "codigo": c.codigo, "nombre": "(IPMC)", "pendientes_resueltos": 0 })));
     }
     if c.nivel == "valor" {
@@ -762,6 +809,7 @@ async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c
         .await
         .map_err(interno)?;
         let n = e.bd.execute("UPDATE pendientes SET resuelto = TRUE WHERE NOT resuelto AND nivel = 'valor' AND contexto = $1 AND valor = $2", &[&c.contexto, &c.valor]).await.map_err(interno)?;
+        bitacora(&e, &c.usuario, "equivalencia_confirmada", &format!("valor de {} -> {valor} ({n} pendientes resueltos)", c.contexto)).await;
         return Ok(Json(json!({ "grabado": true, "codigo": valor, "nombre": format!("({})", c.contexto), "pendientes_resueltos": n })));
     }
     let nivel_pedido: Nivel = c.nivel.parse().map_err(pedido)?;
@@ -1252,7 +1300,7 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
         }
         publicar("municipios.geojson", GEOJSON, g.to_string(), "Municipios con indicadores",
             "340 municipios con código INE: población 2018, actual y 2030 (proyecciones INE), crecimiento anual, lugares poblados y cuántos no están conectados a la red vial.",
-            "Límites: CONRED / OCHA (COD-AB Guatemala). Población: INE, proyecciones 2015–2030. Lugares: INE, Censo 2018. Caminos: © colaboradores de OpenStreetMap. Superficie construida: Comisión Europea, JRC, GHSL GHS-BUILT-S R2023A.", "CC BY-IGO (límites) · ODC-BY (población) · CC BY (censo) · ODbL (caminos) · CC BY 4.0 (GHSL)");
+            "Límites: FARO, a partir de CONRED / OCHA (COD-AB Guatemala): contornos simplificados, Sanarate y Sansare corregidos y dos lagos quitados. Población: INE, proyecciones 2015–2030. Lugares: INE, Censo 2018. Caminos: © colaboradores de OpenStreetMap. Superficie construida: Comisión Europea, JRC, GHSL GHS-BUILT-S R2023A.", "CC BY-IGO (límites) · ODC-BY (población) · CC BY (censo) · ODbL (caminos) · CC BY 4.0 (GHSL)");
     }
     if vial["disponible"] == json!(true) {
         let enlaces: Vec<Value> = vial["enlaces"].as_array().into_iter().flatten().map(|e| json!({ "type": "Feature",
@@ -1285,12 +1333,12 @@ fn armar_capas(dir: &std::path::Path, catalogo: &Catalogo, poblacion: &Poblacion
     for (archivo, tipo, titulo, detalle, fuente, licencia) in [
         ("censo_talla_municipio.csv", "text/csv; charset=utf-8", "Retardo en talla en escolares por municipio, Censo de Talla 2024", "Porcentaje de escolares con retardo en talla (desnutrición crónica), escolares evaluados y categoría de vulnerabilidad nutricional, con código INE.", "SESAN, SIINSAN: V Censo Nacional de Talla en Escolares, 2024.", "publicación oficial; cite la fuente"),
         ("cif_departamentos.csv", "text/csv; charset=utf-8", "Inseguridad alimentaria aguda por departamento (CIF), octubre 2026 – febrero 2027", "Personas en cada fase de la CIF, fase del área y Fase 3 o superior, con código INE del departamento.", "SESAN y Grupo Técnico de la CIF Guatemala, actualización publicada el 19-nov-2026 y corregida el 20-nov-2026.", "publicación oficial; cite la fuente"),
-        ("departamentos.geojson", GEOJSON, "Departamentos", "22 departamentos con código INE, para mapas a menor detalle.", "CONRED / OCHA (COD-AB Guatemala).", "CC BY-IGO"),
+        ("departamentos.geojson", GEOJSON, "Departamentos", "22 departamentos con código INE, para mapas a menor detalle.", "FARO, a partir de CONRED / OCHA (COD-AB Guatemala): contornos simplificados y unidos por departamento.", "CC BY-IGO"),
         ("red_vial_principal.geojson", GEOJSON, "Carreteras principales y secundarias, con tipo y superficie", "Trazo simplificado de las vías de mayor jerarquía (troncales, primarias, secundarias y terciarias) con su clase, su tipo original, su nombre y si la superficie anotada es pavimentada, sin pavimentar o no tiene dato.", "© colaboradores de OpenStreetMap (HOT/HDX), corte del 3-nov-2026.", "ODbL 1.0"),
         ("red_vial_tipos_municipio.csv", "text/csv; charset=utf-8", "Kilómetros de vía por tipo y superficie, por municipio", "Kilómetros de vías principales, secundarias, locales, de terracería y senderos, y de las vías para vehículos, cuántos son pavimentados, sin pavimentar o no tienen la superficie anotada. Con código INE.", "FARO, a partir de © colaboradores de OpenStreetMap (HOT/HDX), corte del 3-nov-2026.", "ODbL 1.0"),
         ("red_vial_contexto.geojson", GEOJSON, "Caminos mapeados alrededor de los enlaces probables", "Tramos de camino a 1.5 km de cada enlace propuesto; indica si pertenecen a la red principal o a un tramo suelto.", "© colaboradores de OpenStreetMap (HOT/HDX), corte del 3-nov-2026.", "ODbL 1.0"),
-        ("censo2018_indicadores_municipio.csv", "text/csv; charset=utf-8", "Condiciones de vida por municipio, Censo 2018", "Alfabetismo, nivel educativo, actividad económica, uso de celular, computadora e internet, pueblo de pertenencia, agua, servicio sanitario, alumbrado, combustible para cocinar, eliminación de la basura, tenencia de la vivienda y materiales de pared, techo y piso: conteos con su denominador, por municipio.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadros A5, A9, A11, A12, A13, B1, B2, B3, B4, B6, C2 y C3).", "datos abiertos del INE; cite la fuente"),
-        ("censo2018_techos_lugar_poblado.csv", "text/csv; charset=utf-8", "Material del techo por lugar poblado, Censo 2018", "Viviendas particulares por material predominante del techo (concreto, lámina, asbesto cemento, teja, paja o palma, desecho) en cada lugar poblado.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadro C2).", "datos abiertos del INE; cite la fuente"),
+        ("censo2018_indicadores_municipio.csv", "text/csv; charset=utf-8", "Condiciones de vida por municipio, Censo 2018", "Alfabetismo, nivel educativo, actividad económica, uso de celular, computadora e internet, pueblo de pertenencia, agua, servicio sanitario, alumbrado, combustible para cocinar, eliminación de la basura, tenencia de la vivienda y materiales de pared, techo y piso: conteos con su denominador, por municipio.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadros A5, A9, A11, A12, A13, B1, B2, B3, B4, B6, C2 y C3).", "CC BY"),
+        ("censo2018_techos_lugar_poblado.csv", "text/csv; charset=utf-8", "Material del techo por lugar poblado, Censo 2018", "Viviendas particulares por material predominante del techo (concreto, lámina, asbesto cemento, teja, paja o palma, desecho) en cada lugar poblado.", "INE, XII Censo Nacional de Población y VII de Vivienda 2018 (cuadro C2).", "CC BY"),
         ("uso_construido_municipio.csv", "text/csv; charset=utf-8", "Superficie construida residencial y no residencial por municipio, 2000 y 2020", "Hectáreas construidas, no residenciales y residenciales, y porcentaje no residencial, con código INE del municipio.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A (capa total y componente NRES).", "CC BY 4.0"),
         ("uso_construido_bloques.csv", "text/csv; charset=utf-8", "Uso del suelo construido en bloques de 1 km, 2020", "Hectáreas construidas y hectáreas no residenciales por bloque de 1 km, con el municipio al que pertenece.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A (capa total y componente NRES).", "CC BY 4.0"),
         ("superficie_construida_bloques.csv", "text/csv; charset=utf-8", "Superficie construida en bloques de 1 km, 1975–2020", "Hectáreas construidas por bloque de 1 km y época, con el municipio al que pertenece: la huella edificada del país.", "FARO, a partir de Comisión Europea, JRC: GHSL GHS-BUILT-S R2023A.", "CC BY 4.0"),
@@ -1334,6 +1382,33 @@ async fn capa(State(e): State<Compartido>, Ruta(archivo): Ruta<String>) -> Respo
     }
 }
 
+/// Protección estadística para quien no es analista. De una lista de celdas (solicitud, municipio,
+/// conteo) dice cuáles no se publican: las pequeñas (de 1 a umbral − 1) y, si en un departamento
+/// queda una sola oculta, también la siguiente más pequeña, para que no se obtenga por resta contra
+/// el total del departamento, que sí se publica. Toda respuesta que entregue conteos por municipio
+/// debe usar esta misma lista: si una ruta ocultara menos que otra, la resta volvería a ser posible.
+fn celdas_ocultas(celdas: impl Iterator<Item = (String, String, i64)>, exacto: bool, umbral: i64) -> std::collections::HashSet<(String, String)> {
+    let mut ocultas = std::collections::HashSet::new();
+    if exacto || umbral <= 1 {
+        return ocultas;
+    }
+    let mut por_depto: BTreeMap<(String, String), Vec<(i64, String)>> = BTreeMap::new();
+    for (sol, municipio, total) in celdas {
+        por_depto.entry((sol, municipio.chars().take(2).collect())).or_default().push((total, municipio));
+    }
+    for ((sol, _), mut lista) in por_depto {
+        lista.sort();
+        let chicas = lista.iter().filter(|(n, _)| *n > 0 && *n < umbral).count();
+        let ocultar = if chicas == 1 { 2 } else { chicas };
+        ocultas.extend(lista.into_iter().filter(|(n, _)| *n > 0).take(ocultar).map(|(_, m)| (sol.clone(), m)));
+    }
+    ocultas
+}
+
+/// Conteos vigentes por solicitud y municipio (el envío más reciente de cada corte).
+const CONTEOS_POR_MUNICIPIO: &str = "WITH ultimo AS (SELECT solicitud, corte, max(envio_id) AS envio_id FROM hechos GROUP BY 1, 2)
+             SELECT h.solicitud, h.municipio, sum(h.n)::bigint, max(left(h.periodo, 4)) FROM hechos h JOIN ultimo u USING (solicitud, corte, envio_id) WHERE h.municipio <> '' GROUP BY 1, 2";
+
 /// Registros recibidos por municipio y solicitud (solo conteos), con tasa por 100 mil habitantes.
 async fn api_registros_municipio(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     let (exacto, umbral) = (ve_conteos_exactos(&e, &cabeceras).await, umbral_de_celda());
@@ -1346,23 +1421,7 @@ async fn api_registros_municipio(State(e): State<Compartido>, cabeceras: HeaderM
         )
         .await
         .map_err(interno)?;
-    // Protección estadística para quien no es analista: las celdas pequeñas no se publican y, si en
-    // un departamento queda una sola oculta, se oculta también la siguiente más pequeña (así no se
-    // puede obtener por resta contra el total del departamento, que sí se publica).
-    let mut ocultas: std::collections::HashSet<(String, String)> = std::collections::HashSet::new();
-    if !exacto && umbral > 1 {
-        let mut por_depto: BTreeMap<(String, String), Vec<(i64, String)>> = BTreeMap::new();
-        for f in &filas {
-            let (sol, municipio, total): (String, String, i64) = (f.get(0), f.get(1), f.get(2));
-            por_depto.entry((sol, municipio.chars().take(2).collect())).or_default().push((total, municipio));
-        }
-        for ((sol, _), mut lista) in por_depto {
-            lista.sort();
-            let chicas = lista.iter().filter(|(n, _)| *n > 0 && *n < umbral).count();
-            let ocultar = if chicas == 1 { 2 } else { chicas };
-            ocultas.extend(lista.into_iter().filter(|(n, _)| *n > 0).take(ocultar).map(|(_, m)| (sol.clone(), m)));
-        }
-    }
+    let ocultas = celdas_ocultas(filas.iter().map(|f| (f.get(0), f.get(1), f.get(2))), exacto, umbral);
     let mut salida: BTreeMap<String, BTreeMap<String, Value>> = BTreeMap::new();
     for f in &filas {
         let (sol, municipio, total): (String, String, i64) = (f.get(0), f.get(1), f.get(2));
@@ -2116,6 +2175,8 @@ async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>, 
         .chain(e.vial["enlaces"].as_array().into_iter().flatten().flat_map(|en| en["lugares"].as_array().into_iter().flatten().filter(|x| x["codigo"].as_str().is_some_and(|c| c.starts_with(&codigo))).map(|x| json!({ "nombre": x["nombre"], "codigo": x["codigo"], "conexion": "tramo_suelto", "hueco_km": en["km"] })).collect::<Vec<_>>()))
         .collect();
     let registros = e.bd.query("WITH ultimo AS (SELECT solicitud, corte, max(envio_id) AS envio_id FROM hechos GROUP BY 1, 2) SELECT h.solicitud, sum(h.n)::bigint FROM hechos h JOIN ultimo u USING (solicitud, corte, envio_id) WHERE h.municipio = $1 GROUP BY 1 ORDER BY 1", &[&codigo]).await.map_err(interno)?;
+    // La ficha oculta exactamente las mismas celdas que el mapa (incluida la supresión complementaria).
+    let ocultas = celdas_ocultas(e.bd.query(CONTEOS_POR_MUNICIPIO, &[]).await.map_err(interno)?.iter().map(|f| (f.get(0), f.get(1), f.get(2))), exacto, umbral);
     Ok(Json(json!({
         "codigo": codigo, "nombre": l.nombre, "departamento": e.catalogo.por_codigo(&l.padre).map(|d| d.nombre.clone()), "anio_actual": hoy,
         "poblacion": poblacion, "poblacion_cambio": e.poblacion.cambio(&codigo, 2018, hasta),
@@ -2125,7 +2186,7 @@ async fn api_municipio(State(e): State<Compartido>, Ruta(codigo): Ruta<String>, 
         "censo_2018": censo_del_municipio(&e, &codigo),
         "edades": e.edades.get(&codigo).map(|v| v.iter().map(|(a, d, h, m)| json!([a, d, h, m])).collect::<Vec<_>>()),
         "proveedores": e.construccion.proveedores.iter().filter(|p| p.get("municipio_codigo").map(String::as_str) == Some(codigo.as_str())).filter_map(|p| p.get("nombre")).collect::<Vec<_>>(),
-        "registros": registros.iter().map(|f| { let n: i64 = f.get(1); if !exacto && n > 0 && n < umbral { json!({ "solicitud": f.get::<_, String>(0), "total": null, "protegido": true }) } else { json!({ "solicitud": f.get::<_, String>(0), "total": n }) } }).collect::<Vec<_>>(),
+        "registros": registros.iter().map(|f| { let n: i64 = f.get(1); if ocultas.contains(&(f.get::<_, String>(0), codigo.clone())) { json!({ "solicitud": f.get::<_, String>(0), "total": null, "protegido": true }) } else { json!({ "solicitud": f.get::<_, String>(0), "total": n }) } }).collect::<Vec<_>>(),
         "censo_indicadores": leer_censo_indicadores(&PathBuf::from(var("FARO_REFERENCIA", "datos/referencia"))).remove(&codigo),
         "talla": e.talla.get(&codigo),
         "cif": e.cif.iter().find(|f| f.get("departamento").map(String::as_str) == Some(&codigo[..2])),
@@ -2292,7 +2353,7 @@ fn umbral_de_celda() -> i64 {
 
 /// ¿Quien consulta puede ver los conteos exactos? Solo analistas y administradores con sesión.
 async fn ve_conteos_exactos(e: &Estado, cabeceras: &HeaderMap) -> bool {
-    matches!(sesion_de(e, cabeceras).await, Ok(Some(s)) if s.rol == "admin" || s.rol == "analista")
+    matches!(sesion_de(e, cabeceras).await, Ok(Some(s)) if (s.rol == "admin" || s.rol == "analista") && !s.debe_cambiar)
 }
 
 /// Fallos seguidos de ingreso por usuario y hasta cuándo queda bloqueado.
@@ -2386,6 +2447,11 @@ struct CambioPerfil {
 async fn api_perfil(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c): Json<CambioPerfil>) -> Res<Json<Value>> {
     let s = sesion_de(&e, &cabeceras).await?.ok_or(Fallo(StatusCode::UNAUTHORIZED, "inicie sesión".into()))?;
     if let Some(nombre) = c.nombre.as_deref().map(str::trim).filter(|n| !n.is_empty()) {
+        // El nombre firma la bitácora y los tableros: nadie puede tomar el nombre (ni el usuario) de otra cuenta.
+        let ocupado: i64 = e.bd.query_one("SELECT count(*) FROM usuarios WHERE id <> $2 AND (lower(nombre) = lower($1) OR lower(usuario) = lower($1))", &[&nombre, &s.id]).await.map_err(interno)?.get(0);
+        if ocupado > 0 || nombre.chars().count() > 80 {
+            return Err(pedido("ese nombre ya lo usa otra cuenta (o es demasiado largo): elija otro"));
+        }
         e.bd.execute("UPDATE usuarios SET nombre = $1 WHERE id = $2", &[&nombre, &s.id]).await.map_err(interno)?;
     }
     if let Some(nueva) = c.clave_nueva.filter(|n| !n.is_empty()) {
@@ -2832,10 +2898,12 @@ async fn api_campo_visitas_csv(State(e): State<Compartido>, cabeceras: HeaderMap
     let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_writer(Vec::new());
     w.write_record(["visita", "cuando", "ruta", "operador", "parada", "lugar_poblado", "nombre", "latitud", "longitud", "precision_m", "distancia_al_punto_m", "foto_clase", "foto_confianza", "coherencia", "dudas", "notas", "demostracion"]).map_err(interno)?;
     let t = |x: Option<f64>, d: usize| x.map(|v| format!("{v:.d$}")).unwrap_or_default();
+    // Un texto que empieza con = + - @ se abriría como fórmula en una hoja de cálculo: se neutraliza.
+    let s = |t: String| if t.starts_with(['=', '+', '-', '@', '\t', '\r']) { format!("'{t}") } else { t };
     for f in &filas {
         let dudas = f.get::<_, Option<Value>>(14).and_then(|d| d.as_array().map(|a| a.iter().filter_map(|x| x.as_str()).collect::<Vec<_>>().join("; "))).unwrap_or_default();
-        w.write_record([f.get::<_, i64>(0).to_string(), f.get(1), f.get(2), f.get(3), f.get::<_, i32>(4).to_string(), f.get(5), f.get(6), t(f.get(7), 6), t(f.get(8), 6), t(f.get::<_, Option<f32>>(9).map(f64::from), 0), t(f.get::<_, Option<f32>>(10).map(f64::from), 0),
-            f.get::<_, Option<String>>(11).unwrap_or_default(), t(f.get::<_, Option<f32>>(12).map(f64::from), 2), f.get(13), dudas, f.get(15), if f.get::<_, bool>(16) { "sí".to_string() } else { "no".to_string() }]).map_err(interno)?;
+        w.write_record([f.get::<_, i64>(0).to_string(), f.get(1), s(f.get(2)), s(f.get(3)), f.get::<_, i32>(4).to_string(), f.get(5), s(f.get(6)), t(f.get(7), 6), t(f.get(8), 6), t(f.get::<_, Option<f32>>(9).map(f64::from), 0), t(f.get::<_, Option<f32>>(10).map(f64::from), 0),
+            f.get::<_, Option<String>>(11).unwrap_or_default(), t(f.get::<_, Option<f32>>(12).map(f64::from), 2), f.get(13), s(dudas), s(f.get(15)), if f.get::<_, bool>(16) { "sí".to_string() } else { "no".to_string() }]).map_err(interno)?;
     }
     let cuerpo = w.into_inner().map_err(interno)?;
     use axum::http::header;

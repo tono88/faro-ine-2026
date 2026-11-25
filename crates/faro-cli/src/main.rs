@@ -58,7 +58,7 @@ enum Comando {
         /// Portal CKAN.
         #[arg(long, default_value = faro_fuentes::INE_CKAN)]
         portal: String,
-        #[arg(long, default_value = "datos/manifiesto.jsonl")]
+        #[arg(long, default_value = "datos/crudo/manifiesto.jsonl")]
         manifiesto: PathBuf,
         #[command(subcommand)]
         accion: Fuentes,

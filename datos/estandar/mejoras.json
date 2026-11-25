@@ -294,6 +294,17 @@
       "cifra_de": "secciones con recorrido guiado; manual de 36 páginas generado con un comando",
       "ver": "acerca",
       "escala": "Una sección nueva suma sus pasos a una lista y queda en el recorrido y en el manual a la vez."
+    },
+    {
+      "area": "Seguridad y cumplimiento",
+      "tema": "Entrega que se comprueba sola",
+      "antes": "Un prototipo que solo corre en la máquina de quien lo hizo no se puede evaluar ni adoptar; y una lista de fuentes sin fecha no se puede verificar.",
+      "origen": "Nota conceptual del Datatón: reproducibilidad, fecha de descarga de cada base y componentes de terceros listados",
+      "ahora": "Clon limpio, cuatro pasos y un comando: el portal queda arriba. Cada descarga está en un manifiesto versionado con dirección, fecha y huella; cada biblioteca, con su licencia; y una matriz dice cómo se cumple cada lineamiento.",
+      "cifra": "88",
+      "cifra_de": "descargas con dirección, fecha y huella SHA-256 en el manifiesto; instalación desde cero comprobada el 25-nov-2026",
+      "ver": "acerca",
+      "escala": "Cada fuente nueva queda anotada sola al descargarla con `faro fuentes`; la matriz se revisa al cerrar cada versión."
     }
   ]
 }

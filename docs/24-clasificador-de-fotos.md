@@ -75,9 +75,10 @@ de cada foto, está en [`datos/referencia/fachadas_prueba.csv`](../datos/referen
 Repetir: `faro fachadas --fotos <carpeta con subcarpetas vivienda/ y comercio/>`.
 
 **Sobre el conjunto de validación de los autores** (36,500 imágenes de todo el mundo): el modelo
-acierta la escena exacta en 53.6 % de las imágenes y la tiene entre sus cinco primeras en 83.7 %.
-Sumando por grupo, como hace FARO, acierta el grupo en 93 % de las imágenes de vivienda y en 93.5 %
-de las de comercio.
+acierta la escena exacta en 53.6 % de las imágenes y la tiene entre sus cinco primeras en 83.7 %
+(cifras de `datos/modelos/PROCEDENCIA.md`). FARO no usa la escena exacta sino la suma por grupo
+(vivienda o comercio), que es una pregunta más fácil; **cuánto acierta por grupo en fachadas de
+Guatemala no está medido**: la única medición propia es la prueba de 16 fotos de arriba.
 
 ## Límites, dichos con claridad
 

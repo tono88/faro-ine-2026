@@ -89,12 +89,13 @@ entrega la posición, la demostración ofrece una simulada. Todo queda rotulado 
 **Quien coordina** (en «Operadores de campo», un asistente de cinco pasos):
 1. Cree a cada encuestador en «Usuarios» con el rol *Operador de campo* y póngalo en el grupo
    «Operadores de campo».
-2. En «Rutas de campo y visitas» escriba el nombre de la ruta, elija el operador y el municipio, y
-   marque los lugares poblados. El portal ordena las paradas.
+2. En el asistente, paso 1, elija el operador y póngale nombre a la ruta; en el paso 2 elija el
+   municipio y marque los lugares poblados. El portal ordena las paradas.
 3. Si la encuesta está en Microsoft Forms, pegue su dirección rellenada previamente y cambie los
    valores de muestra por los marcadores `{lugar}`, `{latitud}`, `{longitud}`, `{visita}` (la
    pantalla lo explica paso a paso).
-4. Revise las visitas: cada una dice a qué distancia del punto se hizo, qué mostró la foto y si
+4. Revise el resumen y cree la ruta (paso 4).
+5. En «Seguimiento» (paso 5) revise las visitas: cada una dice a qué distancia del punto se hizo, qué mostró la foto y si
    conviene revisarla. «Descargar visitas» da la tabla para unirla con las respuestas de Forms.
 
 **El operador** (en «Mi ruta de campo», desde su teléfono):
@@ -128,4 +129,4 @@ quién) y **acerca y fuentes** (cada dato con su cita, y el resumen de protecci�
 - **No adivina.** Asigna un código solo con coincidencia exacta y única, o con una decisión humana registrada.
 - **No inventa.** Todo dato es real, con fuente, fecha y licencia; lo calculado se puede repetir con un comando.
 - **Se revisa a sí mismo.** Verificación estadística, de interfaz y de seguridad, con sus informes en `docs/19` a `docs/21`.
-- **Protege a las personas.** Solo agregados, conteos pequeños ocultos, fotos que no se guardan y una bitácora de quién hizo qué (`docs/23`).
+- **Protege a las personas.** Solo agregados, conteos pequeños ocultos, fotos que no se guardan y una bitácora de quién hizo qué, que los administradores consultan en «Usuarios» (`docs/23`).

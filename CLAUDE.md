@@ -248,6 +248,25 @@ reutilizables para cualquier carga lenta. Animación: `FOTO_ENTERA` (WMS: GIBS `
 `pedirEntera`, `precargar`, `cuadroListo`; las teselas quedan solo como respaldo.
 Prueba: `.faro/pruebas/carga_precios_y_fotos.js` (usa el proxy para las fotos).
 
+Agregado después (v0.18.0, revisión para la entrega; sin funciones nuevas). Nota conceptual: matriz en
+`docs/26` (revisarla al cerrar cada versión). **Ninguna contraseña en el código**: `FARO_CLAVE_INICIAL`
+(compose la deja en `admin`; sin ella el servidor genera una al azar y la imprime), `DATABASE_URL`
+obligatoria, guiones de prueba con `FARO_CLAVE_PRUEBA` (y `FARO_CLAVE_INICIAL`); `scratchpad/reiniciar.sh`
+ya la pone. `FARO_ESCUCHA` también vale sin Docker (127.0.0.1 por omisión; el Dockerfile fija 0.0.0.0).
+`con_sesion()` y `ve_conteos_exactos()` rechazan sesiones con contraseña inicial. `celdas_ocultas()` es la
+única lista de celdas protegidas: **toda ruta nueva que entregue conteos por municipio debe usarla**.
+`api_envio_borrar` borra `datos/privado/envios/<n>`. Nombre visible único. Bitácora visible en «Usuarios»
+(`#tbitacora`, `bitacoraVer`). Muestreo: se detiene ante 403/429. Fuentes: 37 (`ghsl-articulo`, `osm-teselas`,
+`commons-fachadas`); FAO NO es CC BY; `precios-referencia` es ODC-BY; `cba` no declara licencia.
+`datos/crudo/manifiesto.jsonl` e `inventario_ine.csv` SÍ se versionan (valor por omisión de `faro fuentes`).
+Entregables: `scripts/entregables/` → `terceros.js` (docs/27), `preparar_demo.js <url> <clave>` (instalación
+nueva lista para demostrar, todo ficticio), `generar_presentacion.js`, `generar_manual.js`, `generar_pdf.js`.
+`LICENCIA.md`: autoría + licencia al INE; la licencia para terceros es decisión pendiente del equipo.
+`docs/28`: guía para defender el código. `docs/16`: guion y plan de grabación del video (siguiente paso).
+Prueba de clon limpio: `scratchpad/clon_limpio.sh`. Tres auditorías con agentes (citas, documentos, legal):
+repetirlas antes de una entrega; sus hallazgos están resumidos en `docs/26`, sección 7.
+No decidir por el equipo: firma de los commits (hoy los firma el asistente), licencia para terceros.
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)
@@ -255,14 +274,16 @@ Prueba: `.faro/pruebas/carga_precios_y_fotos.js` (usa el proxy para las fotos).
    de Cloudflare a clientes automáticos desde la nube; probar desde la máquina del equipo.
 3. Ampliar las reglas del IPMC a más artículos y sumar proveedores con precios (ferreterías del
    interior: sus precios no están en línea; haría falta cotización directa).
-4. Publicar releases v0.1.0–v0.9.0 (la sesión en la nube no tiene permiso; ver `docs/08-versiones.md`).
+4. (Hecho por el equipo: hay etiquetas v0.1.0 a v0.17.1 en el remoto.) Falta el release de v0.18.0.
 5. Más fuentes de gobierno ya verificadas (descarga directa, con código de municipio), por integrar
    en este orden: CONRED incidentes 2024 y MAGA afectaciones a cultivos 2024 (portal del INE,
    conjunto de8af067…); SEGEPLAN ranking de gestión municipal 2025 (JSON); MSPAS inventario de
    sistemas de agua 2024; MINEDUC establecimientos 2025; PNC hechos de tránsito 2025; INAB
    PROBOSQUE 2024; SAT parque vehicular (solo nombres de municipio: buen caso de homologación).
    Bloqueados desde la nube (Cloudflare): MINFIN, datos.gob.gt, SIGSA/MSPAS, MEM, MIDES, CONAP.
-6. Entregables: PDF, video (2–3 min). Invitar al jurado al repositorio.
+6. Entregables: presentación, manual y documento técnico en PDF, hechos. Falta el **video (2–3 min)**:
+   guion en `docs/16`; grabar con Playwright + ffmpeg (no hay sintetizador de voz en esta nube).
+   Falta también: invitar al jurado al repositorio y la nota de consentimiento (lista en `docs/26`, sección 8).
 7. De la v0.16.0: medir el clasificador con fotos de campo del INE; bajar los pesos del sitio oficial
    de Places365 y comparar la huella; publicar con HTTPS para el trabajo de campo; decidir el umbral de
    celdas; firma electrónica de constancias; GHS-BUILT-C (10 m) para altura y tipo de edificio.

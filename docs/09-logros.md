@@ -23,8 +23,9 @@ y cómo repetirlo.
 
 3. **Cada institución escribe lo mismo de otra forma**, y hay errores que hoy pasan inadvertidos:
    códigos de municipio que no existen, municipios en el departamento equivocado, letras dañadas
-   por la codificación, categorías fuera de catálogo. 51,719 filas de cuatro instituciones
-   procesadas en menos de 3 segundos, con 97.9 % a 100 % de lugares con código oficial.
+   por la codificación, categorías fuera de catálogo. 51,719 filas de tres instituciones
+   (cuatro archivos) procesadas en menos de 3 segundos, con 99.9 % a 100 % de lugares con código
+   oficial tras entender los códigos de RENAP.
    Detalle (solo conteos): [`06-hallazgos-datos-reales.md`](06-hallazgos-datos-reales.md).
 
 4. **De 82 columnas con datos personales salen 14**: el nombre se elimina, el CUI se sustituye por
@@ -46,6 +47,8 @@ y cómo repetirlo.
 6a. **El tipo de cada vía ya estaba en el archivo; la superficie, solo en parte.** De 144,846 km de
    vías para vehículos: 5,533 km principales, 15,496 km secundarias, 89,916 km locales y 33,901 km
    de terracería. La superficie está anotada en 38 % de la red; de esa parte, 21 % es pavimentada.
+   (El grafo completo mide 144,866 km; la suma por clase da 20 km menos, un 0.01 %, y de esos
+   kilómetros 430 no tienen un municipio confirmado contra el catálogo.)
    El 62 % restante no se puede clasificar: es trabajo de mapeo pendiente, y el portal lo dice
    municipio por municipio en vez de suponerlo. El código de municipio del archivo se aceptó solo
    cuando su nombre coincide con el catálogo (la capa de origen trae dos códigos intercambiados);
@@ -67,7 +70,7 @@ y cómo repetirlo.
    Detalle: [`10-imagenes-satelitales.md`](10-imagenes-satelitales.md). Repetir: `faro construido`.
 
 9. **Un mapa y capas publicables.** Población, crecimiento, superficie construida, conexión vial y
-   registros recibidos por municipio en un mismo mapa, y siete capas con dirección estable
+   registros recibidos por municipio en un mismo mapa, y 21 capas con dirección estable
    (GeoJSON y CSV) para que las consuma un portal o un SIG.
 
 ## Datos de otras instituciones de gobierno
@@ -161,7 +164,7 @@ y cómo repetirlo.
     realmente observado (20 % de lo proyectado en 8 de cada 10 casos; 47 % en 95 de cada 100) y
     ahora cumple lo que dice. Ningún método alternativo (exponencial, tres épocas, última década)
     fue mejor en las tres décadas. Detalle: [`19-verificacion-estadistica.md`](19-verificacion-estadistica.md).
-10k. **Interfaz comprobada en seis tamaños de pantalla y seguridad auditada.** 22 secciones sin
+10k. **Interfaz comprobada en seis tamaños de pantalla y seguridad auditada.** 24 secciones sin
     desbordes ni controles difíciles de tocar en laptop, tableta y celular
     ([`20-verificacion-interfaz.md`](20-verificacion-interfaz.md)); auditoría sin inyección SQL ni
     fallos de rol, con 16 de 20 hallazgos corregidos ([`21-seguridad.md`](21-seguridad.md)).
@@ -225,3 +228,11 @@ y cómo repetirlo.
    `institucion_y_recorridos.js` junto con otros 30 puntos.
 14. **El portal se explica solo.** 24 secciones con recorrido guiado propio; el manual gráfico
    (36 páginas) se genera desde el portal y usa las mismas marcas, así que no se desactualiza.
+15. **La instalación se comprobó desde cero.** Un clon limpio del repositorio, los pasos del README
+   y un comando: la imagen se construyó en 4 minutos y el portal quedó arriba con sus 85,907 precios
+   cargados (25-nov-2026).
+16. **Una revisión independiente encontró una resta posible, y se cerró.** El mapa ocultaba la celda
+   pequeña y su complemento, pero la ficha del municipio solo ocultaba la pequeña: con el total del
+   departamento se podía despejar. Ahora todas las respuestas usan la misma lista de celdas
+   ocultas (`celdas_ocultas`). También se corrigieron dos licencias del INE mal declaradas
+   (precios de referencia es ODC-BY; la canasta básica no declara licencia).

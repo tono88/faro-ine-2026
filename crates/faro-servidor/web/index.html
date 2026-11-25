@@ -364,11 +364,11 @@
         <li><b>Cambio.</b> Cambio = población final − población inicial; en el periodo (%) = cambio ÷ inicial × 100.</li>
         <li><b>Más allá de 2030 (opcional).</b> La proyección oficial termina en 2030. Para mirar más lejos se ofrecen dos curvas que parten del último dato oficial. La <b>exponencial</b> mantiene la tasa de los últimos cinco años: es la adecuada a corto plazo (hasta diez años). La <b>logística</b> supone que el crecimiento se frena al acercarse a un techo, porque el suelo, el agua y el empleo son limitados: es la adecuada a largo plazo. El techo se estima de la propia serie del INE; si la serie no se frena, no hay techo que estimar y se usa la exponencial. Probadas a cinco años contra el propio INE, las dos se apartan muy poco; a largo plazo no hay dato por municipio para probarlas (ver la verificación estadística).</li>
         <li><b>Crecimiento anual.</b> Tasa compuesta = (final ÷ inicial)<sup>1 ÷ años</sup> − 1. Es el ritmo constante que lleva de la cifra inicial a la final.</li>
-        <li><b>Tasas por 100 mil.</b> Registros recibidos ÷ población del territorio en el año del registro × 100,000.</li></ol>
-        <p class="nota">Son las proyecciones oficiales del INE: FARO no estima población, solo la resume y la cruza. Todo el cálculo es código del portal; no interviene ningún modelo externo.</p></details>
+        <li><b>Registros por 100 mil habitantes.</b> Todos los registros recibidos del territorio (la suma de los periodos vigentes) ÷ la población proyectada por el INE para el año más reciente recibido × 100,000. Sirve para comparar territorios entre sí; <b>no es una tasa anual</b> ni un indicador oficial, porque un archivo puede traer registros tardíos de muchos años.</li></ol>
+        <p class="nota">Hasta 2030 son las proyecciones oficiales del INE: FARO no estima población, solo la resume y la cruza. La única excepción es la extensión opcional después de 2030, que es un cálculo propio y se rotula como no oficial. Todo el cálculo es código del portal; no interviene ningún modelo externo.</p></details>
       <p class="proc" data-proc="poblacion"></p>
       <h2 style="margin-top:18px">Repetir el cálculo desde el portal del INE</h2>
-      <p class="nota">Vuelve a hacer, ahora mismo y a la vista, todo el proceso que produjo esta tabla: consulta el conjunto en el portal de datos abiertos, descarga el libro y su diccionario, suma las edades, cruza los códigos con el catálogo y compara el resultado con la tabla en uso. Requiere internet y la clave. Por línea de comandos: <code>faro poblacion --entrada &lt;libro&gt; --diccionario &lt;diccionario&gt;</code>.</p>
+      <p class="nota">Vuelve a hacer, ahora mismo y a la vista, todo el proceso que produjo esta tabla: consulta el conjunto en el portal de datos abiertos, descarga el libro y su diccionario, suma las edades, cruza los códigos con el catálogo y compara el resultado con la tabla en uso. Requiere que el servidor tenga internet y una sesión con permiso en esta sección. Por línea de comandos: <code>faro poblacion --entrada &lt;libro&gt; --diccionario &lt;diccionario&gt;</code>.</p>
       <button class="accion" id="reproducir" data-requiere="crecimiento">Repetir el proceso ahora</button>
       <div id="reproducido" aria-live="polite"></div>
     </div>
@@ -385,14 +385,14 @@
         <li><b>Tendencia.</b> Recta de mínimos cuadrados sobre las épocas desde 2000: hectáreas = a + b × año. <i>b</i> son las hectáreas nuevas por año.</li>
         <li><b>Proyección.</b> Valor de la recta en el año pedido. El margen no sale de una fórmula sino de una prueba: se proyectó diez años hacia adelante con datos anteriores, en los 340 municipios y tres décadas (1,020 casos), y se midió cuánto se apartó lo que de verdad ocurrió. En 8 de cada 10 casos el error fue de 20 % de lo proyectado o menos; en 95 de cada 100, de 47 % o menos.</li>
         <li><b>Por qué una recta y no una tasa constante.</b> Lo que crece en proporción a su tamaño suele seguir una tasa constante (curva exponencial), y eso se probó con la misma prueba: para la superficie construida la recta acertó más (error mediano de 8.9 % frente a 14.2 %). Por eso la recta es la cifra principal y la tasa constante se muestra al lado, como contraste: si las dos se parecen, la proyección depende poco del supuesto; si se separan, conviene leerla con cautela.</li>
-        <li><b>La población no se proyecta aquí.</b> Las cifras de población son las proyecciones oficiales del INE, hechas por componentes demográficos (nacimientos, defunciones y migración por edad), que es el método adecuado para personas. FARO solo resume su crecimiento con la tasa compuesta.</li>
+        <li><b>La población oficial no se proyecta aquí.</b> Las cifras de población hasta 2030 son las proyecciones oficiales del INE, hechas por componentes demográficos (nacimientos, defunciones y migración por edad), que es el método adecuado para personas. FARO solo resume su crecimiento con la tasa compuesta.</li>
         <li><b>Confianza.</b> Alta si R² ≥ 0.90 con al menos 6 épocas; media si R² ≥ 0.70; baja en otro caso. R² es la parte de la variación que la recta explica.</li></ol></details>
       <p class="proc" data-proc="construido"></p>
       <p class="proc" data-proc="uso_suelo"></p>
     </div>
     <div class="panel" data-requiere="crecimiento">
       <h2>Crecimiento de edificaciones por municipio (serie propia)</h2>
-      <p class="nota">Edificaciones observadas por satélite cada año (Google Open Buildings 2.5D Temporal, 2016–2023) y su proyección. Son edificaciones, no viviendas ni personas: sirve para priorizar la actualización cartográfica. La serie real se obtiene con <code>scripts/open_buildings_por_municipio.js</code> en Google Earth Engine; mientras tanto puede probar con el <a href="/ejemplos/edificaciones_ficticias.csv">archivo de ejemplo (ficticio)</a>.</p>
+      <p class="nota">Edificaciones observadas por satélite cada año (Google Open Buildings 2.5D Temporal, 2016–2023) y su proyección. Son edificaciones, no viviendas ni personas: sirve para priorizar la actualización cartográfica. Este panel es <b>opcional</b>: la serie que FARO usa para el crecimiento urbano es la de GHSL, arriba. Aquí se puede cargar una serie propia, por ejemplo la que produce <code>scripts/open_buildings_por_municipio.js</code> en Google Earth Engine (un servicio externo que FARO no usa por su cuenta), o probar con el <a href="/ejemplos/edificaciones_ficticias.csv">archivo de ejemplo (ficticio)</a>.</p>
       <label for="anio">Proyectar al año</label><input type="number" id="anio" value="2030" min="2024" max="2050" style="max-width:120px">
       <label for="csvedif">Cargar serie (CSV: codigo, anio, edificaciones; o departamento, municipio, anio, edificaciones)</label><input type="file" id="csvedif" accept=".csv">
       <button class="accion" id="cargaredif">Cargar y calcular</button>
@@ -583,6 +583,8 @@
       <div id="uinstcaja" hidden><label for="uinst">Institución por la que envía</label><select id="uinst" style="max-width:320px"></select><p class="nota" style="margin:4px 0 0">Aparecen las instituciones que tienen al menos una solicitud de datos. Esta cuenta solo podrá subir archivos de esas solicitudes.</p></div>
       <label for="uclave">Contraseña inicial (al menos 10 caracteres, con letras y números o signos; deberá cambiarla al entrar)</label><input type="password" id="uclave" autocomplete="new-password" style="max-width:320px">
       <button class="accion" id="ucrear">Crear usuario</button></div>
+    <div class="panel"><h2>Bitácora</h2><p class="nota" style="margin-top:0">Quién hizo qué y cuándo: envíos recibidos y eliminados, equivalencias, cuentas, tableros publicados, rutas y visitas. Se muestran las 300 acciones más recientes; solo los administradores la ven. Nunca guarda el contenido de un archivo.</p>
+      <div class="tabla"><table id="tbitacora"></table></div></div>
   </section>
 
   <section id="canasta">
@@ -636,7 +638,7 @@
   <section id="muestreos">
     <div class="titulo"><h2>Muestreos automáticos</h2><p>Tareas que el propio portal repite sin intervención: consultan la búsqueda pública de una tienda en línea (sin sesión ni claves, una consulta por término y con pausa), y guardan cada precio con su dirección y la fecha. Usted decide cuáles corren y cada cuánto. La vigilancia del portal de datos abiertos del INE funciona igual y está en "Portal del INE".</p></div>
     <div class="panel"><p style="margin:0 0 12px" data-requiere="muestreos"><button class="accion" id="muestreostodas" style="margin:0">↻ Ejecutar todas ahora</button> <span class="nota" id="muestreostodasnota">Vuelve a leer todas las tiendas: corre en segundo plano, una tienda a la vez por sitio, y puede tardar más de una hora. Puede seguir usando el portal.</span></p><div class="tabla"><table id="tmuestreos"></table></div>
-    <p class="nota">Cómo se agrega una tienda o un rubro: una tarea más en <code>datos/estandar/muestreos.toml</code> con la dirección base de la tienda, el rubro y los términos de búsqueda. Se admiten cuatro lecturas: búsqueda por términos y catálogo completo por categorías (tiendas con tecnología VTEX), mapa del sitio con datos estructurados de cada producto, y listado paginado (tiendas Magento). Un catálogo completo tarda varios minutos y corre en segundo plano. Los precios de construcción entran solos a la comparación contra el IPMC; los de alimentos aparecen en "Canasta básica"; todos se consultan en "Precios por rubro". Suma, Super del Barrio y Mi Super Fresh no publican catálogo con precios en línea (solo páginas informativas), y PriceSmart exige un navegador con sesión: no se muestrean.</p></div>
+    <p class="nota">Cómo se agrega una tienda o un rubro: una tarea más en <code>datos/estandar/muestreos.toml</code> con la dirección base de la tienda, el rubro y los términos de búsqueda. Se admiten seis lecturas: búsqueda por términos y catálogo completo por categorías (tiendas con tecnología VTEX), mapa del sitio con datos estructurados de cada producto, listado paginado (tiendas Magento) y catálogo público de tiendas Shopify y WooCommerce. Solo se leen direcciones abiertas, con pausa entre consultas; si una tienda responde que no admite la consulta, la tarea se detiene y no insiste. Un catálogo completo tarda varios minutos y corre en segundo plano. Los precios de construcción entran solos a la comparación contra el IPMC; los de alimentos aparecen en "Canasta básica"; todos se consultan en "Precios por rubro". Suma, Super del Barrio y Mi Super Fresh no publican catálogo con precios en línea (solo páginas informativas), y PriceSmart exige un navegador con sesión: no se muestrean.</p></div>
   </section>
 
   <section id="precios">
@@ -687,7 +689,7 @@
         <li><b>Datos personales.</b> Los nombres se eliminan, el CUI se cambia por una llave que no se puede revertir y las direcciones no pasan (Decreto Ley 3-85, art. 25; Decreto 57-2008, arts. 30 a 32).</li>
         <li><b>Constancia.</b> Cada acción que cambia algo queda en una bitácora con quién y cuándo.</li>
         <li><b>Trabajo de campo.</b> La foto de una visita no se guarda; la posición se pide solo al registrar la visita y la ven el operador y quien coordina.</li>
-        <li>El análisis completo, norma por norma y con lo que no se pudo verificar, está en <code>docs/23-conformidad-legal.md</code>. Es un análisis técnico del equipo: debe revisarlo la asesoría jurídica del INE.</li></ul></details>
+        <li>El análisis completo, norma por norma y con lo que no se pudo verificar, está en el repositorio del proyecto (<code>docs/23-conformidad-legal.md</code>). Es un análisis técnico del equipo: debe revisarlo la asesoría jurídica del INE.</li></ul></details>
       <h2 style="margin-top:14px">Qué se ha hecho</h2>
       <ul id="hecho"></ul>
       <p class="nota" style="margin-bottom:0">Prototipo del Datatón INE 2026, categoría 2. Equipo: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval. No es un producto oficial del INE.</p></div>
@@ -845,7 +847,7 @@ async function hechos() {
     {t:'Último envío', f:f => f.ultimo ? esc(f.ultimo) : '<span class="etq mal">sin envíos</span>'},
     {t:'Lugares resueltos', f:f => f.pct_resuelto == null ? '' : `<div class="barra" title="${num(f.pct_resuelto)} %"><i style="width:${f.pct_resuelto}%"></i></div>${num(f.pct_resuelto)} %`},
     {t:'Por revisar (valores distintos)', num:1, f:f => num(f.pendientes)}], (await api('/api/avance')), 'No hay solicitudes.');
-  tabla('#thechos', [{t:'Solicitud', f:f => esc(f.solicitud)}, {t:'Departamento', f:f => `${esc(f.departamento)} ${esc(f.nombre)}`}, {t:'Total (registros)', num:1, f:f => num(f.total)},
+  tabla('#thechos', [{t:'Solicitud', f:f => esc(f.solicitud)}, {t:'Departamento', f:f => `${esc(f.departamento)} ${esc(f.nombre)}`}, {t:'Total (registros)', num:1, f:f => f.total == null ? `<span class="etq" title="Protección estadística: los conteos pequeños no se publican">menos de ${UMBRAL}</span>` : num(f.total)},
     {t:'Hombres', num:1, f:f => f.hombres == null ? '' : num(f.hombres)}, {t:'Mujeres', num:1, f:f => f.mujeres == null ? '' : num(f.mujeres)},
     {t:'Población (habitantes, INE)', num:1, f:f => f.poblacion == null ? '' : `${num(f.poblacion)} <small>(${f.anio})</small>`},
     {t:'Por 100 mil hab.', num:1, f:f => f.por_100_mil == null ? '' : `${Number(f.por_100_mil).toLocaleString('es-GT', {maximumFractionDigits: 2})} <small>(${f.meses} mes${f.meses === 1 ? '' : 'es'})</small>`}], await api('/api/hechos'), 'Sin envíos todavía.');
@@ -860,8 +862,8 @@ async function poblacion() {
   const r = await api(`/api/poblacion?desde=${encodeURIComponent($('#pobdesde').value)}&hasta=${encodeURIComponent($('#pobhasta').value)}&extender=${encodeURIComponent($('#pobextender').value)}`);
   if (!r.disponible) { $('#pobpais').textContent = 'Este servidor no tiene cargada la tabla de población.'; return; }
   const p = r.pais; $('#pobpais').textContent = p ? `País: ${num(p.poblacion_inicial)} habitantes en ${r.desde} y ${num(p.poblacion_final)} en ${r.hasta} (${num(p.tasa_anual_pct)} % anual).` : '';
-  const x = r.extendido, mas = x ? [{t:`${x.anio}, exponencial (hab.)`, num:1, f:f => f.extrapolacion ? (f.extrapolacion.sugerida === 'exponencial' ? '<b>' + num(f.extrapolacion.exponencial) + '</b>' : num(f.extrapolacion.exponencial)) : ''},
-    {t:`${x.anio}, logística (hab.)`, num:1, f:f => !f.extrapolacion ? '' : f.extrapolacion.logistica == null ? '<small>sin techo que estimar</small>' : (f.extrapolacion.sugerida === 'logistica' ? '<b>' + num(f.extrapolacion.logistica) + '</b>' : num(f.extrapolacion.logistica)) + `<br><small>techo: ${num(f.extrapolacion.techo)}</small>`}] : [];
+  const x = r.extendido, mas = x ? [{t:`${x.anio}, exponencial (hab., no oficial)`, num:1, f:f => f.extrapolacion ? (f.extrapolacion.sugerida === 'exponencial' ? '<b>' + num(f.extrapolacion.exponencial) + '</b>' : num(f.extrapolacion.exponencial)) : ''},
+    {t:`${x.anio}, logística (hab., no oficial)`, num:1, f:f => !f.extrapolacion ? '' : f.extrapolacion.logistica == null ? '<small>sin techo que estimar</small>' : (f.extrapolacion.sugerida === 'logistica' ? '<b>' + num(f.extrapolacion.logistica) + '</b>' : num(f.extrapolacion.logistica)) + `<br><small>techo: ${num(f.extrapolacion.techo)}</small>`}] : [];
   $('#pobextendido').hidden = !x;
   if (x) $('#pobextendido').innerHTML = `<b>${x.anio} está ${x.horizonte} años después del último dato oficial: ${x.horizonte <= x.horizonte_corto ? 'plazo corto, se sugiere la exponencial' : 'plazo largo, se sugiere la logística donde la serie deja ver un techo'}</b> (en negrita en la tabla). Sumando los municipios: exponencial ${num(x.exponencial / 1e6)} millones de habitantes; logística ${num(x.logistica / 1e6)} millones; curva sugerida ${num(x.sugerida / 1e6)} millones. ${x.con_techo} de ${r.municipios.length} municipios dejan ver un techo. Son extrapolaciones de FARO para explorar, no proyecciones del INE.`;
   tabla('#tpob', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:`${r.desde} (hab.)`, num:1, f:f => num(f.poblacion_inicial)}, {t:`${r.hasta} (hab.)`, num:1, f:f => num(f.poblacion_final)},
@@ -1030,7 +1032,7 @@ async function cambiarNivel(n, enfocar) {
   if (n === 'departamento' && !capaDep) {
     geoDep = await (await fetch('/capas/departamentos.geojson')).json();
     geoDep.features.forEach(f => { f.properties = resumenDepartamento(f.properties.codigo, f.properties.nombre, municipiosDe(f.properties.codigo)); });
-    Object.entries(registros).forEach(([sol, m]) => { const d = registrosDep[sol] = {}; geoMuni.features.forEach(f => { const x = m[f.properties.codigo]; if (!x) return; const k = f.properties.departamento_codigo; (d[k] = d[k] || {total:0, pob:0}).total += x.total; });
+    Object.entries(registros).forEach(([sol, m]) => { const d = registrosDep[sol] = {}; geoMuni.features.forEach(f => { const x = m[f.properties.codigo]; if (!x) return; const k = f.properties.departamento_codigo; const c = d[k] = d[k] || {total:0, pob:0, protegidas:0}; if (x.total == null) c.protegidas++; else c.total += x.total; });
       Object.entries(d).forEach(([k, x]) => { const pob = suma(municipiosDe(k), 'poblacion_actual'); x.por_100_mil = pob ? redondo(x.total * 1e5 / pob, 1) : null; }); });
     capaDep = L.geoJSON(geoDep, {onEachFeature: (f, capa) => { capa.bindTooltip(`${f.properties.nombre} · ${f.properties.municipios} municipios`, {sticky:true});
       capa.on({click: () => fichaDepartamento(f.properties, capa), mouseover: () => capa.setStyle({weight:2.6, color:'#07306b'}), mouseout: () => capa.setStyle({weight:1, color:'#fff'})}); }});
@@ -1056,7 +1058,7 @@ const FUERA = {fillColor:'#eef1f4', fillOpacity:.35, color:'#dfe5eb', weight:.5}
 const COLOR_CONEXION = {conectado:'#0051b3', tramo_suelto:'#7a3fb5', sin_camino:'#d9730d'};
 function fichaDepartamento(p, capa) {
   const ms = municipiosDe(p.codigo), ind = indicadorActual(), orden = ms.map(m => [m, ind.f(m)]).filter(x => x[1] != null).sort((a, b) => b[1] - a[1]);
-  const n = x => Number(x).toLocaleString('es-GT', {maximumFractionDigits: ind.dec ?? 0}), reg = Object.entries(registrosDep).map(([sol, d]) => d[p.codigo] ? `<li>${esc(sol)}: <b>${num(d[p.codigo].total)}</b> registros${d[p.codigo].por_100_mil != null ? ` (${num(d[p.codigo].por_100_mil)} por 100 mil hab.)` : ''}</li>` : '').join('');
+  const n = x => Number(x).toLocaleString('es-GT', {maximumFractionDigits: ind.dec ?? 0}), reg = Object.entries(registrosDep).map(([sol, d]) => d[p.codigo] ? `<li>${esc(sol)}: <b>${d[p.codigo].protegidas ? 'al menos ' : ''}${num(d[p.codigo].total)}</b> registros${d[p.codigo].protegidas ? ` <small>(sin contar ${d[p.codigo].protegidas} municipio(s) con conteo protegido)</small>` : d[p.codigo].por_100_mil != null ? ` (${num(d[p.codigo].por_100_mil)} por 100 mil hab., todos los periodos recibidos)` : ''}</li>` : '').join('');
   const caja = $('#ficha'); caja.hidden = false;
   caja.innerHTML = `<button class="cerrar" aria-label="Cerrar la ficha">×</button><h2 style="margin-right:30px">${esc(p.nombre)}</h2><p class="nota" style="margin:0">Departamento · código INE ${esc(p.codigo)} · ${p.municipios} municipios · cifras calculadas sumando sus municipios</p>
     <div class="mini">
@@ -1104,7 +1106,7 @@ function cortes(valores) {
 function indicadorActual() {
   const id = $('#indicador').value;
   if (id.startsWith('reg:')) { const sol = id.slice(4), tasa = id.endsWith(':tasa'), clave = sol.replace(':tasa', ''); const d = (nivel === 'departamento' ? registrosDep : registros)[clave] || {};
-    return {id, t:'', f:p => { const x = d[p.codigo]; return x ? (tasa ? x.por_100_mil : x.total) : null; }, u:tasa ? 'por 100 mil hab.' : 'registros', nota:() => 'Registros recibidos y homologados (solo conteos). Sin dato = no ha llegado nada de ese municipio.', tonos:'azul', dec:tasa ? 1 : 0}; }
+    return {id, t:'', f:p => { const x = d[p.codigo]; return x ? (tasa ? x.por_100_mil : x.total) : null; }, u:tasa ? 'por 100 mil hab.' : 'registros', nota:() => 'Registros recibidos y homologados (solo conteos), sumando todos los periodos recibidos: no es una tasa anual. «Sin dato» puede ser que no ha llegado nada de ese territorio o que su conteo es menor que ' + UMBRAL + ' y está protegido; a nivel de departamento, el total no cuenta los municipios protegidos.', tonos:'azul', dec:tasa ? 1 : 0}; }
   return INDICADORES.find(i => i.id === id);
 }
 function pintarMapa() {
@@ -1157,7 +1159,7 @@ async function datosMunicipio(codigo) { return fichas[codigo] || (fichas[codigo]
 async function ficha(p) {
   const caja = $('#ficha'); caja.hidden = false; caja.innerHTML = `<button class="cerrar" aria-label="Cerrar la ficha">×</button><h2 style="margin-right:30px">${esc(p.nombre)}</h2><p class="nota" style="margin:0">Cargando…</p>`;
   const d = await datosMunicipio(p.codigo), hoy = d.poblacion.find(x => x[0] === d.anio_actual), c = d.poblacion_cambio, a = d.construido_analisis, ult = d.construido[d.construido.length - 1];
-  const reg = Object.entries(registros).map(([sol, m]) => m[p.codigo] ? m[p.codigo].protegido ? `<li>${esc(sol)}: <span class="etq" title="Protección estadística: los conteos pequeños no se publican">menos de ${UMBRAL} o protegido</span></li>` : `<li>${esc(sol)}: <b>${num(m[p.codigo].total)}</b> registros${m[p.codigo].por_100_mil != null ? ` (${num(m[p.codigo].por_100_mil)} por 100 mil hab.)` : ''}</li>` : '').join('');
+  const reg = Object.entries(registros).map(([sol, m]) => m[p.codigo] ? m[p.codigo].protegido ? `<li>${esc(sol)}: <span class="etq" title="Protección estadística: los conteos pequeños no se publican">menos de ${UMBRAL} o protegido</span></li>` : `<li>${esc(sol)}: <b>${num(m[p.codigo].total)}</b> registros${m[p.codigo].por_100_mil != null ? ` (${num(m[p.codigo].por_100_mil)} por 100 mil hab., todos los periodos recibidos)` : ''}</li>` : '').join('');
   caja.innerHTML = `<button class="cerrar" aria-label="Cerrar la ficha">×</button><h2 style="margin-right:30px">${esc(d.nombre)}</h2><p class="nota" style="margin:0">${esc(d.departamento)} · código INE ${esc(d.codigo)}</p>
     <div class="mini">
       <div><b>${num(hoy && hoy[1])}</b><small>habitantes en ${d.anio_actual} · puesto ${num(d.puesto_poblacion)} de 340</small></div>
@@ -1190,7 +1192,7 @@ $('#ficha').onclick = e => { if (e.target.closest('.cerrar')) $('#ficha').hidden
 let animacion = null;
 // Fotos de fondo de la animación (teselas XYZ de uso libre). Son una referencia visual, no una fuente de medición.
 const TESELAS = new Map();
-const FOTO_SENTINEL = {nombre: 'Sentinel-2, mosaico sin nubes 2016 (EOX, CC BY 4.0)', zmax: 13, entera: caja => FOTO_ENTERA.sentinel(caja), url: (z, x, y) => `https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/${z}/${y}/${x}.jpg`};
+const FOTO_SENTINEL = {nombre: 'Sentinel-2 cloudless de EOX IT Services GmbH (contiene datos Copernicus Sentinel modificados, 2016; CC BY 4.0)', zmax: 13, entera: caja => FOTO_ENTERA.sentinel(caja), url: (z, x, y) => `https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/${z}/${y}/${x}.jpg`};
 // La misma foto, entera: una sola imagen del recuadro pedido (servicio WMS), en vez de decenas de teselas.
 const FOTO_ENTERA = {sentinel: caja => `https://tiles.maps.eox.at/wms?service=WMS&version=1.1.1&request=GetMap&layers=s2cloudless&styles=&srs=EPSG:4326&bbox=${caja}&format=image/jpeg`,
   landsat: anio => caja => `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual&STYLES=&TIME=${anio}-12-01&SRS=EPSG:4326&BBOX=${caja}&FORMAT=image/jpeg`};
@@ -1282,12 +1284,12 @@ async function iniciarMapa() {
   mapa.createPane('encima').style.zIndex = 440; mapa.createPane('puntos').style.zIndex = 450;
   // Botón para volver a la vista de todo el país.
   const inicio = L.control({position:'topleft'}); inicio.onAdd = () => { const d = L.DomUtil.create('div', 'leaflet-bar'); d.innerHTML = '<a href="#" role="button" id="volverpais" title="Volver a ver todo el país" aria-label="Volver a ver todo el país">⌂</a>'; L.DomEvent.disableClickPropagation(d); d.firstChild.onclick = e => { e.preventDefault(); e.stopPropagation(); verTodo(); }; return d; }; inicio.addTo(mapa);
-  mapa.attributionControl.setPrefix('').addAttribution('Límites: CONRED/OCHA · Población y lugares: INE · Caminos: © colaboradores de OpenStreetMap');
+  mapa.attributionControl.setPrefix('').addAttribution('Límites: CONRED/OCHA (CC BY-IGO), simplificados por FARO · Población y lugares: INE · Caminos: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">colaboradores de OpenStreetMap</a> (ODbL)');
   const [g, r] = await Promise.all([fetch('/capas/municipios.geojson').then(x => x.ok ? x.json() : null), api('/api/registros_municipio').catch(() => ({}))]);
   if (!g) { aviso('Este servidor no tiene la capa de municipios (se genera con "faro limites").', true); return; }
   geoMuni = g; registros = r;
   $('#indicador').innerHTML = INDICADORES.map(i => `<option value="${i.id}">${esc(i.t)}</option>`).join('') +
-    Object.keys(registros).map(s => `<option value="reg:${esc(s)}">Registros recibidos: ${esc(s)}</option><option value="reg:${esc(s)}:tasa">Registros por 100 mil hab.: ${esc(s)}</option>`).join('');
+    Object.keys(registros).map(s => `<option value="reg:${esc(s)}">Registros recibidos: ${esc(s)}</option><option value="reg:${esc(s)}:tasa">Registros por 100 mil hab. (no es tasa anual): ${esc(s)}</option>`).join('');
   capaMuni = L.geoJSON(g, {onEachFeature: (f, capa) => { capa.bindTooltip(`${f.properties.nombre}, ${f.properties.departamento}`, {sticky:true});
     capa.on({click: () => ficha(f.properties).catch(x => aviso(x.message, true)), mouseover: () => capa.setStyle({weight:2.2, color:'#07306b'}), mouseout: () => capa.setStyle(!dentro(f.properties) ? FUERA : nivel === 'lugar' ? {weight:.7, color:'#9fb3c8'} : {weight:.6, color:'#fff'})}); }}).addTo(mapa);
   mapa.fitBounds(capaMuni.getBounds()); pintarMapa();
@@ -1336,7 +1338,7 @@ $('#huellaplay').onclick = () => { if (huellaTimer) { clearInterval(huellaTimer)
 $('#capapoblados').onchange = async e => { capaPoblados = await capaOpcional(e.target.checked, capaPoblados, async () => { const lienzoCapa = L.canvas({padding:.3, pane:'puntos'});
   return L.geoJSON(await (await fetch('/capas/lugares_poblados.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {renderer: lienzoCapa, radius:2, stroke:false, fillColor:'#07306b', fillOpacity:.55}), onEachFeature:(f, c) => c.bindTooltip(`${f.properties.nombre} · ${f.properties.codigo}`)}); }); };
 $('#capalugares').onchange = async e => { capaLugares = await capaOpcional(e.target.checked, capaLugares, async () => L.geoJSON(await (await fetch('/capas/lugares_sin_conexion.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {pane:'puntos', radius:4, weight:1, color:'#fff', fillOpacity:.9, fillColor: f.properties.conexion === 'sin_camino' ? '#b85c00' : '#7a3fb5'}), onEachFeature:(f, c) => c.bindPopup(`<b>${esc(f.properties.nombre)}</b> <small>${esc(f.properties.codigo)}</small><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>${f.properties.conexion === 'sin_camino' ? 'Sin camino mapeado cerca' + (f.properties.distancia_m ? ' (vía más cercana a ' + num(f.properties.distancia_m) + ' m)' : '') : 'En un tramo que no se une a la red principal'}`)})); };
-$('#capabase').onchange = async e => { capaBase = await capaOpcional(e.target.checked, capaBase, async () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:17, attribution:'© OpenStreetMap'})); if (capaBase && e.target.checked) capaBase.bringToBack(); pintarMapa(); };
+$('#capabase').onchange = async e => { capaBase = await capaOpcional(e.target.checked, capaBase, async () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:17, attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">colaboradores de OpenStreetMap</a> (ODbL)'})); if (capaBase && e.target.checked) capaBase.bringToBack(); pintarMapa(); };
 $('#capasat').onchange = async e => { capaSat = await capaOpcional(e.target.checked, capaSat, async () => L.tileLayer('https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg', {maxZoom:17, maxNativeZoom:13, attribution:'<a href="https://cloudless.eox.at" rel="noopener">EOxCloudless</a> de EOX IT Services GmbH (contiene datos Copernicus Sentinel modificados, 2016; CC BY 4.0)'})); if (capaSat && e.target.checked) capaSat.bringToBack(); pintarMapa(); };
 async function capasPublicadas() {
   const r = await (await fetch('/capas')).json();
@@ -1422,18 +1424,20 @@ async function proceso() {
   ]);
 }
 const HECHO = [
-  ['Solicitud, recepción y homologación', 'Solicitudes declarativas para RENAP, PNC y SE-CONRED; lectura de Excel y CSV reales; homologación de lugares y de valores de catálogo con memoria; datos personales eliminados o sustituidos por una llave.'],
+  ['Solicitud, recepción y homologación', 'Solicitudes declarativas para RENAP, PNC y SE-CONRED; lectura de Excel y CSV reales; homologación de lugares y de valores de catálogo con memoria; datos personales eliminados o sustituidos por una llave. Cada institución entra con su propia cuenta y sube solo sus archivos.'],
   ['Catálogo oficial verificado', '22 departamentos, 340 municipios y 20,036 lugares poblados del Censo 2018, comprobados código por código.'],
   ['Población y tasas', 'Proyecciones del INE por municipio 2015–2030, con el proceso repetible desde esta pantalla; resultados por 100 mil habitantes. Para mirar más allá de 2030, dos curvas rotuladas como no oficiales: exponencial a corto plazo y logística a largo plazo.'],
   ['Censo 2018 y condiciones de vida', 'Población, hogares y viviendas por lugar poblado; pirámides de edad; quince indicadores por municipio (alfabetismo, internet, agua, drenaje, electricidad, techo, piso, empleo, educación, basura, tenencia) y material del techo por lugar poblado.'],
   ['Crecimiento urbano y uso del suelo', 'Superficie construida por municipio de 1975 a 2020 con la capa satelital abierta GHSL (que se obtiene de Landsat y Sentinel-2), sin Earth Engine; animación sobre la foto satelital; superficie residencial y no residencial.'],
-  ['Red vial', 'Caminos de OpenStreetMap como grafo: lugares poblados sin conexión y enlaces que probablemente faltan en el mapa.'],
+  ['Red vial', 'Caminos de OpenStreetMap como grafo: lugares poblados sin conexión y enlaces que probablemente faltan en el mapa; kilómetros por tipo de vía y por superficie en cada municipio.'],
+  ['Seguridad alimentaria', 'Inseguridad alimentaria aguda por departamento (CIF) y desnutrición crónica en escolares por municipio (Censo de Talla 2024), ambas de SESAN.'],
   ['Trabajo de campo', 'Asignación de operadores a puestos con la menor distancia total (cálculo exacto); rutas por operador; registro de cada visita desde el teléfono con su posición, foto comprobada y enlace a la encuesta de Microsoft Forms; cruce de la visita con el satélite y el censo.'],
   ['Tableros', 'De una frase a un tablero que se edita en un lienzo, se filtra por territorio y condiciones y se publica con un enlace que abre cualquier visitante.'],
-  ['Precios', 'Precio de referencia con la regla de la Dirección de Precios; materiales de construcción contra la canasta del IPMC, con 116 proveedores perfilados; búsqueda en los precios de referencia ya emitidos por el INE; precios publicados por rubro (supermercado, ferretería, tecnología, farmacia, hogar) con comparación por código de barras y alertas de cambios atípicos.'],
-  ['Mapa y capas', 'Un mapa por municipio con todos los indicadores y capas publicadas en GeoJSON y CSV para un portal o un SIG.'],
+  ['Precios', 'Precio de referencia con la regla de la Dirección de Precios; materiales de construcción contra la canasta del IPMC, con 116 proveedores perfilados; búsqueda en los precios de referencia ya emitidos por el INE; precios publicados por rubro (supermercado, ferretería, tecnología, farmacia, hogar, vehículos) leídos por muestreos automáticos, con comparación por código de barras y alertas de cambios atípicos; canasta básica alimentaria (precio del INE frente al publicado); calculadora de derivados para la Hoja de Balance de Alimentos con las tasas de la FAO.'],
+  ['Mapa y capas', 'Un mapa con tres niveles (departamento, municipio y lugar poblado), todos los indicadores y capas publicadas en GeoJSON y CSV para un portal o un SIG.'],
+  ['Un portal que se explica solo', 'Recorrido guiado en las 24 secciones, con un botón siempre a la vista; manual de usuario gráfico; funciona en laptop, tableta y teléfono.'],
   ['Proceso y trazabilidad', 'Cada descarga con fuente, fecha y huella; cada decisión con quién y cuándo; cada cifra con su cita.'],
-  ['Protección y cumplimiento', 'Solo agregados; conteos pequeños ocultos para quien no es analista; bitácora de acciones; cuentas por rol y grupo; análisis de conformidad legal norma por norma.'],
+  ['Protección y cumplimiento', 'Solo agregados; conteos pequeños ocultos para quien no es analista; bitácora de acciones (los administradores la consultan en «Usuarios»); cuentas por rol, grupo e institución; análisis de conformidad legal norma por norma.'],
 ];
 async function acerca() {
   $('#hecho').innerHTML = HECHO.map(([t, d]) => `<li><b>${esc(t)}.</b> ${esc(d)}</li>`).join('');
@@ -1705,7 +1709,7 @@ function pintarRuta() {
   mapaDeRuta(r);
 }
 function mapaDeRuta(r) {
-  if (!campoMapa) { campoMapa = L.map('campomapa', {zoomControl: true, attributionControl: true}); L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '© OpenStreetMap'}).addTo(campoMapa); campoCapa = L.layerGroup().addTo(campoMapa); }
+  if (!campoMapa) { campoMapa = L.map('campomapa', {zoomControl: true, attributionControl: true}); L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">colaboradores de OpenStreetMap</a> (ODbL)'}).addTo(campoMapa); campoCapa = L.layerGroup().addTo(campoMapa); }
   campoCapa.clearLayers(); const pts = r.paradas.map(p => [p.latitud, p.longitud]);
   L.polyline(pts, {color: '#0051b3', weight: 3, opacity: .7, dashArray: '6 6'}).addTo(campoCapa);
   r.paradas.forEach(p => L.marker([p.latitud, p.longitud], {icon: L.divIcon({className: '', html: `<div class="marca-parada ${p.visita ? p.visita.coherencia : ''}">${p.orden}</div>`, iconSize: [26, 26], iconAnchor: [13, 13]}), title: p.nombre}).bindPopup(`<b>${p.orden}. ${esc(p.nombre)}</b><br>${p.visita ? esc(NOMBRE_CRUCE[p.visita.coherencia] || '') : 'Pendiente'}`).addTo(campoCapa));
@@ -2003,7 +2007,10 @@ $('#tgrupos').onclick = async e => { const ed = e.target.closest('button[data-ed
   if (bo && confirm('¿Borrar el grupo? Sus usuarios quedarán sin grupo.')) { try { await api('/api/grupos/' + bo.dataset.bo, {method:'DELETE'}); aviso('Grupo borrado.'); usuarios(); } catch (x) { aviso(x.message, true); } } };
 const instituciones = () => [...new Set(solicitudes.map(s => s.institucion))].sort();
 $('#urol').onchange = () => { $('#uinstcaja').hidden = $('#urol').value !== 'institucion'; $('#uinst').innerHTML = instituciones().map(i => `<option>${esc(i)}</option>`).join(''); };
+const ACCION = {envio_recibido:'Envío recibido', envio_borrado:'Envío eliminado', equivalencia_confirmada:'Equivalencia confirmada', cuenta_creada:'Cuenta creada', cuenta_cambiada:'Cuenta cambiada', tablero_publicado:'Tablero publicado', tablero_retirado:'Tablero retirado', ruta_de_campo_creada:'Ruta de campo creada', ruta_de_campo_borrada:'Ruta de campo eliminada', visita_de_campo:'Visita de campo registrada'};
+async function bitacoraVer() { tabla('#tbitacora', [{t:'Cuándo', f:f => esc(f.cuando)}, {t:'Quién', f:f => esc(f.quien)}, {t:'Qué hizo', f:f => esc(ACCION[f.accion] || f.accion.replace(/_/g, ' '))}, {t:'Detalle', f:f => esc(f.detalle)}], await api('/api/bitacora'), 'Todavía no hay acciones registradas.'); }
 async function usuarios() {
+  bitacoraVer().catch(() => {});
   const g = await api('/api/grupos'); grupos = g.grupos; seccionesPosibles = g.secciones;
   tabla('#tgrupos', [{t:'Grupo', f:f => `<b>${esc(f.nombre)}</b><br><small>${esc(f.descripcion)}</small>`}, {t:'Secciones a las que entra', f:f => `<small>${f.secciones.filter(x => x !== 'perfil').map(x => esc(NOMBRE_SECCION[x] || x)).join(' · ')}</small>`},
     {t:'Usuarios (cantidad)', num:1, f:f => num(f.usuarios)}, {t:'', f:f => `<button class="accion chico suave" data-ed="${f.id}">Editar</button><button class="accion chico suave" data-bo="${f.id}">Borrar</button>`}], grupos, 'Sin grupos.');
@@ -2162,6 +2169,7 @@ const RECORRIDOS = {
     {en:'#tusuarios', sube:'.panel', t:'Usuarios', x:'Quién entra y con qué rol. A una cuenta de institución se le indica por cuál envía.'},
     {en:'#tgrupos', sube:'.panel', t:'Grupos', x:'Un grupo limita a qué secciones entra un usuario.'},
     {en:'#uusuario', sube:'.panel', t:'Crear un usuario', x:'Elija el rol; si es «Institución», elija también la institución. La persona deberá cambiar la contraseña al entrar.'},
+    {en:'#tbitacora', sube:'.panel', t:'Bitácora', x:'Quién hizo qué y cuándo: envíos, cuentas, tableros, rutas y visitas. Solo la ven los administradores.'},
   ],
 };
 let rec = null;

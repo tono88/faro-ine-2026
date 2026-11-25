@@ -3,6 +3,12 @@
 Equipo **La Sociedad de Almas** · lema: **«Que cada dato llegue a puerto.»** Abrir y cerrar con él.
 Misión, visión y objetivos: [`25-identidad.md`](25-identidad.md).
 
+**La presentación en PDF que pide la nota conceptual está en
+[`entregables/FARO-presentacion.pdf`](../entregables/FARO-presentacion.pdf)** (13 diapositivas 16:9,
+con capturas tomadas del portal). Se regenera con
+`node scripts/entregables/generar_presentacion.js <url> <usuario> <contraseña>`. Este documento es el
+guion hablado.
+
 ## El mensaje en una frase
 
 **FARO hace que el INE reciba de cualquier institución datos que puede usar el mismo día, sin
@@ -19,7 +25,31 @@ adivinar nada, y deja prueba de cada paso.**
 | 3:40–4:40 | Demostración 4: precios | 85 mil precios reales; código de barras; reglas para diferencias; informe de referencia |
 | 4:40–5:20 | Demostración 5: tableros | Una frase produce un tablero; se filtra, se publica y cualquiera lo abre con un enlace |
 | 5:20–6:10 | Por qué confiar | Se verifica a sí mismo; protege los conteos pequeños; conformidad legal analizada |
-| 6:10–7:00 | Antes y ahora, y adopción | La sección «Antes y ahora» en pantalla: 23 puntos con su cifra; se instala con un comando |
+| 6:10–7:00 | Antes y ahora, y adopción | La sección «Antes y ahora» en pantalla: 27 puntos con su cifra; se instala con un comando |
+
+## Las diapositivas y el reloj
+
+Cada diapositiva lleva al pie el criterio de evaluación al que responde.
+
+| # | Diapositiva | Minuto | Criterio que apoya | Qué se dice |
+|---|---|---|---|---|
+| 1 | Portada | 0:00 | — | Nombre, lema, equipo |
+| 2 | El problema, con las palabras del INE | 0:10 | Aplicabilidad (20 %) | El mismo municipio llega escrito de cuatro maneras; cinco necesidades del INE |
+| 3 | La respuesta | 0:40 | Innovación (15 %) | Pide, recibe, homologa, aprovecha; el sistema no adivina |
+| 4 | Demostración 1: registros | 1:00 | Funcionalidad (25 %) | **En vivo**: una institución sube su archivo; el analista decide un pendiente |
+| 5 | Demostración 2: territorio | 2:00 | Funcionalidad | **En vivo**: ficha de un municipio, animación, red vial |
+| 6 | Demostración 3: campo | 2:50 | Aplicabilidad | **En vivo**, en ventana de teléfono: ruta y visita |
+| 7 | Demostración 4: precios | 3:40 | Funcionalidad | **En vivo**: búsqueda, mismo código de barras, informe |
+| 8 | Demostración 5: tableros y recorridos | 4:40 | Presentación y usabilidad (10 %) | **En vivo**: una frase → tablero publicado; botón «Recorrido guiado» |
+| 9 | Por qué confiar | 5:20 | Rigor en el uso de los datos (10 %) | INE fuente principal, secreto estadístico, verificación |
+| 10 | Lo que pide la nota conceptual | 5:50 | Calidad técnica (20 %) | Ocho lineamientos con su prueba |
+| 11 | Antes y ahora | 6:10 | Aplicabilidad | Seis cifras; qué necesita el INE para adoptarlo |
+| 12 | Lo que todavía no hace | 6:40 | Calidad técnica | Limitaciones y mejoras, dichas por el equipo |
+| 13 | Cierre | 6:55 | — | Lema y preguntas |
+
+Las diapositivas 4 a 8 traen capturas: si el portal falla, se narra sobre ellas o se proyecta el
+video ([`16-guion-video.md`](16-guion-video.md)). Para la demostración en vivo, dejar el portal
+preparado con `scripts/entregables/preparar_demo.js` y las ventanas ya abiertas.
 
 **Apoyo para quien presenta:** la sección «Antes y ahora» del portal (y `docs/22`) trae, para cada
 punto, qué se tenía y quién lo planteó, la cifra de FARO y cómo escala. Sirve de guion y de
@@ -62,6 +92,10 @@ respaldo en las preguntas.
 | ¿Y si se equivoca al homologar? | Solo asigna con coincidencia exacta y única o con una decisión humana registrada, que se puede revertir. |
 | ¿Sus proyecciones son confiables? | Lo medimos: al proyectar diez años, 8 de cada 10 veces el error fue de 20 % o menos. Ese es el margen que el portal muestra. |
 | ¿Los precios publicados sirven de referencia? | Como antecedente: son fuentes secundarias y el informe lo dice. La regla de la Dirección de Precios pide más de 50 % de cotizaciones directas. |
-| ¿Es seguro? | Se auditó completo: sin inyección ni fallos de rol; lo encontrado se corrigió y lo pendiente está escrito. |
+| ¿Es seguro? | Se auditó dos veces, la segunda por una revisión independiente del código el día 3: lo encontrado se corrigió (entre otras cosas, una forma de despejar una celda protegida por resta) y lo pendiente está escrito en `docs/21`. |
+| ¿Hay contraseñas en el código? | No. Las claves viven en `.env`, que no se versiona. La contraseña inicial del administrador la da la instalación (`admin` en el despliegue con Docker, como dice el README) y el portal no deja ver ni cambiar nada interno hasta que se cambia. |
+| ¿De quién es el código? | Del equipo, que conserva la autoría; el INE recibe una licencia no exclusiva, gratuita, perpetua e irrevocable, como fijan los términos (`LICENCIA.md`). |
+| ¿Por qué los cambios del repositorio los firma un asistente? | Porque el equipo trabajó dirigiendo un asistente de IA en una sesión en la nube, que es quien registra los cambios; está declarado en el README. El equipo definió qué construir, revisó, corrigió y probó con los archivos reales, y puede explicar cada regla (`docs/28`). |
+| ¿Cumple lo que pide la nota conceptual? | Lineamiento por lineamiento, con la prueba de cada uno: `docs/26`. |
 | ¿Qué no hace todavía? | Guatecompras (bloquea clientes automáticos), comparación con censos anteriores (no hay fuente descargable), el ICC y el Manual del IPC. |
 | ¿Qué necesita el INE para adoptarlo? | Un servidor con Docker, definir sus solicitudes y crear sus usuarios. |

@@ -32,20 +32,33 @@ portal del INE, ejecutar muestreos, bajar fotos de productos, el mapa base de Op
 tipografía (si no hay, usa la del sistema).
 
 **Usuario y contraseña iniciales: `admin` / `admin`.** El portal obliga a cambiar la contraseña
-antes de permitir cambios. Sin sesión no aparecen las secciones de recepción ni los paneles de carga.
+antes de permitir cambios y antes de mostrar nada interno. Sin sesión no aparecen las secciones de
+recepción ni los paneles de carga. La contraseña inicial no está en el código: la da
+`FARO_CLAVE_INICIAL` (el despliegue con Docker la deja en `admin`; puede poner otra en `.env` antes
+del primer arranque).
 
 ## Sin Docker
 
 Requisitos: Rust estable (1.82 o posterior; probado con 1.97) y PostgreSQL 16.
 
 ```bash
+# Una vez: crear el usuario y la base (como administrador de PostgreSQL)
+createuser --pwprompt faro
+createdb --owner faro faro
+
 cargo test                       # todas las pruebas
 cargo build --release
-export DATABASE_URL="host=localhost user=faro password=... dbname=faro"
+export DATABASE_URL="host=localhost user=faro password=... dbname=faro"   # obligatoria: no tiene valor por omisión
 export FARO_TOKEN=... FARO_SAL=... FARO_PUERTO=8082
+export FARO_CLAVE_INICIAL=...    # contraseña inicial de «admin»; si falta, se genera una al azar y se escribe en el registro
 ./target/release/faro-servidor   # desde la raíz del repositorio (lee datos/)
 ./target/release/faro --help     # línea de comandos
 ```
+
+Sin Docker el servidor también atiende solo en esta máquina (`127.0.0.1`). Para abrirlo a la red,
+`FARO_ESCUCHA=0.0.0.0`, siempre detrás de un proxy con HTTPS. Los comandos que regeneran tablas y
+documentos (`faro verificar`, `faro citas`, `faro mejoras`…) escriben en la carpeta del repositorio:
+se corren así, desde un clon, no dentro del contenedor.
 
 ## Variables
 
@@ -54,6 +67,7 @@ export FARO_TOKEN=... FARO_SAL=... FARO_PUERTO=8082
 | `POSTGRES_PASSWORD` | Clave de la base (Docker) | — |
 | `FARO_TOKEN` | Clave de servicio para procesos automáticos | — |
 | `FARO_SAL` | Sal para seudonimizar identificadores | — |
+| `FARO_CLAVE_INICIAL` | Contraseña inicial de `admin`; solo se usa al crear la base | `admin` con Docker; al azar sin Docker |
 | `FARO_PUERTO` | Puerto de la pantalla | 8082 |
 | `FARO_ESCUCHA` | Dirección donde se atiende; `0.0.0.0` lo abre a la red (úselo detrás de un proxy con HTTPS) | 127.0.0.1 |
 | `FARO_HTTPS` | `1` si el portal está detrás de HTTPS: la galleta de sesión solo viaja cifrada | 0 |
@@ -84,9 +98,18 @@ Nginx o el que use el INE), con `FARO_ESCUCHA=0.0.0.0` y `FARO_HTTPS=1`. En la p
 | Leaflet 1.9.4 (incluido en el repositorio) | Mapa | BSD-2 |
 | Noto Sans (Google Fonts, opcional) | Tipografía | OFL |
 
-Las versiones exactas están en `Cargo.lock`. No se usan servicios de pago. Servicios en línea
-consultados en ejecución (todos públicos y sin clave): portal de datos abiertos del INE, páginas de
-las tiendas muestreadas y teselas de OpenStreetMap si se enciende el mapa base.
+Las versiones exactas están en `Cargo.lock` y la lista completa, con la licencia de cada biblioteca,
+en [`27-componentes-de-terceros.md`](27-componentes-de-terceros.md). No se usan servicios de pago.
+Servicios en línea consultados en ejecución (todos públicos y sin clave):
+
+| Quién lo pide | Servicio | Para qué | ¿Opcional? |
+|---|---|---|---|
+| El servidor | Portal de datos abiertos del INE | Vigilar si un conjunto cambió | Sí (`FARO_SYNC_HORAS=0` lo apaga) |
+| El servidor | Páginas públicas de las tiendas | Muestreos de precios y fotos de producto para el informe | Sí: las tareas vienen apagadas |
+| El navegador | Teselas de OpenStreetMap | Mapa base | Sí: una casilla |
+| El navegador | NASA GIBS y EOX | Foto satelital de la animación y del mapa | Sí |
+| El navegador | Google Fonts | Tipografía Noto Sans (si no hay internet, usa la del sistema) | Sí |
+| El teléfono del operador | Microsoft Forms del INE | Abrir la encuesta de campo | Sí: solo si el INE la configura |
 
 ## Si algo falla
 

@@ -56,10 +56,12 @@ function aHtml(md) {
   </style><body>
   <div class="portada"><img src="data:image/svg+xml;base64,${fs.readFileSync(path.join(raiz, 'docs/identidad/faro-icono.svg')).toString('base64')}" style="width:34mm;margin-bottom:8mm"><h1>FARO</h1><p style="font-size:17pt;color:#07306b;font-weight:700">Que cada dato llegue a puerto</p><p style="font-size:13pt;color:#07306b">Registros administrativos, territorio y precios</p><p>Equipo La Sociedad de Almas</p><p>Herramienta para que el INE pida, reciba y homologue registros de otras instituciones, y los aproveche junto a sus datos abiertos.</p><p>Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos<br>Documento técnico · versión ${esc(version)} · ${new Date().toLocaleDateString('es-GT', { day: 'numeric', month: 'long', year: 'numeric' })}</p><p>Repositorio: github.com/tono88/faro-ine-2026</p></div>
   ${aHtml(leer('docs/18-ficha-tecnica.md'))}
+  <div class="sec">${aHtml(leer('docs/26-conformidad-nota-conceptual.md'))}</div>
   <div class="sec">${aHtml(leer('docs/25-identidad.md').replace(/!\[[^\]]*\]\([^)]*\)\n/, ''))}</div>
   <div class="sec">${aHtml(leer('docs/00-que-se-hizo.md'))}</div>
   <div class="sec">${aHtml(leer('docs/22-antes-y-ahora.md'))}</div>
   <div class="sec"><h2>El portal en imágenes</h2>${tomas.map(figura).join('')}</div>
+  <div class="sec">${aHtml(leer('docs/03-arquitectura.md'))}</div>
   <div class="sec">${aHtml(leer('docs/01-necesidades-ine.md'))}</div>
   <div class="sec">${aHtml(leer('docs/09-logros.md'))}</div>
   <div class="sec">${aHtml(leer('docs/19-verificacion-estadistica.md'))}</div>
@@ -70,7 +72,10 @@ function aHtml(md) {
   <div class="sec">${aHtml(leer('docs/10-imagenes-satelitales.md'))}</div>
   <div class="sec">${aHtml(leer('docs/14-manual-de-usuario.md'))}</div>
   <div class="sec">${aHtml(leer('docs/15-instalacion-y-dependencias.md'))}</div>
-  <div class="sec">${aHtml(leer('docs/11-fuentes-y-citas.md'))}</div></body></html>`;
+  <div class="sec">${aHtml(leer('docs/28-defensa-del-codigo.md'))}</div>
+  <div class="sec">${aHtml(leer('docs/11-fuentes-y-citas.md'))}</div>
+  <div class="sec">${aHtml(leer('docs/27-componentes-de-terceros.md'))}</div>
+  <div class="sec">${aHtml(leer('LICENCIA.md'))}</div></body></html>`;
   const d = await b.newPage(); await d.setContent(html, { waitUntil: 'load' });
   const salida = path.join(dir, 'FARO-documento-tecnico.pdf');
   await d.pdf({ path: salida, format: 'Letter', printBackground: true, displayHeaderFooter: true, headerTemplate: '<span></span>', footerTemplate: '<div style="font-size:8px;color:#5b6672;width:100%;text-align:center">FARO · Datatón INE 2026 · <span class="pageNumber"></span> de <span class="totalPages"></span></div>', margin: { top: '18mm', bottom: '18mm', left: '16mm', right: '16mm' } });

@@ -3,7 +3,7 @@
 Este documento se genera con `faro mejoras` a partir de [`datos/estandar/mejoras.json`](../datos/estandar/mejoras.json),
 la misma fuente de la sección «Antes y ahora» del portal. Para agregar un punto se edita ese archivo.
 
-Son 26 puntos. Cada uno dice quién planteó la necesidad o cómo se halló el problema, qué hace FARO con una
+Son 27 puntos. Cada uno dice quién planteó la necesidad o cómo se halló el problema, qué hace FARO con una
 cifra comprobable en el portal y cómo crece sin rehacer el sistema.
 
 ## Registros administrativos
@@ -61,3 +61,4 @@ cifra comprobable en el portal y cómo crece sin rehacer el sistema.
 |---|---|---|---|
 | **Secreto estadístico** | Los datos que recibe el INE solo pueden usarse con fines estadísticos y publicarse sin identificar a nadie. *(Decreto Ley 3-85, artículo 25; Censos y Encuestas (DCE))* | **< 3** es el conteo que no se publica; el umbral lo fija el INE. Salida sin datos personales, conteos pequeños ocultos para quien no es analista (con supresión complementaria), cuentas por rol y grupo, y bitácora de quién hizo qué. Se ve en «Acerca y fuentes». | El umbral y los grupos se ajustan sin programar. El análisis de conformidad legal está en docs/23. |
 | **Sin depender de terceros** | Se pidieron herramientas de licencia libre; los datos no deben salir del INE. *(DIEC · DESA; lineamientos del evento)* | **Q 0** en licencias: todo el software es libre. Todo corre en un servidor propio: Rust y PostgreSQL, un solo contenedor, sin servicios de pago ni modelos externos que decidan. Se ve en «Acerca y fuentes». | Se instala con un comando en un servidor del INE o en una computadora de una delegación. |
+| **Entrega que se comprueba sola** | Un prototipo que solo corre en la máquina de quien lo hizo no se puede evaluar ni adoptar; y una lista de fuentes sin fecha no se puede verificar. *(Nota conceptual del Datatón: reproducibilidad, fecha de descarga de cada base y componentes de terceros listados)* | **88** descargas con dirección, fecha y huella SHA-256 en el manifiesto; instalación desde cero comprobada el 25-nov-2026. Clon limpio, cuatro pasos y un comando: el portal queda arriba. Cada descarga está en un manifiesto versionado con dirección, fecha y huella; cada biblioteca, con su licencia; y una matriz dice cómo se cumple cada lineamiento. Se ve en «Acerca y fuentes». | Cada fuente nueva queda anotada sola al descargarla con `faro fuentes`; la matriz se revisa al cerrar cada versión. |

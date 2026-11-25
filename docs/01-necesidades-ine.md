@@ -6,17 +6,17 @@
 |---|---|---|
 | 1 | **Integrar encuestas con registros administrativos** de otras instituciones (MP, Salud y otras), que hoy no tienen un estándar para compartir datos. Que el INE lidere una homologación del envío. X-Road existe, pero no está pensado para datos estadísticos. | **Núcleo del proyecto.** Solicitud de datos declarativa, validación del envío, homologación con memoria. Ver [arquitectura](03-arquitectura.md). |
 | 2 | Operadores de campo asignados lejos de donde viven; la asignación no optimiza distancias. | Módulo secundario, **funcionando**: asignación operador–puesto que minimiza la distancia total (método húngaro, exacto), usando las coordenadas del listado de lugares poblados. Distancia en línea recta; con la red vial (necesidad 4) pasaría a distancia por carretera. |
-| 3 | Detectar crecimiento urbano a partir de imágenes. | Módulo secundario: edificaciones por año (Google Open Buildings 2.5D Temporal, 2016–2023) por municipio, comparadas con el Censo 2018. |
+| 3 | Detectar crecimiento urbano a partir de imágenes. | Módulo secundario, **funcionando**: superficie construida por municipio y por bloque de 1 km, de 1975 a 2020, con la capa satelital abierta GHSL (`faro construido`); animación sobre la foto satelital de cada época. Open Buildings quedó como opción no usada. |
 | 4 | Carreteras sin mapear; uso de teoría de grafos para completar. | Módulo secundario, **funcionando**: grafo vial de OpenStreetMap (144,866 km); componentes conexos, lugares poblados en tramos sueltos o sin camino mapeado y el enlace más corto que probablemente falta. |
 
 ## Planteadas en las presentaciones
 
-| Dirección | Propuesta | Relación con FARO |
+| Dirección | Propuesta | Relación con FARO (el estado de cada una está en la tabla del final) |
 |---|---|---|
 | Índices y Estadísticas Continuas (DESA) | Validación de bases de datos con herramientas de licencia libre; tableros dinámicos | La validación de envíos es el paso 2 del núcleo |
 | Índices y Estadísticas Continuas (DCR) | Herramienta con datos del censo por municipio y lugar poblado; tablero de avance de recopilación de las 22 delegaciones | El catálogo de lugares poblados es la base común; el reporte de recepción alimenta un tablero de avance |
 | Índices y Estadísticas Continuas (IPP) | Registro de informantes, productos y precios; alertas de variaciones atípicas | Mismo patrón: solicitud + validación + alertas |
-| Índices y Estadísticas Continuas (IPC, HBA, IPMC, ICC) | Catálogo digital del Manual de Características; calculadora de derivados HBA; sistematizar procesos | Fuera del alcance de esta entrega |
+| Índices y Estadísticas Continuas (IPC, HBA, IPMC, ICC) | Catálogo digital del Manual de Características; calculadora de derivados HBA; sistematizar procesos | La calculadora de derivados de la HBA y el IPMC están hechos; el Manual de Características del IPC no es público y el ICC no se hizo |
 | Precios e Índices de Referencia | Investigación de precios de mercado con cotizaciones, catálogos en línea y Guatecompras; media, mediana y moda | Módulo secundario: homologar descripciones de productos entre proveedores y calcular el precio de referencia |
 | Censos y Encuestas | Validación inteligente, seguimiento cartográfico, comparación de censos | Seis cuidados de uso de datos que FARO respeta (factor de expansión, dominios, no identificar personas) |
 
@@ -56,6 +56,6 @@
 | Que los filtros se apliquen al tablero ya creado y saber cómo se publican | Hecho: barra de filtros sobre todo el tablero; borrador y publicado, con enlace |
 | Un modelo distinto de la recta para población y crecimiento | Hecho: tasa constante junto a la recta (superficie construida) y, para población después de 2030, exponencial a corto plazo y logística a largo plazo |
 | Análisis de conformidad legal y protección estadística | Hecho: `docs/23`; conteos menores que 3 protegidos |
-| Apartado comparativo de qué se tenía, qué mejora y cómo escala | Hecho: sección «Antes y ahora» (23 puntos) y `docs/22` |
-| Más indicadores | Hecho: quince del Censo 2018, uno de uso del suelo y tres de vías (29 en total) |
+| Apartado comparativo de qué se tenía, qué mejora y cómo escala | Hecho: sección «Antes y ahora» (27 puntos) y `docs/22` |
+| Más indicadores | Hecho: quince del Censo 2018, uno de uso del suelo y tres de vías en los tableros (29 en total; el mapa tiene además el porcentaje de vías pavimentadas, con su advertencia) |
 | Mapeo y tipo de carretera | Hecho con lo que ya se tenía: tipo de vía en toda la red y superficie donde está anotada (38 %), por municipio y en el mapa. No se halló una capa abierta del RIC ni de la Dirección General de Caminos |

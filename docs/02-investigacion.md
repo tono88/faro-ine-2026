@@ -60,7 +60,10 @@ son reutilizables.
   las fuentes sean cotizaciones del mercado relevante.
 - Guatecompras publica datos en estándar OCDS, reutilizables para precios históricos adjudicados.
 
-## 4. Pendiente de investigar (días 2 y 3)
+## 4. Lo que quedó por investigar el día 1, y en qué terminó
 
 - Asignación de operadores: problema de asignación (algoritmo húngaro) y variantes con capacidad.
-- Completar red vial: predicción de enlaces en grafos y comparación con OpenStreetMap.
+  **Hecho** el día 2: `crates/faro-territorio/src/asignacion.rs`, con capacidad por puesto.
+- Completar red vial: predicción de enlaces en grafos y comparación con OpenStreetMap. **Hecho** el
+  día 2 con un criterio más simple y explicable: componentes conexos y el hueco más corto hasta la
+  red principal (`vial.rs`); no se usó predicción de enlaces.

@@ -28,6 +28,8 @@ services:
       DATABASE_URL: host=bd user=faro password=${POSTGRES_PASSWORD} dbname=faro
       FARO_TOKEN: ${FARO_TOKEN:?defina FARO_TOKEN en .env}
       FARO_SAL: ${FARO_SAL:?defina FARO_SAL en .env}
+      # Contraseña inicial del usuario «admin» (solo se usa al crear la base; el portal obliga a cambiarla).
+      FARO_CLAVE_INICIAL: ${FARO_CLAVE_INICIAL:-admin}
       FARO_SYNC_HORAS: ${FARO_SYNC_HORAS:-24}
       FARO_HTTPS: ${FARO_HTTPS:-0}
       # Conteos menores que este número no se publican a quien no es analista (0 = sin protección).

@@ -30,15 +30,13 @@ if errorlevel 1 (
 echo ESTADO: LEVANTADO >> %LOG%
 
 set F=docker compose exec -T faro faro fuentes --manifiesto datos/crudo/manifiesto.jsonl
-echo Descargando fuentes abiertas del INE y OpenStreetMap...
+echo Descargando fuentes abiertas del INE...
 echo ---- inventario INE >> %LOG%
 %F% inventario --salida datos/crudo/inventario_ine.csv >> %LOG% 2>&1
 echo ---- lugares poblados >> %LOG%
 %F% descargar censo-2018-lugares-poblados --formato XLSX --recurso "lugares poblados" >> %LOG% 2>&1
 echo ---- proyecciones de poblacion >> %LOG%
 %F% descargar proyecciones-de-poblacion-2015-2030 >> %LOG% 2>&1
-echo ---- OpenStreetMap >> %LOG%
-%F% url https://download.geofabrik.de/central-america/guatemala-latest.osm.pbf --fuente openstreetmap --editor "Colaboradores de OpenStreetMap (extracto de Geofabrik)" --licencia "ODbL 1.0" >> %LOG% 2>&1
 docker compose ps >> %LOG% 2>&1
 echo ESTADO: LISTO %date% %time% >> %LOG%
 

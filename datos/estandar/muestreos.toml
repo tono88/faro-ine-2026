@@ -4,7 +4,7 @@
 # Vienen apagadas: se encienden y se les cambia la frecuencia desde la pantalla ("Muestreos").
 # Para agregar una tienda con catálogo VTEX basta otra tarea con su dirección base y sus términos.
 #
-# Cuatro maneras de leer una tienda (campo `tipo`):
+# Seis maneras de leer una tienda (campo `tipo`):
 #   vtex           búsqueda pública por términos (`terminos`); pocos productos, muy rápida.
 #   vtex-catalogo  recorre el catálogo por categorías (`categorias` = parte del nombre de las de
 #                  primer nivel; vacío = todas). Trae código de barras y precio de lista.

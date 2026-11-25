@@ -48,7 +48,7 @@ Ninguna institución tiene que esperar a otra ni cambiar su sistema para empezar
 | Nivel | Cómo envía | Qué necesita la institución | Estado en FARO |
 |---|---|---|---|
 | 0. Archivo | CSV o Excel por el canal actual | Nada nuevo | Funciona hoy (`faro recibir`) |
-| 1. Portal | Sube el archivo y ve en el momento qué filas fallan y qué lugares hay que confirmar | Un navegador | Día 2 |
+| 1. Portal | Entra con la cuenta de su institución, sube el archivo y ve en el momento qué filas fallan | Un navegador | **Funciona** (cuentas de institución, v0.17.0) |
 | 2. X-Road | Servicio REST publicado en su servidor de seguridad; el INE consulta según calendario | Estar conectada a X-Road | Diseño; mismo contrato |
 
 El contrato (la solicitud de datos) es el mismo en los tres niveles. Eso es lo que permite
@@ -59,9 +59,10 @@ empezar hoy con archivos y pasar a X-Road cuando cada institución esté lista.
 1. El INE propone la solicitud de cada registro a partir del núcleo común.
 2. La OCSE del sector la revisa y la aprueba; queda versionada (`hechos-transito-v1`).
 3. La institución envía; FARO valida y devuelve un reporte fila por fila.
-4. Los lugares dudosos los confirma una persona del INE o de la institución; la equivalencia
-   queda en la memoria con nombre, fecha e institución.
-5. La memoria de equivalencias se publica: cualquier institución puede reutilizarla.
+4. Los lugares dudosos los confirma una persona del INE (los pendientes y las equivalencias solo
+   los ve el personal del INE); la equivalencia queda en la memoria con nombre, fecha e institución.
+5. La memoria de equivalencias sirve a todos los envíos, de cualquier institución. Publicarla para
+   que otras instituciones la reutilicen es una decisión del INE: hoy no se publica.
 
 ## 5. Pareo y protección de datos
 

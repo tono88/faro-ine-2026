@@ -14,8 +14,8 @@ Para quien retome el proyecto (persona o asistente) sin el historial de la conve
 - Docker: `dockerd` hay que arrancarlo a mano (`nohup dockerd &`). Docker Hub da 429: usar `mirror.gcr.io/library/...`. Dentro de los contenedores no hay internet ni proxy.
 - `.faro/pruebas/construir_en_nube.sh [limpio]`: copia el Dockerfile agregando el certificado del proxy (carpeta `$S/ca` con `/root/.ccr/ca-bundle.crt`), construye, levanta y espera a `:8082`.
 - Para probar lo que necesita internet (muestreos, reproducir población): servidor fuera de Docker con una base temporal:
-  `docker run -d --name pgtmp -e POSTGRES_PASSWORD=prueba -e POSTGRES_USER=faro -e POSTGRES_DB=faro -p 55432:5432 postgres:16` y
-  `DATABASE_URL="host=127.0.0.1 port=55432 user=faro password=prueba dbname=faro" FARO_TOKEN=servicio FARO_SAL=sal FARO_PUERTO=8099 FARO_SYNC_HORAS=0 ./target/debug/faro-servidor`.
+  `docker run -d --name pgtmp -e POSTGRES_PASSWORD=<clave> -e POSTGRES_USER=faro -e POSTGRES_DB=faro -p 55432:5432 postgres:16` y
+  `DATABASE_URL="host=127.0.0.1 port=55432 user=faro password=<clave> dbname=faro" FARO_TOKEN=<clave de servicio> FARO_SAL=<secreto> FARO_CLAVE_INICIAL=<inicial> FARO_PUERTO=8099 FARO_SYNC_HORAS=0 ./target/debug/faro-servidor` (valores de una base desechable; ninguno se escribe en el repositorio).
 - `curl` a localhost: usar `--noproxy localhost` (no `--noproxy *` dentro de una variable: el `*` se expande).
 - Playwright: `NO_PROXY=localhost node guion.js http://localhost:8099 ...`. Las `<option>` no cuentan como visibles (`state:'attached'`). Botones del menú ocultos (perfil/usuarios) solo tras iniciar sesión.
 
@@ -107,7 +107,7 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - RENAP: códigos = INE en dos columnas, válidos solo con país 320. Se descubrió contando combinaciones en el archivo real (máximo de municipio por departamento = catálogo).
 - `es_sin_dato("-1")` anulaba "1" porque `basico` quita el signo: comparar números con signo.
 - Los archivos mensuales traen hechos de décadas (registro tardío): la unidad de reemplazo es el corte (mes de registro), no el periodo del hecho.
-- Prueba de punta a punta de envíos con archivos reales: servidor nativo + `pgtmp`, subir con `curl -F archivo=@... -H 'x-faro-token: servicio'`, mirar `/api/envios`, y al final `DELETE FROM envios` (la base temporal no debe quedarse con nada).
+- Prueba de punta a punta de envíos con archivos reales: servidor nativo + `pgtmp`, subir con `curl -F archivo=@... -H "x-faro-token: $FARO_TOKEN"`, mirar `/api/envios`, y al final `DELETE FROM envios` (la base temporal no debe quedarse con nada).
 - Los archivos reales están en `/root/.claude/uploads/...` solo durante la sesión; NUNCA copiarlos al repositorio.
 
 ## Bloque v0.16.0 (24-nov)
@@ -128,3 +128,6 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - v0.17.0. Recorridos: motor propio (foco con `box-shadow` gigante + globo `position:fixed`); los pasos cuyo elemento no está a la vista se saltan; `const RECORRIDOS` es accesible desde `page.evaluate`, y de ahí salen las marcas del manual.
 - Manual gráfico: páginas de tamaño fijo (carta apaisada, `@page margin:0`); una clase de página no puede llamarse igual que una rejilla interior (`caminos` rompió el diseño). Capturas JPEG a escala 1.5: 11 MB.
 - Cuentas de institución: el extractor `Json` responde 422 antes de autorizar; para probar un 403 hay que mandar un cuerpo válido.
+- v0.18.0. Auditar con agentes independientes rinde: hallaron una resta que deshacía la supresión complementaria (dos rutas con reglas distintas), dos licencias mal declaradas y documentos del día 1 que seguían en el PDF técnico. Regla: una sola función decide qué celdas se ocultan.
+- Clon limpio: `git clone --depth 1` + `.env.example` + Dockerfile de nube → imagen en 252 s. Tras borrar `target/` hubo que liberar la caché de construcción de Docker (27 GB).
+- `faro citas` exige que el `tipo` de cada fuente pertenezca a un grupo; `fuentes.json` va con sangría de 1 espacio.

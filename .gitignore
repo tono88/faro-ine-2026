@@ -4,7 +4,11 @@ target/
 datos/privado/
 datos/crudo/*
 !datos/crudo/LEEME.md
+# El manifiesto de descargas (dirección, fecha, licencia y huella) y el inventario del portal del INE sí se versionan.
+!datos/crudo/manifiesto.jsonl
+!datos/crudo/inventario_ine.csv
 salida/
+registro_inicio.txt
 
 # Capturas de guiones de prueba corridos sin carpeta de salida
 /undefined/

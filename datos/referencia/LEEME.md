@@ -31,7 +31,10 @@ Fuente de los caminos: © colaboradores de OpenStreetMap, exportación "Guatemal
 Humanitarian OpenStreetMap Team en HDX (`hotosm_gtm_roads`, Shapefile), corte del 3-nov-2026,
 licencia ODbL 1.0. Descargado el 24-nov-2026 (UTC); SHA-256
 `cd884627eddfa037a0c49e1fd2b327ab5da611cb91d10beeee13ccfad9793977`. Estas tres tablas derivan de
-esos datos y se comparten bajo la misma licencia ODbL.
+esos datos y se comparten bajo la misma licencia ODbL
+(<https://opendatacommons.org/licenses/odbl/1-0/>), con reconocimiento a © los colaboradores de
+OpenStreetMap (<https://www.openstreetmap.org/copyright>). Lo mismo vale para
+`red_vial_tipos_municipio.csv`, `red_vial_principal.geojson` y `red_vial_contexto.geojson`.
 
 Método: se usan las vías para vehículos (se excluyen senderos, vías peatonales, en construcción y
 propuestas). Dos vías están unidas si comparten un punto. El componente conexo con más kilómetros
@@ -98,7 +101,7 @@ donde salió cada perfil) y 2,332 precios de 16 de ellos, cada uno con el texto 
 como lo publica la tienda, la unidad, la dirección exacta de la página y la fecha.
 
 - Solo negocios e información comercial pública. Sin nombres de personas, teléfonos ni correos.
-- 62 perfiles vienen del directorio Páginas Amarillas: su tipo y rubros se dedujeron del nombre y
+- 61 perfiles vienen del directorio Páginas Amarillas: su tipo y rubros se dedujeron del nombre y
   la categoría, y no tienen precios.
 - No se entró a sitios con bloqueo, captcha o inicio de sesión (Facebook, Instagram, Encuentra24 y
   varios fabricantes quedaron fuera por eso). Casi todos los precios son de cadenas con tienda en
@@ -184,3 +187,20 @@ con la columna `relacion` que dice si el primario aparece en la fuente o se dedu
   los 16 códigos inexistentes igual que `faro poblacion` y comprueba que sume los totales publicados.
 - `fotos_calibracion.csv`: pares de fotos medidos por `faro fotos` (ver `docs/13-fotos.md`).
 - `precios_publicados.csv` trae ahora la columna `imagen` (dirección de la foto publicada).
+
+## Tablas agregadas después (v0.16)
+
+| Archivo | Qué es | Fuente y licencia | Comando |
+|---|---|---|---|
+| `censo2018_indicadores_municipio.csv` | Quince indicadores de condiciones de vida por municipio, con su numerador y su denominador | INE, Censo 2018, cuadros A5, A9, A11, A12, A13, B1, B2, B3, B4, B6, C2 y C3 (CC BY); descargados el 24-nov-2026 | `faro censo-indicadores` |
+| `censo2018_techos_lugar_poblado.csv` | Viviendas por material predominante del techo en cada lugar poblado | INE, Censo 2018, cuadro C2 (CC BY); 24-nov-2026 | `faro censo-indicadores` |
+| `uso_construido_municipio.csv`, `uso_construido_bloques.csv` | Superficie construida residencial y no residencial, por municipio y por bloque de 1 km | Comisión Europea, JRC, GHSL GHS-BUILT-S R2023A, componente NRES (CC BY 4.0); 24-nov-2026. Cita obligatoria: Pesaresi et al. (2024), *International Journal of Digital Earth* 17(1) | `faro uso-suelo` |
+| `red_vial_tipos_municipio.csv` | Kilómetros de vía por clase y por superficie en cada municipio | © colaboradores de OpenStreetMap, exportación de HOT en HDX (ODbL 1.0); 24-nov-2026 | `faro vial` |
+| `red_vial_principal.geojson` | Carreteras principales y secundarias para el mapa | La misma (ODbL 1.0) | `faro vial` |
+| `fachadas_prueba.csv` | Resultado del clasificador en 16 fotos de prueba: página, autor y licencia de cada foto, y lo que dijo el modelo | Wikimedia Commons (CC BY o CC BY-SA, según cada foto). **Las fotos no están en el repositorio** | `faro fachadas` |
+| `municipios.geojson`, `departamentos.geojson` | Figuras para el mapa | **FARO, a partir de** CONRED / OCHA, COD-AB Guatemala (CC BY-IGO): contornos simplificados, Sanarate y Sansare corregidos, dos lagos quitados | `faro limites` |
+
+Las tasas de extracción de `datos/estandar/tasas_extraccion_fao_guatemala.csv` son una **transcripción
+traducida** de un documento de la FAO, que permite su uso para estudio, investigación y productos o
+servicios no comerciales citando la fuente; no están bajo CC BY. Un uso distinto debe consultarse
+con la FAO (<https://www.fao.org/contact-us/terms/es/>).

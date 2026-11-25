@@ -2,6 +2,45 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.18.0 · 25-nov-2026 · Revisión para la entrega
+
+Sin funciones nuevas: una revisión completa contra la nota conceptual del evento, con tres
+auditorías independientes (fuentes y licencias; documentos contra código; seguridad, secreto
+estadístico y legalidad). Detalle en [`26-conformidad-nota-conceptual.md`](26-conformidad-nota-conceptual.md).
+
+- **Entregables que faltaban.** Presentación en PDF para el jurado
+  (`entregables/FARO-presentacion.pdf`, 13 diapositivas, `generar_presentacion.js`); `LICENCIA.md`
+  (autoría del equipo y licencia perpetua al INE, como fijan los términos); lista de componentes de
+  terceros con su licencia (`docs/27`, generada de `Cargo.lock` con `terceros.js`); matriz de
+  conformidad (`docs/26`); guía para explicar y defender el código (`docs/28`); guion y plan de
+  grabación del video (`docs/16`); guion que deja una instalación nueva lista para demostrar
+  (`preparar_demo.js`).
+- **Ninguna contraseña en el código.** La inicial del administrador la da la instalación
+  (`FARO_CLAVE_INICIAL`; con Docker sigue siendo `admin`; si falta, se genera al azar); `DATABASE_URL`
+  ya no tiene valor por omisión; los guiones de prueba leen su clave del entorno.
+- **Con la contraseña inicial no se lee nada interno** (antes solo se impedían los cambios). El
+  servidor sin Docker atiende por omisión solo en la propia máquina (`FARO_ESCUCHA`).
+- **Secreto estadístico.** La ficha del municipio oculta ahora las mismas celdas que el mapa
+  (`celdas_ocultas`): antes se podía despejar una celda protegida con el total del departamento.
+  Una celda protegida ya no se muestra como cero ni como «no llegó nada».
+- **Rótulos.** «Registros por 100 mil habitantes» se describe como lo que es (no es una tasa anual);
+  las curvas después de 2030 dicen «no oficial» en la tabla; el informe de precio dice que no es un
+  documento oficial del INE; el reporte describe el margen de proyección real.
+- **Fuentes.** Dos licencias del INE corregidas (precios de referencia: ODC-BY; canasta básica: no
+  declara), FAO corregida (términos no comerciales, no CC BY), cita de referencia de GHSL, atribución
+  enlazada de OpenStreetMap, capas de límites rotuladas «FARO, a partir de…». 37 fuentes. El
+  manifiesto de descargas y el inventario del portal del INE se versionan.
+- **Otras correcciones.** Al eliminar un envío se borra su salida fila por fila; el nombre visible
+  no puede ser el de otra cuenta; el CSV de visitas neutraliza fórmulas; las equivalencias de
+  valores quedan en la bitácora, que ahora se consulta en «Usuarios»; un muestreo se detiene si la
+  tienda lo rechaza (403 o 429); `iniciar.bat` ya no descarga un archivo que nadie leía.
+- **Documentos puestos al día**: arquitectura (`03`), plan y cómo terminó (`04`), modelos (`07`),
+  necesidades, investigación, mapa institucional, hallazgos, logros, imágenes satelitales, manual,
+  instalación, presentación, ficha técnica, seguridad y conformidad legal.
+- **Instalación comprobada desde un clon limpio** (imagen en 4 minutos; portal arriba con 85,907
+  precios). 94 pruebas de Rust (una nueva: una celda protegida no se puede despejar por resta) y la
+  batería de pantalla completa, con dos comprobaciones nuevas (contraseña inicial y nombre único).
+
 ## v0.17.1 · 25-nov-2026
 - **Precios por rubro, carga rápida y a la vista.** El precio más reciente de cada producto se
   guarda ya calculado (vista `precios_ultimos`, que el servidor refresca cuando cambian las

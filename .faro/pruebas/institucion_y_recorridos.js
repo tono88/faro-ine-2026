@@ -65,6 +65,8 @@ const ok = (c, t) => { console.log((c ? '  bien  ' : '  FALLA ') + t); if (!c) f
   await p.reload(); await p.waitForSelector('#lienzo path.leaflet-interactive');
   const subir = (sol) => p.evaluate(async s => { const f = new FormData(); f.append('archivo', new Blob(['departamento,municipio,fecha\nGuatemala,Mixco,2026-01-05\n'], { type: 'text/csv' }), 'prueba_institucion.csv'); const x = await fetch('/api/envios/' + encodeURIComponent(s), { method: 'POST', body: f }); return [x.status, (await x.text()).slice(0, 160)]; }, sol);
   await p.evaluate(async u => { await fetch('/api/sesion', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ usuario: u, clave: 'Inicial-Prueba-1' }) }); }, usuario);
+  const conInicial = await p.evaluate(async () => [(await fetch('/api/envios')).status, (await fetch('/api/sesion').then(x => x.json())).usuario?.debe_cambiar]);
+  ok(conInicial[0] === 403 && conInicial[1] === true, `con la contraseña inicial tampoco puede leer sus envíos (${conInicial[0]})`);
   let e = await subir(solPNC); ok(e[0] === 403 && /contraseña/.test(e[1]), 'con la contraseña inicial no puede enviar: ' + e[1]);
   await p.evaluate(() => fetch('/api/sesion', { method: 'DELETE' }));
   console.log('  sesión: ' + await entrar(p, usuario, CLAVE, 'Inicial-Prueba-1'));
@@ -85,6 +87,8 @@ const ok = (c, t) => { console.log((c ? '  bien  ' : '  FALLA ') + t); if (!c) f
   ok(vistos.pend === 403 && vistos.equi === 403 && vistos.usu === 403, 'no ve pendientes, equivalencias ni usuarios (403)');
   ok(vistos.borrar === 403 && vistos.decidir === 403, `no puede borrar envíos ni decidir equivalencias (${vistos.borrar}, ${vistos.decidir})`);
   await p.reload(); await p.waitForSelector('#lienzo path.leaflet-interactive'); await p.click('nav > button[data-s=recibir]'); await p.waitForTimeout(600);
+  const nombre = await p.evaluate(async propio => { const c = n => fetch('/api/perfil', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ nombre: n }) }).then(x => x.status); return [await c('Administrador'), await c('admin'), await c(propio)]; }, 'Enlace de prueba ' + sufijo);
+  ok(nombre[0] === 400 && nombre[1] === 400 && nombre[2] === 200, `no puede tomar el nombre ni el usuario de otra cuenta (${nombre.join(', ')})`);
   ok((await p.$$('#envios button[data-borrar-envio]')).length === 0, 'su historial no ofrece «Eliminar»');
   if (dir) await p.screenshot({ path: path.join(dir, 'institucion_recibir.png'), fullPage: true });
   // Limpieza: el envío de prueba se borra con la cuenta de administrador.
