@@ -20,12 +20,28 @@
   table { border-collapse:collapse; width:100%; font-size:13px; } th, td { text-align:left; padding:5px 8px; border-bottom:1px solid var(--borde); } th { background:var(--cielo); color:var(--oscuro); } td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; }
   ol.fuentes { padding-left:18px; font-size:12px; color:#444; } ol.fuentes li { margin:4px 0; }
   .barra { max-width:900px; margin:16px auto 0; display:flex; gap:8px; justify-content:flex-end; } button { background:var(--azul); color:#fff; border:0; border-radius:7px; padding:8px 14px; font:inherit; font-weight:600; cursor:pointer; }
+  button.suave { background:#fff; color:var(--oscuro); border:1px solid var(--celeste); } dialog { border:0; border-radius:12px; padding:22px 24px; width:min(560px, 94vw); box-shadow:0 20px 60px rgba(0,0,0,.3); } dialog::backdrop { background:rgba(0,40,80,.45); } dialog label { display:block; font-weight:600; font-size:13px; color:var(--oscuro); margin-top:10px; } dialog input, dialog textarea { display:block; width:100%; margin-top:3px; padding:7px 9px; border:1px solid var(--borde); border-radius:6px; font:inherit; font-weight:400; }
+  .constancia { font-size:13.5px; line-height:1.6; position:relative; overflow:hidden; } .constancia::before { content:attr(data-marca); position:absolute; left:50%; top:46%; transform:translate(-50%,-50%) rotate(-32deg); font-size:150px; font-weight:800; letter-spacing:14px; color:rgba(200,16,46,.13); pointer-events:none; white-space:nowrap; z-index:1; } .constancia .sinfirma { color:#b3261e; font-weight:700; letter-spacing:1px; } .constancia .cab { display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--azul); padding-bottom:10px; margin-bottom:14px; } .constancia .cab img { height:44px; } .constancia h1 { text-align:center; font-size:19px; letter-spacing:1px; margin:10px 0 4px; } .constancia h3 { text-align:center; font-size:13px; letter-spacing:1.5px; color:var(--oscuro); margin:14px 0 4px; } .constancia p { text-align:justify; margin:6px 0; } .constancia .exp { text-align:right; font-weight:700; color:var(--oscuro); } .constancia .borrador { border:1.5px dashed #c77700; background:#fff8e6; color:#6b4300; border-radius:8px; padding:8px 12px; font-size:12.5px; text-align:left; } .constancia .firma { margin:46px 0 0 auto; width:300px; border-top:1px solid var(--tinta); text-align:center; padding-top:6px; } .constancia .sello { margin-top:22px; border:1px solid var(--borde); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--gris); word-break:break-all; } .constancia .sello b { color:var(--oscuro); }
+  @media print { .constancia { break-after:page; } dialog { display:none; } }
   @media print { body { background:#fff; } .hoja { border:0; margin:0; padding:0; max-width:none; } .barra { display:none; } h2 { break-after:avoid; } table, svg, .kpi { break-inside:avoid; } }
   @media (max-width:700px) { .kpi { grid-template-columns:1fr 1fr; } .dos { grid-template-columns:1fr; } .hoja { padding:18px; } }
 </style>
 </head>
 <body>
-<div class="barra"><button onclick="window.print()">Imprimir o guardar como PDF</button></div>
+<div class="barra"><button id="certificar" class="suave" hidden>Certificar reporte</button><button id="correo" class="suave" hidden>Enviar por correo</button><button onclick="window.print()" id="imprimir">Imprimir o guardar como PDF</button></div>
+<dialog id="certform"><form method="dialog" id="certdatos">
+  <h2 style="margin-top:0">Certificar este reporte</h2>
+  <p class="nota">Para responder una solicitud de información. Se agrega al reporte una hoja de constancia con un folio. Del solicitante no se guarda nada: su nombre y su correo solo quedan en el documento que usted descarga.</p>
+  <label>Número de expediente o de solicitud<input name="expediente" maxlength="60" required placeholder="Por ejemplo: 1234-2026"></label>
+  <label>Nombre de quien solicita<input name="solicitante" maxlength="120" required></label>
+  <label>Correo de quien solicita (para «Enviar por correo»)<input name="correo" type="email" maxlength="120"></label>
+  <label>Qué se solicitó<textarea name="pedido" rows="3" maxlength="600" required></textarea></label>
+  <label>Unidad que responde<input name="unidad" maxlength="160" required value="Unidad de Acceso a la Información Pública"></label>
+  <label>Nombre y cargo de quien firma<input name="firma" maxlength="160" required></label>
+  <p class="nota" id="certerror" style="color:#b3261e"></p>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button type="button" class="suave" id="certcancelar">Cancelar</button><button type="submit">Certificar</button></div>
+</form></dialog>
+<div class="hoja constancia" id="constancia" data-marca="PRUEBA" hidden></div>
 <div class="hoja" id="hoja"><p>Cargando…</p></div>
 <script>
 const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -77,7 +93,40 @@ function grafica(serie, {barras = false, unidad = '', marca = null} = {}) {
     <p class="nota">Población: proyecciones del INE sumadas por municipio y año. Crecimiento anual: (valor final ÷ valor inicial)^(1 ÷ años) − 1. Tendencia: recta de mínimos cuadrados sobre las épocas desde 2000; el margen de la proyección es el error observado al proyectar diez años en 340 municipios y tres décadas (95 de cada 100 casos quedaron dentro de ese margen), no un margen teórico. Confianza alta si R² ≥ 0.9 con al menos 6 épocas, media si R² ≥ 0.7, baja en otro caso. Conexión vial: distancia en línea recta del centroide del lugar a la vía para vehículos más cercana; los caminos unidos entre sí forman un tramo y el mayor es la red principal.</p>
     <h2>Fuentes</h2><ol class="fuentes">${usadas.map(x => `<li>${esc(x.cita)}</li>`).join('')}</ol>
     <p class="nota">Prototipo del Datatón INE 2026. No es una publicación oficial del INE.</p>`;
+  prepararCertificacion(r);
 })().catch(e => { document.getElementById('hoja').innerHTML = '<p>No se pudo cargar el reporte: ' + esc(e.message) + '</p>'; });
+// ---- Certificación del reporte, para responder una solicitud de información ----
+// La ve quien puede certificar (administrador, o analista cuyo grupo incluye «certificar»). El servidor anota
+// quién certificó, cuándo y la huella de los datos, y da un folio; el nombre y el correo de quien solicita no salen de esta página.
+async function prepararCertificacion(r) {
+  const s = await fetch('/api/sesion').then(x => x.json()).catch(() => ({})), u = s.sesion && s.usuario;
+  if (!u || u.debe_cambiar || !(u.rol === 'admin' || (u.rol === 'analista' && (!u.secciones || u.secciones.includes('certificar'))))) return;
+  const $ = q => document.querySelector(q), f = $('#certdatos'), hoy = () => new Date().toLocaleDateString('es-GT', {day:'numeric', month:'long', year:'numeric'});
+  $('#certificar').hidden = false; f.firma.value = u.nombre;
+  $('#certificar').onclick = () => { $('#certerror').textContent = ''; $('#certform').showModal(); };
+  $('#certcancelar').onclick = () => $('#certform').close();
+  f.onsubmit = async e => { e.preventDefault(); const d = Object.fromEntries(new FormData(f));
+    const x = await fetch('/api/certificaciones', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({municipio: r.codigo, expediente: d.expediente})});
+    const c = await x.json().catch(() => ({})); if (!x.ok) { $('#certerror').textContent = c.error || 'No se pudo certificar.'; return; }
+    const enlace = location.origin + '/reporte?municipio=' + encodeURIComponent(r.codigo), verificar = location.origin + '/api/certificaciones/' + c.folio;
+    $('#constancia').innerHTML = `
+      <div class="cab"><img src="/vendor/ine-horizontal.svg" alt="Instituto Nacional de Estadística"><div class="exp">EXP. <span data-no-traducir>${esc(d.expediente)}</span><br><small>Folio <span data-no-traducir>${esc(c.folio)}</span></small></div></div>
+      <p class="borrador"><b>Borrador generado por FARO.</b> No es un documento oficial: adquiere validez solo cuando lo revisa y lo firma la autoridad competente del INE, con el formato y los fundamentos que fije su asesoría jurídica.</p>
+      <h1>CONSTANCIA DE ENTREGA DE INFORMACIÓN ESTADÍSTICA</h1>
+      <p><b><span data-no-traducir>${esc(d.unidad)}</span>.</b> Guatemala, ${hoy()}. Se tiene a la vista la solicitud identificada con el número <b data-no-traducir>${esc(d.expediente)}</b>, presentada por <b data-no-traducir>${esc(d.solicitante)}</b>, en la que pide: <span data-no-traducir>«${esc(d.pedido)}»</span></p>
+      <h3>CONSIDERANDO</h3>
+      <p>Que la Ley de Acceso a la Información Pública, Decreto 57-2008 del Congreso de la República, garantiza a toda persona el derecho a solicitar y a tener acceso a la información pública en posesión de los sujetos obligados, y dispone que a toda solicitud deberá recaer una resolución por escrito.</p>
+      <h3>CONSIDERANDO</h3>
+      <p>Que la información que se entrega es estadística agregada por municipio, elaborada con fuentes públicas que el propio reporte cita, y no contiene datos de personas, hogares ni empresas, en resguardo del secreto estadístico que establece la Ley Orgánica del Instituto Nacional de Estadística, Decreto Ley 3-85.</p>
+      <h3>POR TANTO</h3>
+      <p><b>I.</b> Se entrega el reporte municipal de <b data-no-traducir>${esc(r.nombre)}, ${esc(r.departamento)}</b> (código INE <span data-no-traducir>${esc(r.codigo)}</span>), generado el ${hoy()}, que acompaña a esta constancia. <b>II.</b> Las cifras del INE se entregan como el INE las publica; los cálculos propios del portal están rotulados como tales en el reporte y no son cifras oficiales. <b>III.</b> Quien recibe la información es responsable del uso, manejo y difusión que le dé, conforme a la Ley de Acceso a la Información Pública y demás leyes aplicables.</p>
+      <div class="firma"><span class="sinfirma">SIN FIRMA · DOCUMENTO DE PRUEBA</span><br><span data-no-traducir>${esc(d.firma)}</span><br><small data-no-traducir>${esc(d.unidad)}</small></div>
+      <div class="sello"><b>Certificación <span data-no-traducir>${esc(c.folio)}</span></b> · registrada el <span data-no-traducir>${esc(c.cuando)}</span> por <span data-no-traducir>${esc(c.certifica)}</span>.<br>Huella de los datos (SHA-256): <span data-no-traducir>${esc(c.huella)}</span><br>Reporte en línea: <span data-no-traducir>${esc(enlace)}</span><br>Comprobación del folio: <span data-no-traducir>${esc(verificar)}</span></div>`;
+    $('#constancia').hidden = false; $('#certform').close(); $('#certificar').hidden = true; $('#imprimir').textContent = 'Descargar (imprimir o guardar como PDF)'; document.title = `FARO · ${c.folio} · ${r.nombre}`;
+    const asunto = `Respuesta a la solicitud ${d.expediente}: reporte de ${r.nombre}, ${r.departamento}`, cuerpo = `Estimado(a) ${d.solicitante}:\n\nEn respuesta a su solicitud ${d.expediente}, se le entrega el reporte municipal de ${r.nombre}, ${r.departamento} (código INE ${r.codigo}).\n\nReporte en línea: ${enlace}\nCertificación: ${c.folio}\nComprobación del folio: ${verificar}\n\nSe adjunta la constancia con el reporte en PDF.\n\n${d.firma}\n${d.unidad}`;
+    $('#correo').hidden = false; $('#correo').dataset.enlace = 'mailto:' + encodeURIComponent(d.correo || '') + '?subject=' + encodeURIComponent(asunto) + '&body=' + encodeURIComponent(cuerpo); $('#correo').onclick = () => { location.href = $('#correo').dataset.enlace; };
+    $('#constancia').scrollIntoView({behavior:'smooth'}); };
+}
 </script>
 </body>
 </html>

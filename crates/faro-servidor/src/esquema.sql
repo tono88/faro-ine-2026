@@ -278,3 +278,17 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS precios_ultimos AS
     SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados ORDER BY rubro, proveedor, url, observado DESC;
 CREATE INDEX IF NOT EXISTS precios_ultimos_rubro ON precios_ultimos (rubro, precio);
 CREATE INDEX IF NOT EXISTS precios_ultimos_ean ON precios_ultimos (rubro, ean) WHERE ean <> '';
+
+-- Certificaciones de reportes municipales (v0.22.0): quién certificó qué y cuándo, con la huella de los
+-- datos entregados. No guarda nada de la persona que pidió la información.
+CREATE TABLE IF NOT EXISTS certificaciones (
+    id         BIGSERIAL PRIMARY KEY,
+    cuando     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    municipio  TEXT NOT NULL,
+    expediente TEXT NOT NULL DEFAULT '',
+    quien      TEXT NOT NULL,
+    huella     TEXT NOT NULL
+);
+INSERT INTO grupos (nombre, descripcion, secciones) VALUES
+  ('Acceso a la información', 'Lo mismo que Territorio y cartografía, y además certifica reportes municipales para responder solicitudes de información', '{mapa,comparar,certificar,mejoras,proceso,crecimiento,vial,operadores,alimentaria,tableros,capas,acerca,perfil}')
+ON CONFLICT (nombre) DO NOTHING;

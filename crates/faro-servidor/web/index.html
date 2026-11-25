@@ -27,6 +27,11 @@
   header .acceso input { width:190px; padding:6px 8px; }
   #menu { display:none; border:1px solid var(--borde); background:#fff; border-radius:6px; padding:6px 10px; font:inherit; cursor:pointer; }
   nav { background:var(--azul-oscuro); color:#fff; padding:10px 8px 24px; overflow-y:auto; }
+  nav button.guia-eval { background:#fff; color:#c8102e; font-weight:700; margin:4px 0 2px; border:2px solid #ffd500; } nav button.guia-eval[aria-selected=true] { background:#fff; color:#c8102e; box-shadow:0 0 0 2px #c8102e inset; }
+  header .marca .para { display:flex; align-items:center; gap:6px; font-size:11px; color:#5b6672; margin-left:2px; } header .marca .para img { height:22px; width:auto; display:block; }
+  .comp-elegidos { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 0; } .comp-elegidos span { display:inline-flex; align-items:center; gap:6px; background:#e5f2ff; border-radius:999px; padding:4px 6px 4px 10px; font-weight:600; color:#004080; } .comp-elegidos i { width:12px; height:12px; border-radius:50%; display:inline-block; } .comp-elegidos button { border:0; background:#fff; border-radius:50%; width:22px; height:22px; cursor:pointer; color:#004080; font-weight:700; }
+  #complienzo { height:360px; border-radius:10px; border:1px solid var(--borde, #d9dfe6); } #tcomp td .barra { display:block; height:5px; border-radius:3px; margin-top:3px; min-width:2px; } #tcomp td.mayor b { color:#004080; } #tcomp th i { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:5px; }
+  .guia-criterios td:first-child { white-space:nowrap; font-weight:700; color:#004080; } .guia-criterios td:nth-child(2) { white-space:nowrap; text-align:right; font-weight:700; }
   nav h3 { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:#99ccff; margin:16px 10px 6px; font-weight:600; }
   nav button { display:flex; width:100%; gap:8px; align-items:center; border:0; background:none; color:#e5f2ff; padding:8px 10px; font:inherit; text-align:left; cursor:pointer; border-radius:7px; }
   nav button:hover { background:rgba(255,255,255,.09); }
@@ -240,7 +245,7 @@
   #idiomalista button:hover, #idiomalista button:focus-visible { background:var(--fondo); } #idiomalista button[aria-selected="true"] { background:var(--cielo); } #idiomalista button[aria-selected="true"] span { font-weight:600; color:var(--azul-oscuro); }
   #idiomalista small { color:var(--gris); font-size:12px; } #idiomalista p { margin:6px 4px 2px; padding:8px 6px 4px; border-top:1px solid var(--borde); font-size:12px; line-height:1.4; color:var(--gris); }
   #aviso-idioma { background:#fffbe5; border:1px solid #ffd500; border-radius:var(--radio); padding:10px 14px; margin-bottom:14px; font-size:14px; }
-  @media (max-width: 400px) { #idiomabtn b { display:none; } header { gap:6px; } header .marca h1 { display:none; } }
+  @media (max-width: 400px) { #idiomabtn b { display:none; } header { gap:6px; } header .marca h1 { display:none; } header .marca .para { display:none; } }
   /* En otro idioma el rótulo de salir o entrar puede ser más largo: en teléfono se recorta en vez de empujar el encabezado. */
   @media (max-width: 700px) { header .acceso, header .acceso .quien { flex:0 1 auto; min-width:0; } header .acceso button { flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; } }
   @media (max-width: 700px) { #idiomabtn { padding:5px 7px; } #idiomalista { position:fixed; left:10px; right:10px; top:58px; width:auto; } #idiomalista button { min-height:44px; } }
@@ -250,16 +255,17 @@
 <body>
 <header>
   <button id="menu" aria-label="Abrir el menú" aria-expanded="false">☰</button>
-  <div class="marca"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0080ff"/><path d="M26 21 5 12v17z" fill="#ffd500" opacity=".9"/><path d="M38 21 59 12v17z" fill="#ffd500" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffe566"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#66b3ff"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#66b3ff"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><h1>FARO</h1></div></div>
+  <div class="marca"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0080ff"/><path d="M26 21 5 12v17z" fill="#ffd500" opacity=".9"/><path d="M38 21 59 12v17z" fill="#ffd500" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffe566"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#66b3ff"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#66b3ff"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><h1>FARO</h1><span class="para" data-no-traducir title="Proyecto participante del Datatón INE 2026: una propuesta para el Instituto Nacional de Estadística">for <img src="/vendor/ine-horizontal.svg" alt="Instituto Nacional de Estadística"></span></div></div>
   <span><b>Que cada dato llegue a puerto.</b> Registros administrativos, territorio y precios · Datatón INE 2026</span>
   <button class="recorrer" id="recorrido" title="Recorrido guiado: le muestra, paso a paso, qué hay en esta pantalla y para qué sirve" aria-label="Recorrido guiado">Recorrido<span class="rec-largo">&nbsp;guiado</span></button>
   <div class="idioma"><button id="idiomabtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="idiomalista" aria-label="Idioma de la pantalla" title="Idioma de la pantalla: español, inglés o kaqchikel. Los datos no se traducen."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg><b data-no-traducir>ES</b></button><div id="idiomalista" role="listbox" aria-label="Idiomas disponibles" hidden></div></div>
   <div class="acceso" id="acceso"><button class="accion" id="entrar" style="margin:0" aria-label="Iniciar sesión"><span class="rec-largo">Iniciar sesión</span><span class="rec-corto">Entrar</span></button></div>
 </header>
 <nav aria-label="Secciones">
+  <button data-s="mejoras" class="guia-eval" title="Para quien evalúa el proyecto: qué revisar en cada criterio y dónde está">Guía para evaluadores</button>
   <h3>Panorama</h3>
   <button data-s="mapa" aria-selected="true">Mapa</button>
-  <button data-s="mejoras" data-ine="1">Antes y ahora</button>
+  <button data-s="comparar">Comparar territorios</button>
   <button data-s="proceso" data-ine="1">Proceso</button>
   <button data-s="tableros">Tableros</button>
   <h3>Registros administrativos</h3>
@@ -540,10 +546,38 @@
   </section>
 
   <section id="mejoras">
+    <div class="titulo"><h2>Guía para evaluadores</h2><p>Esta página existe para el Datatón INE 2026: reúne, para quien califica, qué revisar en cada criterio de la nota conceptual y dónde está en el portal. Abajo, punto por punto, qué se tenía antes y qué hace FARO.</p></div>
+    <div class="panel"><h2>Qué revisar en cada criterio</h2>
+      <table class="guia-criterios"><thead><tr><th>Criterio</th><th>Peso</th><th>Qué revisar</th><th>Dónde está</th></tr></thead><tbody>
+        <tr><td>Funcionalidad</td><td>25 %</td><td>Una institución sube su archivo y queda homologado; una persona decide lo dudoso una sola vez; la ficha de un municipio; los precios; un tablero publicado.</td><td><a href="#recibir">Recibir envío</a> y <a href="#pendientes">Revisar pendientes</a> (con sesión) · <a href="#mapa">Mapa</a> · <a href="#rubros">Precios por rubro</a> · <a href="#tableros">Tableros</a></td></tr>
+        <tr><td>Aplicabilidad institucional</td><td>20 %</td><td>Responde a necesidades que planteó el INE; se instala con un comando; sumar una institución es escribir un archivo; certifica reportes para solicitudes de información.</td><td>La lista de abajo · <a href="#proceso">Proceso</a> · <a href="#comparar">Comparar territorios</a> · reporte de un municipio (botón «Reporte» de su ficha)</td></tr>
+        <tr><td>Calidad técnica</td><td>20 %</td><td>Código en cinco módulos, pruebas automáticas, instalación reproducible y documentación numerada.</td><td><a href="#acerca">Acerca y fuentes</a> · README y carpeta <code>docs/</code> del repositorio</td></tr>
+        <tr><td>Innovación</td><td>15 %</td><td>El sistema no adivina y recuerda cada decisión; la red vial como grafo; el margen de proyección es el medido, no el supuesto.</td><td><a href="#vial">Red vial</a> · <a href="#crecimiento">Población y crecimiento</a> · <a href="#memoria">Equivalencias</a> (con sesión)</td></tr>
+        <tr><td>Rigor en el uso de los datos</td><td>10 %</td><td>El INE es la fuente principal; cada cifra tiene fuente, fecha y licencia; lo que no es oficial está rotulado.</td><td><a href="#acerca">Acerca y fuentes</a> · <a href="#ine">Portal del INE</a> · <a href="#capas">Capas publicadas</a></td></tr>
+        <tr><td>Presentación y usabilidad</td><td>10 %</td><td>Recorrido guiado en cada pantalla (botón amarillo del encabezado); funciona en teléfono; pantalla en inglés y, como borrador, en kaqchikel.</td><td>Botón «Recorrido guiado» · botón del globo, en el encabezado</td></tr>
+      </tbody></table>
+      <p class="nota">En caso de empate prevalece la aplicabilidad institucional. Las secciones marcadas «con sesión» piden entrar con un usuario del INE.</p>
+    </div>
     <div class="titulo"><h2>Antes y ahora: qué se tenía, qué hace FARO y cómo crece</h2><p>Cada fila es un punto: a la izquierda lo que se tenía y quién lo planteó; al centro lo que hace FARO, con una cifra que se puede comprobar en la sección enlazada; a la derecha cómo se extiende sin rehacer el sistema. Las cifras salen de los datos reales procesados durante el evento.</p></div>
     <div class="ejemplos mej-areas" id="mejareas" role="group" aria-label="Filtrar por área"></div>
     <p style="margin:10px 0 14px"><button class="accion chico suave" id="mejimprimir" style="margin:0">Imprimir esta página</button></p>
     <div id="mejlista"></div>
+  </section>
+  <section id="comparar">
+    <div class="titulo"><h2>Comparar territorios</h2><p>Ponga lado a lado hasta cuatro municipios o departamentos: los mismos indicadores del mapa, con su fuente, y un mapa que los ubica. El departamento se calcula con sus municipios: las cantidades se suman y las tasas se recalculan sobre esas sumas.</p></div>
+    <div class="panel">
+      <div class="niveles" role="group" aria-label="Nivel a comparar" id="compnivel"><button type="button" data-n="municipio" aria-pressed="true">Municipios</button><button type="button" data-n="departamento" aria-pressed="false">Departamentos</button></div>
+      <label for="compbuscar">Agregar un territorio</label>
+      <input type="text" id="compbuscar" list="complista" placeholder="Escriba el nombre y elíjalo de la lista" autocomplete="off"><datalist id="complista"></datalist>
+      <div class="comp-elegidos" id="compelegidos"></div>
+      <p class="nota" id="compnota">Elija al menos dos territorios para compararlos.</p>
+    </div>
+    <div class="panel" id="compresultado" hidden>
+      <div id="complienzo" role="img" aria-label="Mapa con los territorios comparados"></div>
+      <p style="margin:12px 0 6px"><button class="accion chico suave" id="compcsv" style="margin:0">Descargar la comparación (CSV)</button></p>
+      <div class="tabla-ancha"><table id="tcomp"><thead></thead><tbody></tbody></table></div>
+      <p class="nota">La barra de cada celda es proporcional al valor más alto de la fila. Cada indicador dice su fuente y su año en la sección «Mapa».</p>
+    </div>
   </section>
   <section id="tableros">
     <div class="titulo"><h2>Tableros</h2><p>Arme un tablero escribiendo qué quiere ver o colocando piezas en el lienzo, fíltrelo por territorio y por condiciones, y publíquelo: los tableros publicados los ve cualquier visitante del portal, sin cuenta, con su propio enlace. No interviene ningún modelo: la frase se interpreta con reglas a la vista y el portal dice qué entendió.</p></div>
@@ -1996,6 +2030,9 @@ function pintarSesion() {
   $('#menurubros').hidden = !!permitidas && !permitidas.has('rubros');
   // Secciones que muestran lo recibido de las instituciones o solo sirven para cargar archivos: sin sesión no aparecen.
   document.querySelectorAll('nav > button[data-sesion]').forEach(b => { b.hidden = !yo || yo.rol === 'operador' || (deInstitucion() && b.dataset.s !== 'recibir') || (!!permitidas && !permitidas.has(b.dataset.s)) || (b.dataset.s === 'operadores' && !puede('operadores')); });
+  // «Comparar territorios» acompaña al mapa; la guía para evaluadores la ve cualquiera mientras dure el concurso.
+  if (permitidas && permitidas.has('mapa')) document.querySelector('nav button[data-s=comparar]').hidden = false;
+  document.querySelector('nav button[data-s=mejoras]').hidden = !guiaEvaluacion;
   document.querySelectorAll('nav > button[data-ine]').forEach(b => { b.hidden = !delIne() || (!!permitidas && !permitidas.has(b.dataset.s)); });
   // Armar un tablero es para quien puede guardarlo; los demás ven solo los publicados.
   $('#tabcrear').hidden = !puede('tableros');
@@ -2006,9 +2043,10 @@ function pintarSesion() {
   // «Mi ruta de campo» pide sesión y que el grupo incluya el trabajo de campo (o su coordinación).
   document.querySelector('nav button[data-s=campo]').hidden = !yo || yo.rol === 'consulta' || deInstitucion() || (!!permitidas && !permitidas.has('campo') && !permitidas.has('operadores'));
   document.querySelectorAll('nav h3').forEach(h => { let x = h.nextElementSibling, alguno = false; while (x && x.tagName !== 'H3') { if (x.tagName === 'BUTTON' && !x.hidden) alguno = true; x = x.nextElementSibling; } if (!h.classList.contains('con-sesion')) h.hidden = !alguno; });
-  if (permitidas && !permitidas.has(document.querySelector('section.activa')?.id)) document.querySelector('nav > button[data-s]:not([hidden])')?.click();
+  if (permitidas && !permitidas.has(document.querySelector('section.activa')?.id) && !['mejoras', 'comparar'].includes(document.querySelector('section.activa')?.id)) document.querySelector('nav > button[data-s]:not([hidden])')?.click();
 }
-async function verSesion() { const r = await api('/api/sesion'); yo = r.sesion ? r.usuario : null; pintarSesion(); if (solicitudes.length) cargarSolicitudes(); }
+let guiaEvaluacion = true;
+async function verSesion() { const r = await api('/api/sesion'); yo = r.sesion ? r.usuario : null; guiaEvaluacion = r.guia_evaluacion !== false; pintarSesion(); if (solicitudes.length) cargarSolicitudes(); }
 $('#acceso').onclick = async e => { const pulsado = e.target.closest('button')?.id;
   if (pulsado === 'entrar') { $('#ingerror').textContent = ''; $('#ingreso').showModal(); $('#iusuario').focus(); }
   if (pulsado === 'salir') { await api('/api/sesion', {method:'DELETE'}); yo = null; pintarSesion(); cargarSolicitudes(); document.querySelector('nav button[data-s=mapa]').click(); aviso('Sesión cerrada.'); }
@@ -2023,7 +2061,7 @@ async function perfil() { if (!yo) return; $('#perfilinfo').textContent = `Usuar
 $('#pguardar').onclick = async () => { try { await api('/api/perfil', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({nombre: $('#pnombre').value})}); await verSesion(); aviso('Nombre guardado.'); } catch (x) { aviso(x.message, true); } };
 $('#pclave').onclick = async () => { if ($('#pnueva').value !== $('#pnueva2').value) return aviso('Las dos contraseñas nuevas no coinciden.', true);
   try { await api('/api/perfil', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({clave_actual: $('#pactual').value, clave_nueva: $('#pnueva').value})}); ['#pactual', '#pnueva', '#pnueva2'].forEach(c => $(c).value = ''); await verSesion(); aviso('Contraseña cambiada.'); } catch (x) { aviso(x.message, true); } };
-const NOMBRE_SECCION = {mapa:'Mapa', mejoras:'Antes y ahora', proceso:'Proceso', tableros:'Tableros', campo:'Mi ruta de campo', recibir:'Recibir envío', pendientes:'Revisar pendientes', memoria:'Equivalencias', resultados:'Resultados y avance', crecimiento:'Población y crecimiento', vial:'Red vial', operadores:'Operadores de campo', alimentaria:'Seguridad alimentaria', construccion:'Materiales de construcción', precios:'Precios de referencia', canasta:'Canasta básica', rubros:'Precios por rubro', balance:'Hoja de balance', muestreos:'Muestreos automáticos', ine:'Portal del INE', capas:'Capas publicadas', acerca:'Acerca y fuentes', perfil:'Mi perfil'};
+const NOMBRE_SECCION = {mapa:'Mapa', comparar:'Comparar territorios', mejoras:'Guía para evaluadores', proceso:'Proceso', tableros:'Tableros', campo:'Mi ruta de campo', recibir:'Recibir envío', pendientes:'Revisar pendientes', memoria:'Equivalencias', resultados:'Resultados y avance', crecimiento:'Población y crecimiento', vial:'Red vial', operadores:'Operadores de campo', alimentaria:'Seguridad alimentaria', construccion:'Materiales de construcción', precios:'Precios de referencia', canasta:'Canasta básica', rubros:'Precios por rubro', balance:'Hoja de balance', muestreos:'Muestreos automáticos', ine:'Portal del INE', capas:'Capas publicadas', acerca:'Acerca y fuentes', perfil:'Mi perfil'};
 let grupos = [], grupoEditado = null, seccionesPosibles = [];
 function formGrupo(g) { grupoEditado = g ? g.id : null; $('#grupoform').hidden = false; $('#gnombre').value = g ? g.nombre : ''; $('#gdesc').value = g ? g.descripcion : '';
   $('#gsecciones').innerHTML = seccionesPosibles.filter(x => x !== 'usuarios' && x !== 'perfil').map(x => `<label><input type="checkbox" value="${x}" ${!g || g.secciones.includes(x) ? 'checked' : ''}> ${esc(NOMBRE_SECCION[x] || x)}</label>`).join(''); $('#gnombre').focus(); }
@@ -2087,7 +2125,14 @@ const RECORRIDOS = {
     {en:'#indicador', sube:'.panel', t:'Qué colorear', x:'Escoja el indicador que pinta el mapa. La leyenda dice los rangos y la nota dice la fuente y el año.'},
     {en:'#capavias', sube:'.panel', t:'Capas', x:'Encienda carreteras, enlaces que probablemente faltan, huella construida por época o la foto satelital. Se pueden combinar.'},
   ],
+  comparar: [
+    {en:'#compnivel', sube:'.panel', t:'Qué comparar', x:'Elija si compara municipios o departamentos y agregue hasta cuatro, escribiendo su nombre.'},
+    {en:'#complienzo', t:'Dónde están', x:'El mapa ubica los territorios elegidos, cada uno con su color.'},
+    {en:'#tcomp', t:'Lado a lado', x:'Los mismos indicadores del mapa. La barra es proporcional al valor más alto de la fila; con dos territorios se muestra la diferencia.'},
+    {en:'#compcsv', t:'Para llevar', x:'Descargue la comparación como CSV.'},
+  ],
   mejoras: [
+    {en:'.guia-criterios', sube:'.panel', t:'Guía para evaluadores', x:'Qué revisar en cada criterio de la nota conceptual y en qué sección del portal está.'},
     {en:'#mejareas', t:'Antes y ahora, por área', x:'Cada punto dice qué se tenía, qué hace FARO (con una cifra medida) y cómo escala. Filtre por área para ir a lo que le interesa.'},
     {en:'#mejlista', t:'Las mejoras, una por una', x:'Son comparaciones comprobables: cada cifra sale de una prueba o de un dato del repositorio.'},
     {en:'#mejimprimir', t:'Para llevar', x:'Imprima la comparación o guárdela como PDF.'},
@@ -2252,7 +2297,42 @@ document.querySelectorAll('main section').forEach(sec => { if (!RECORRIDOS[sec.i
   const b = document.createElement('button'); b.className = 'recorrer'; b.type = 'button'; b.dataset.recorrido = sec.id; b.textContent = 'Ver cómo funciona esta pantalla'; b.onclick = () => recorrer(sec.id, b);
   const t = sec.querySelector(':scope > .titulo'); if (t) t.append(b); else { const d = document.createElement('div'); d.className = 'barra-rec'; d.append(b); sec.prepend(d); } });
 try { if (!localStorage.getItem('faro_recorrido_visto')) $('#recorrido').classList.add('nuevo'); } catch (_) {}
-const cargar = {mejoras, tableros, balance: hbaIniciar, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: campoCoordinar, campo};
+// ---- Comparar territorios: los indicadores del mapa, lado a lado ----
+const COMP_COLOR = ['#0080ff', '#ff5500', '#5b9a00', '#a97eff'];
+let compNivel = 'municipio', compSel = [], mapaComp = null, capaComp = null, compDeps = null, compGeoDep = null;
+async function comparar() {
+  await geoDeMunicipios();
+  if (!compGeoDep) { compGeoDep = await (await fetch('/capas/departamentos.geojson')).json(); compDeps = compGeoDep.features.map(f => resumenDepartamento(f.properties.codigo, f.properties.nombre, geoMuni.features.map(x => x.properties).filter(p => p.departamento_codigo === f.properties.codigo))); }
+  if (!mapaComp) { mapaComp = L.map('complienzo', {zoomSnap:.25, attributionControl:true, scrollWheelZoom:false}).setView([15.7, -90.3], 7); mapaComp.attributionControl.setPrefix('').addAttribution('Límites: CONRED/OCHA (CC BY-IGO), simplificados por FARO');
+    L.geoJSON(compGeoDep, {style:{color:'#9fb3c8', weight:1, fillColor:'#eef3f8', fillOpacity:1}, interactive:false}).addTo(mapaComp); }
+  compPintar();
+}
+const compTodos = () => compNivel === 'municipio' ? geoMuni.features.map(f => f.properties) : compDeps;
+const compRotulo = p => compNivel === 'municipio' ? `${p.nombre}, ${p.departamento}` : p.nombre;
+function compPintar() {
+  $('#complista').innerHTML = compTodos().map(p => `<option value="${esc(compRotulo(p))}">`).join('');
+  document.querySelectorAll('#compnivel button').forEach(b => b.setAttribute('aria-pressed', b.dataset.n === compNivel));
+  const ps = compSel.map(c => compTodos().find(p => p.codigo === c)).filter(Boolean);
+  $('#compelegidos').innerHTML = ps.map((p, i) => `<span data-no-traducir><i style="background:${COMP_COLOR[i]}"></i>${esc(compRotulo(p))}<button type="button" data-quitar="${esc(p.codigo)}" aria-label="Quitar">×</button></span>`).join('');
+  $('#compnota').textContent = ps.length < 2 ? 'Elija al menos dos territorios para compararlos.' : ps.length >= 4 ? 'Se comparan hasta cuatro territorios a la vez. Quite uno para agregar otro.' : 'Puede agregar más territorios, hasta cuatro.';
+  $('#compresultado').hidden = ps.length < 2; if (ps.length < 2) return;
+  const filas = INDICADORES.map(ind => ({ind, vs: ps.map(p => { const v = ind.f(p); return v == null || !isFinite(v) ? null : +v; })})).filter(x => x.vs.some(v => v != null));
+  const n = (v, ind) => v == null ? '—' : Number(v).toLocaleString('es-GT', {maximumFractionDigits: ind.dec ?? 0});
+  $('#tcomp thead').innerHTML = `<tr><th>Indicador</th>${ps.map((p, i) => `<th class="n" data-no-traducir><i style="background:${COMP_COLOR[i]}"></i>${esc(p.nombre)}</th>`).join('')}${ps.length === 2 ? '<th class="n">Diferencia</th>' : ''}</tr>`;
+  $('#tcomp tbody').innerHTML = filas.map(({ind, vs}) => { const max = Math.max(...vs.filter(v => v != null).map(Math.abs)), dif = ps.length === 2 && vs[0] != null && vs[1] != null ? vs[0] - vs[1] : null;
+    return `<tr><td>${esc(ind.t)} <small>(${esc(ind.u)})</small></td>${vs.map((v, i) => `<td class="n${v != null && Math.abs(v) === max && vs.filter(x => x != null).length > 1 ? ' mayor' : ''}"><b>${n(v, ind)}</b>${v != null && max > 0 ? `<span class="barra" style="width:${Math.max(2, Math.round(Math.abs(v) / max * 100))}%;background:${COMP_COLOR[i]}"></span>` : ''}</td>`).join('')}${ps.length === 2 ? `<td class="n">${dif == null ? '—' : (dif > 0 ? '+' : '') + n(dif, {dec: ind.dec ?? 0})}</td>` : ''}</tr>`; }).join('');
+  if (capaComp) capaComp.remove();
+  const geo = compNivel === 'municipio' ? geoMuni : compGeoDep, fs = ps.map(p => geo.features.find(f => f.properties.codigo === p.codigo)).filter(Boolean);
+  capaComp = L.geoJSON({type:'FeatureCollection', features: fs}, {style: f => ({color:'#fff', weight:1.5, fillOpacity:.85, fillColor: COMP_COLOR[compSel.indexOf(f.properties.codigo)]}), onEachFeature: (f, c) => c.bindTooltip(f.properties.nombre, {sticky:true})}).addTo(mapaComp);
+  setTimeout(() => { mapaComp.invalidateSize(); mapaComp.fitBounds(capaComp.getBounds().pad(.35)); }, 60);
+}
+$('#compnivel').onclick = e => { const b = e.target.closest('button'); if (!b || b.dataset.n === compNivel) return; compNivel = b.dataset.n; compSel = []; compPintar(); };
+$('#compbuscar').oninput = e => { const p = compTodos().find(p => compRotulo(p) === e.target.value); if (!p) return; e.target.value = ''; if (compSel.includes(p.codigo)) return; if (compSel.length >= 4) { aviso('Se comparan hasta cuatro territorios a la vez.', true); return; } compSel.push(p.codigo); compPintar(); };
+$('#compelegidos').onclick = e => { const b = e.target.closest('button[data-quitar]'); if (!b) return; compSel = compSel.filter(c => c !== b.dataset.quitar); compPintar(); };
+$('#compcsv').onclick = () => { const ps = compSel.map(c => compTodos().find(p => p.codigo === c)), q = s => '"' + String(s).replace(/"/g, '""') + '"';
+  const lineas = [['indicador', 'unidad', ...ps.map(p => compRotulo(p) + ' (' + p.codigo + ')')].map(q).join(',')].concat(INDICADORES.map(ind => [ind.t, ind.u, ...ps.map(p => { const v = ind.f(p); return v == null || !isFinite(v) ? '' : v; })].map(q).join(',')));
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lineas.join('\n')], {type:'text/csv;charset=utf-8'})); a.download = 'faro-comparacion-' + compSel.join('-') + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+const cargar = {comparar, mejoras, tableros, balance: hbaIniciar, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: campoCoordinar, campo};
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 // Enlaces internos del tipo <a href="#seccion"> llevan a esa sección del menú.
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const b = a && document.querySelector(`nav button[data-s="${a.getAttribute('href').slice(1)}"]`); if (b) { e.preventDefault(); b.click(); } });

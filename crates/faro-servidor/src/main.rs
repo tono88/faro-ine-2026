@@ -341,6 +341,9 @@ async fn main() -> Result<(), String> {
         .route("/vendor/ubuntu-sans/ubuntu-sans-500.woff2", get(|| async { ([("content-type", "font/woff2"), ("cache-control", "public, max-age=604800")], include_bytes!("../web/vendor/ubuntu-sans/ubuntu-sans-500.woff2").as_slice()) }))
         .route("/vendor/ubuntu-sans/ubuntu-sans-600.woff2", get(|| async { ([("content-type", "font/woff2"), ("cache-control", "public, max-age=604800")], include_bytes!("../web/vendor/ubuntu-sans/ubuntu-sans-600.woff2").as_slice()) }))
         .route("/vendor/ubuntu-sans/ubuntu-sans-700.woff2", get(|| async { ([("content-type", "font/woff2"), ("cache-control", "public, max-age=604800")], include_bytes!("../web/vendor/ubuntu-sans/ubuntu-sans-700.woff2").as_slice()) }))
+        .route("/vendor/ine-horizontal.svg", get(|| async { ([("content-type", "image/svg+xml"), ("cache-control", "public, max-age=604800")], include_str!("../web/vendor/ine-horizontal.svg")) }))
+        .route("/api/certificaciones", post(api_certificar))
+        .route("/api/certificaciones/:folio", get(api_certificacion))
         .route("/vendor/ine-horizontal-blanco.svg", get(|| async { ([("content-type", "image/svg+xml"), ("cache-control", "public, max-age=604800")], include_str!("../web/vendor/ine-horizontal-blanco.svg")) }))
         .route("/vendor/leaflet.js", get(|| async { ([("content-type", "text/javascript; charset=utf-8"), ("cache-control", "public, max-age=86400")], include_str!("../web/vendor/leaflet.js")) }))
         .route("/vendor/leaflet.css", get(|| async { ([("content-type", "text/css; charset=utf-8"), ("cache-control", "public, max-age=86400")], include_str!("../web/vendor/leaflet.css")) }))
@@ -2484,9 +2487,54 @@ fn galleta(llave: &str, segundos: i64) -> (&'static str, String) {
 
 async fn api_sesion(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     Ok(Json(match sesion_de(&e, &cabeceras).await? {
-        Some(s) => json!({ "sesion": true, "usuario": s }),
-        None => json!({ "sesion": false }),
+        Some(s) => json!({ "sesion": true, "usuario": s, "guia_evaluacion": guia_de_evaluacion() }),
+        None => json!({ "sesion": false, "guia_evaluacion": guia_de_evaluacion() }),
     }))
+}
+
+/// La «Guía para evaluadores» existe para el concurso: `FARO_GUIA_EVALUACION=0` la quita del menú.
+fn guia_de_evaluacion() -> bool {
+    std::env::var("FARO_GUIA_EVALUACION").map(|v| v.trim() != "0").unwrap_or(true)
+}
+
+#[derive(Deserialize)]
+struct Certificacion {
+    municipio: String,
+    #[serde(default)]
+    expediente: String,
+}
+
+/// Certifica un reporte municipal: anota quién lo certificó, cuándo y la huella de los datos entregados,
+/// y devuelve un folio. No guarda nada de quien pidió la información: su nombre y su correo solo se
+/// escriben en el documento, en el navegador de quien certifica.
+async fn api_certificar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c): Json<Certificacion>) -> Res<Json<Value>> {
+    let quien = autorizar_en(&e, &cabeceras, "certificar").await?;
+    let l = e.catalogo.por_codigo(&c.municipio).filter(|l| l.nivel == Nivel::Municipio).ok_or_else(|| pedido(format!("{} no es un municipio", c.municipio)))?;
+    let (nombre, codigo) = (l.nombre.clone(), c.municipio.clone());
+    let expediente: String = c.expediente.trim().chars().filter(|x| !x.is_control()).take(60).collect();
+    // La huella se calcula sobre lo que ve cualquier visitante (sin sesión): así se puede volver a comprobar.
+    let Json(datos) = api_municipio(State(e.clone()), Ruta(codigo.clone()), HeaderMap::new()).await?;
+    let huella = huella_de(&datos);
+    let f = e.bd.query_one("INSERT INTO certificaciones (municipio, expediente, quien, huella) VALUES ($1,$2,$3,$4) RETURNING id, to_char(cuando AT TIME ZONE 'America/Guatemala', 'YYYY-MM-DD HH24:MI'), extract(year from cuando AT TIME ZONE 'America/Guatemala')::int", &[&codigo, &expediente, &quien.nombre, &huella]).await.map_err(interno)?;
+    let folio = format!("FARO-{}-{:05}", f.get::<_, i32>(2), f.get::<_, i64>(0));
+    bitacora(&e, &quien.nombre, "certificar reporte", &format!("{folio}: {nombre} ({codigo}), expediente {expediente}")).await;
+    Ok(Json(json!({ "folio": folio, "numero": f.get::<_, i64>(0), "cuando": f.get::<_, String>(1), "huella": huella, "certifica": quien.nombre, "municipio": codigo, "nombre": nombre })))
+}
+
+fn huella_de(datos: &Value) -> String {
+    use sha2::{Digest, Sha256};
+    Sha256::digest(datos.to_string().as_bytes()).iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// Comprobación pública de una certificación: dice si existe y si los datos de hoy son los mismos que se certificaron.
+async fn api_certificacion(State(e): State<Compartido>, Ruta(folio): Ruta<String>) -> Res<Json<Value>> {
+    let numero: i64 = folio.rsplit('-').next().and_then(|n| n.parse().ok()).ok_or_else(|| pedido("el folio tiene la forma FARO-AAAA-00000"))?;
+    let Some(f) = e.bd.query_opt("SELECT municipio, expediente, quien, huella, to_char(cuando AT TIME ZONE 'America/Guatemala', 'YYYY-MM-DD HH24:MI'), extract(year from cuando AT TIME ZONE 'America/Guatemala')::int FROM certificaciones WHERE id = $1", &[&numero]).await.map_err(interno)? else {
+        return Err(Fallo(StatusCode::NOT_FOUND, "no hay una certificación con ese folio".into()));
+    };
+    let (codigo, huella): (String, String) = (f.get(0), f.get(3));
+    let Json(datos) = api_municipio(State(e.clone()), Ruta(codigo.clone()), HeaderMap::new()).await?;
+    Ok(Json(json!({ "folio": format!("FARO-{}-{:05}", f.get::<_, i32>(5), numero), "municipio": codigo, "expediente": f.get::<_, String>(1), "certifica": f.get::<_, String>(2), "cuando": f.get::<_, String>(4), "huella": huella, "datos_sin_cambios": huella_de(&datos) == huella })))
 }
 
 #[derive(Deserialize)]
@@ -2744,7 +2792,7 @@ async fn api_usuario_cambiar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, c
 // ---------------------------------------------------------------------------------------------
 
 /// Secciones del portal que un grupo puede tener.
-const SECCIONES: [&str; 24] = ["mapa", "mejoras", "proceso", "tableros", "recibir", "pendientes", "memoria", "resultados", "crecimiento", "vial", "operadores", "campo", "alimentaria", "construccion", "precios", "canasta", "rubros", "balance", "muestreos", "ine", "capas", "acerca", "perfil", "usuarios"];
+const SECCIONES: [&str; 26] = ["mapa", "comparar", "certificar", "mejoras", "proceso", "tableros", "recibir", "pendientes", "memoria", "resultados", "crecimiento", "vial", "operadores", "campo", "alimentaria", "construccion", "precios", "canasta", "rubros", "balance", "muestreos", "ine", "capas", "acerca", "perfil", "usuarios"];
 
 async fn api_grupos(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     solo_admin(&e, &cabeceras).await?;
