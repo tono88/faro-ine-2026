@@ -5,3 +5,6 @@ datos/privado/
 datos/crudo/*
 !datos/crudo/LEEME.md
 salida/
+
+# Capturas de guiones de prueba corridos sin carpeta de salida
+/undefined/

@@ -199,6 +199,13 @@
   /* Pantallas táctiles (tabletas y teléfonos): los controles chicos crecen para el dedo. */
   @media (pointer: coarse), (max-width: 1100px) { button.chico, .dec button, .ejemplos button, .niveles button { min-height:36px; } input[type=number], select { min-height:36px; } nav .submenu button { min-height:36px; } }
   code { overflow-wrap:anywhere; }
+  /* Carga a la vista: barra que avanza y filas de relleno mientras llega una consulta grande. */
+  .cargando { display:flex; align-items:center; gap:10px; color:var(--azul-oscuro); font-weight:600; } .cargando::before { content:""; width:18px; height:18px; border-radius:50%; border:3px solid var(--cielo); border-top-color:var(--azul); flex:none; }
+  .cargando-barra { height:4px; border-radius:2px; background:var(--cielo); overflow:hidden; margin:8px 0; } .cargando-barra i { display:block; height:100%; width:35%; background:var(--azul); border-radius:2px; }
+  .relleno td { padding:14px 12px; } .relleno td i { display:block; height:12px; border-radius:6px; background:#e3e8ee; }
+  #rubrovistas button .gira { display:inline-block; width:10px; height:10px; border-radius:50%; border:2px solid var(--cielo); border-top-color:var(--azul); margin-left:6px; vertical-align:middle; }
+  @media (prefers-reduced-motion: no-preference) { .cargando::before, #rubrovistas button .gira { animation:girar .8s linear infinite; } .cargando-barra i { animation:correr 1.2s ease-in-out infinite; } .relleno td i { animation:latir 1.2s ease-in-out infinite; }
+    @keyframes girar { to { transform:rotate(360deg); } } @keyframes correr { 0% { margin-left:-35%; } 100% { margin-left:100%; } } @keyframes latir { 50% { opacity:.45; } } }
   /* Recorridos guiados: botón explícito en el encabezado y en cada sección, foco sobre el elemento y globo con el paso. */
   button.recorrer { display:inline-flex; align-items:center; gap:7px; background:#fff7e8; color:#6b4300; border:1.5px solid #f5a623; border-radius:999px; padding:6px 14px 6px 8px; font:600 13.5px/1.2 inherit; font-family:inherit; cursor:pointer; min-height:34px; }
   button.recorrer::before { content:"?"; display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; background:#f5a623; color:#07306b; font-weight:800; font-size:14px; flex:none; }
@@ -216,7 +223,7 @@
   .envia-por { background:var(--cielo); border-left:5px solid #f5a623; border-radius:8px; padding:10px 14px; margin:0 0 12px; font-size:15px; } .envia-por b { color:var(--azul-oscuro); }
   @media (prefers-reduced-motion: no-preference) { #recfoco { transition:top .22s, left .22s, width .22s, height .22s; } button.recorrer.nuevo { animation:latido 1.8s ease-in-out 4; } @keyframes latido { 50% { box-shadow:0 0 0 7px rgba(245,166,35,.35); } } }
   /* El encabezado va siempre en una línea: la frase descriptiva se recorta y, en teléfono, los rótulos se acortan. */
-  header #recorrido, header .acceso button { white-space:nowrap; flex:none; } .rec-corto { display:none; }
+  header #recorrido, header .acceso button { white-space:nowrap; flex:none; } header button span { font:inherit; color:inherit; } .rec-corto { display:none; }
   header { min-width:0; } @media (min-width: 701px) { header { flex-wrap:nowrap; } header > span { flex:1 1 0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } header .acceso .quien > span { max-width:26vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } }
   @media (max-width: 700px) { header #recorrido { padding:5px 9px 5px 5px; font-size:12.5px; } header .rec-largo, header .acceso .quien > span { display:none; } header .rec-corto { display:inline; } header .acceso button { padding-left:10px; padding-right:10px; } }
   @media print { button.recorrer, .barra-rec, #recfondo, #recfoco, #recglobo { display:none !important; } }
@@ -1183,8 +1190,11 @@ $('#ficha').onclick = e => { if (e.target.closest('.cerrar')) $('#ficha').hidden
 let animacion = null;
 // Fotos de fondo de la animación (teselas XYZ de uso libre). Son una referencia visual, no una fuente de medición.
 const TESELAS = new Map();
-const FOTO_SENTINEL = {nombre: 'Sentinel-2, mosaico sin nubes 2016 (EOX, CC BY 4.0)', zmax: 13, url: (z, x, y) => `https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/${z}/${y}/${x}.jpg`};
-const fotoLandsat = anio => ({nombre: `Landsat, mosaico anual ${anio} (NASA GIBS)`, zmax: 12, url: (z, x, y) => `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual/default/${anio}-12-01/GoogleMapsCompatible_Level12/${z}/${y}/${x}.jpeg`});
+const FOTO_SENTINEL = {nombre: 'Sentinel-2, mosaico sin nubes 2016 (EOX, CC BY 4.0)', zmax: 13, entera: caja => FOTO_ENTERA.sentinel(caja), url: (z, x, y) => `https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/${z}/${y}/${x}.jpg`};
+// La misma foto, entera: una sola imagen del recuadro pedido (servicio WMS), en vez de decenas de teselas.
+const FOTO_ENTERA = {sentinel: caja => `https://tiles.maps.eox.at/wms?service=WMS&version=1.1.1&request=GetMap&layers=s2cloudless&styles=&srs=EPSG:4326&bbox=${caja}&format=image/jpeg`,
+  landsat: anio => caja => `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual&STYLES=&TIME=${anio}-12-01&SRS=EPSG:4326&BBOX=${caja}&FORMAT=image/jpeg`};
+const fotoLandsat = anio => ({nombre: `Landsat, mosaico anual ${anio} (NASA GIBS)`, zmax: 12, entera: FOTO_ENTERA.landsat(anio), url: (z, x, y) => `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual/default/${anio}-12-01/GoogleMapsCompatible_Level12/${z}/${y}/${x}.jpeg`});
 // Qué foto acompaña a cada época: la más cercana que existe (no hay mosaico Landsat libre anterior a 1985).
 const fotoDeEpoca = anio => anio <= 1987 ? fotoLandsat(1985) : anio <= 1992 ? fotoLandsat(1990) : anio <= 1997 ? fotoLandsat(1998) : anio <= 2007 ? fotoLandsat(2000) : FOTO_SENTINEL;
 const tono = ha => { const t = Math.min(1, ha / 100), paradas = [[255,243,196],[249,178,74],[224,86,27],[143,29,12]], k = Math.min(2, Math.floor(t * 3)), u = t * 3 - k; return 'rgb(' + paradas[k].map((v, i) => Math.round(v + (paradas[k + 1][i] - v) * u)).join(',') + ')'; };
@@ -1219,12 +1229,22 @@ async function detalle(codigo) {
   const teselasDe = foto => { const z = Math.max(6, Math.min(foto.zmax, Math.ceil(Math.log2(360 * kx * esc_ / 256)))), n = 2 ** z, tx = lon => Math.floor((lon + 180) / 360 * n), ty = lat => { const r = lat * Math.PI / 180; return Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n); }, latDe = y => Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180 / Math.PI, lista = [];
     for (let a = tx(lonIzq); a <= tx(lonDer); a++) for (let b = ty(latArriba); b <= ty(latAbajo); b++) { const [x0, y0] = P(a / n * 360 - 180, latDe(b)), [x1, y1] = P((a + 1) / n * 360 - 180, latDe(b + 1)); lista.push({url: foto.url(z, a, b), x: x0, y: y0, w: x1 - x0, h: y1 - y0}); }
     return lista.slice(0, 80); };
+  // Foto entera del recuadro del lienzo (al doble de puntos, para que se vea nítida). Se pide una vez por foto y
+  // municipio; si el servicio falla, esa foto vuelve al método de teselas.
+  const caja = [lonIzq, latAbajo, lonDer, latArriba].map(v => v.toFixed(5)).join(',');
+  const pedirEntera = foto => { const u = foto.entera(caja) + `&WIDTH=${W * 2}&HEIGHT=${H * 2}`; let p = TESELAS.get(u); if (!p) { p = {img: null, fallo: false}; p.lista = new Promise(ok => { const i = new Image(); i.onload = () => { p.img = i; ok(); }; i.onerror = () => { p.fallo = true; ok(); }; i.src = u; }); TESELAS.set(u, p); } return p; };
+  const fotosDelModo = () => { const vistas = new Map(); ep.forEach((_, i) => { const f = fotoDe(i); if (f) vistas.set(f.nombre, f); }); return [...vistas.values()]; };
+  let cargandoFotos = '';
+  // Antes de animar se traen todas las fotos del modo elegido; la animación espera (a lo sumo unos segundos) para no mostrar la foto a medias.
+  const precargar = async () => { const fotos = fotosDelModo(); if (!fotos.length) { cargandoFotos = ''; return; } let hechas = 0; const pinta = () => { cargandoFotos = hechas < fotos.length ? `Cargando fotos satelitales: ${hechas} de ${fotos.length}` : ''; if (vivo && $('#detalle').open) dibujar(+$('#animanio').value); };
+    pinta(); await Promise.race([Promise.all(fotos.map(f => pedirEntera(f).lista.then(() => { hechas++; pinta(); }))), new Promise(s => setTimeout(s, 12000))]); cargandoFotos = ''; };
   const fotoDe = k => { const modo = $('#animfondo').value; return modo === 'ninguna' ? null : modo === 'reciente' ? FOTO_SENTINEL : fotoDeEpoca(+ep[k]); };
   const trazo = () => { x.beginPath(); anillos.forEach(an => an.forEach((p, i) => { const [a_, b_] = P(p[0], p[1]); i ? x.lineTo(a_, b_) : x.moveTo(a_, b_); })); };
   let k = 0, corriendo = true, vivo = true;
   const dibujar = k => {
     const foto = fotoDe(k); x.clearRect(0, 0, W, H); x.globalAlpha = 1;
-    if (foto) { x.fillStyle = '#dfe5ec'; x.fillRect(0, 0, W, H); let listas = 0, todas = teselasDe(foto);
+    if (foto) { x.fillStyle = '#dfe5ec'; x.fillRect(0, 0, W, H); let listas = 0; const entera = pedirEntera(foto), todas = entera.fallo ? teselasDe(foto) : [];
+      if (entera.img) { x.drawImage(entera.img, 0, 0, W, H); listas = 1; } else if (!entera.fallo) entera.lista.then(() => { if (vivo && $('#detalle').open && !cargandoFotos) dibujar(+$('#animanio').value); });
       todas.forEach(t => { const im = TESELAS.get(t.url); if (im && im !== 'pedida') { x.drawImage(im, t.x, t.y, t.w + .5, t.h + .5); listas++; } else if (!im) { TESELAS.set(t.url, 'pedida'); const i = new Image(); i.onload = () => { TESELAS.set(t.url, i); if (vivo && $('#detalle').open) dibujar(+$('#animanio').value); }; i.onerror = () => TESELAS.set(t.url, null); i.src = t.url; } });
       // Lo que queda fuera del municipio se aclara para que el límite se lea.
       x.fillStyle = 'rgba(255,255,255,.5)'; x.beginPath(); x.rect(0, 0, W, H); anillos.forEach(an => an.forEach((p, i) => { const [a_, b_] = P(p[0], p[1]); i ? x.lineTo(a_, b_) : x.moveTo(a_, b_); })); x.fill('evenodd');
@@ -1234,15 +1254,19 @@ async function detalle(codigo) {
     if ($('#animbloques').checked) { bloques.forEach(b => { const ha = b[2 + k]; if (ha >= 0.5) { const [a_, b_] = P(b[0], b[1]); x.globalAlpha = foto ? Math.min(.85, .2 + ha / 55) : 1; x.fillStyle = tono(ha); x.fillRect(a_ - lado / 2, b_ - lado / 2, lado, lado); } }); x.globalAlpha = 1; }
     if (foto) { x.strokeStyle = '#fff'; x.lineWidth = 3.4; trazo(); x.stroke(); } x.strokeStyle = '#07306b'; x.lineWidth = 1.4; trazo(); x.stroke();
     const total = d.construido.find(v => v[0] === ep[k]); x.font = '700 30px "Noto Sans", sans-serif'; if (foto) { x.fillStyle = 'rgba(255,255,255,.85)'; x.fillRect(6, 6, x.measureText(ep[k]).width + 18, 40); } x.fillStyle = '#07306b'; x.fillText(ep[k], 14, 36);
+    if (cargandoFotos && foto && !pedirEntera(foto).img && !pedirEntera(foto).fallo) { const t = cargandoFotos.match(/(\d+) de (\d+)/), parte = t ? t[1] / t[2] : 0; x.font = '600 13px "Noto Sans", sans-serif'; const ancho = Math.max(250, x.measureText(cargandoFotos).width + 28); x.fillStyle = 'rgba(7,48,107,.9)'; x.fillRect((W - ancho) / 2, H / 2 - 26, ancho, 52); x.fillStyle = '#fff'; x.textAlign = 'center'; x.fillText(cargandoFotos, W / 2, H / 2 - 4); x.textAlign = 'left'; x.fillStyle = 'rgba(255,255,255,.3)'; x.fillRect((W - ancho) / 2 + 14, H / 2 + 8, ancho - 28, 5); x.fillStyle = '#f5a623'; x.fillRect((W - ancho) / 2 + 14, H / 2 + 8, (ancho - 28) * parte, 5); }
     $('#animetq').textContent = total ? `${ep[k]}: ${num(total[1])} ha` : ep[k]; $('#animanio').value = k;
   };
   const boton = () => { $('#animplay').textContent = corriendo ? '❚❚ Pausa' : k >= ep.length - 1 ? '↻ Ver de nuevo' : '▶ Animar'; };
-  clearInterval(animacion); dibujar(0); boton();
+  // Un cuadro está listo cuando su foto ya llegó entera (o falló, o se agotó la espera): la animación no avanza a un cuadro sin foto.
+  const cuadroListo = i => { const f = fotoDe(i); if (!f) return true; const e = pedirEntera(f); return !!e.img || e.fallo || !cargandoFotos; };
+  clearInterval(animacion); dibujar(0); boton(); precargar().then(() => { if (vivo && $('#detalle').open) dibujar(k); });
   // Corre una vez y se detiene en la última época, salvo que se pida repetir sin parar.
-  animacion = setInterval(() => { if (!corriendo || !$('#detalle').open) return; if (k >= ep.length - 1) { if ($('#animbucle').checked) k = -1; else { corriendo = false; boton(); return; } } k += 1; dibujar(k); }, 950);
+  animacion = setInterval(() => { if (!corriendo || !$('#detalle').open || !cuadroListo(k) || !cuadroListo(Math.min(k + 1, ep.length - 1))) return; if (k >= ep.length - 1) { if ($('#animbucle').checked) k = -1; else { corriendo = false; boton(); return; } } k += 1; dibujar(k); }, 950);
   $('#animplay').onclick = () => { corriendo = !corriendo; if (corriendo && k >= ep.length - 1) { k = 0; dibujar(0); } boton(); };
   $('#animanio').oninput = e => { corriendo = false; k = +e.target.value; dibujar(k); boton(); };
-  $('#animfondo').onchange = $('#animbloques').onchange = () => dibujar(k);
+  $('#animbloques').onchange = () => dibujar(k);
+  $('#animfondo').onchange = () => { precargar().then(() => dibujar(k)); };
   $('#animbucle').onchange = e => { if (e.target.checked && !corriendo) { corriendo = true; boton(); } };
   $('#detalle').addEventListener('close', () => { vivo = false; }, {once: true});
   if (!$('#detalle').open) $('#detalle').showModal();
@@ -1805,22 +1829,40 @@ $('#hbacantidad').onkeydown = e => { if (e.key === 'Enter') $('#hbacalcular').cl
 // ---- Precios por rubro ----
 const NOMBRE_RUBRO = {supermercado:'Supermercado', tecnologia:'Tecnología y electrodomésticos', farmacia:'Farmacia', ferreteria:'Ferretería y hogar', hogar:'Hogar y librería', vehiculos:'Motocicletas y transporte', construccion:'Materiales de construcción', alimentos:'Canasta básica (búsqueda)'};
 const rubroNombre = r => NOMBRE_RUBRO[r] || r;
-let rubroVista = 'filas', rubroDatos = null;
+let rubroVista = 'filas', rubroDatos = null, rubroTurno = 0, rubroListas = new Set();
+// Qué trae cada vista pesada; se piden una por una después de mostrar los precios.
+const PARTES_RUBRO = {iguales: ['codigo', ['mismo_codigo', 'total_mismo_codigo']], diferencias: ['diferencias', ['diferencias', 'total_diferencias', 'conteo_diferencias']], cambios: ['cambios', ['cambios', 'comparados', 'atipicos', 'umbral_pct']], informantes: ['informantes', ['informantes']]};
+const rellenoTabla = (sel, texto) => { $(sel).innerHTML = `<caption style="caption-side:top;text-align:left;padding:8px 0"><span class="cargando">${esc(texto)}</span><div class="cargando-barra"><i></i></div></caption><tbody class="relleno">${Array.from({length: 6}, (_, k) => `<tr><td style="width:${46 - k * 3}%"><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>`).join('')}</tbody>`; };
+function resumenRubro() {
+  const r = rubroDatos, falta = '<small>calculando…</small>', L = rubroListas;
+  rubroResumenBase = `<b>${num(r.total)}</b> producto(s)${$('#rubroq').value.trim() ? ' coinciden' : ''}; precios entre <b>${q(r.minimo)}</b> y <b>${q(r.maximo)}</b>; media <b>${q(r.media)}</b>, mediana <b>${q(r.mediana)}</b>, moda <b>${q(r.moda)}</b>. Con código de barras en común entre tiendas: ${L.has('iguales') ? `<b>${num(r.total_mismo_codigo)}</b>` : falta}. Comparados entre dos muestreos: ${L.has('cambios') ? `<b>${num(r.comparados)}</b>, de ellos <b>${num(r.atipicos)}</b> con cambio de ${num(r.umbral_pct)} % o más` : falta}.`;
+  if (L.has('diferencias')) { const pend = (r.conteo_diferencias?.atipico || 0) + (r.conteo_diferencias?.por_confirmar || 0); $('#ndif').hidden = !pend; $('#ndif').textContent = num(pend); }
+  document.querySelectorAll('#rubrovistas button[data-v]').forEach(b => { const espera = PARTES_RUBRO[b.dataset.v] && !L.has(b.dataset.v); let g = b.querySelector('.gira'); if (espera && !g) { g = document.createElement('span'); g.className = 'gira'; g.title = 'cargando'; b.append(g); } if (!espera && g) g.remove(); });
+}
 async function rubros(conservar) {
-  const p = new URLSearchParams({rubro: conservar ? $('#rubrosel').value : '', q: $('#rubroq').value, proveedor: conservar ? $('#rubrotienda').value : ''});
-  const r = rubroDatos = await api('/api/publicados?' + p);
+  const turno = ++rubroTurno, p = new URLSearchParams({rubro: conservar ? $('#rubrosel').value : '', q: $('#rubroq').value, proveedor: conservar ? $('#rubrotienda').value : ''});
+  // Algo se ve de inmediato: el aviso de carga y una tabla de relleno, mientras llegan los precios.
+  $('#rubroresumen').innerHTML = '<span class="cargando">Buscando precios…</span><div class="cargando-barra"><i></i></div>'; rellenoTabla('#trubros', 'Cargando la lista de precios…'); $('#rubrobuscar').disabled = true;
+  let r; try { r = await api('/api/publicados?parte=precios&' + p); } finally { if (turno === rubroTurno) $('#rubrobuscar').disabled = false; }
+  if (turno !== rubroTurno) return;
+  rubroDatos = r; rubroListas = new Set(); $('#ndif').hidden = true;
   $('#rubrotarjetas').innerHTML = r.rubros.length ? r.rubros.map(x => `<div class="tarjeta"><b>${num(x.productos)}</b><small>${esc(rubroNombre(x.rubro))}<br>${num(x.proveedores)} tienda(s) · al ${esc(x.ultima || '')}</small></div>`).join('') : '';
   if (!r.rubros.length) { $('#rubroresumen').innerHTML = 'Todavía no hay precios guardados. Ejecute una tarea en <a href="#muestreos">Muestreos automáticos</a> (requiere que el servidor tenga salida a internet).'; tabla('#trubros', [], [], 'Sin precios todavía.'); return; }
   $('#rubrosel').innerHTML = r.rubros.map(x => `<option value="${esc(x.rubro)}" ${x.rubro === r.rubro ? 'selected' : ''}>${esc(rubroNombre(x.rubro))}</option>`).join('');
   const actual = r.rubros.find(x => x.rubro === r.rubro), elegida = conservar ? $('#rubrotienda').value : '';
   $('#rubrotienda').innerHTML = '<option value="">Todas</option>' + (actual?.tiendas || '').split(', ').filter(Boolean).map(t => `<option ${t === elegida ? 'selected' : ''}>${esc(t)}</option>`).join('');
-  $('#rubroresumen').innerHTML = `<b>${num(r.total)}</b> producto(s)${$('#rubroq').value.trim() ? ' coinciden' : ''}; precios entre <b>${q(r.minimo)}</b> y <b>${q(r.maximo)}</b>; media <b>${q(r.media)}</b>, mediana <b>${q(r.mediana)}</b>, moda <b>${q(r.moda)}</b>. Con código de barras en común entre tiendas: <b>${num(r.total_mismo_codigo)}</b>. Comparados entre dos muestreos: <b>${num(r.comparados)}</b>, de ellos <b>${num(r.atipicos)}</b> con cambio de ${num(r.umbral_pct)} % o más.`;
   $('#rubrocsv').href = '/api/publicados.csv?' + new URLSearchParams({rubro: r.rubro, q: $('#rubroq').value, proveedor: $('#rubrotienda').value});
   const hayq = !!$('#rubroq').value.trim(); $('#rubroinforme').href = hayq ? '/informe-precio?' + new URLSearchParams({rubro: r.rubro, q: $('#rubroq').value, proveedor: $('#rubrotienda').value}) : '#';
   $('#rubroinforme').style.opacity = hayq ? 1 : .5; $('#rubroinformenota').textContent = hayq ? 'Media, mediana y moda, el precio recomendado según la regla de la Dirección de Precios, las fuentes con su enlace y la metodología; listo para imprimir. Allí puede apartar los productos que no sean comparables.' : 'Escriba un producto y pulse Buscar: el informe se hace sobre una búsqueda concreta.';
-  const pend = (r.conteo_diferencias?.atipico || 0) + (r.conteo_diferencias?.por_confirmar || 0); $('#ndif').hidden = !pend; $('#ndif').textContent = num(pend);
   $('#menurubros').innerHTML = r.rubros.map(x => `<button data-rubro="${esc(x.rubro)}" aria-current="${x.rubro === r.rubro && $('#rubros').classList.contains('activa')}">${esc(rubroNombre(x.rubro))} <small>${num(x.productos)}</small></button>`).join('');
-  rubroResumenBase = $('#rubroresumen').innerHTML; pintarRubro();
+  resumenRubro(); pintarRubro();
+  // Las vistas pesadas llegan después, una por una, empezando por la que está abierta.
+  const filtro = new URLSearchParams({rubro: r.rubro, q: $('#rubroq').value, proveedor: $('#rubrotienda').value});
+  const orden = Object.keys(PARTES_RUBRO).sort((a, b) => (b === rubroVista) - (a === rubroVista));
+  (async () => { for (const vista of orden) { const [parte, claves] = PARTES_RUBRO[vista];
+    let x = null; for (let intento = 0; intento < 3 && !x; intento++) { try { x = await api(`/api/publicados?parte=${parte}&` + filtro); } catch (e) { await new Promise(s => setTimeout(s, 1500)); } if (turno !== rubroTurno) return; }
+    if (!x) { aviso('No se pudo cargar una de las vistas de precios; pulse Buscar para reintentar.', true); return; }
+    claves.forEach(k => { rubroDatos[k] = x[k]; }); rubroListas.add(vista); resumenRubro(); if (rubroVista === vista || rubroVista === 'filas') pintarRubro(); } })();
 }
 let rubroResumenBase = '';
 // Menú de rubros: cada uno abre "Precios por rubro" ya filtrado.
@@ -1833,6 +1875,7 @@ $('#trubros').addEventListener('click', async e => { const b = e.target.closest(
 function pintarRubro() {
   const r = rubroDatos; if (!r) return; if (rubroResumenBase) $('#rubroresumen').innerHTML = rubroResumenBase;
   document.querySelectorAll('#rubrovistas button').forEach(b => b.setAttribute('aria-selected', b.dataset.v === rubroVista));
+  if (PARTES_RUBRO[rubroVista] && !rubroListas.has(rubroVista)) return rellenoTabla('#trubros', 'Calculando esta vista con todos los precios del rubro…');
   const enlace = (u, t) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`;
   if (rubroVista === 'filas') tabla('#trubros', [{t:'Producto', f:f => `${enlace(f.url, f.producto)}${f.marca ? `<br><small>${esc(f.marca)}</small>` : ''}`}, {t:'Tienda', f:f => esc(f.proveedor)},
     {t:'Precio (Q)', num:1, f:f => `<b>${q(f.precio)}</b>${f.precio_lista ? `<br><small>antes ${q(f.precio_lista)} (−${num((1 - f.precio / f.precio_lista) * 100)} %)</small>` : ''}`},
@@ -2178,7 +2221,7 @@ const cargar = {mejoras, tableros, balance: hbaIniciar, rubros: () => rubros(fal
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 // Enlaces internos del tipo <a href="#seccion"> llevan a esa sección del menú.
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); const b = a && document.querySelector(`nav button[data-s="${a.getAttribute('href').slice(1)}"]`); if (b) { e.preventDefault(); b.click(); } });
-api('/api/publicados').then(r => { $('#menurubros').innerHTML = r.rubros.map(x => `<button data-rubro="${esc(x.rubro)}">${esc(rubroNombre(x.rubro))} <small>${num(x.productos)}</small></button>`).join(''); }).catch(() => {});
+api('/api/publicados?parte=rubros').then(r => { $('#menurubros').innerHTML = r.rubros.map(x => `<button data-rubro="${esc(x.rubro)}">${esc(rubroNombre(x.rubro))} <small>${num(x.productos)}</small></button>`).join(''); }).catch(() => {});
 document.querySelectorAll('nav > button').forEach(b => b.onclick = () => {
   // Un enlace interno puede apuntar a una sección que este visitante no tiene en su menú: no se abre; se ofrece entrar.
   if (b.hidden) { if (!yo && !$('#ingreso').open) { $('#ingerror').textContent = 'Esa sección pide iniciar sesión.'; $('#ingreso').showModal(); } else if (yo) aviso('Su usuario no tiene acceso a esa sección.', true); return; }

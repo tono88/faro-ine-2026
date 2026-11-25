@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.17.0.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.17.1.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el

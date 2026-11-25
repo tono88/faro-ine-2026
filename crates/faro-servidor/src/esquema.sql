@@ -270,3 +270,11 @@ ALTER TABLE rutas_campo ADD COLUMN IF NOT EXISTS demo BOOLEAN NOT NULL DEFAULT F
 -- Cuentas de institución: quien envía por una institución (PNC, RENAP…) entra con su usuario, ve lo
 -- público y sube solo los archivos de las solicitudes de su institución.
 ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS institucion TEXT NOT NULL DEFAULT '';
+
+-- El precio más reciente de cada producto de cada tienda, ya calculado. Antes cada consulta de «Precios
+-- por rubro» lo volvía a sacar de todas las observaciones, varias veces; ahora se lee de aquí y el
+-- servidor lo refresca cuando cambian las observaciones (`asegurar_ultimos`).
+CREATE MATERIALIZED VIEW IF NOT EXISTS precios_ultimos AS
+    SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados ORDER BY rubro, proveedor, url, observado DESC;
+CREATE INDEX IF NOT EXISTS precios_ultimos_rubro ON precios_ultimos (rubro, precio);
+CREATE INDEX IF NOT EXISTS precios_ultimos_ean ON precios_ultimos (rubro, ean) WHERE ean <> '';

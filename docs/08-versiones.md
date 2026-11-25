@@ -2,6 +2,22 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.17.1 · 25-nov-2026
+- **Precios por rubro, carga rápida y a la vista.** El precio más reciente de cada producto se
+  guarda ya calculado (vista `precios_ultimos`, que el servidor refresca cuando cambian las
+  observaciones) en vez de recalcularse varias veces en cada visita. La pantalla pide primero los
+  precios y después, una por una, las vistas pesadas (mismo código, diferencias, cambios,
+  informantes). Medido en la base de prueba (85,907 precios): la lista aparece en 0.24 s; antes
+  toda la pantalla esperaba 3 s o más. Mientras llega algo, se ve: aviso «Buscando precios…»,
+  barra que avanza, filas de relleno y un indicador en cada pestaña que aún se calcula. El menú
+  lateral ya no dispara la consulta completa al abrir el portal.
+- **Animación del crecimiento: la foto llega entera.** Cada foto satelital se pide como una sola
+  imagen del recuadro del municipio (servicio WMS de NASA GIBS y de EOX) en lugar de decenas de
+  teselas que aparecían por bloques: 5 imágenes para toda la animación. Se traen todas al abrir,
+  con una barra de avance, y la animación no pasa a un cuadro cuya foto no ha llegado. Si el
+  servicio falla, esa foto vuelve al método anterior.
+- Prueba nueva: `.faro/pruebas/carga_precios_y_fotos.js`.
+
 ## v0.17.0 · 25-nov-2026
 - **Cuentas de institución.** Rol nuevo, «Institución», atado a una institución (PNC, RENAP,
   SE-CONRED…). Quien entra con esa cuenta ve todo lo público y sube **solo** los archivos de las

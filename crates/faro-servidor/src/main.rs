@@ -138,6 +138,10 @@ async fn main() -> Result<(), String> {
         Ok(n) => eprintln!("Precios publicados del levantamiento inicial: {n} cargados."),
         Err(e) => eprintln!("AVISO: no se cargó el levantamiento inicial de precios ({e})."),
     }
+    // Los últimos precios quedan calculados desde el arranque, para que la primera visita no espere.
+    if let Err(e) = asegurar_ultimos(&bd).await {
+        eprintln!("AVISO: no se pudo preparar la vista de últimos precios ({e}).");
+    }
     let mut construido: BTreeMap<String, Vec<faro_territorio::Punto>> = BTreeMap::new();
     if let Ok(mut lector) = csv::Reader::from_path(dir_referencia.join("superficie_construida_municipio.csv")) {
         for f in lector.deserialize::<HashMap<String, String>>().flatten() {
@@ -1612,6 +1616,28 @@ async fn sembrar_precios(bd: &Client, ruta: &std::path::Path) -> Result<usize, S
 }
 
 /// Tareas que se están ejecutando en este momento (para no lanzar dos veces la misma).
+/// Marca de las observaciones con que se calculó `precios_ultimos` (mayor id y cantidad) y cuándo.
+static MARCA_ULTIMOS: std::sync::Mutex<Option<((i64, i64), std::time::Instant)>> = std::sync::Mutex::new(None);
+
+/// Deja al día la vista `precios_ultimos` si las observaciones cambiaron desde el último refresco.
+/// Mientras un muestreo está agregando filas se refresca a lo sumo cada medio minuto; si se borraron
+/// filas (recarga del levantamiento) o es la primera vez, de inmediato.
+async fn asegurar_ultimos(bd: &tokio_postgres::Client) -> Result<(), tokio_postgres::Error> {
+    let f = bd.query_one("SELECT coalesce(max(id), 0), count(*) FROM precios_observados", &[]).await?;
+    let ahora: (i64, i64) = (f.get(0), f.get(1));
+    let anterior = *MARCA_ULTIMOS.lock().unwrap_or_else(|e| e.into_inner());
+    let hace_falta = match anterior {
+        None => true,
+        Some((marca, _)) if marca == ahora => false,
+        Some((marca, cuando)) => ahora.1 < marca.1 || cuando.elapsed().as_secs() >= 30,
+    };
+    if hace_falta {
+        bd.batch_execute("REFRESH MATERIALIZED VIEW precios_ultimos").await?;
+        *MARCA_ULTIMOS.lock().unwrap_or_else(|e| e.into_inner()) = Some((ahora, std::time::Instant::now()));
+    }
+    Ok(())
+}
+
 static EN_CURSO: std::sync::Mutex<Vec<String>> = std::sync::Mutex::new(Vec::new());
 
 /// Ejecuta una tarea de muestreo, guarda lo observado y deja constancia del resultado.
@@ -1729,10 +1755,17 @@ async fn api_muestreo_ejecutar(State(e): State<Compartido>, Ruta(id): Ruta<Strin
 /// el mismo código de barras en tiendas distintas; y los cambios de precio entre dos muestreos.
 async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
     let _turno = turno_pesado()?;
-    const ULTIMOS: &str = "SELECT DISTINCT ON (rubro, proveedor, url) rubro, proveedor, producto, marca, precio, precio_lista, ean, termino, url, observado FROM precios_observados p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor) ORDER BY rubro, proveedor, url, observado DESC";
+    asegurar_ultimos(&e.bd).await.map_err(interno)?;
+    // La pantalla pide por partes: primero los precios (rápido) y después cada vista pesada. Sin `parte` va todo.
+    let parte = q.get("parte").cloned().unwrap_or_default();
+    let quiere = |p: &str| parte.is_empty() || parte == p;
+    const ULTIMOS: &str = "SELECT rubro, proveedor, producto, marca, precio, precio_lista, ean, termino, url, observado FROM precios_ultimos p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor)";
     const PLANO: &str = "translate(lower(producto), 'áéíóúüñ', 'aeiouun')";
     let rubros = e.bd.query(&format!("SELECT rubro, count(*), count(DISTINCT proveedor), count(*) FILTER (WHERE ean <> ''), to_char(max(observado), 'YYYY-MM-DD'), string_agg(DISTINCT proveedor, ', ') FROM ({ULTIMOS}) u GROUP BY 1 ORDER BY 2 DESC"), &[]).await.map_err(interno)?;
     let rubros: Vec<Value> = rubros.iter().map(|f| json!({ "rubro": f.get::<_, String>(0), "productos": f.get::<_, i64>(1), "proveedores": f.get::<_, i64>(2), "con_codigo": f.get::<_, i64>(3), "ultima": f.get::<_, Option<String>>(4), "tiendas": f.get::<_, Option<String>>(5) })).collect();
+    if parte == "rubros" {
+        return Ok(Json(json!({ "rubros": rubros })));
+    }
     let rubro = q.get("rubro").cloned().filter(|r| !r.is_empty()).or_else(|| rubros.first().and_then(|r| r["rubro"].as_str().map(String::from))).unwrap_or_default();
     let proveedor = q.get("proveedor").cloned().unwrap_or_default();
     // Cada palabra buscada debe aparecer en el nombre del producto (sin tildes ni mayúsculas).
@@ -1742,29 +1775,29 @@ async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<Str
 
     let resumen = e.bd.query_one(&format!("SELECT count(*), min(precio), percentile_cont(0.5) WITHIN GROUP (ORDER BY precio), max(precio), avg(precio), mode() WITHIN GROUP (ORDER BY precio) FROM ({ULTIMOS}) u WHERE {filtro}"), &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
     // Tiendas informantes del rubro: cuánto publica cada una y desde cuándo se le sigue.
-    let informantes = e.bd.query(
+    let informantes = if !quiere("informantes") { Vec::new() } else { e.bd.query(
         "SELECT proveedor, count(DISTINCT url), count(DISTINCT url) FILTER (WHERE ean <> ''), count(DISTINCT observado::date), to_char(min(observado), 'YYYY-MM-DD'), to_char(max(observado), 'YYYY-MM-DD'), count(DISTINCT termino), min(split_part(url, '/', 3))
-         FROM precios_observados WHERE rubro = $1 GROUP BY 1 ORDER BY 2 DESC", &[&rubro]).await.map_err(interno)?;
+         FROM precios_observados WHERE rubro = $1 GROUP BY 1 ORDER BY 2 DESC", &[&rubro]).await.map_err(interno)? };
     let informantes: Vec<Value> = informantes.iter().map(|f| json!({ "proveedor": f.get::<_, String>(0), "productos": f.get::<_, i64>(1), "con_codigo": f.get::<_, i64>(2), "dias": f.get::<_, i64>(3), "desde": f.get::<_, Option<String>>(4), "hasta": f.get::<_, Option<String>>(5), "categorias": f.get::<_, i64>(6), "sitio": f.get::<_, Option<String>>(7) })).collect();
     let filas = e.bd.query(&format!("SELECT proveedor, producto, marca, precio, precio_lista, ean, termino, url, to_char(observado, 'YYYY-MM-DD') FROM ({ULTIMOS}) u WHERE {filtro} ORDER BY precio LIMIT 200"), &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
     let filas: Vec<Value> = filas.iter().map(|f| json!({ "proveedor": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "marca": f.get::<_, String>(2), "precio": f.get::<_, f64>(3), "precio_lista": f.get::<_, Option<f64>>(4),
         "ean": f.get::<_, String>(5), "categoria": f.get::<_, String>(6), "url": f.get::<_, String>(7), "fecha": f.get::<_, String>(8) })).collect();
 
     // Mismo código de barras en dos o más tiendas: es el mismo producto sin que nadie lo interprete.
-    let iguales = e.bd.query(&format!(
+    let iguales = if !quiere("codigo") { Vec::new() } else { e.bd.query(&format!(
         "SELECT ean, min(producto), count(DISTINCT proveedor), min(precio), max(precio),
                 json_agg(json_build_object('proveedor', proveedor, 'precio', precio, 'url', url, 'producto', producto) ORDER BY precio)::text, count(*) OVER ()
-         FROM ({ULTIMOS}) u WHERE {filtro} AND ean <> '' GROUP BY ean HAVING count(DISTINCT proveedor) >= 2 ORDER BY max(precio) / min(precio) DESC, ean LIMIT 100"), &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
+         FROM ({ULTIMOS}) u WHERE {filtro} AND ean <> '' GROUP BY ean HAVING count(DISTINCT proveedor) >= 2 ORDER BY max(precio) / min(precio) DESC, ean LIMIT 100"), &[&rubro, &proveedor, &palabras]).await.map_err(interno)? };
     let total_iguales = iguales.first().map_or(0, |f| f.get::<_, i64>(6));
     let iguales: Vec<Value> = iguales.iter().map(|f| { let (a, b) = (f.get::<_, f64>(3), f.get::<_, f64>(4));
         json!({ "ean": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "tiendas": f.get::<_, i64>(2), "minimo": a, "maximo": b, "diferencia_pct": (b / a - 1.0) * 100.0, "ofertas": serde_json::from_str::<Value>(&f.get::<_, String>(5)).unwrap_or(Value::Null) }) }).collect();
 
     // Diferencias de 50 % o más entre tiendas para un mismo código: se explican con reglas o se piden confirmar.
     // Aquí sí entran los precios marcados como error, para que la decisión quede a la vista.
-    let grupos = e.bd.query(
+    let grupos = if !quiere("diferencias") { Vec::new() } else { e.bd.query(
         "SELECT ean, min(producto), json_agg(json_build_object('proveedor', proveedor, 'precio', precio, 'precio_lista', precio_lista, 'url', url) ORDER BY precio)::text
          FROM (SELECT DISTINCT ON (proveedor, ean) proveedor, ean, producto, precio, precio_lista, url FROM precios_observados WHERE rubro = $1 AND ean <> '' ORDER BY proveedor, ean, observado DESC) u
-         GROUP BY ean HAVING count(*) >= 2 AND max(precio) >= min(precio) * 1.5", &[&rubro]).await.map_err(interno)?;
+         GROUP BY ean HAVING count(*) >= 2 AND max(precio) >= min(precio) * 1.5", &[&rubro]).await.map_err(interno)? };
     let decisiones: HashMap<(String, String), (String, String)> = e.bd.query("SELECT ean, proveedor, decision, usuario FROM decisiones_precio WHERE rubro = $1", &[&rubro]).await.map_err(interno)?
         .iter().map(|f| ((f.get(0), f.get(1)), (f.get(2), f.get(3)))).collect();
     let mut conteo: BTreeMap<&str, usize> = BTreeMap::new();
@@ -1787,11 +1820,11 @@ async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<Str
     diferencias.truncate(300);
 
     // Cambio de precio del mismo producto en la misma tienda entre sus dos últimos días de muestreo.
-    let cambios = e.bd.query(&format!(
+    let cambios = if !quiere("cambios") { Vec::new() } else { e.bd.query(&format!(
         "WITH dias AS (SELECT DISTINCT ON (proveedor, url, observado::date) rubro, proveedor, url, producto, precio, observado::date AS dia FROM precios_observados WHERE rubro = $1 ORDER BY proveedor, url, observado::date, observado DESC),
               orden AS (SELECT *, row_number() OVER w AS n, lead(precio) OVER w AS antes, lead(dia) OVER w AS dia_antes FROM dias WINDOW w AS (PARTITION BY proveedor, url ORDER BY dia DESC))
          SELECT proveedor, producto, antes, precio, to_char(dia_antes, 'YYYY-MM-DD'), to_char(dia, 'YYYY-MM-DD'), url, count(*) OVER (), count(*) FILTER (WHERE abs(precio / antes - 1) * 100 >= $4) OVER ()
-         FROM orden WHERE n = 1 AND antes > 0 AND {filtro} ORDER BY abs(precio / antes - 1) DESC LIMIT 100"), &[&rubro, &proveedor, &palabras, &umbral]).await.map_err(interno)?;
+         FROM orden WHERE n = 1 AND antes > 0 AND {filtro} ORDER BY abs(precio / antes - 1) DESC LIMIT 100"), &[&rubro, &proveedor, &palabras, &umbral]).await.map_err(interno)? };
     let (comparados, atipicos) = cambios.first().map_or((0, 0), |f| (f.get::<_, i64>(7), f.get::<_, i64>(8)));
     let cambios: Vec<Value> = cambios.iter().map(|f| { let (antes, ahora) = (f.get::<_, f64>(2), f.get::<_, f64>(3)); let v = (ahora / antes - 1.0) * 100.0;
         json!({ "proveedor": f.get::<_, String>(0), "producto": f.get::<_, String>(1), "antes": antes, "ahora": ahora, "fecha_antes": f.get::<_, String>(4), "fecha_ahora": f.get::<_, String>(5), "url": f.get::<_, String>(6), "variacion_pct": v, "atipico": v.abs() >= umbral }) })
@@ -1806,6 +1839,7 @@ async fn api_publicados(State(e): State<Compartido>, Query(q): Query<HashMap<Str
 /// extremos). Todas las fuentes son secundarias (catálogos en línea) y el informe lo dice.
 async fn api_informe_precio(State(e): State<Compartido>, cabeceras: HeaderMap, Query(q): Query<HashMap<String, String>>) -> Res<Json<Value>> {
     let _turno = turno_pesado()?;
+    asegurar_ultimos(&e.bd).await.map_err(interno)?;
     // Bajar fotos nuevas es trabajo del servidor hacia afuera: solo con sesión. Sin ella se usan las ya calculadas.
     let puede_bajar = sesion_de(&e, &cabeceras).await?.is_some();
     let rubro = q.get("rubro").cloned().unwrap_or_default();
@@ -1819,7 +1853,7 @@ async fn api_informe_precio(State(e): State<Compartido>, cabeceras: HeaderMap, Q
     let excluidos: Vec<String> = q.get("sin").map(|t| t.split('|').filter(|u| !u.is_empty()).map(String::from).collect()).unwrap_or_default();
     let filas = e.bd.query(
         "SELECT proveedor, producto, marca, precio, ean, url, to_char(observado, 'YYYY-MM-DD'), imagen FROM
-           (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor) ORDER BY rubro, proveedor, url, observado DESC) u
+           (SELECT * FROM precios_ultimos p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor)) u
          WHERE ($1 = '' OR rubro = $1) AND ($2 = '' OR proveedor = $2) AND translate(lower(producto), 'áéíóúüñ', 'aeiouun') LIKE ALL($3::text[]) AND NOT (url = ANY($4::text[])) ORDER BY precio LIMIT 300",
         &[&rubro, &proveedor, &palabras, &excluidos]).await.map_err(interno)?;
     // Huella visual de cada foto (se calcula una vez y queda guardada).
@@ -2001,13 +2035,14 @@ async fn api_muestreos_todas(State(e): State<Compartido>, cabeceras: HeaderMap) 
 
 /// Los precios publicados de un rubro (el más reciente de cada producto de cada tienda), en CSV.
 async fn api_publicados_csv(State(e): State<Compartido>, Query(q): Query<HashMap<String, String>>) -> Res<Response> {
+    asegurar_ultimos(&e.bd).await.map_err(interno)?;
     let _turno = turno_pesado()?;
     let rubro = q.get("rubro").cloned().unwrap_or_default();
     let proveedor = q.get("proveedor").cloned().unwrap_or_default();
     let palabras: Vec<String> = faro_homologa::normalizar::basico(q.get("q").map(String::as_str).unwrap_or("")).split(' ').filter(|p| !p.is_empty()).map(|p| format!("%{}%", p.to_lowercase())).collect();
     let filas = e.bd.query(
         "SELECT rubro, proveedor, producto, marca, precio, precio_lista, ean, termino, url, to_char(observado, 'YYYY-MM-DD') FROM
-           (SELECT DISTINCT ON (rubro, proveedor, url) * FROM precios_observados p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor) ORDER BY rubro, proveedor, url, observado DESC) u
+           (SELECT * FROM precios_ultimos p WHERE NOT EXISTS (SELECT 1 FROM decisiones_precio d WHERE d.decision = 'error' AND p.ean <> '' AND d.rubro = p.rubro AND d.ean = p.ean AND d.proveedor = p.proveedor)) u
          WHERE ($1 = '' OR rubro = $1) AND ($2 = '' OR proveedor = $2) AND translate(lower(producto), 'áéíóúüñ', 'aeiouun') LIKE ALL($3::text[]) ORDER BY rubro, producto, precio LIMIT 300000",
         &[&rubro, &proveedor, &palabras]).await.map_err(interno)?;
     // Una celda que empieza con = + - @ se abriría como fórmula en una hoja de cálculo: se neutraliza.

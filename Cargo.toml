@@ -3,5 +3,5 @@ resolver = "2"
 members = ["crates/faro-homologa", "crates/faro-fuentes", "crates/faro-territorio", "crates/faro-servidor", "crates/faro-cli"]
 
 [workspace.package]
-version = "0.17.0"
+version = "0.17.1"
 edition = "2021"

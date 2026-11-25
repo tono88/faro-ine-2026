@@ -238,6 +238,16 @@ de ahí). Manual gráfico: `scripts/entregables/generar_manual.js <url> <admin> 
 en la nube se generó contra una base nueva (`faromanual`) con los archivos de ejemplo ficticios.
 Prueba: `.faro/pruebas/institucion_y_recorridos.js`. Regenerar manual y PDF técnico al cerrar versión.
 
+Agregado después (v0.17.1): vista materializada `precios_ultimos` (último precio por rubro, tienda y url) +
+`asegurar_ultimos(&bd)` (la refresca si cambió `max(id)`/`count(*)` de `precios_observados`; a lo sumo cada
+30 s mientras un muestreo agrega). `/api/publicados?parte=rubros|precios|codigo|diferencias|cambios|informantes`
+(sin `parte` va todo). Pantalla: `rubros()` pide `precios` y luego las demás en orden (`PARTES_RUBRO`,
+`rubroListas`, `rubroTurno`, `rellenoTabla`, `resumenRubro`); clases `.cargando`, `.cargando-barra`, `.relleno`
+reutilizables para cualquier carga lenta. Animación: `FOTO_ENTERA` (WMS: GIBS `wms/epsg4326/best/wms.cgi`, EOX
+`tiles.maps.eox.at/wms` capa `s2cloudless` = 2016, CC BY; los años posteriores son NC, no usarlos),
+`pedirEntera`, `precargar`, `cuadroListo`; las teselas quedan solo como respaldo.
+Prueba: `.faro/pruebas/carga_precios_y_fotos.js` (usa el proxy para las fotos).
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)
