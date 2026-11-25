@@ -36,7 +36,8 @@ se borró al terminar.
 4. **Los pilares (44 s).** Varios frentes convergen en una sola herramienta; es **autocontenida**
    (sin licencias, sin servicios de pago, sin depender de una IA externa); crece sin programar y
    está comprobada.
-5. **Cierre (8 s).** Logotipo, lema, la **carta de presentación del equipo** (emblema, nombres y
+5. **Para quien evalúa (5 s).** La «Guía para evaluadores», lo primero del menú, en rojo.
+6. **Cierre (7 s).** Logotipo, lema, la **carta de presentación del equipo** (emblema, nombres y
    el código QR del LinkedIn de cada integrante) y una mención de inclusión: la pantalla también
    se lee en inglés, y en kaqchikel como borrador, por revisar con hablantes.
 
@@ -48,7 +49,7 @@ de las fuentes, no su texto completo, así que conviene abrirlas antes de citarl
 - Lo más importante va en los **primeros 20 segundos**, y la atención cae después de los dos
   minutos (<https://wistia.com/blog/optimal-video-length>).
 - El guion se escribe **contando palabras**: unas 140 a 150 por minuto
-  (<https://sozai.app/es/speaking-rate-by-language/>). Aquí son 333 palabras en 2:55: hay aire para
+  (<https://sozai.app/es/speaking-rate-by-language/>). Aquí son 344 palabras en 2:55: hay aire para
   que se vea la pantalla.
 - La independencia tecnológica se plantea como **reducción de riesgo para la institución**, sin
   atacar a nadie (marco «Public Money, Public Code»: <https://publiccode.eu/>).
@@ -61,16 +62,17 @@ medio segundo después de su marca de tiempo y debe terminar antes de la siguien
 | Tiempo | Escena | En pantalla | Narración |
 |---|---|---|---|
 | 0:00–0:13 | Apertura | Tarjeta azul con el problema; luego el logotipo y el lema | «El INE ya tiene los datos que necesita. Pero cada institución los envía a su manera, y no llegan en una forma que se pueda usar. Para eso construimos FARO.» |
-| 0:13–0:38 | Un caso real | RENAP entra con su cuenta («Usted envía por RENAP»), elige la solicitud, sube el archivo y pulsa «Validar y homologar». Banda: 10,034 registros · 100 % · 82 → 15 columnas · 0 datos personales guardados | «Este es un archivo real de RENAP: diez mil defunciones, con nombres y documentos de identidad. La institución entra con su cuenta y lo sube tal como sale de su sistema. En segundos, FARO reconoce las columnas, pone el código oficial a cada lugar y deja fuera los datos personales. El archivo original no se guarda.» |
-| 0:38–0:50 | La decisión | Sale RENAP, entra la analista; «Revisar pendientes»; elige «1312 La Democracia» para «La De Mocracia» | «Y cuando hay duda, FARO no adivina: propone, una persona decide una sola vez, y esa decisión queda aprendida para todas las instituciones.» |
-| 0:50–1:12 | Frente 2 · Territorio y censo | Busca Panajachel y abre su ficha; animación del crecimiento de Guatemala sobre la foto satelital; red vial | «Lo mismo, en cada frente del INE. Para Censos y Encuestas y las delegaciones: el país hasta el lugar poblado, con población, censo y crecimiento urbano visto desde el satélite. Y la red vial como un grafo: setecientos siete lugares sin conexión mapeada.» |
-| 1:12–1:28 | Frente 3 · Trabajo de campo | Un teléfono: la ruta de demostración, «Registrar visita», posición, foto y resultado | «Para el trabajo de campo: cada operador ve su ruta en el teléfono, y cada visita se comprueba con ubicación y foto.» |
-| 1:28–1:48 | Frente 4 · Precios e índices | Busca «arroz»; mismo producto en varias tiendas; diferencias de 50 % o más | «Para Precios e Índices: más de ochenta y cinco mil precios leídos de dieciocho tiendas, comparados por código de barras, con su informe de precio de referencia.» |
-| 1:48–2:02 | Frente 5 · Tableros | Escribe una frase, arma el tablero, lo guarda y lo publica | «Y para quien necesita comunicar: un tablero se pide con palabras y se publica con un enlace.» |
-| 2:02–2:11 | Convergencia | Los cinco frentes, con sus direcciones, confluyen en el faro | «No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.» |
-| 2:11–2:34 | Autocontenido | Tres ceros (licencias, servicios de pago, llamadas a una IA externa); luego la tabla de riesgo | «Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado.» |
-| 2:34–2:46 | Crece sin programar | El archivo de solicitud de una institución; 51,719 registros, 96 pruebas, 1 comando | «Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, noventa y seis pruebas automáticas, y se instala con un comando.» |
-| 2:47–2:55 | Cierre, con la mención de inclusión | Logotipo y lema; carta de presentación del equipo (emblema de La Sociedad de Almas, nombres y código QR del LinkedIn de cada integrante); «También en inglés · kaqchikel en borrador, por revisar con hablantes»; repositorio | «Y en más de un idioma. FARO: que cada dato llegue a puerto.» |
+| 0:13–0:37 | Un caso real | RENAP entra con su cuenta («Usted envía por RENAP»), elige la solicitud, sube el archivo y pulsa «Validar y homologar». Banda: 10,034 registros · 100 % · 82 → 15 columnas · 0 datos personales guardados | «Este es un archivo real de RENAP: diez mil defunciones, con nombres y documentos de identidad. La institución entra con su cuenta y lo sube tal como sale de su sistema. En segundos, FARO reconoce las columnas, pone el código oficial a cada lugar y deja fuera los datos personales. El archivo original no se guarda.» |
+| 0:37–0:48 | La decisión | Sale RENAP, entra la analista; «Revisar pendientes»; elige «1312 La Democracia» para «La De Mocracia» | «Y cuando hay duda, FARO no adivina: propone, una persona decide una sola vez, y esa decisión queda aprendida para todas las instituciones.» |
+| 0:48–1:10 | Frente 2 · Territorio y censo | Busca Panajachel y abre su ficha; animación del crecimiento de Guatemala sobre la foto satelital; red vial | «Lo mismo, en cada frente del INE. Para Censos y Encuestas y las delegaciones: el país hasta el lugar poblado, con población, censo y crecimiento urbano visto desde el satélite. Y la red vial como un grafo: setecientos siete lugares sin conexión mapeada.» |
+| 1:10–1:26 | Frente 3 · Trabajo de campo | Un teléfono: la ruta de demostración, «Registrar visita», posición, foto y resultado | «Para el trabajo de campo: cada operador ve su ruta en el teléfono, y cada visita se comprueba con ubicación y foto.» |
+| 1:26–1:45 | Frente 4 · Precios e índices | Busca «arroz»; mismo producto en varias tiendas; diferencias de 50 % o más | «Para Precios e Índices: más de ochenta y cinco mil precios leídos de dieciocho tiendas, comparados por código de barras, con su informe de precio de referencia.» |
+| 1:45–1:59 | Frente 5 · Tableros | Escribe una frase, arma el tablero, lo guarda y lo publica | «Y para quien necesita comunicar: un tablero se pide con palabras y se publica con un enlace.» |
+| 1:59–2:08 | Convergencia | Los cinco frentes, con sus direcciones, confluyen en el faro | «No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.» |
+| 2:08–2:31 | Autocontenido | Tres ceros (licencias, servicios de pago, llamadas a una IA externa); luego la tabla de riesgo | «Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado.» |
+| 2:31–2:43 | Crece sin programar | El archivo de solicitud de una institución; 51,719 registros, 96 pruebas, 1 comando | «Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, noventa y seis pruebas automáticas, y se instala con un comando.» |
+| 2:43–2:48 | Para quien evalúa | El menú, con «Guía para evaluadores» arriba y en rojo; se abre la guía: qué revisar en cada criterio | «Para quien evalúa: la guía para evaluadores, al inicio del menú.» |
+| 2:48–2:55 | Cierre, con la mención de inclusión | Logotipo y lema; carta de presentación del equipo (emblema de La Sociedad de Almas, nombres y código QR del LinkedIn de cada integrante); «También en inglés · kaqchikel en borrador, por revisar con hablantes»; repositorio | «Y en más de un idioma. FARO: que cada dato llegue a puerto.» |
 
 **Lo que se dice y lo que no.** «Sin depender de una inteligencia artificial externa» se refiere al
 portal en funcionamiento, y es exacto. No decir «no usamos inteligencia artificial»: el equipo usó
@@ -143,7 +145,7 @@ node scripts/entregables/grabar_video.js http://localhost:8082 <contraseña> [co
 Con los tiempos de la sección 3 se recortan clips por tema sin volver a grabar:
 
 ```bash
-ffmpeg -ss 0:13 -to 0:50 -i FARO-video-demo.mp4 -c:v libx264 -crf 20 -an clip-registros.mp4
+ffmpeg -ss 0:13 -to 0:48 -i FARO-video-demo.mp4 -c:v libx264 -crf 20 -an clip-registros.mp4
 ffmpeg -ss 2:15 -to 2:38 -i FARO-video-demo.mp4 -c:v libx264 -crf 20 -an clip-autocontenido.mp4
 ```
 
