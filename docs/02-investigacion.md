@@ -70,9 +70,16 @@ Pregunta: ¿se puede ofrecer la pantalla en kaqchikel sin inventar la traducció
   Se revisaron 3,470 cadenas (Firefox y Mozilla Accounts).
 - **Lo que no se halló** (búsqueda del 25-nov): MediaWiki no tiene la interfaz en kaqchikel en su
   repositorio; Common Voice y el sitio de complementos de Mozilla no tienen esa localización.
-  **No se revisaron** los materiales de la Academia de Lenguas Mayas de Guatemala, que publica
-  traducciones en PDF: es el siguiente lugar donde buscar términos, con hablantes.
-- **Resultado:** 32 rótulos de FARO coinciden palabra por palabra con un término de esa fuente. Los
+  En esa primera búsqueda no se revisaron los materiales de la Academia de Lenguas Mayas de
+  Guatemala; se hizo en la segunda (abajo).
+- **Segunda búsqueda (el mismo día), para ampliar el borrador:** la **memoria de traducción
+  completa** de Mozilla en Pontoon (59,421 frases en kaqchikel, 53,261 alineadas con el español) y
+  el *Kaqchikel Choltzij: Kolon chuqa' K'ak'a' taq Tzij* de la Comunidad Lingüística Kaqchikel de
+  la ALMG (2011), con secciones de ambiente social, matemáticas e informática; además, la Ley de
+  Idiomas Nacionales y la Ley de Acceso a la Información traducidas por la ALMG. Un diccionario
+  jurídico y un vocabulario de matemáticas de la ALMG son escaneos sin texto: quedan por leer.
+  Con eso se armó un borrador de 680 rótulos (`29`, sección 4).
+- **Resultado de la primera búsqueda:** 32 rótulos de FARO coinciden palabra por palabra con un término de esa fuente. Los
   términos propios de la estadística (población, municipio, precio, mapa) no están; no se
   inventaron. Marco legal revisado: Ley de Idiomas Nacionales, Decreto 19-2003, artículos 8, 10,
   11, 14 y 15 (`23`, sección 2.14).

@@ -25,8 +25,9 @@ El botón del globo, en el encabezado, cambia el idioma de la pantalla: **españ
 - Cambian el menú, los títulos, los botones, las explicaciones y los recorridos guiados.
 - **No cambian los datos**: los nombres de lugares, instituciones y productos, las cifras y las
   citas se muestran como los publica su fuente. Lo que se descarga es igual en cualquier idioma.
-- El **kaqchikel es un borrador**: solo están en kaqchikel los rótulos que ya existen en una fuente
-  revisada por hablantes; lo demás aparece en español, y la pantalla lo avisa.
+- El **kaqchikel es un borrador sin revisar**: más de un tercio de los rótulos (menú, botones,
+  títulos) está en kaqchikel, armado con vocabulario escrito por hablantes. Puede tener errores:
+  falta la revisión de una persona experta. Lo demás aparece en español, y la pantalla lo avisa.
 - Para corregir una traducción o sumar otro idioma no hace falta programar: ver
   [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
 

@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.20.0.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.20.1.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -84,7 +84,7 @@ Todas salen de datos reales procesados durante el evento y se pueden comprobar e
 | **93,297 ha** construidas en 2020 (eran 30,722 en 1975), para los 340 municipios | **707** lugares poblados sin conexión vial y **83** enlaces que probablemente faltan |
 | **85,907** precios publicados por 18 tiendas, leídos por el propio portal | **16,291** productos comparables entre supermercados por su código de barras |
 | **29** indicadores por municipio en el mapa y los tableros | **96** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
-| **1,873** textos de la pantalla también en inglés; kaqchikel en borrador, solo con términos con fuente | **0** datos traducidos: nombres oficiales, cifras y citas salen iguales en cualquier idioma |
+| **1,873** textos de la pantalla también en inglés; **680** rótulos (36 %) en kaqchikel, en borrador y por revisar | **0** datos traducidos: nombres oficiales, cifras y citas salen iguales en cualquier idioma |
 
 ## Qué hace
 
@@ -205,11 +205,14 @@ Secciones: *Tableros*, *Antes y ahora*, *Proceso*, *Capas publicadas*, *Portal d
 - **Se traduce la interfaz, nunca los datos.** Los nombres de departamentos, municipios, lugares,
   instituciones y productos, los valores de los catálogos, las cifras y las citas se muestran como
   los publica su fuente. Lo que se descarga y lo que guarda la base no cambian con el idioma.
-- **El kaqchikel no se inventa.** FARO no traduce por su cuenta a un idioma maya: solo muestra los
-  32 rótulos que ya existen, escritos y revisados por hablantes, en una fuente abierta (la
-  localización comunitaria de Firefox, MPL 2.0), cada uno con su procedencia. El resto aparece en
-  español, la pantalla lo avisa y el selector dice el porcentaje real (1.7 %). Completarlo es
-  trabajo de una persona hablante, no de un programa.
+- **El kaqchikel es un borrador amplio, y lo dice.** 680 rótulos (36 % de la pantalla: menú,
+  botones, títulos y encabezados) están en kaqchikel. Se armaron **solo con vocabulario escrito por
+  hablantes**: la memoria de traducción de Mozilla (59 mil frases de Firefox y otros programas, MPL
+  2.0) y el *Kaqchikel Choltzij* de la Comunidad Lingüística Kaqchikel de la Academia de Lenguas
+  Mayas. 110 son términos idénticos a los de esas fuentes y 570 se compusieron con sus palabras,
+  con ayuda del asistente de IA. **Ninguna persona hablante los ha revisado todavía**: pueden tener
+  errores y deben corregirse y completarse con asesoría experta antes de un uso oficial. La pantalla
+  lo avisa; cada rótulo está en una hoja de revisión y cada palabra tiene anotada su fuente.
 - **Un idioma es un archivo, no código.** Otro idioma nacional se suma llenando un diccionario; una
   corrección se ve al recargar la página, sin reiniciar. No hay servicio de traducción: es un
   diccionario fijo que vive en el servidor del INE.
@@ -430,7 +433,8 @@ complementan. Cada fila dice cuándo se descargó. La cita completa de cada una 
 | **INE**, Hoja de Balance de Alimentos, actualización 2024 (datos.ine.gob.gt; no declara licencia), descargada el 24-nov-2026 | Cuentas de utilización y suministro para contrastar las tasas | `datos/referencia/hba_2024_cuentas.csv` |
 | **INE**, diccionario de variables de estadísticas vitales y catálogo del portal (105 conjuntos), 23 y 24-nov-2026 | Códigos «Extranjero» e «Ignorado»; conjuntos vigilados | `datos/crudo/inventario_ine.csv` |
 | FAO, factores técnicos de conversión, sección Guatemala (términos de uso de la FAO: no comercial, citando la fuente), descargado el 24-nov-2026 | Calculadora de derivados | `datos/estandar/tasas_extraccion_fao_guatemala.csv` (transcripción traducida) |
-| Mozilla y colaboradores, localización de Firefox y de Mozilla Accounts al kaqchikel (`cak`; MPL 2.0; [firefox-l10n](https://github.com/mozilla-l10n/firefox-l10n/tree/main/cak)), descargada el 25-nov-2026 | Términos del borrador en kaqchikel de la pantalla | `datos/estandar/idiomas/cak_glosario.csv` (71 términos, cada uno con su archivo y su mensaje de origen) |
+| Mozilla y colaboradores, memoria de traducción de sus proyectos al kaqchikel (`cak`; MPL 2.0; [Pontoon](https://pontoon.mozilla.org/cak/)), descargada el 25-nov-2026 | Vocabulario y frases del borrador en kaqchikel de la pantalla | `datos/estandar/idiomas/cak_palabras.csv` y `cak_revision.csv` |
+| Academia de Lenguas Mayas de Guatemala, Comunidad Lingüística Kaqchikel, *Kaqchikel Choltzij: Kolon chuqa' K'ak'a' taq Tzij* ([PDF](https://almg.org.gt/wp-content/uploads/2026/09/Diccionario-2-Kaqchikel.pdf); no declara licencia), descargado el 25-nov-2026 | Términos de población, territorio, matemáticas e informática del borrador en kaqchikel | Los mismos archivos (términos sueltos, con su fuente) |
 | Páginas públicas de 18 tiendas en línea, consultadas el 24-nov-2026 | Precios publicados por rubro | `datos/referencia/precios_publicados.csv` (85,907 precios, cada uno con su dirección) |
 | `datos/solicitudes/` | Solicitudes de datos para RENAP (defunciones, nacimientos), PNC (detenidos) y SE-CONRED (emergencias) | Incluido |
 | Archivos de ejemplo de instituciones compartidos por el INE (23-nov-2026) | Diseño y prueba de las solicitudes | **No están en el repositorio** (contienen datos personales) |
@@ -439,7 +443,7 @@ complementan. Cada fila dice cuándo se descargó. La cita completa de cada una 
 | `datos/ejemplos/` | Envío, solicitud, serie de edificaciones, operadores y puestos **ficticios** para demostración ([detalle](datos/ejemplos/LEEME.md)) | Incluido |
 
 El repositorio no contiene datos de personas. Los ejemplos son inventados. Cada descarga quedó
-anotada en [`datos/crudo/manifiesto.jsonl`](datos/crudo/manifiesto.jsonl) (107 descargas) con su
+anotada en [`datos/crudo/manifiesto.jsonl`](datos/crudo/manifiesto.jsonl) (111 descargas) con su
 dirección exacta, fecha y hora, licencia y huella SHA-256; `faro fuentes citar` las lista.
 
 ## Arquitectura y tecnologías
@@ -548,8 +552,11 @@ LICENCIA.md             autoría del equipo y licencia al INE
 - **Intercambio entre sistemas**: hoy se suben archivos; el diseño prevé recibir lo mismo por
   X-Road ([arquitectura](docs/03-arquitectura.md)).
 - **No probado en Windows**: `iniciar.bat` y los guiones `.ps1`.
-- **El kaqchikel es un comienzo, no una traducción**: 32 rótulos con fuente (1.7 % de la
-  pantalla); falta la revisión de hablantes. **El inglés no tiene revisión profesional.** Los
+- **El kaqchikel es un borrador sin revisar**: 680 rótulos (36 % de la pantalla) armados con
+  vocabulario de fuentes escritas por hablantes, 570 de ellos compuestos sin que una persona
+  hablante haya revisado la gramática. Faltan además los términos sin fuente («lugar poblado»,
+  «red vial», «canasta básica», «homologar») y todos los textos largos. Debe completarse con
+  asesoría experta. **El inglés no tiene revisión profesional.** Los
   documentos y el manual están solo en español, y no se ha hecho una auditoría formal de
   accesibilidad.
 - **Los muestreos no leen `robots.txt`** ni se revisaron los términos de uso de cada tienda; vienen
@@ -572,7 +579,7 @@ LICENCIA.md             autoría del equipo y licencia al INE
 8. **Tiempos de viaje** en lugar de distancias en línea recta para rutas y asignación.
 9. **Respaldo y restauración** de la base con un comando, y recuperación de contraseña.
 10. **Seguridad**: bloqueo por origen, HMAC en la llave de pareo, envío en una sola transacción.
-11. **Completar el kaqchikel con personas hablantes** (Academia de Lenguas Mayas de Guatemala) y
+11. **Revisar y completar el kaqchikel con personas expertas** (Academia de Lenguas Mayas de Guatemala) y
     sumar otros idiomas nacionales; auditoría de accesibilidad con lectores de pantalla.
 
 ## Componentes de terceros
@@ -598,9 +605,10 @@ Cada uno conserva su licencia original.
   Cita: Zhou, Lapedriza, Khosla, Oliva y Torralba (2017), *Places: A 10 million Image Database for
   Scene Recognition*, IEEE TPAMI.
 - **Fotos satelitales de fondo**: NASA GIBS (Landsat) y EOX (Sentinel-2, CC BY 4.0).
-- **Términos en kaqchikel**: de la localización comunitaria de Firefox y de Mozilla Accounts al
-  kaqchikel (MPL 2.0); 71 términos cortos, cada uno con su archivo de origen en
-  `datos/estandar/idiomas/cak_glosario.csv`.
+- **Vocabulario en kaqchikel**: de la memoria de traducción de los proyectos de Mozilla al
+  kaqchikel (Pontoon, MPL 2.0) y del *Kaqchikel Choltzij* de la Comunidad Lingüística Kaqchikel de
+  la ALMG (no declara licencia; se usan términos sueltos, citando la fuente). Cada una de las 437
+  palabras usadas tiene su fuente en `datos/estandar/idiomas/cak_palabras.csv`.
 
 Todo el código de FARO se escribió durante el evento: homologación, método húngaro, grafo vial,
 lectores de Shapefile y GeoTIFF, muestreo de precios, diseñador de tableros y lo demás.
@@ -636,8 +644,10 @@ no usa: la serie de crecimiento urbano que se muestra es la de GHSL.
   ([`docs/06`](docs/06-hallazgos-datos-reales.md)).
 - **En la traducción de la pantalla.** El **inglés** lo tradujo el equipo con el mismo asistente y
   quedó como un diccionario fijo en el repositorio; no ha pasado por un traductor profesional. El
-  **kaqchikel no se tradujo con IA**: solo lleva términos tomados de una fuente abierta revisada por
-  hablantes. El portal no llama a ningún servicio de traducción.
+  **kaqchikel** es un borrador que el asistente armó a partir de vocabulario escrito por hablantes
+  (Mozilla y la ALMG), con una comprobación automática de que cada palabra consta en esas fuentes;
+  **no lo ha revisado ninguna persona hablante** y así se rotula. El portal no llama a ningún
+  servicio de traducción.
 - **En el portal.** Una sola pieza usa un modelo entrenado: el clasificador de fotos del trabajo de
   campo (Places365), que corre dentro del servidor, sin nube, y cuyo resultado solo marca una
   visita para revisión. Todo lo demás son reglas fijas y a la vista: el mismo dato de entrada da

@@ -37,7 +37,7 @@ se borró al terminar.
    (sin licencias, sin servicios de pago, sin depender de una IA externa); crece sin programar y
    está comprobada.
 5. **Cierre (7 s).** Logotipo, lema y una mención de inclusión: la pantalla también se lee en
-   inglés, y en kaqchikel está en preparación, solo con términos con fuente.
+   inglés, y en kaqchikel como borrador, por revisar con hablantes.
 
 Por qué así (resultado de la búsqueda de buenas prácticas del 25-nov; se consultaron los resúmenes
 de las fuentes, no su texto completo, así que conviene abrirlas antes de citarlas):
@@ -69,7 +69,7 @@ medio segundo después de su marca de tiempo y debe terminar antes de la siguien
 | 2:03–2:13 | Convergencia | Los cinco frentes, con sus direcciones, confluyen en el faro | «No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.» |
 | 2:13–2:36 | Autocontenido | Tres ceros (licencias, servicios de pago, llamadas a una IA externa); luego la tabla de riesgo | «Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado.» |
 | 2:36–2:49 | Crece sin programar | El archivo de solicitud de una institución; 51,719 registros, 96 pruebas, 1 comando | «Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, noventa y seis pruebas automáticas, y se instala con un comando.» |
-| 2:49–2:56 | Cierre, con la mención de inclusión | Logotipo y lema; «También en inglés · kaqchikel en preparación, solo con términos con fuente»; equipo y repositorio | «Y en más de un idioma. FARO: que cada dato llegue a puerto.» |
+| 2:49–2:56 | Cierre, con la mención de inclusión | Logotipo y lema; «También en inglés · kaqchikel en borrador, por revisar con hablantes»; equipo y repositorio | «Y en más de un idioma. FARO: que cada dato llegue a puerto.» |
 
 **Lo que se dice y lo que no.** «Sin depender de una inteligencia artificial externa» se refiere al
 portal en funcionamiento, y es exacto. No decir «no usamos inteligencia artificial»: el equipo usó
@@ -77,8 +77,9 @@ un asistente de IA para programar y está declarado en el README; además, el cl
 es un modelo, aunque local. Tampoco nombrar ni aludir a otros equipos.
 
 **Sobre la mención de inclusión.** «En más de un idioma» es exacto: español e inglés completos. No
-decir «también en kaqchikel»: es un borrador que cubre 1.7 % de la pantalla, y la tarjeta lo dice
-como «en preparación, solo con términos con fuente» ([`29`](29-idiomas-e-inclusion.md)). Si se
+decir «traducido al kaqchikel»: es un borrador de 36 % de los rótulos que ninguna persona hablante
+ha revisado, y la tarjeta lo dice como «en borrador, por revisar con hablantes»
+([`29`](29-idiomas-e-inclusion.md)). Si se
 quiere alargar la frase al grabar: «Y se lee en más de un idioma: inglés ya, y los idiomas
 nacionales con sus hablantes».
 

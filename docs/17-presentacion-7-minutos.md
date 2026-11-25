@@ -62,13 +62,15 @@ usamos inteligencia artificial», porque el equipo programó con un asistente de
 README) y el clasificador de fotos es un modelo, aunque local.
 
 **La mención de inclusión (v0.20.0).** Va al final, en una frase, sobre la diapositiva de cierre,
-que la lleva escrita: «La pantalla también se lee en inglés y está preparada para los idiomas
-nacionales; el kaqchikel empieza como borrador, solo con términos tomados de una fuente revisada
-por hablantes. Se traduce la pantalla, nunca los datos». Si hay diez segundos, mostrarlo en vivo:
-el botón del globo, inglés, y señalar que los nombres de los municipios no cambiaron. Lo que
-**no** hay que decir: «el portal está en kaqchikel». Cubre 1.7 % de la pantalla y así lo dice el
-propio selector; lo defendible es que FARO no inventa una traducción a un idioma maya y que
-completarla es llenar un archivo con una persona hablante ([`29`](29-idiomas-e-inclusion.md)).
+que la lleva escrita: «La pantalla también se lee en inglés, y más de un tercio de sus rótulos ya
+está en kaqchikel como borrador, armado con vocabulario escrito por hablantes y pendiente de
+revisión experta. Se traduce la pantalla, nunca los datos». Si hay diez segundos, mostrarlo en
+vivo: el botón del globo, kaqchikel, el menú cambia y aparece el aviso de borrador; señalar que
+los nombres de los municipios no cambiaron. Lo que **no** hay que decir: «el portal está traducido
+al kaqchikel». Es un borrador de 680 rótulos (36 %) que ninguna persona hablante ha revisado; lo
+defendible es que no tiene palabras inventadas (cada una consta en la memoria de Mozilla o en el
+diccionario de la Academia de Lenguas Mayas), que la pantalla dice que es un borrador y que hay
+una hoja de revisión lista para una persona experta ([`29`](29-idiomas-e-inclusion.md)).
 
 **Ensayo.** Tres pasadas con reloj. Decidir quién maneja el portal y quién habla, y en qué momento
 se cambia al video si la demostración falla. Dejar el portal preparado con
@@ -83,7 +85,7 @@ se cambia al video si la demostración falla. Dejar el portal preparado con
 5. **Listo para usarse**: usuarios, roles, grupos, una cuenta por institución que solo sube lo suyo, recorridos guiados en cada pantalla, manual gráfico, bitácora, auditoría de seguridad atendida, y funciona en celular.
 6. **Cumple y lo demuestra**: secreto estadístico (solo agregados, conteos pequeños protegidos), datos personales disociados antes de guardar, y un análisis norma por norma que dice también lo que falta (`docs/23`).
 7. **Llega hasta el campo**: de la asignación del operador a la visita comprobada con posición, foto, satélite y censo.
-8. **Incluye sin inventar**: la pantalla se lee en inglés y está preparada para los idiomas nacionales; el kaqchikel empieza con términos que tienen fuente y dice su porcentaje real. Se traduce la pantalla, nunca los datos.
+8. **Incluye sin fingir**: la pantalla se lee en inglés, y en kaqchikel tiene un borrador de más de un tercio de sus rótulos, armado con vocabulario escrito por hablantes y rotulado como pendiente de revisión experta. Se traduce la pantalla, nunca los datos.
 
 ## Cifras para citar
 
@@ -96,7 +98,7 @@ se cambia al video si la demostración falla. Dejar el portal preparado con
 - 93,297 hectáreas construidas en 2020; solo 1.6 % es no residencial.
 - Curvas de población contra el INE: error mediano de 1.05 % (exponencial) y 0.17 % (logística) a cinco años.
 - Clasificador de fotos: 11 aciertos, 0 errores y 5 no concluyentes en 16 fachadas.
-- Idiomas: 1,873 textos de la pantalla en inglés; 32 rótulos en kaqchikel con fuente (1.7 %); 2,394 textos que eran datos quedaron fuera del diccionario; ningún dato traducido.
+- Idiomas: 1,873 textos de la pantalla en inglés; 680 rótulos en kaqchikel (36 %), en borrador: 110 idénticos a la fuente y 570 compuestos con sus palabras, sin revisión de hablantes; 2,394 textos que eran datos quedaron fuera del diccionario; ningún dato traducido.
 
 ## Preguntas probables y respuesta corta
 
@@ -110,9 +112,9 @@ se cambia al video si la demostración falla. Dejar el portal preparado con
 | ¿Y los datos personales? | Los archivos reales se procesan en un temporal que se borra siempre; la salida no lleva nombres ni identificadores; en el repositorio no hay ninguno. |
 | ¿Cómo se relaciona con X-Road? | X-Road transporta; FARO define qué se pide y comprueba lo que llega. Se complementan. |
 | ¿Qué tan difícil es agregar una institución? | Un archivo de solicitud con sus columnas. Sin programar. |
-| ¿Está en idiomas mayas? | Está preparado: un idioma es un archivo. En kaqchikel hay un borrador con los 32 rótulos que ya existen en una fuente revisada por hablantes (la localización de Firefox); es 1.7 % de la pantalla y el selector lo dice. No usamos traducción automática para un idioma maya porque no podríamos comprobarla. Lo que sigue es trabajarlo con hablantes y con la Academia de Lenguas Mayas. |
+| ¿Está en idiomas mayas? | En kaqchikel hay un **borrador** de 680 rótulos (36 % de la pantalla: menú, botones, títulos). No hablamos kaqchikel, así que lo armamos solo con palabras que aparecen en textos escritos por hablantes: la memoria de traducción de Mozilla y el diccionario de la Comunidad Lingüística Kaqchikel de la Academia de Lenguas Mayas. Un programa comprueba que no haya ninguna palabra fuera de esas fuentes. Lo que no podemos garantizar es la gramática: por eso la pantalla dice que es un borrador y hay una hoja de revisión lista para una persona experta. Otro idioma se suma igual: es un archivo. |
 | ¿Tradujeron los datos? | No. Se traduce la pantalla; los nombres de lugares, las cifras y las citas salen como los publica su fuente, y lo que se descarga es idéntico en cualquier idioma. Hay una prueba automática que lo comprueba. |
-| ¿Quién tradujo al inglés? | El equipo, con el asistente de IA declarado en el README, sobre un glosario fijo. Quedó como un diccionario en el repositorio; el portal no llama a ningún servicio de traducción. No tiene revisión profesional. |
+| ¿Quién tradujo? | El equipo, con el asistente de IA declarado en el README: el inglés sobre un glosario fijo; el kaqchikel, solo con vocabulario de las fuentes citadas. Quedaron como diccionarios en el repositorio; el portal no llama a ningún servicio de traducción. Ninguno tiene revisión profesional, y el kaqchikel está rotulado como borrador. |
 | ¿Y si se equivoca al homologar? | Solo asigna con coincidencia exacta y única o con una decisión humana registrada, que se puede revertir. |
 | ¿Sus proyecciones son confiables? | Lo medimos: al proyectar diez años, 8 de cada 10 veces el error fue de 20 % o menos. Ese es el margen que el portal muestra. |
 | ¿Los precios publicados sirven de referencia? | Como antecedente: son fuentes secundarias y el informe lo dice. La regla de la Dirección de Precios pide más de 50 % de cotizaciones directas. |

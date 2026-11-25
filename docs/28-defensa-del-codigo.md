@@ -109,8 +109,8 @@ oculta un segundo para que no se obtenga por resta.
 ve y busca cada frase en un diccionario cuya clave es la propia frase en español; antes de buscar
 cambia los números por `#` (y los devuelve tal cual) y las etiquetas por marcas numeradas (y las
 reutiliza). Si la frase no está, no se toca: por eso un nombre de municipio o de producto nunca
-cambia. El kaqchikel solo lleva términos del glosario con fuente; `cargo test` rechaza cualquier
-otro.
+cambia. El kaqchikel es un borrador: cada rótulo consta en una hoja de revisión y cada palabra en
+una lista con su fuente; `cargo test` rechaza una palabra que no esté ahí.
 
 ## 3. Decisiones que conviene saber defender
 
@@ -126,7 +126,7 @@ otro.
 | ¿Por qué admin/admin? | Para que quien instala pueda entrar. El portal obliga a cambiarla y bloquea todo cambio hasta entonces; por omisión solo atiende en la propia máquina |
 | ¿Dónde están las claves? | En `.env`, que no se versiona; `.env.example` trae textos de relleno y `iniciar.bat` las genera |
 | ¿Por qué no se traducen los datos? | Porque traducir un dato es alterarlo: un nombre oficial tiene un código, y la Ley de Idiomas Nacionales (art. 11) pide respetar la escritura propia de los nombres de lugares. Además, lo que se descarga debe ser idéntico para todos |
-| ¿Por qué el kaqchikel cubre tan poco? | Porque el equipo no lo habla y no hay forma de comprobar una traducción automática a un idioma maya. Se usan solo términos ya publicados y revisados por hablantes (la localización de Firefox), y se dice el porcentaje real. Completarlo es trabajo de una persona hablante: el mecanismo ya está |
+| ¿Quién tradujo al kaqchikel y qué tan confiable es? | Es un **borrador sin revisar**. El equipo no habla kaqchikel: los 680 rótulos los armó el asistente usando solo palabras que aparecen en textos escritos por hablantes (la memoria de traducción de Mozilla y el diccionario de la Comunidad Lingüística Kaqchikel de la ALMG), y un programa comprueba que cada palabra conste en esas fuentes. Eso evita palabras inventadas, pero no garantiza la gramática: 570 rótulos son composiciones. Por eso la pantalla lo avisa, hay una hoja de revisión rótulo por rótulo y el siguiente paso es la asesoría de una persona experta |
 | ¿Por qué no un servicio de traducción? | Sería una dependencia externa y de pago, enviaría textos fuera del INE y podría dar hoy una traducción y mañana otra. Un diccionario fijo se revisa, se corrige y funciona sin internet |
 | ¿Qué pasa si la tienda cambia su página? | La tarea de muestreo falla y lo dice; no se inventa un precio. Cada tipo de tienda tiene su función y su prueba |
 

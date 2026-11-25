@@ -294,9 +294,7 @@ sentidos, con `data-ctx` en el elemento). `plantilla.json` (lista de textos de l
 `scripts/idiomas/comprobar.js [--completar] [--podar]` valida y dice la cobertura. `/api/idiomas` y
 `/api/idiomas/:codigo` leen del disco en cada pedido. **Regla del equipo: se traduce la interfaz, nunca los
 datos**; lo que es dato se marca `data-no-traducir` (nombres de personas, citas); dentro de `tbody`/`select`
-no se aplican moldes. **Kaqchikel (`cak`) es BORRADOR y solo admite términos de `cak_glosario.csv`** (fuente:
-localización de Firefox, MPL 2.0; `cargo test` lo exige): NO traducir a un idioma maya por cuenta propia ni
-componer frases; decir siempre el porcentaje real (1.7 %) y nunca «el portal está en kaqchikel». El inglés
+no se aplican moldes. El inglés
 lo tradujo el asistente (declarado en el README). **Al agregar o cambiar texto en la pantalla: correr
 `extraer.js`, traducir lo nuevo en `en.json` y correr `comprobar.js --completar --podar`** (si no, `cargo
 test` falla o el texto sale en español). Selector: `#idiomabtn`/`#idiomalista`; `localStorage.faro_idioma`;
@@ -304,6 +302,21 @@ test` falla o el texto sale en español). Selector: `#idiomabtn`/`#idiomalista`;
 `verificacion_interfaz.js`. Documento: `docs/29-idiomas-e-inclusion.md` (también el marco de la Ley de
 Idiomas Nacionales, Decreto 19-2003). El video y la presentación llevan una mención final de inclusión.
 Los documentos (`docs/`), el manual y la presentación siguen solo en español.
+
+Agregado después (v0.20.1): kaqchikel ampliado por pedido expreso del equipo («un porcentaje considerable,
+dejando dicho que se completaría con asesoría de un experto»). 680 rótulos (36.3 %): 110 de nivel `fuente`
+(idénticos a la fuente) y 570 `compuesto` (armados con palabras de las fuentes; gramática SIN revisar).
+Fuentes: memoria de traducción de Mozilla en Pontoon (`https://pontoon.mozilla.org/translation-memory/cak.all-projects.tmx`,
+59,421 frases; MPL 2.0) y *Kaqchikel Choltzij* de la ALMG-CLK (2011). Archivos: `cak.json`, `cak_revision.csv`
+(rótulo, nivel, base, columnas para quien revise) y `cak_palabras.csv` (cada palabra con su fuente); ya no
+existe `cak_glosario.csv`. `cargo test` y `comprobar.js` exigen que cada rótulo esté en la hoja de revisión y
+cada palabra en la lista. **Reglas vigentes:** `cak` sigue en estado `borrador` hasta que conste
+`revisado_por`; no agregar una palabra kaqchikel que no esté en una fuente; no traducir nombres propios
+(«Guatemala» se queda); decir siempre «borrador sin revisar, a completar con asesoría experta», NUNCA «el
+portal está traducido al kaqchikel». Cómo se rehace: paquetes de evidencia por rótulo → redacción con
+agentes → validación de palabras (guiones en el scratchpad de la sesión: `kaq_herr/paquetes.py`,
+`armar_cak.py`; no están en el repositorio). Encabezado en teléfono: a 400 px o menos se oculta la palabra
+«FARO» (queda el icono) y el botón de sesión se recorta con puntos suspensivos.
 
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que

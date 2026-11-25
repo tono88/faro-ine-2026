@@ -21,8 +21,8 @@ equipo todavía debe hacer. Categoría 2: Tecnológica y ciencias de datos.
 | Lineamiento | Cómo se cumple | Dónde se comprueba | Estado |
 |---|---|---|---|
 | **Datos.** Fuente principal: al menos una base pública del portal del INE | Siete conjuntos del portal de datos abiertos del INE: lugares poblados y cuadros del Censo 2018, proyecciones de población 2015–2030, IPMC, precios de referencia, canasta básica, Hoja de Balance 2024 y diccionario de estadísticas vitales | README, sección «Datos»; `datos/estandar/fuentes.json`; «Acerca y fuentes» en el portal | Cumple |
-| Otras fuentes abiertas, citadas correctamente | 39 fuentes con autor, año, título, dirección, licencia y fecha de consulta | `11-fuentes-y-citas.md` (se genera con `faro citas`) | Cumple |
-| La documentación indica las bases usadas y su **fecha de descarga** | Cada fila de la tabla «Datos» lleva su fecha; el manifiesto guarda 107 descargas con dirección exacta, fecha y hora, tamaño, licencia y huella SHA-256 | `datos/crudo/manifiesto.jsonl` (versionado); `faro fuentes citar` | Cumple |
+| Otras fuentes abiertas, citadas correctamente | 40 fuentes con autor, año, título, dirección, licencia y fecha de consulta | `11-fuentes-y-citas.md` (se genera con `faro citas`) | Cumple |
+| La documentación indica las bases usadas y su **fecha de descarga** | Cada fila de la tabla «Datos» lleva su fecha; el manifiesto guarda 111 descargas con dirección exacta, fecha y hora, tamaño, licencia y huella SHA-256 | `datos/crudo/manifiesto.jsonl` (versionado); `faro fuentes citar` | Cumple |
 | **Tecnología.** Libre elección; se recomienda código abierto o sin costo | Rust, PostgreSQL 16, Leaflet, Docker Compose. Ninguna licencia de pago | `03-arquitectura.md`; `27-componentes-de-terceros.md` | Cumple |
 | Declarar servicios de pago o en la nube | No hay servicios de pago. Están declarados los servicios gratuitos que piden el servidor y el navegador, y el uso de GitHub y de un asistente de IA en la nube durante el desarrollo | README, «Servicios en la nube»; `15-instalacion-y-dependencias.md` | Cumple |
 | **Desarrollo durante el evento.** No presentar proyectos anteriores | Todo el código se escribió del 23 al 25 de noviembre. Se usan bibliotecas públicas preexistentes, que la nota permite | Historial del repositorio (primer cambio: 23-nov-2026); `08-versiones.md` | Cumple |
@@ -73,7 +73,7 @@ equipo todavía debe hacer. Categoría 2: Tecnológica y ciencias de datos.
 | **Calidad técnica** | 20 % | Cinco módulos con responsabilidades separadas; reglas declarativas; documentación numerada | `03`, `28`, `15`, `08`; `cargo test` |
 | **Innovación** | 15 % | El sistema no adivina y recuerda; la solicitud como contrato; red vial como grafo; margen de proyección medido, no supuesto; manual que se genera del propio portal | `09-logros.md`; `19` |
 | **Rigor en el uso de los datos** | 10 % | INE como fuente principal; cada cifra con fuente y fecha; errores hallados en fuentes oficiales y documentados; rótulos de «no oficial» | `11`, `19`, `06`; manifiesto |
-| **Presentación y usabilidad** | 10 % | Recorrido guiado en las 24 secciones; funciona en teléfono; identidad propia; pantalla en inglés y, como borrador con fuente, en kaqchikel (la interfaz, nunca los datos) | Manual gráfico; `20`; `25-identidad.md`; `29-idiomas-e-inclusion.md` |
+| **Presentación y usabilidad** | 10 % | Recorrido guiado en las 24 secciones; funciona en teléfono; identidad propia; pantalla en inglés y, como borrador por revisar, en kaqchikel (la interfaz, nunca los datos) | Manual gráfico; `20`; `25-identidad.md`; `29-idiomas-e-inclusion.md` |
 
 En caso de empate prevalece la **aplicabilidad institucional**: conviene cerrar la presentación con
 «Antes y ahora» y con lo que el INE necesita para adoptarlo.
@@ -120,10 +120,12 @@ hizo.
    además publicar FARO como software libre para cualquiera (por ejemplo, con licencia MIT o
    Apache-2.0), es una decisión suya que aún no está tomada.
 8. **Idiomas.** El inglés lo tradujo el equipo con el asistente de IA y no tiene revisión
-   profesional. El kaqchikel es un **borrador** que cubre 1.7 % de la pantalla: solo términos
-   tomados de una fuente abierta revisada por hablantes, sin traducción automática. No debe
-   presentarse como «el portal está en kaqchikel», sino como «está preparado para estarlo y lo
-   poco que hay tiene fuente» (`29`).
+   profesional. El kaqchikel es un **borrador sin revisar** que cubre 36 % de la pantalla (680
+   rótulos): el asistente lo armó con vocabulario escrito por hablantes (Mozilla y la ALMG) y cada
+   palabra tiene anotada su fuente, pero **ninguna persona hablante lo ha revisado** y 570 rótulos
+   son composiciones cuya gramática puede estar mal. No debe presentarse como «el portal está
+   traducido al kaqchikel», sino como «tiene un borrador amplio, con fuentes, listo para que lo
+   revise una persona experta» (`29`).
 
 ## 8. Lo que falta hacer antes de entregar
 
@@ -136,5 +138,5 @@ hizo.
 - [ ] Ensayar la presentación con reloj (7 minutos) y las preguntas de `17` y `28`.
 - [ ] Probar `iniciar.bat` en una máquina con Windows, si la demostración se hará ahí.
 - [ ] Decidir la licencia para terceros (salvedad 7).
-- [ ] (Después de la entrega) Pedir a una persona hablante que complete y revise el kaqchikel; la
+- [ ] (Después de la entrega) Pedir a una persona experta que revise y complete el borrador en kaqchikel; la
       autoridad en su escritura es la Academia de Lenguas Mayas de Guatemala (`29`, sección 4).

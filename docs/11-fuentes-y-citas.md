@@ -44,6 +44,8 @@ Todo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, 
   - Uso en FARO: Foto de fondo de la animación desde 2010 y capa satelital opcional del mapa. Referencia visual; la carga el navegador de quien mira. Licencia: CC BY 4.0.
 - Autores varios en Wikimedia Commons. (2026). Dieciséis fotografías de fachadas de viviendas y comercios de Centroamérica, usadas como prueba del clasificador de fotos [conjunto de datos]. Wikimedia Commons. https://commons.wikimedia.org Consultado el 24 de noviembre de 2026.
   - Uso en FARO: Prueba de humo del clasificador de fachadas (docs/24). Las fotos no se redistribuyen en el repositorio: solo su página, su autor, su licencia y el resultado. Licencia: CC BY o CC BY-SA, según cada foto (página, autor y licencia de cada una en datos/referencia/fachadas_prueba.csv).
+- Mozilla y colaboradores de la localización al kaqchikel. (2026). Memoria de traducción de los proyectos de Mozilla al kaqchikel (cak), en Pontoon [conjunto de datos]. Mozilla. https://pontoon.mozilla.org/cak/ Consultado el 25 de noviembre de 2026.
+  - Uso en FARO: Vocabulario y frases del borrador en kaqchikel de la pantalla: 59,421 unidades escritas y revisadas por hablantes, alineadas con su versión en español (datos/estandar/idiomas/cak_palabras.csv y cak_revision.csv). Licencia: MPL 2.0.
 
 ## Documentos del INE, de gobierno y de referencia
 
@@ -88,8 +90,8 @@ Todo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, 
   - Uso en FARO: Mejora 2-opt para ordenar las paradas de una ruta de campo.
 - Agafonkin, V. y colaboradores. (2023). Leaflet 1.9.4: biblioteca de mapas interactivos [programa]. https://leafletjs.com Consultado el 24 de noviembre de 2026.
   - Uso en FARO: Mapa de la pantalla. Licencia: BSD de 2 cláusulas.
-- Mozilla y colaboradores de la localización al kaqchikel. (2026). Firefox y Mozilla Accounts: localización al kaqchikel (cak) [programa]. Mozilla. https://github.com/mozilla-l10n/firefox-l10n/tree/main/cak Consultado el 25 de noviembre de 2026.
-  - Uso en FARO: Glosario del borrador en kaqchikel de la pantalla: cada término con su archivo y su mensaje de origen (datos/estandar/idiomas/cak_glosario.csv). Licencia: MPL 2.0.
+- Academia de Lenguas Mayas de Guatemala, Comunidad Lingüística Kaqchikel (Kaqchikel Cholchi'). (2011). Kaqchikel Choltzij: Kolon chuqa' K'ak'a' taq Tzij (vocabulario de neologismos y palabras rescatadas, kaqchikel–castellano y castellano–kaqchikel) [libro]. ALMG. https://almg.org.gt/wp-content/uploads/2026/09/Diccionario-2-Kaqchikel.pdf Consultado el 25 de noviembre de 2026.
+  - Uso en FARO: Términos de población, territorio, matemáticas e informática del borrador en kaqchikel de la pantalla (los que no están en la memoria de Mozilla). Licencia: no declara licencia; se usan términos sueltos, citando la fuente.
 
 ## Cómo citar FARO
 

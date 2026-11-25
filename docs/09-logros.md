@@ -225,11 +225,13 @@ y cómo repetirlo.
    cambia de idioma y comprueba que los 22 nombres de departamento, las cifras y las 39 citas salen
    idénticos en español, inglés y kaqchikel.
 
-11d. **El kaqchikel que se puede sostener cubre 1.7 % de la pantalla.** De 1,873 textos, solo 32
-   coinciden palabra por palabra con un término ya publicado y revisado por hablantes (la
-   localización de Firefox). Faltan sobre todo los términos de la estadística: población,
-   municipio, precio, mapa. FARO muestra ese porcentaje en lugar de rellenar con una traducción
-   automática que nadie puede comprobar.
+11d. **Un borrador en kaqchikel de 680 rótulos sin una sola palabra inventada, y sin fingir que
+   está revisado.** Coincidencia palabra por palabra con textos de hablantes solo había en 110
+   rótulos. Para llegar a 36 % de la pantalla se compusieron 570 más con el vocabulario de la
+   memoria de Mozilla (59 mil frases) y del diccionario de la Academia de Lenguas Mayas, y un
+   programa descartó todo rótulo con una palabra que no constara en esas fuentes. Otros 455
+   quedaron en español porque les faltaba respaldo: «lugar poblado», «red vial», «canasta básica».
+   La gramática de los compuestos no la ha visto una persona hablante, y la pantalla lo dice.
 
 11e. **Un fallo propio hallado al construirlo.** En una pasada, la herramienta que arma la lista
    de textos dejó entrar 167 nombres de productos como si fueran texto de la pantalla: una tabla

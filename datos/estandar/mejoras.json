@@ -311,9 +311,9 @@
       "tema": "Una pantalla que se lee en más de un idioma",
       "antes": "El portal solo estaba en español. Traducir una herramienta suele significar reescribirla o contratar un servicio, y para un idioma maya no hay traducción automática que se pueda comprobar.",
       "origen": "Pedido del equipo el 25-nov-2026; Ley de Idiomas Nacionales (Decreto 19-2003)",
-      "ahora": "La pantalla cambia de idioma con un botón: inglés completo y kaqchikel como borrador, solo con términos que ya existen en una fuente abierta revisada por hablantes. Se traduce la interfaz, nunca los datos: nombres oficiales, cifras y citas salen iguales.",
+      "ahora": "La pantalla cambia de idioma con un botón: inglés completo y kaqchikel como borrador, armado con vocabulario escrito por hablantes (Mozilla y la Academia de Lenguas Mayas) y pendiente de revisión experta. Se traduce la interfaz, nunca los datos: nombres oficiales, cifras y citas salen iguales.",
       "cifra": "1,873",
-      "cifra_de": "textos de la pantalla también en inglés; 32 rótulos en kaqchikel, cada uno con su fuente; ningún dato traducido",
+      "cifra_de": "textos de la pantalla también en inglés; 680 rótulos en kaqchikel (36 %), en borrador y con la fuente de cada palabra; ningún dato traducido",
       "ver": "acerca",
       "escala": "Otro idioma nacional es un archivo más, sin programar; una corrección se ve al recargar la página."
     }

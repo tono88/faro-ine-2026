@@ -26,7 +26,7 @@
 | Asignación de operadores | Hecha el día 2 (método húngaro); el día 3 se sumó el trabajo de campo completo |
 | Crecimiento urbano, red vial y precios «como propuesta» | Los tres quedaron **funcionando**: GHSL 1975–2020, grafo vial y precios por rubro, de construcción y de referencia |
 | PDF, video y README | README, documento técnico, manual gráfico, presentación (PDF y PowerPoint) y clip del video, hechos; falta la narración del video, que graba el equipo (`16`) |
-| (No estaba en el plan) Idiomas e inclusión | Agregado el día 3: pantalla en inglés (completa) y en kaqchikel como borrador con términos con fuente; se traduce la interfaz, nunca los datos (`29`) |
+| (No estaba en el plan) Idiomas e inclusión | Agregado el día 3: pantalla en inglés (completa) y en kaqchikel como borrador (36 % de los rótulos, por revisar con asesoría experta); se traduce la interfaz, nunca los datos (`29`) |
 
 Versión por versión: [`08-versiones.md`](08-versiones.md). Conformidad con la nota conceptual:
 [`26-conformidad-nota-conceptual.md`](26-conformidad-nota-conceptual.md).

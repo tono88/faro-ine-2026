@@ -149,7 +149,7 @@ const chip = r => `<span class="chip" style="--c:${ROLES[r][1]}">${ROLES[r][0]}<
   pag('seccion', `<header class="cab"><p class="ante">Primeros pasos</p><h2>Idioma de la pantalla: español, inglés y kaqchikel</h2><p class="bajada">El botón del globo, arriba, cambia el idioma de la pantalla en cualquier sección y sin iniciar sesión. Se traduce la interfaz, nunca los datos.</p></header><div class="cuerpo"><div class="captura"><img src="${conIdiomas}"></div><div class="lado"><ol class="pasos sin">
     <li><b class="num">1</b><div><h4>Qué cambia</h4><p>El menú, los títulos, los botones, las explicaciones y los recorridos guiados.</p></div></li>
     <li><b class="num">2</b><div><h4>Qué no cambia</h4><p>Los nombres de lugares, instituciones y productos, las cifras y las citas: se muestran como los publica su fuente. Lo que se descarga es igual en cualquier idioma.</p></div></li>
-    <li><b class="num">3</b><div><h4>Kaqchikel: borrador</h4><p>Solo lleva los rótulos que ya existen en una fuente revisada por hablantes. Lo demás aparece en español, y la pantalla lo avisa.</p></div></li>
+    <li><b class="num">3</b><div><h4>Kaqchikel: borrador</h4><p>Más de un tercio de los rótulos, armados con vocabulario escrito por hablantes. Falta la revisión de una persona experta: la pantalla lo avisa, y lo demás aparece en español.</p></div></li>
     <li><b class="num">★</b><div><h4>Un idioma es un archivo</h4><p>Corregir una frase o sumar otro idioma nacional no pide programar.</p></div></li></ol><div class="virtud"><h4>Por qué importa</h4><p>Un dato no llega a puerto si quien lo necesita no puede leer la pantalla. Y traducir un dato sería alterarlo: por eso solo se traduce la pantalla.</p></div></div></div>`, '#4d9ae1');
   // 6. Índice visual (se llena al final, cuando se conocen las páginas)
   const indice = paginas.length; pag('indice', '');
@@ -182,7 +182,7 @@ const chip = r => `<span class="chip" style="--c:${ROLES[r][1]}">${ROLES[r][0]}<
     ${v('Recuerda', 'Cada decisión queda en la memoria con nombre y fecha: no se corrige dos veces lo mismo.')}
     ${v('Se puede repetir', 'Cada resultado tiene un procedimiento que lo vuelve a obtener desde la fuente.')}
     ${v('Cada quien ve lo suyo', 'Roles, grupos y cuentas por institución; cada acción queda en la bitácora.')}
-    ${v('Se explica solo', 'Recorridos guiados en las 24 secciones y una frase que dice qué muestra cada pantalla. También en inglés, y en kaqchikel como borrador con fuente.')}
+    ${v('Se explica solo', 'Recorridos guiados en las 24 secciones y una frase que dice qué muestra cada pantalla. También en inglés, y en kaqchikel como borrador por revisar.')}
     ${v('Queda en el INE', 'Hecho con software libre; corre en un servidor propio, sin servicios de pago. El INE recibe licencia perpetua para usarlo y modificarlo.')}</div>`);
   // Preguntas
   const q = (a, b) => `<div class="q"><h4>${a}</h4><p>${b}</p></div>`;

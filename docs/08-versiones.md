@@ -2,6 +2,34 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.20.1 · 25-nov-2026 · Kaqchikel ampliado (borrador por revisar)
+
+Pedido del equipo: que el kaqchikel cubra una parte considerable de la pantalla, dejando dicho que
+debe completarse con la asesoría de una persona experta.
+
+- **680 rótulos en kaqchikel (36.3 % de la pantalla)**, frente a 32: menú, botones, títulos,
+  encabezados de tabla. Los textos largos y los recorridos siguen en español.
+- **Solo vocabulario escrito por hablantes.** Fuentes: la memoria de traducción de Mozilla en
+  Pontoon (59,421 frases en kaqchikel, 53,261 alineadas con el español; MPL 2.0) y el *Kaqchikel
+  Choltzij: Kolon chuqa' K'ak'a' taq Tzij* de la Comunidad Lingüística Kaqchikel de la ALMG (2011).
+- **Dos niveles, anotados rótulo por rótulo** (`cak_revision.csv`): 110 `fuente` (el rótulo existe
+  igual en la fuente) y 570 `compuesto` (armado con sus palabras por el asistente de IA). **La
+  gramática de los compuestos no la ha revisado una persona hablante.** 455 rótulos se dejaron en
+  español por falta de respaldo en el sentido correcto.
+- **Cada palabra con su fuente** (`cak_palabras.csv`, 437 palabras: 378 de Mozilla, 48 de la ALMG,
+  11 siglas, nombres y unidades). `cargo test` y `comprobar.js` rechazan una palabra que no conste
+  ahí. Desaparece `cak_glosario.csv`.
+- **La pantalla lo dice**: «Borrador sin revisar… deben corregirse y completarse con asesoría
+  experta antes de un uso oficial». Los nombres propios no se traducen («Guatemala» se queda).
+- **Cómo se rehace**: `scripts/idiomas/kaqchikel/` (memoria alineada, paquetes de evidencia por
+  rótulo, instrucciones de redacción y validación).
+- **Encabezado en teléfono**: a 400 px o menos queda el icono sin la palabra «FARO» y el botón de
+  sesión se recorta, para que quepan rótulos más largos.
+- **Documentos y entregables** actualizados con el nuevo estado: README, `docs/29` (sección 4
+  reescrita), 00, 01, 02, 04, 07, 09, 14, 16, 17, 18, 23, 26 y 28; manual, presentación, documento
+  técnico y video (la tarjeta final dice «kaqchikel en borrador, por revisar con hablantes»).
+  40 fuentes; 111 descargas en el manifiesto. `.faro/pruebas/idiomas.js`: 41 comprobaciones.
+
 ## v0.20.0 · 25-nov-2026 · Idiomas e inclusión
 
 - **La pantalla cambia de idioma** con el botón del globo del encabezado: español (origen),

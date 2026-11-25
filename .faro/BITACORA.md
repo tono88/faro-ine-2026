@@ -138,4 +138,8 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - Agentes para traducir: seis trozos de ~18 mil caracteres, salida como objeto id → traducción (no lista: evita desalinearse), con validación de marcas, `#` y `{n}`. Unificar ortografía después (salió británica y estadounidense mezclada).
 - Una palabra con dos sentidos («media») no se puede traducir por diccionario sin contexto: `data-ctx`.
 - Encabezado en teléfono de 360 px: el selector queda solo con el globo (≤ 400 px).
+- v0.20.1. Kaqchikel ampliado: la memoria de traducción completa de Mozilla se baja en un solo archivo (`pontoon.mozilla.org/translation-memory/cak.all-projects.tmx`, 18 MB) y se alinea con `es-MX` por `tuid`. El diccionario de la ALMG-CLK sale limpio con `pdftotext` sin `-layout` (con `-layout` las dos columnas se mezclan). Ojo con los «idénticos» de la memoria: «Población» = *Post town*, «moda» = *Fashion*; hay que mirar el inglés.
+- Para que un agente no invente palabras: darle un paquete de evidencia por rótulo y validar después que cada ficha exista en el corpus. «mes» (basura) choca con el español: lista de excepciones. Las unidades (ha, km) se admiten aparte.
+- Los agentes leen CLAUDE.md del repositorio y dos de ellos avisaron que la regla anterior («no componer frases») chocaba con el encargo: la regla se cambió por decisión del equipo y quedó escrita.
+- En teléfono, un rótulo traducido más largo rompe el encabezado: `flex:0 1 auto; min-width:0; text-overflow:ellipsis` en el botón de sesión, y a ≤ 400 px se oculta la palabra de la marca.
 

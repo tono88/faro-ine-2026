@@ -28,7 +28,7 @@ Abreviaturas de las fuentes más citadas:
 | Ley de Derecho de Autor (D. 33-98), arts. 15, 16, 24, 30 y 35 | El programa es una obra protegida; los datos en sí no | Código escrito en el evento, dependencias de licencia libre, autoría del equipo y licencia perpetua al INE (`LICENCIA.md`) | Cumple |
 | Código Penal, arts. 274 "A" a "G" | Delitos informáticos: obtener datos sin autorización, alterar registros | Solo se leen páginas públicas, sin saltar bloqueos ni sesiones | Cumple |
 | Licencias de los datos (ODbL, CC BY 4.0, portal del INE) | Atribuir, indicar cambios y, en ODbL, compartir igual la base derivada | Cada descarga guarda su licencia; el mapa y las capas citan la fuente | Cumple |
-| Ley de Idiomas Nacionales (D. 19-2003), arts. 8, 10, 11, 14 y 15 | Uso de los idiomas mayas, garífuna y xinka; respeto a la escritura de los nombres de lugares; atención gradual en el idioma de cada comunidad | La pantalla admite otros idiomas como archivos; los nombres de lugares nunca se traducen; kaqchikel en borrador con términos con fuente | Avance parcial: falta la revisión de hablantes |
+| Ley de Idiomas Nacionales (D. 19-2003), arts. 8, 10, 11, 14 y 15 | Uso de los idiomas mayas, garífuna y xinka; respeto a la escritura de los nombres de lugares; atención gradual en el idioma de cada comunidad | La pantalla admite otros idiomas como archivos; los nombres de lugares nunca se traducen; kaqchikel en borrador (36 % de los rótulos) | Avance parcial: falta la revisión de una persona experta |
 | Principios de la ONU (A/RES/68/261) y Código Regional de la CEPAL | Registros administrativos como fuente válida; confidencialidad | Es el propósito del proyecto | Alineado |
 
 ## 2. Norma por norma
@@ -256,9 +256,10 @@ Texto consultado el 25-nov-2026: <https://digi.usac.edu.gt/bvsalud/documentos/eb
   la comunicación en el idioma de la comunidad lingüística, con salud, educación, justicia y
   seguridad como sectores prioritarios y «la incorporación gradual de los demás servicios». *FARO:*
   es una herramienta interna del INE y de las instituciones que le envían datos, no un servicio de
-  atención al público; el kaqchikel empieza como borrador con términos de una fuente revisada por
-  hablantes. **Falta** la traducción y revisión por hablantes; el art. 9 encarga las traducciones
-  oficiales a la Academia de Lenguas Mayas de Guatemala.
+  atención al público; el kaqchikel está como borrador en 36 % de los rótulos, armado con
+  vocabulario de la propia Academia de Lenguas Mayas y de la memoria de Mozilla. **Falta** la
+  revisión por una persona experta, sin la cual no debe tenerse por traducción oficial; el art. 9
+  encarga las traducciones oficiales a la Academia de Lenguas Mayas de Guatemala.
 
 Detalle de cómo se traduce y qué se protege: [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
 

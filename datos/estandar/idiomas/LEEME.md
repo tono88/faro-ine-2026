@@ -6,8 +6,9 @@ texto y el cambio se ve al recargar la página.
 | Archivo | Qué es | Se edita a mano |
 |---|---|---|
 | `en.json` | Inglés (completo) | Sí |
-| `cak.json` | Kaqchikel (**borrador**): trae todos los textos; vacíos los que faltan | Sí |
-| `cak_glosario.csv` | De dónde sale cada término en kaqchikel: fuente, mensaje y licencia | Sí |
+| `cak.json` | Kaqchikel (**borrador sin revisar**): trae todos los textos; vacíos los que faltan | Sí |
+| `cak_revision.csv` | Hoja de revisión: cada rótulo en kaqchikel, su nivel (`fuente` o `compuesto`), en qué se basó, y columnas para la corrección y el nombre de quien revisa | Sí |
+| `cak_palabras.csv` | Cada palabra kaqchikel usada, con su fuente y un ejemplo | Sí |
 | `plantilla.json` | Todos los textos de la pantalla en español. La genera `scripts/idiomas/extraer.js` | No |
 | `plantilla_extra.json` | Frases que la herramienta no alcanza a ver (llevan un dato en medio) | Sí |
 
@@ -34,15 +35,23 @@ iguales:
 
 Una entrada vacía (`""`) significa «sin traducir»: ese texto se muestra en español.
 
-## Completar el kaqchikel
+## Revisar y completar el kaqchikel
 
-1. Llenar en `cak.json` las entradas vacías.
-2. Agregar a `cak_glosario.csv` cada término nuevo, con su fuente o con el nombre de quien lo
-   revisó. `cargo test` rechaza un término que no esté en el glosario: en kaqchikel no entra nada
-   sin procedencia.
-3. Comprobar: `node scripts/idiomas/comprobar.js`.
-4. Cuando una persona hablante lo haya revisado: `"estado": "revisado"` y su nombre en
-   `"revisado_por"`. El aviso de borrador deja de mostrarse.
+El kaqchikel es un borrador: 680 rótulos armados con vocabulario escrito por hablantes (la memoria
+de traducción de Mozilla y el *Kaqchikel Choltzij* de la Comunidad Lingüística Kaqchikel de la
+ALMG). No hay palabras inventadas, pero 570 rótulos son composiciones cuya gramática no ha
+revisado una persona hablante.
+
+1. Abrir `cak_revision.csv` (en Excel o LibreOffice). Empezar por los de nivel `compuesto`.
+2. Corregir: escribir la forma correcta en `correccion` y el nombre en `revisado_por`, y llevar la
+   corrección a `cak.json`.
+3. Traducir lo que falta: llenar en `cak.json` las entradas vacías y agregar su fila a
+   `cak_revision.csv`.
+4. Una palabra nueva se anota en `cak_palabras.csv` con su fuente o con el nombre de la persona
+   experta que la avala. `cargo test` rechaza una palabra que no esté ahí.
+5. Comprobar: `node scripts/idiomas/comprobar.js`.
+6. Al terminar la revisión: `"estado": "revisado"` y el nombre en `"revisado_por"`. El aviso de
+   borrador deja de mostrarse.
 
 ## Sumar otro idioma
 

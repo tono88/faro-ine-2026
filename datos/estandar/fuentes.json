@@ -486,14 +486,14 @@
    "id": "mozilla-l10n-cak",
    "autor": "Mozilla y colaboradores de la localización al kaqchikel",
    "anio": "2026",
-   "titulo": "Firefox y Mozilla Accounts: localización al kaqchikel (cak)",
-   "tipo": "programa",
+   "titulo": "Memoria de traducción de los proyectos de Mozilla al kaqchikel (cak), en Pontoon",
+   "tipo": "conjunto de datos",
    "editor": "Mozilla",
-   "url": "https://github.com/mozilla-l10n/firefox-l10n/tree/main/cak",
+   "url": "https://pontoon.mozilla.org/cak/",
    "licencia": "MPL 2.0",
    "consultado": "25 de noviembre de 2026",
-   "uso": "Glosario del borrador en kaqchikel de la pantalla: cada término con su archivo y su mensaje de origen (datos/estandar/idiomas/cak_glosario.csv).",
-   "cita": "Mozilla y colaboradores de la localización al kaqchikel. (2026). Firefox y Mozilla Accounts: localización al kaqchikel (cak) [programa]. Mozilla. https://github.com/mozilla-l10n/firefox-l10n/tree/main/cak Consultado el 25 de noviembre de 2026."
+   "uso": "Vocabulario y frases del borrador en kaqchikel de la pantalla: 59,421 unidades escritas y revisadas por hablantes, alineadas con su versión en español (datos/estandar/idiomas/cak_palabras.csv y cak_revision.csv).",
+   "cita": "Mozilla y colaboradores de la localización al kaqchikel. (2026). Memoria de traducción de los proyectos de Mozilla al kaqchikel (cak), en Pontoon [conjunto de datos]. Mozilla. https://pontoon.mozilla.org/cak/ Consultado el 25 de noviembre de 2026."
   },
   {
    "id": "ley-idiomas-nacionales",
@@ -507,6 +507,19 @@
    "consultado": "25 de noviembre de 2026",
    "uso": "Marco de los idiomas de la pantalla y de por qué no se traducen los nombres de lugares: artículos 8, 10, 11, 14 y 15 (docs/29).",
    "cita": "Congreso de la República de Guatemala. (2003). Ley de Idiomas Nacionales, Decreto 19-2003 [documento]. Edición de la Universidad de San Carlos de Guatemala. https://digi.usac.edu.gt/bvsalud/documentos/eblueinfo/ML/ML_016.pdf Consultado el 25 de noviembre de 2026."
+  },
+  {
+   "id": "almg-clk-choltzij",
+   "autor": "Academia de Lenguas Mayas de Guatemala, Comunidad Lingüística Kaqchikel (Kaqchikel Cholchi')",
+   "anio": "2011",
+   "titulo": "Kaqchikel Choltzij: Kolon chuqa' K'ak'a' taq Tzij (vocabulario de neologismos y palabras rescatadas, kaqchikel–castellano y castellano–kaqchikel)",
+   "tipo": "libro",
+   "editor": "ALMG",
+   "url": "https://almg.org.gt/wp-content/uploads/2026/09/Diccionario-2-Kaqchikel.pdf",
+   "licencia": "no declara licencia; se usan términos sueltos, citando la fuente",
+   "consultado": "25 de noviembre de 2026",
+   "uso": "Términos de población, territorio, matemáticas e informática del borrador en kaqchikel de la pantalla (los que no están en la memoria de Mozilla).",
+   "cita": "Academia de Lenguas Mayas de Guatemala, Comunidad Lingüística Kaqchikel (Kaqchikel Cholchi'). (2011). Kaqchikel Choltzij: Kolon chuqa' K'ak'a' taq Tzij (vocabulario de neologismos y palabras rescatadas, kaqchikel–castellano y castellano–kaqchikel) [libro]. ALMG. https://almg.org.gt/wp-content/uploads/2026/09/Diccionario-2-Kaqchikel.pdf Consultado el 25 de noviembre de 2026."
   }
  ]
 }

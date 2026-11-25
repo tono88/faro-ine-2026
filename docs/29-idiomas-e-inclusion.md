@@ -10,7 +10,7 @@ qué está comprobado y qué falta.
 |---|---|---|---|
 | **Español** | Idioma de origen | 100 % | Así está escrito el portal |
 | **Inglés** | Completo | 100 % de los 1,873 textos de la pantalla | Traducción del equipo con el asistente de IA declarado en el README; sin revisión de un traductor profesional |
-| **Kaqchikel** | **Borrador** | 32 rótulos (1.7 %) | Solo términos que ya existen, escritos y revisados por hablantes, en una fuente abierta. Lo demás aparece en español |
+| **Kaqchikel** | **Borrador sin revisar** | 680 rótulos (36.3 %): menú, botones, títulos, encabezados | Armado con vocabulario escrito por hablantes (Mozilla y la Academia de Lenguas Mayas). Falta la revisión de una persona experta. Lo demás aparece en español |
 
 El idioma se cambia con el botón del globo, en el encabezado, en cualquier pantalla y sin iniciar
 sesión. La elección se recuerda en ese navegador. Un enlace puede fijarla: `…/?idioma=en`.
@@ -85,43 +85,84 @@ con una frase de la pantalla, se mostraría traducido en la pantalla (nunca en l
 descargas). Para que no pase con palabras sueltas, una palabra vista solo dentro de tablas no entra
 en la plantilla.
 
-## 4. Kaqchikel: por qué es un borrador
+## 4. Kaqchikel: un borrador amplio, por revisar
 
-El equipo no habla kaqchikel y no hay manera de comprobar una traducción automática a un idioma
-maya. Presentar como kaqchikel un texto que nadie revisó sería inventar, y además una falta de
-respeto a sus hablantes. Por eso:
+El equipo no habla kaqchikel. El pedido fue tener en pantalla una parte considerable del portal en
+ese idioma y dejar dicho que debe completarse con la asesoría de una persona experta. Así se hizo,
+y esto es exactamente lo que hay y lo que no.
 
-- **Solo se usan términos con fuente.** Cada rótulo en kaqchikel existe ya, con el mismo sentido, en
-  la localización comunitaria de **Firefox** al kaqchikel (`cak`), hecha y revisada por hablantes y
-  publicada con licencia MPL 2.0. El glosario `datos/estandar/idiomas/cak_glosario.csv` trae 71
-  términos, cada uno con su archivo y su mensaje de origen: 32 ya se ven en la pantalla (los que
-  coinciden palabra por palabra con un rótulo de FARO: «Guardar», «Cancelar», «Cerrar sesión»,
-  «Contraseña»…) y el resto queda de reserva para quien complete la traducción.
-- **No se componen frases.** No se unen palabras del glosario para formar oraciones nuevas: la
-  gramática la pone una persona hablante.
-- **Se dice en la pantalla.** Al elegir kaqchikel aparece un aviso: es un borrador, lo que falta está
-  en español y los datos no se traducen. El selector muestra el porcentaje real.
-- **`cargo test` no deja entrar un término sin fuente**: cada entrada de `cak.json` debe estar en el
-  glosario.
+**Cómo se armó**
 
-Faltan sobre todo los términos propios de la estadística (población, municipio, precio, mapa): no
-están en esa fuente y FARO no los inventa.
+1. **Fuentes escritas por hablantes.**
+   - La **memoria de traducción de Mozilla al kaqchikel** (Pontoon): 59,421 frases de Firefox,
+     Thunderbird, Common Voice y otros programas, traducidas y revisadas por su comunidad de
+     hablantes; 53,261 se pudieron alinear con su versión en español. Licencia MPL 2.0.
+   - El ***Kaqchikel Choltzij: Kolon chuqa' K'ak'a' taq Tzij***, vocabulario de neologismos y
+     palabras rescatadas de la Comunidad Lingüística Kaqchikel de la Academia de Lenguas Mayas de
+     Guatemala (2011, 401 páginas), con secciones de ambiente social, matemáticas e informática. De
+     ahí salen los términos que un navegador no tiene: población (*winaqilem*), municipio
+     (*tinamït*), hogar (*ochochil*), mapa (*ruwäch setul*), crecimiento (*nimirisanem*).
+   - Como apoyo, textos legales traducidos por la propia Academia (Ley de Idiomas Nacionales y Ley
+     de Acceso a la Información Pública).
+2. **Un paquete de evidencia por rótulo.** Para cada uno de los 1,135 rótulos cortos de la pantalla
+   se reunieron las frases de esas fuentes que contienen cada una de sus palabras.
+3. **Redacción con el asistente de IA, con una regla:** usar solo palabras que aparezcan en la
+   evidencia, cuidar el sentido (un «registro» de programa no es el registro de una persona) y
+   dejar el rótulo en español si a alguna palabra le falta respaldo en el sentido correcto.
+4. **Comprobación automática.** Un programa descartó todo rótulo con una palabra que no conste en
+   las fuentes. Quedaron **680** (36.3 % de la pantalla); **455** se dejaron en español por falta de
+   respaldo.
 
-### Cómo se completa (sin programar)
+**Qué tan confiable es**
 
-1. Abrir `datos/estandar/idiomas/cak.json`: trae los 1,873 textos de la pantalla, vacíos los
-   que faltan.
-2. Escribir la traducción a la derecha de cada texto, dejando igual las marcas (`<1>…</1>`, `<1/>`),
-   los `#` y los `{0}`.
-3. Anotar en `cak_glosario.csv` cada término nuevo, con su fuente o con el nombre de quien lo
-   revisó.
-4. Correr `node scripts/idiomas/comprobar.js`: dice cuánto cubre y si alguna entrada quedó mal.
-5. Cuando una persona hablante lo haya revisado, cambiar `"estado": "borrador"` por `"revisado"` y
-   poner su nombre en `"revisado_por"`. El aviso desaparece.
+| Nivel | Cuántos | Qué significa |
+|---|---|---|
+| `fuente` | 110 | El rótulo completo existe igual en la fuente, con el mismo sentido («Guardar» → *Tiyak*, «Cerrar sesión» → *Titz'apïx molojri'ïl*) |
+| `compuesto` | 570 | Se armó combinando palabras de las fuentes («Población y crecimiento» → *Winaqilem chuqa' nimirisanem*). **La gramática no la ha revisado una persona hablante: puede estar mal** |
+
+Las 437 palabras distintas que se usan tienen anotada su fuente: 378 vienen de la memoria de
+Mozilla, 48 del diccionario de la Academia y 11 son siglas, nombres propios y unidades que se
+copian igual.
+
+Lo que esto garantiza es que **no hay palabras inventadas**. Lo que **no** garantiza es que cada
+frase esté bien construida, que el término elegido sea el que usaría un estadístico kaqchikel, ni
+que las variantes regionales estén bien resueltas. Por eso:
+
+- **La pantalla lo dice.** Al elegir kaqchikel aparece un aviso: es un borrador sin revisar, puede
+  tener errores y debe corregirse y completarse con asesoría experta antes de un uso oficial.
+- **Hay una hoja de revisión.** `datos/estandar/idiomas/cak_revision.csv` trae cada rótulo con su
+  nivel, las frases de las fuentes en que se basó y dos columnas vacías para la persona que
+  revise: la corrección y su nombre.
+- **Las dudas conocidas están anotadas.** Entre ellas: «tablero» (*pas*, que también es «panel»),
+  «visita» de campo (*tz'etoj*, que en la fuente es la visita a una página), «envío» (*taqoj*, que
+  también es «adjunto»), «precio de referencia» (*rajil retal*), «departamento» (*tinamital*, solo
+  en Mozilla), los términos estadísticos tomados del diccionario sin ejemplo de uso (*nuk'umolaj*
+  «muestreo», *junejqalem* «equivalencia», *runik'ajal* «mediana») y las discrepancias entre
+  fuentes («gobierno», «ley», «estadística», «censo»).
+- **Lo que no tiene fuente sigue en español**: «lugar poblado», «red vial», «canasta básica»,
+  «homologar», «rubro», «tasa», «superficie construida», y todos los textos largos (explicaciones y
+  recorridos guiados).
+- **Los nombres no se traducen**: «Guatemala» y los nombres de departamentos y municipios quedan
+  como los publica su fuente, aunque exista un nombre en kaqchikel.
+
+### Cómo lo revisa y lo completa una persona experta (sin programar)
+
+1. Abrir `cak_revision.csv` (se abre en Excel o LibreOffice). Empezar por los rótulos de nivel
+   `compuesto` y por el menú.
+2. Para corregir un rótulo: escribir la forma correcta en la columna `correccion` y su nombre en
+   `revisado_por`; llevar esa corrección a `cak.json` (el texto a la derecha del español).
+3. Para traducir lo que falta: llenar en `cak.json` las entradas vacías, dejando igual las marcas
+   (`<1>…</1>`, `<1/>`), los `#` y los `{0}`, y agregar su fila a `cak_revision.csv`.
+4. Una palabra nueva se anota en `cak_palabras.csv`, con su fuente o con el nombre de quien la
+   avala: una persona experta **es** una fuente válida.
+5. `node scripts/idiomas/comprobar.js` dice cuánto cubre y si algo quedó sin anotar.
+6. Cuando la revisión esté completa: `"estado": "revisado"` y el nombre en `"revisado_por"`. El
+   aviso de borrador deja de mostrarse.
 
 A quién acudir: la Academia de Lenguas Mayas de Guatemala y su Comunidad Lingüística Kaqchikel son
-la autoridad en la escritura del idioma. El equipo no los ha contactado; es el siguiente paso si el
-INE adopta la herramienta.
+la autoridad en la escritura del idioma, y la Ley de Idiomas Nacionales (art. 9) le encarga las
+traducciones oficiales. El equipo no los ha contactado; es el siguiente paso si el INE adopta la
+herramienta.
 
 ## 5. Inglés
 
@@ -154,7 +195,7 @@ mayas, garífuna y xinka. Lo que toca a una herramienta como esta:
 | 8. Utilización | Los idiomas mayas, garífuna y xinka pueden usarse sin restricciones en el ámbito público y privado | La pantalla admite cualquier idioma como un archivo más |
 | 10. Estadísticas | Las instituciones del Estado deben llevar y reportar datos sobre la pertenencia sociolingüística de quienes usan sus servicios | Una solicitud puede pedir esa variable y homologarla contra su catálogo, como ya se hace con «pueblo» |
 | 11. Registros | La escritura propia de los nombres de personas y de lugares debe respetarse en los actos registrales | Los nombres de lugares no se traducen ni se reescriben en ningún idioma |
-| 14 y 15. Servicios públicos | El Estado vela por que se informe y se atienda en el idioma de cada comunidad lingüística, de forma gradual | Kaqchikel empieza como borrador con fuente; falta la revisión de hablantes |
+| 14 y 15. Servicios públicos | El Estado vela por que se informe y se atienda en el idioma de cada comunidad lingüística, de forma gradual | Kaqchikel en borrador en 36 % de los rótulos; falta la revisión de una persona experta |
 
 Esto no es un dictamen: describe qué hace la herramienta frente al texto de la ley. El detalle de
 las demás normas está en [`23-conformidad-legal.md`](23-conformidad-legal.md).
@@ -181,15 +222,16 @@ personas usuarias; la medición del contraste de cada color; versiones en otros 
 
 | Qué | Con qué |
 |---|---|
-| Cada traducción conserva números, etiquetas y datos; el kaqchikel solo trae términos del glosario; el inglés cubre al menos 99 % | `cargo test` (`los_diccionarios_conservan_marcas_numeros_y_datos`) |
+| Cada traducción conserva números, etiquetas y datos; cada rótulo en kaqchikel consta en la hoja de revisión y cada una de sus palabras en la lista con fuente; el inglés cubre al menos 99 % | `cargo test` (`los_diccionarios_conservan_marcas_numeros_y_datos`) |
 | El código de idioma no deja leer otros archivos del servidor | `cargo test` (`el_codigo_de_idioma_no_deja_salir_de_la_carpeta`) |
-| En un navegador real: el menú, los recorridos, los avisos y el reporte cambian de idioma; **los nombres de los departamentos, las cifras y las citas no cambian**; el encabezado cabe en un teléfono; el kaqchikel avisa que es borrador | `.faro/pruebas/idiomas.js` (37 comprobaciones) |
+| En un navegador real: el menú, los recorridos, los avisos y el reporte cambian de idioma; **los nombres de los departamentos, las cifras y las citas no cambian**; el encabezado cabe en un teléfono; el kaqchikel avisa que es un borrador sin revisar | `.faro/pruebas/idiomas.js` (41 comprobaciones) |
 | Cobertura de cada idioma y entradas mal formadas | `node scripts/idiomas/comprobar.js` |
 | La pantalla en inglés no se desborda en ningún tamaño (25-nov-2026: 24 secciones en seis tamaños, sin hallazgos) | `FARO_IDIOMA=en node .faro/pruebas/verificacion_interfaz.js <url>` |
 
 ## 10. Límites
 
-- El kaqchikel es un comienzo, no una traducción: 1.7 % de la pantalla.
+- El kaqchikel es un borrador sin revisar: 36 % de la pantalla, con 570 rótulos compuestos cuya
+  gramática no ha visto una persona hablante. No debe usarse como traducción oficial.
 - El inglés no tiene revisión profesional.
 - Los documentos (`docs/`), el manual y la presentación están solo en español.
 - Los mensajes que arma el servidor con un dato en medio pueden salir en español si su forma no
@@ -198,11 +240,14 @@ personas usuarias; la medición del contraste de cada color; versiones en otros 
 
 ## Fuentes
 
-- Mozilla y colaboradores de la localización al kaqchikel. *Firefox, localización `cak`*.
-  <https://github.com/mozilla-l10n/firefox-l10n/tree/main/cak> y *Mozilla Accounts, localización
-  `cak`*. <https://github.com/mozilla/fxa-content-server-l10n/tree/main/locale/cak>. Licencia MPL 2.0.
-  Descargados el 25 de noviembre de 2026; cada archivo está en `datos/crudo/manifiesto.jsonl` con su
-  huella.
+- Mozilla y colaboradores de la localización al kaqchikel. *Memoria de traducción de los
+  proyectos de Mozilla al kaqchikel (`cak`)*, Pontoon. <https://pontoon.mozilla.org/cak/>.
+  Licencia MPL 2.0. Descargada el 25 de noviembre de 2026.
+- Academia de Lenguas Mayas de Guatemala, Comunidad Lingüística Kaqchikel. (2011). *Kaqchikel
+  Choltzij: Kolon chuqa' K'ak'a' taq Tzij*.
+  <https://almg.org.gt/wp-content/uploads/2026/09/Diccionario-2-Kaqchikel.pdf>. No declara
+  licencia; se usan términos sueltos, citando la fuente. Descargado el 25 de noviembre de 2026.
+- Las dos descargas están en `datos/crudo/manifiesto.jsonl` con su huella.
 - Congreso de la República de Guatemala. (2003). *Ley de Idiomas Nacionales, Decreto 19-2003*.
   Texto consultado el 25 de noviembre de 2026 en
   <https://digi.usac.edu.gt/bvsalud/documentos/eblueinfo/ML/ML_016.pdf>.

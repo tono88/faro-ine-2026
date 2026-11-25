@@ -107,8 +107,10 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 - La pantalla cambia de idioma con un botón: **español**, **inglés** (completo) y **kaqchikel**
   (borrador). Se traduce la interfaz, **nunca los datos**: nombres oficiales, cifras y citas salen
   iguales en cualquier idioma, y lo que se descarga no cambia.
-- El kaqchikel no se inventa: solo lleva los rótulos que ya existen en una fuente abierta revisada
-  por hablantes, cada uno con su procedencia; lo demás aparece en español y la pantalla lo avisa.
+- El kaqchikel es un borrador amplio: 680 rótulos (36 % de la pantalla), armados solo con
+  vocabulario escrito por hablantes (Mozilla y la Academia de Lenguas Mayas), cada palabra con su
+  fuente. Ninguna persona hablante lo ha revisado todavía: la pantalla lo avisa y debe completarse
+  con asesoría experta.
 - Un idioma es un archivo, no código; una corrección se ve al recargar la página.
 - Detalle, marco legal y límites: [`29`](29-idiomas-e-inclusion.md).
 
@@ -129,6 +131,6 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 | Tareas de muestreo de precios | 26 |
 | Precios publicados en el levantamiento | 85,907 (18 tiendas, 6 rubros) |
 | Capas publicadas | 21 |
-| Fuentes citadas | 39 |
-| Idiomas de la pantalla | español, inglés (1,873 textos) y kaqchikel en borrador (32 rótulos con fuente) |
+| Fuentes citadas | 40 |
+| Idiomas de la pantalla | español, inglés (1,873 textos) y kaqchikel en borrador (680 rótulos, 36 %, por revisar) |
 | Hallazgos documentados | [más de 35](09-logros.md) |
