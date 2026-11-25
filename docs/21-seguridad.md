@@ -62,6 +62,7 @@ que se revisó y cómo quedó:
 | 29 | Fotos satelitales | El navegador pide imágenes a NASA y EOX | Son opcionales y solo imágenes (`img-src`); el servidor no las pide ni envía datos a esos servicios |
 
 | 30 | Menús y paneles de carga | Sin sesión se veían secciones y controles de carga que no se podían usar | Las secciones que piden sesión no aparecen en el menú ni se abren por enlace; los paneles de carga y los botones de cambio solo se muestran con permiso. La carga de una tabla propia en la hoja de balance, que estaba abierta, ahora pide sesión. Es una mejora de claridad: el control real sigue estando en el servidor |
+| 31 | Cuentas de institución | Cualquier cuenta con sesión podía leer la lista de envíos, los pendientes y las equivalencias de todas las instituciones | Rol «institucion» atado a una institución: `quien_envia()` solo admite la solicitud de su institución (403 en otro caso, y también con la contraseña inicial); `api_envios` filtra por institución; pendientes y equivalencias pasan por `personal_del_ine()` (administrador, analista, consulta). Prueba: `institucion_y_recorridos.js` |
 
 Pruebas: `visibilidad_sin_sesion.js`, `trabajo_de_campo.js` (permisos del operador, visitas, formulario), `disenador_tableros.js`
 (borradores y publicados) y `tableros_grupos_seguridad.js`.

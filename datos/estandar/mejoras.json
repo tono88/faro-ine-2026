@@ -272,6 +272,28 @@
       "cifra_de": "en licencias: todo el software es libre",
       "ver": "acerca",
       "escala": "Se instala con un comando en un servidor del INE o en una computadora de una delegación."
+    },
+    {
+      "area": "Registros administrativos",
+      "tema": "Una cuenta por institución",
+      "antes": "Los archivos llegaban por correo o en memorias USB; no había una puerta propia para cada institución ni constancia de quién entregó qué.",
+      "origen": "Mesas de trabajo del Datatón; práctica actual de recepción",
+      "ahora": "Cada institución entra con su cuenta, ve lo público y sube solo los archivos de sus solicitudes. No ve los envíos de otras. El servidor lo exige en cada pedido.",
+      "cifra": "403",
+      "cifra_de": "es la respuesta si una cuenta de PNC intenta subir un archivo de RENAP (comprobado en prueba)",
+      "ver": "recibir",
+      "escala": "Se crea una cuenta por institución del Sistema Estadístico Nacional; cada solicitud nueva aparece sola en la cuenta de su institución."
+    },
+    {
+      "area": "Datos y publicación",
+      "tema": "El portal se explica solo",
+      "antes": "Una herramienta nueva pide capacitación y un manual que pronto queda viejo.",
+      "origen": "Lineamientos del evento: solución usable y documentada",
+      "ahora": "Un botón siempre visible, «Recorrido guiado», señala cada parte de la pantalla y dice para qué sirve. El manual gráfico se genera desde el portal con las mismas marcas.",
+      "cifra": "24 de 24",
+      "cifra_de": "secciones con recorrido guiado; manual de 36 páginas generado con un comando",
+      "ver": "acerca",
+      "escala": "Una sección nueva suma sus pasos a una lista y queda en el recorrido y en el manual a la vez."
     }
   ]
 }

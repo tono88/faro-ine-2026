@@ -31,7 +31,7 @@ respaldo en las preguntas.
 2. **Nada inventado**: cada dato tiene fuente, fecha, licencia y huella; cada tabla se regenera con un comando.
 3. **Encontró errores en datos oficiales y en sí mismo**: 16 códigos de municipio inexistentes en las proyecciones; y una prueba hacia atrás mostró que su propio margen de proyección acertaba 45 % de las veces cuando prometía 95 %: se corrigió y ahora cumple.
 4. **Explicable de principio a fin**: reglas fijas y a la vista; el mismo dato da siempre el mismo resultado. La única pieza entrenada es el clasificador de fotos, que corre en el servidor y nunca decide.
-5. **Listo para usarse**: usuarios, roles, grupos, bitácora, auditoría de seguridad atendida, y funciona en celular.
+5. **Listo para usarse**: usuarios, roles, grupos, una cuenta por institución que solo sube lo suyo, recorridos guiados en cada pantalla, manual gráfico, bitácora, auditoría de seguridad atendida, y funciona en celular.
 6. **Cumple y lo demuestra**: secreto estadístico (solo agregados, conteos pequeños protegidos), datos personales disociados antes de guardar, y un análisis norma por norma que dice también lo que falta (`docs/23`).
 7. **Llega hasta el campo**: de la asignación del operador a la visita comprobada con posición, foto, satélite y censo.
 

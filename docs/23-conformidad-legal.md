@@ -80,6 +80,9 @@ Sirven a la vez a la Ley del INE, a la LAIP y al Código Penal:
 
 - Cuentas personales con contraseña (Argon2), roles (administrador, analista, consulta, operador de
   campo) y grupos que limitan las secciones (`docs/21-seguridad.md`).
+- **Mínimo privilegio por institución**: una cuenta de rol «institución» sube únicamente los
+  archivos de las solicitudes de su institución y ve únicamente sus propios envíos; pendientes y
+  equivalencias quedan para el personal del INE. El servidor lo comprueba en cada pedido.
 - La contraseña inicial bloquea los cambios hasta que se cambia.
 - Lo que llegó de las instituciones (envíos, pendientes) pide sesión para verse.
 - **Bitácora** (tabla `bitacora`): quién publicó un tablero, creó una ruta o registró una visita, y

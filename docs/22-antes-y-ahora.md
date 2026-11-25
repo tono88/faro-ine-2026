@@ -3,7 +3,7 @@
 Este documento se genera con `faro mejoras` a partir de [`datos/estandar/mejoras.json`](../datos/estandar/mejoras.json),
 la misma fuente de la sección «Antes y ahora» del portal. Para agregar un punto se edita ese archivo.
 
-Son 24 puntos. Cada uno dice quién planteó la necesidad o cómo se halló el problema, qué hace FARO con una
+Son 26 puntos. Cada uno dice quién planteó la necesidad o cómo se halló el problema, qué hace FARO con una
 cifra comprobable en el portal y cómo crece sin rehacer el sistema.
 
 ## Registros administrativos
@@ -15,6 +15,7 @@ cifra comprobable en el portal y cómo crece sin rehacer el sistema.
 | **Datos personales que no deben viajar** | Los archivos llegan con CUI, nombres y direcciones de personas. *(Hallado en los archivos compartidos por el INE)* | **82 → 14** columnas en el archivo de defunciones de RENAP: salen 14, ninguna con datos personales. El nombre se elimina, el CUI se cambia por una llave que no se puede revertir y las direcciones nunca pasan. El archivo original no se guarda. Se ve en «Recibir envío». | La regla vive en la solicitud (campo «sensible»): vale igual para cualquier institución que se sume. |
 | **Reenvíos sin duplicar ni pisar datos** | Un archivo mensual no trae solo ese mes: el de nacimientos de junio de 2026 trae hechos desde 1914 (inscripciones tardías). Reemplazar por mes del hecho borraría datos de otros meses. *(Hallado en los archivos de RENAP)* | **1914–2026** años de ocurrencia dentro de un solo archivo mensual, bien repartidos. Cada envío se guarda con su mes de registro. Un reenvío reemplaza solo su propio corte, el mismo archivo no se cuenta dos veces y queda el historial. Se ve en «Recibir envío». | Sirve para cualquier registro continuo: nacimientos, defunciones, hechos delictivos, incidentes. |
 | **Saber qué falta de cada institución** | Se pidió un tablero de avance de la recopilación de las 22 delegaciones. *(DIEC · Coordinación Regional (DCR))* | **22** departamentos con cobertura a la vista, por institución. «Resultados y avance» muestra por institución y por departamento qué llegó, de qué periodo y cuánto quedó con código oficial. Se ve en «Resultados y avance». | Cada envío actualiza el avance solo; no hay que alimentar el tablero aparte. |
+| **Una cuenta por institución** | Los archivos llegaban por correo o en memorias USB; no había una puerta propia para cada institución ni constancia de quién entregó qué. *(Mesas de trabajo del Datatón; práctica actual de recepción)* | **403** es la respuesta si una cuenta de PNC intenta subir un archivo de RENAP (comprobado en prueba). Cada institución entra con su cuenta, ve lo público y sube solo los archivos de sus solicitudes. No ve los envíos de otras. El servidor lo exige en cada pedido. Se ve en «Recibir envío». | Se crea una cuenta por institución del Sistema Estadístico Nacional; cada solicitud nueva aparece sola en la cuenta de su institución. |
 
 ## Territorio
 
@@ -52,6 +53,7 @@ cifra comprobable en el portal y cómo crece sin rehacer el sistema.
 |---|---|---|---|
 | **Tableros sin licencias** | Se pidieron tableros dinámicos con herramientas de licencia libre. *(DIEC · DESA)* | **29** indicadores y 8 tipos de pieza, sin programa de pago. Se escribe qué se quiere ver y el portal arma el tablero. Se edita en un lienzo, se filtra por territorio y condiciones, y se publica con un enlace que abre cualquiera. Se ve en «Tableros». | Todo indicador que entra al mapa queda disponible en los tableros. |
 | **Resultados que otros pueden usar y repetir** | El evento exige un prototipo funcional y reproducible, con fuentes citadas. *(Lineamientos del Datatón INE 2026)* | **21** capas publicadas en GeoJSON y CSV, cada una con su fuente y licencia. Cada descarga deja su procedencia (dirección, fecha, licencia y huella), cada etapa tiene su guion y los resultados salen como capas con dirección estable para un SIG o un portal. Se ve en «Capas publicadas». | Las capas se pueden registrar tal cual en el portal de datos abiertos del INE (CKAN). |
+| **El portal se explica solo** | Una herramienta nueva pide capacitación y un manual que pronto queda viejo. *(Lineamientos del evento: solución usable y documentada)* | **24 de 24** secciones con recorrido guiado; manual de 36 páginas generado con un comando. Un botón siempre visible, «Recorrido guiado», señala cada parte de la pantalla y dice para qué sirve. El manual gráfico se genera desde el portal con las mismas marcas. Se ve en «Acerca y fuentes». | Una sección nueva suma sus pasos a una lista y queda en el recorrido y en el manual a la vez. |
 
 ## Seguridad y cumplimiento
 

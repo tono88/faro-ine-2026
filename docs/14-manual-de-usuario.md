@@ -7,6 +7,16 @@ FARO reúne en una sola pantalla lo que hoy está repartido en correos, hojas de
 los datos del propio INE**. Se abre en el navegador (<http://localhost:8082>), funciona en laptop,
 tableta y celular, y cada cifra dice de dónde sale.
 
+> **Versión gráfica.** Este mismo manual, con una página por sección y la captura de cada pantalla
+> marcada paso a paso, está en [`entregables/FARO-manual-de-usuario.pdf`](../entregables/FARO-manual-de-usuario.pdf).
+
+## Recorridos guiados
+
+En cualquier pantalla, el botón ámbar **«Recorrido guiado»** del encabezado explica lo que tiene
+delante: señala cada parte y dice para qué sirve. Cada sección tiene además su propio botón, «Ver
+cómo funciona esta pantalla», junto al título. Se avanza con «Siguiente» o con las flechas del
+teclado; Esc lo cierra. Desde el primer paso se puede abrir el recorrido general del portal.
+
 ## Primer ingreso
 
 Entre con `admin` / `admin`. El portal le pedirá cambiar la contraseña en «Mi perfil» y, por
@@ -18,6 +28,12 @@ seguridad, no dejará hacer cambios hasta que lo haga. Después cree a las perso
 | Analista | Recibir envíos, decidir pendientes, manejar precios, muestreos y tableros |
 | Consulta | Ver |
 | Operador de campo | Ver su ruta y registrar sus visitas; nada más |
+| Institución | Ver lo público y subir solo los archivos de las solicitudes de su institución |
+
+**Cuentas de institución.** Al crear un usuario con el rol «Institución» se elige por cuál envía
+(aparecen las que tienen alguna solicitud). Esa persona, al entrar, llega a «Recibir envío»: un
+rótulo dice «Usted envía por PNC», la lista trae solo sus solicitudes y el historial solo sus
+envíos. No ve pendientes ni equivalencias, ni lo que enviaron otras instituciones.
 
 Los **grupos** limitan a qué secciones entra cada quien (por ejemplo, «Precios e índices» no ve la
 recepción de registros, y «Operadores de campo» ve solo el mapa y su ruta). El menú de cada persona

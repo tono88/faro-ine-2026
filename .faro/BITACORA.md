@@ -125,3 +125,6 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - Geolocalización: Playwright `geolocation` + `permissions`; `localhost` cuenta como contexto seguro. En producción hace falta HTTPS.
 - Agentes en paralelo que sirvieron: marco legal con citas verificadas, fuentes de imagen satelital, exportación del modelo, revisión de comentarios (45 hallazgos, varios eran comentarios pegados a la función equivocada).
 - La revisión de comentarios destapó un fallo real: el ingreso no calculaba Argon2 si el usuario no existía (docs/21 decía lo contrario). Corregido con huella de relleno.
+- v0.17.0. Recorridos: motor propio (foco con `box-shadow` gigante + globo `position:fixed`); los pasos cuyo elemento no está a la vista se saltan; `const RECORRIDOS` es accesible desde `page.evaluate`, y de ahí salen las marcas del manual.
+- Manual gráfico: páginas de tamaño fijo (carta apaisada, `@page margin:0`); una clase de página no puede llamarse igual que una rejilla interior (`caminos` rompió el diseño). Capturas JPEG a escala 1.5: 11 MB.
+- Cuentas de institución: el extractor `Json` responde 422 antes de autorizar; para probar un 403 hay que mandar un cuerpo válido.

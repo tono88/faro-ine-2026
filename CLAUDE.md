@@ -226,6 +226,18 @@ Asistentes: `asistente(cont, {...})` (lista `.pasos` + bloques `.paso[data-paso]
 `#campocoord` (5 pasos) y en el diálogo `#campovisita` (4 pasos). Demostración: `rutas_campo.demo`,
 `POST/DELETE /api/campo/demo`, `simulada` solo vale en rutas demo; siempre rotulada.
 
+Agregado después (v0.17.0): rol `institucion` + columna `usuarios.institucion` (`Sesion.institucion`);
+`quien_envia(e, cabeceras, &sol)` autoriza `api_enviar` (misma institución y contraseña ya cambiada);
+`personal_del_ine()` (admin/analista/consulta) en pendientes y equivalencias; `api_envios` filtra por
+institución; `instituciones(&e)` = las que tienen solicitud. Pantalla: `deInstitucion()`, `#enviapor`,
+`#uinst`, `select[data-inst]`. Recorridos guiados: lista `RECORRIDOS` (una entrada por sección + `portal`;
+pasos `{en, sube, t, x}`), `recorrer(cual)`, `#recorrido` en el encabezado y `button.recorrer` en cada
+sección. **Al agregar una sección o un panel importante: sumar su paso a `RECORRIDOS`** (el manual lo toma
+de ahí). Manual gráfico: `scripts/entregables/generar_manual.js <url> <admin> <clave> [usuario institución]
+[clave]` → `entregables/FARO-manual-de-usuario.pdf`; metadatos por sección en `SECCIONES` de ese guion;
+en la nube se generó contra una base nueva (`faromanual`) con los archivos de ejemplo ficticios.
+Prueba: `.faro/pruebas/institucion_y_recorridos.js`. Regenerar manual y PDF técnico al cerrar versión.
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)

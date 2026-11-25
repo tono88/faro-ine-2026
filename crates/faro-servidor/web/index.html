@@ -204,7 +204,7 @@
   button.recorrer::before { content:"?"; display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; background:#f5a623; color:#07306b; font-weight:800; font-size:14px; flex:none; }
   button.recorrer:hover, button.recorrer:focus-visible { background:#ffe9bf; }
   .titulo button.recorrer, .barra-rec button.recorrer { margin-top:8px; } .barra-rec { margin:0 0 12px; }
-  header #recorrido { margin-left:auto; } header #recorrido + .acceso { margin-left:0; }
+  header #recorrido { margin-left:auto; min-height:0; padding-top:4px; padding-bottom:4px; } header #recorrido + .acceso { margin-left:0; }
   #recfondo { position:fixed; inset:0; z-index:4000; }
   #recfoco { position:fixed; z-index:4001; border-radius:10px; box-shadow:0 0 0 3px #f5a623, 0 0 0 9999px rgba(7,48,107,.62); pointer-events:none; }
   #recglobo { position:fixed; z-index:4002; width:min(370px, calc(100vw - 20px)); background:#fff; color:var(--tinta); border-radius:14px; border-top:5px solid #f5a623; box-shadow:0 14px 44px rgba(7,48,107,.38); padding:14px 16px 12px; }
@@ -215,7 +215,10 @@
   #recglobo .x { position:absolute; top:8px; right:8px; width:32px; height:32px; border:0; background:none; font-size:22px; line-height:1; color:var(--gris); cursor:pointer; border-radius:8px; } #recglobo .x:hover { background:var(--cielo); }
   .envia-por { background:var(--cielo); border-left:5px solid #f5a623; border-radius:8px; padding:10px 14px; margin:0 0 12px; font-size:15px; } .envia-por b { color:var(--azul-oscuro); }
   @media (prefers-reduced-motion: no-preference) { #recfoco { transition:top .22s, left .22s, width .22s, height .22s; } button.recorrer.nuevo { animation:latido 1.8s ease-in-out 4; } @keyframes latido { 50% { box-shadow:0 0 0 7px rgba(245,166,35,.35); } } }
-  @media (max-width: 700px) { header #recorrido { padding:5px 9px 5px 5px; font-size:12.5px; white-space:nowrap; } }
+  /* El encabezado va siempre en una línea: la frase descriptiva se recorta y, en teléfono, los rótulos se acortan. */
+  header #recorrido, header .acceso button { white-space:nowrap; flex:none; } .rec-corto { display:none; }
+  header { min-width:0; } @media (min-width: 701px) { header { flex-wrap:nowrap; } header > span { flex:1 1 0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } header .acceso .quien > span { max-width:26vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } }
+  @media (max-width: 700px) { header #recorrido { padding:5px 9px 5px 5px; font-size:12.5px; } header .rec-largo, header .acceso .quien > span { display:none; } header .rec-corto { display:inline; } header .acceso button { padding-left:10px; padding-right:10px; } }
   @media print { button.recorrer, .barra-rec, #recfondo, #recfoco, #recglobo { display:none !important; } }
   @media (prefers-reduced-motion: no-preference) { nav button, button.accion { transition:background .15s; } }
 </style>
@@ -225,8 +228,8 @@
   <button id="menu" aria-label="Abrir el menú" aria-expanded="false">☰</button>
   <div class="marca"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0051b3"/><path d="M26 21 5 12v17z" fill="#f5a623" opacity=".9"/><path d="M38 21 59 12v17z" fill="#f5a623" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffd27a"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#4d9ae1"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#4d9ae1"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><h1>FARO</h1></div></div>
   <span><b>Que cada dato llegue a puerto.</b> Registros administrativos, territorio y precios · Datatón INE 2026</span>
-  <button class="recorrer" id="recorrido" title="Recorrido guiado: le muestra, paso a paso, qué hay en esta pantalla y para qué sirve">Recorrido guiado</button>
-  <div class="acceso" id="acceso"><button class="accion" id="entrar" style="margin:0">Iniciar sesión</button></div>
+  <button class="recorrer" id="recorrido" title="Recorrido guiado: le muestra, paso a paso, qué hay en esta pantalla y para qué sirve" aria-label="Recorrido guiado">Recorrido<span class="rec-largo">&nbsp;guiado</span></button>
+  <div class="acceso" id="acceso"><button class="accion" id="entrar" style="margin:0" aria-label="Iniciar sesión"><span class="rec-largo">Iniciar sesión</span><span class="rec-corto">Entrar</span></button></div>
 </header>
 <nav aria-label="Secciones">
   <h3>Panorama</h3>
@@ -1914,7 +1917,7 @@ const deInstitucion = () => !!yo && yo.rol === 'institucion';
 // ¿Quien está en pantalla puede hacer cambios en esa sección? (analista o administrador, y su grupo la incluye).
 const puede = sec => !!yo && (yo.rol === 'admin' || (yo.rol === 'institucion' && sec === 'recibir') || (yo.rol === 'analista' && (!yo.secciones || yo.secciones.includes(sec))));
 function pintarSesion() {
-  $('#acceso').innerHTML = yo ? `<span class="quien"><span><b>${esc(yo.nombre)}</b> · ${esc(deInstitucion() ? 'envía por ' + yo.institucion : ROL[yo.rol] || yo.rol)}</span><button class="accion chico suave" id="salir" style="margin:0">Cerrar sesión</button></span>` : '<button class="accion" id="entrar" style="margin:0">Iniciar sesión</button>';
+  $('#acceso').innerHTML = yo ? `<span class="quien"><span><b>${esc(yo.nombre)}</b> · ${esc(deInstitucion() ? 'envía por ' + yo.institucion : ROL[yo.rol] || yo.rol)}</span><button class="accion chico suave" id="salir" style="margin:0" aria-label="Cerrar sesión"><span class="rec-largo">Cerrar sesión</span><span class="rec-corto">Salir</span></button></span>` : '<button class="accion" id="entrar" style="margin:0" aria-label="Iniciar sesión"><span class="rec-largo">Iniciar sesión</span><span class="rec-corto">Entrar</span></button>';
   document.querySelectorAll('.con-sesion').forEach(x => x.hidden = !yo); document.querySelectorAll('.solo-admin').forEach(x => x.hidden = !(yo && yo.rol === 'admin'));
   $('#aviso-clave').hidden = !(yo && yo.debe_cambiar);
   // Si su grupo limita las secciones, el menú muestra solo esas (los administradores ven todo).
@@ -1933,9 +1936,9 @@ function pintarSesion() {
   if (permitidas && !permitidas.has(document.querySelector('section.activa')?.id)) document.querySelector('nav > button[data-s]:not([hidden])')?.click();
 }
 async function verSesion() { const r = await api('/api/sesion'); yo = r.sesion ? r.usuario : null; pintarSesion(); if (solicitudes.length) cargarSolicitudes(); }
-$('#acceso').onclick = async e => {
-  if (e.target.id === 'entrar') { $('#ingerror').textContent = ''; $('#ingreso').showModal(); $('#iusuario').focus(); }
-  if (e.target.id === 'salir') { await api('/api/sesion', {method:'DELETE'}); yo = null; pintarSesion(); cargarSolicitudes(); document.querySelector('nav button[data-s=mapa]').click(); aviso('Sesión cerrada.'); }
+$('#acceso').onclick = async e => { const pulsado = e.target.closest('button')?.id;
+  if (pulsado === 'entrar') { $('#ingerror').textContent = ''; $('#ingreso').showModal(); $('#iusuario').focus(); }
+  if (pulsado === 'salir') { await api('/api/sesion', {method:'DELETE'}); yo = null; pintarSesion(); cargarSolicitudes(); document.querySelector('nav button[data-s=mapa]').click(); aviso('Sesión cerrada.'); }
 };
 $('#formingreso').onsubmit = async e => { e.preventDefault();
   try { const r = await api('/api/sesion', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({usuario: $('#iusuario').value, clave: $('#iclave').value})}); yo = r.usuario; $('#iclave').value = ''; $('#ingreso').close(); pintarSesion(); cargarSolicitudes(); aviso(`Bienvenido, ${yo.nombre}.`);

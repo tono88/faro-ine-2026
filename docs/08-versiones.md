@@ -2,6 +2,24 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.17.0 · 25-nov-2026
+- **Cuentas de institución.** Rol nuevo, «Institución», atado a una institución (PNC, RENAP,
+  SE-CONRED…). Quien entra con esa cuenta ve todo lo público y sube **solo** los archivos de las
+  solicitudes de su institución; en el historial ve solo sus envíos. No ve pendientes,
+  equivalencias ni lo que enviaron las demás, y no puede borrar. El servidor lo exige en cada
+  pedido (no es solo el menú): subir un archivo de otra institución responde 403. Con la
+  contraseña inicial todavía no puede enviar. Pendientes y equivalencias quedan para el personal
+  del INE (administrador, analista y consulta).
+- **Recorridos guiados** en las 24 secciones, escritos para el portal (sin biblioteca externa): el
+  botón «Recorrido guiado» está siempre en el encabezado y cada sección tiene el suyo, «Ver cómo
+  funciona esta pantalla». Señala cada elemento, dice para qué sirve, se maneja con el teclado
+  (flechas y Esc) y funciona en el teléfono. Desde el primer paso se abre el recorrido general.
+- **Manual de usuario gráfico** (`entregables/FARO-manual-de-usuario.pdf`, 36 páginas): portada,
+  qué es FARO, un camino por tipo de usuario, una página por sección con la captura marcada en los
+  mismos puntos que el recorrido, la página «Su archivo, en tres pasos» para instituciones,
+  preguntas frecuentes e identidad. Se regenera con `scripts/entregables/generar_manual.js`.
+- Prueba nueva: `.faro/pruebas/institucion_y_recorridos.js`. Documentos puestos al día.
+
 ## v0.16.4 · 25-nov-2026
 - Mapa, dos fallos corregidos: (1) al recargar, el navegador dejaba marcadas casillas de capas que
   no se dibujaban; ahora se aplican. (2) Tras pasar por «Lugares poblados», el mapa dejaba de

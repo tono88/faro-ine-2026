@@ -66,8 +66,11 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 - Inseguridad alimentaria aguda por departamento (CIF) y desnutrición crónica en escolares por
   municipio (Censo de Talla 2024), ambas de SESAN, verificadas y citadas.
-- Se entra con usuario y contraseña; cuatro roles (administrador, analista, consulta y operador de
-  campo); una bitácora registra quién hizo qué y cuándo.
+- Se entra con usuario y contraseña; cinco roles (administrador, analista, consulta, operador de
+  campo e institución); una bitácora registra quién hizo qué y cuándo.
+- Cada institución tiene su propia cuenta: ve lo público y sube solo sus archivos.
+- Recorridos guiados en las 24 secciones y un manual de usuario gráfico de 36 páginas, generado
+  desde el portal con las mismas marcas que el recorrido.
 
 ## 8. Tableros, grupos y verificación
 

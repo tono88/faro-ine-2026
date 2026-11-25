@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.16.4.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.17.0.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -12,7 +12,8 @@ territorio y los precios. Corre completo en una computadora, con software libre.
 **Para empezar:** [qué se hizo, en una página](docs/00-que-se-hizo.md) ·
 [antes y ahora, punto por punto](docs/22-antes-y-ahora.md) ·
 [hallazgos con datos reales](docs/09-logros.md) ·
-[manual de usuario](docs/14-manual-de-usuario.md) ·
+[manual de usuario gráfico (PDF)](entregables/FARO-manual-de-usuario.pdf) ·
+[manual en texto](docs/14-manual-de-usuario.md) ·
 [conformidad legal](docs/23-conformidad-legal.md)
 
 ## Misión, visión y objetivos
@@ -164,8 +165,14 @@ Secciones: *Tableros*, *Antes y ahora*, *Proceso*, *Capas publicadas*, *Portal d
 
 ### 6. Cuentas, seguridad y cumplimiento
 
-- **Cuentas** con contraseña, cuatro roles (administrador, analista, consulta, operador de campo)
-  y **grupos** que definen a qué secciones entra cada persona.
+- **Cuentas** con contraseña, cinco roles (administrador, analista, consulta, operador de campo e
+  institución) y **grupos** que definen a qué secciones entra cada persona.
+- **Cuentas de institución.** El enlace de PNC, RENAP o SE-CONRED entra con su usuario, ve todo lo
+  público y sube solo los archivos de las solicitudes de su institución; no ve lo que enviaron las
+  demás. El servidor lo exige en cada pedido, no solo el menú.
+- **Recorridos guiados.** El botón «Recorrido guiado», siempre en el encabezado, y un botón en cada
+  una de las 24 secciones explican la pantalla paso a paso, señalando cada elemento. Sin biblioteca
+  externa; con teclado y en teléfono.
 - **Protección estadística.** Los conteos menores que 3 no se muestran a quien no es analista, con
   supresión complementaria para que no se obtengan por resta.
 - **Bitácora** de quién hizo qué y cuándo.
@@ -384,7 +391,7 @@ datos/modelos/          modelo del clasificador de fotos y su procedencia
 datos/ejemplos/         archivos ficticios de muestra, rotulados
 scripts/                guiones para repetir cada etapa, exportar el modelo y generar el PDF
 docs/                   documentación
-entregables/            documento técnico en PDF y capturas
+entregables/            manual de usuario gráfico y documento técnico, en PDF, y capturas
 ```
 
 ## Documentación
@@ -404,7 +411,7 @@ entregables/            documento técnico en PDF y capturas
 | [10 Imágenes satelitales y uso del suelo](docs/10-imagenes-satelitales.md) | [23 Conformidad legal y protección estadística](docs/23-conformidad-legal.md) |
 | [11 Fuentes y citas](docs/11-fuentes-y-citas.md) | [24 Clasificador de fotos](docs/24-clasificador-de-fotos.md) |
 | [12 Flujo de proceso](docs/12-proceso.md) | [25 Identidad: logotipo, lema, misión y visión](docs/25-identidad.md) |
-| [Documento técnico (PDF)](entregables/FARO-documento-tecnico.pdf) | |
+| [Documento técnico (PDF)](entregables/FARO-documento-tecnico.pdf) | [Manual de usuario gráfico (PDF)](entregables/FARO-manual-de-usuario.pdf) |
 
 ## Limitaciones
 

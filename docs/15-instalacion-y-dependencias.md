@@ -20,6 +20,11 @@ git pull
 docker compose up -d --build
 ```
 
+**Después de entrar:** en «Usuarios» cree una cuenta para cada persona del INE y una cuenta de rol
+«Institución» para el enlace de cada institución que envía datos (PNC, RENAP, SE-CONRED…): esa
+cuenta solo podrá subir los archivos de su institución. El botón «Recorrido guiado» del encabezado
+explica cada pantalla.
+
 Para empezar de cero (borra envíos, equivalencias y usuarios): `docker compose down -v`.
 
 El portal funciona sin internet con los datos que trae. Necesita internet para: sincronizar con el

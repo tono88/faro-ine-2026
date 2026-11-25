@@ -220,3 +220,8 @@ y cómo repetirlo.
    José, Escuintla), un código propio de una institución o un valor de catálogo ("Motobici" es
    motocicleta). En la prueba de punta a punta, el reenvío del mismo archivo pasó de 70 % a 100 %
    de lugares resueltos sin intervención.
+13. **Cada institución sube solo lo suyo.** Una cuenta atada a PNC no puede subir un archivo de
+   RENAP ni ver sus envíos: el servidor responde 403, comprobado en la prueba
+   `institucion_y_recorridos.js` junto con otros 30 puntos.
+14. **El portal se explica solo.** 24 secciones con recorrido guiado propio; el manual gráfico
+   (36 páginas) se genera desde el portal y usa las mismas marcas, así que no se desactualiza.
