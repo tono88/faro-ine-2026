@@ -2,6 +2,27 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.21.1 · 25-nov-2026 · Lo interno, solo para el personal del INE
+
+Pedido del equipo: que un visitante, una institución o un operador de campo no vean las secciones
+de trabajo interno.
+
+- **«Antes y ahora», «Proceso», «Muestreos automáticos» y «Resultados y avance»** ya no aparecen en
+  el menú sin sesión, ni para las cuentas de institución, ni para los operadores de campo. Las ve
+  el personal del INE (administrador, analista o consulta) cuyo grupo las incluya. Con las que ya
+  pedían sesión («Recibir envío», «Revisar pendientes», «Equivalencias», «Operadores de campo»),
+  **nada de registros administrativos queda a la vista de quien no es del INE**; la cuenta de una
+  institución conserva solo «Recibir envío», que es por donde sube su archivo.
+- **Tableros:** quien no puede guardar un tablero ya no ve el panel para armarlo; ve los
+  publicados y puede mover sus filtros.
+- Los grupos iniciales del INE (Registros administrativos, Territorio y cartografía, Precios e
+  índices) incluyen «Antes y ahora» en instalaciones nuevas. En una instalación que ya existe, los
+  grupos se ajustan en «Usuarios».
+- Es una regla de **pantalla**: lo que esas secciones muestran son datos de referencia o conteos
+  ya protegidos; las rutas con datos reservados ya pedían sesión en el servidor (`docs/21`).
+- `generar_pdf.js` ahora entra con un usuario del INE para tomar sus capturas. Prueba:
+  `.faro/pruebas/visibilidad_sin_sesion.js` (sin sesión, administrador, institución y operador).
+
 ## v0.21.0 · 25-nov-2026 · Guía de diseño gráfico del INE
 
 El INE envió a los equipos su *Guía de diseño gráfico para Datatón* (paleta, tipografía y

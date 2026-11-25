@@ -9,7 +9,7 @@ técnicas durante la demostración en vivo**. No es la presentación: es el port
 
 | Pieza | Dónde | Estado |
 |---|---|---|
-| Clip de fondo, sin voz | [`entregables/FARO-video-demo.mp4`](../entregables/FARO-video-demo.mp4) · 1920×1080, 30 cuadros por segundo, H.264, **2:54**, con pista de audio en silencio | Hecho |
+| Clip de fondo, sin voz | [`entregables/FARO-video-demo.mp4`](../entregables/FARO-video-demo.mp4) · 1920×1080, 30 cuadros por segundo, H.264, **2:55**, con pista de audio en silencio | Hecho |
 | Subtítulos con los tiempos reales | [`entregables/FARO-video-demo.srt`](../entregables/FARO-video-demo.srt) | Hecho |
 | Línea de tiempo por escena (con el texto de cada una) | [`entregables/FARO-video-demo-tiempos.json`](../entregables/FARO-video-demo-tiempos.json) | Hecho |
 | Narración de Ana Lucía | Sección 3 de este documento | **Por grabar y montar** (postproducción del equipo) |
@@ -48,7 +48,7 @@ de las fuentes, no su texto completo, así que conviene abrirlas antes de citarl
 - Lo más importante va en los **primeros 20 segundos**, y la atención cae después de los dos
   minutos (<https://wistia.com/blog/optimal-video-length>).
 - El guion se escribe **contando palabras**: unas 140 a 150 por minuto
-  (<https://sozai.app/es/speaking-rate-by-language/>). Aquí son 333 palabras en 2:54: hay aire para
+  (<https://sozai.app/es/speaking-rate-by-language/>). Aquí son 333 palabras en 2:55: hay aire para
   que se vea la pantalla.
 - La independencia tecnológica se plantea como **reducción de riesgo para la institución**, sin
   atacar a nadie (marco «Public Money, Public Code»: <https://publiccode.eu/>).
@@ -70,7 +70,7 @@ medio segundo después de su marca de tiempo y debe terminar antes de la siguien
 | 2:02–2:11 | Convergencia | Los cinco frentes, con sus direcciones, confluyen en el faro | «No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.» |
 | 2:11–2:34 | Autocontenido | Tres ceros (licencias, servicios de pago, llamadas a una IA externa); luego la tabla de riesgo | «Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado.» |
 | 2:34–2:46 | Crece sin programar | El archivo de solicitud de una institución; 51,719 registros, 96 pruebas, 1 comando | «Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, noventa y seis pruebas automáticas, y se instala con un comando.» |
-| 2:46–2:54 | Cierre, con la mención de inclusión | Logotipo y lema; carta de presentación del equipo (emblema de La Sociedad de Almas, nombres y código QR del LinkedIn de cada integrante); «También en inglés · kaqchikel en borrador, por revisar con hablantes»; repositorio | «Y en más de un idioma. FARO: que cada dato llegue a puerto.» |
+| 2:47–2:55 | Cierre, con la mención de inclusión | Logotipo y lema; carta de presentación del equipo (emblema de La Sociedad de Almas, nombres y código QR del LinkedIn de cada integrante); «También en inglés · kaqchikel en borrador, por revisar con hablantes»; repositorio | «Y en más de un idioma. FARO: que cada dato llegue a puerto.» |
 
 **Lo que se dice y lo que no.** «Sin depender de una inteligencia artificial externa» se refiere al
 portal en funcionamiento, y es exacto. No decir «no usamos inteligencia artificial»: el equipo usó

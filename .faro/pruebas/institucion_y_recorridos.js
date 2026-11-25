@@ -72,7 +72,8 @@ const ok = (c, t) => { console.log((c ? '  bien  ' : '  FALLA ') + t); if (!c) f
   console.log('  sesión: ' + await entrar(p, usuario, CLAVE, 'Inicial-Prueba-1'));
   const menu = await p.evaluate(() => [...document.querySelectorAll('nav > button[data-s]')].filter(b => getComputedStyle(b).display !== 'none').map(b => b.dataset.s));
   ok(menu.includes('recibir') && !menu.includes('pendientes') && !menu.includes('memoria') && !menu.includes('operadores') && !menu.includes('campo') && !menu.includes('usuarios'), 'su menú trae «Recibir envío» y no pendientes, equivalencias, operadores ni usuarios');
-  ok(menu.includes('mapa') && menu.includes('rubros') && menu.includes('resultados'), 'sigue viendo el contenido abierto');
+  ok(menu.includes('mapa') && menu.includes('rubros') && menu.includes('tableros'), 'sigue viendo el contenido abierto');
+  ok(!['resultados', 'mejoras', 'proceso', 'muestreos'].some(s => menu.includes(s)), 'no ve las secciones internas del INE');
   ok(/envía por PNC/.test(await p.textContent('#acceso')), 'el encabezado dice por quién envía');
   await p.click('nav > button[data-s=recibir]'); await p.waitForTimeout(500);
   const opciones = await p.$$eval('#sol option', o => o.map(x => x.textContent));

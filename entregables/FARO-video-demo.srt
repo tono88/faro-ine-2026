@@ -47,93 +47,93 @@ una sola vez, y esa decisión queda aprendida para todas las
 instituciones.
 
 13
-00:00:50,602 --> 00:00:55,233
+00:00:50,603 --> 00:00:55,234
 Lo mismo, en cada frente del INE. Para Censos y Encuestas
 
 14
-00:00:55,283 --> 00:00:59,914
+00:00:55,284 --> 00:00:59,915
 y las delegaciones: el país hasta el lugar poblado, con población,
 
 15
-00:00:59,964 --> 00:01:04,595
+00:00:59,965 --> 00:01:04,596
 censo y crecimiento urbano visto desde el satélite. Y la red
 
 16
-00:01:04,645 --> 00:01:08,850
+00:01:04,646 --> 00:01:08,851
 vial como un grafo: setecientos siete lugares sin conexión mapeada.
 
 17
-00:01:12,417 --> 00:01:17,048
+00:01:12,501 --> 00:01:17,132
 Para el trabajo de campo: cada operador ve su ruta en
 
 18
-00:01:17,098 --> 00:01:21,729
+00:01:17,182 --> 00:01:21,813
 el teléfono, y cada visita se comprueba con ubicación y foto.
 
 19
-00:01:28,692 --> 00:01:33,323
+00:01:28,814 --> 00:01:33,445
 Para Precios e Índices: más de ochenta y cinco mil precios
 
 20
-00:01:33,373 --> 00:01:38,004
+00:01:33,495 --> 00:01:38,126
 leídos de dieciocho tiendas, comparados por código de barras, con su
 
 21
-00:01:38,054 --> 00:01:40,131
+00:01:38,176 --> 00:01:40,253
 informe de precio de referencia.
 
 22
-00:01:48,211 --> 00:01:52,842
+00:01:49,200 --> 00:01:53,831
 Y para quien necesita comunicar: un tablero se pide con palabras
 
 23
-00:01:52,892 --> 00:01:55,395
+00:01:53,881 --> 00:01:56,384
 y se publica con un enlace.
 
 24
-00:02:02,517 --> 00:02:06,924
+00:02:03,490 --> 00:02:07,897
 No son cinco herramientas: es una sola. Atacar el problema desde
 
 25
-00:02:06,974 --> 00:02:10,570
+00:02:07,947 --> 00:02:11,543
 varios frentes los hace converger en una solución integral.
 
 26
-00:02:11,520 --> 00:02:15,974
+00:02:12,493 --> 00:02:16,946
 Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre,
 
 27
-00:02:16,024 --> 00:02:20,478
+00:02:16,996 --> 00:02:21,449
 en un servidor del INE: sin licencias, sin servicios de pago
 
 28
-00:02:20,528 --> 00:02:24,982
+00:02:21,499 --> 00:02:25,952
 y sin depender de una inteligencia artificial externa que mañana puede
 
 29
-00:02:25,032 --> 00:02:29,486
+00:02:26,002 --> 00:02:30,454
 cambiar de precio o desaparecer. Los datos se quedan en la
 
 30
-00:02:29,536 --> 00:02:33,580
+00:02:30,504 --> 00:02:34,548
 institución, y el mismo dato da siempre el mismo resultado.
 
 31
-00:02:34,530 --> 00:02:38,841
+00:02:35,498 --> 00:02:39,809
 Crece sin programar: sumar una institución es escribir un archivo. Y
 
 32
-00:02:38,891 --> 00:02:43,203
+00:02:39,859 --> 00:02:44,170
 está comprobado: más de cincuenta mil registros reales, 96 pruebas automáticas,
 
 33
-00:02:43,253 --> 00:02:45,582
+00:02:44,220 --> 00:02:46,549
 y se instala con un comando.
 
 34
-00:02:46,532 --> 00:02:51,163
+00:02:47,499 --> 00:02:52,130
 Y en más de un idioma. FARO: que cada dato llegue
 
 35
-00:02:51,213 --> 00:02:52,014
+00:02:52,180 --> 00:02:52,981
 a puerto.

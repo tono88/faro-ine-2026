@@ -56,7 +56,7 @@ direcciones, y eso no se muestra ni se guarda.
 
 ### 1.3 ¿Qué pasa si la demostración falla aquí mismo?
 
-Hay tres respaldos: el video de 2:54 grabado del portal, las capturas de cada sección en la
+Hay tres respaldos: el video de 2:55 grabado del portal, las capturas de cada sección en la
 presentación y el manual gráfico. Además el portal corre en la propia computadora, sin depender
 de internet para lo esencial.
 

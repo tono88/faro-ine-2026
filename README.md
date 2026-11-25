@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.21.0.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.21.1.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -370,10 +370,13 @@ Abra <http://localhost:8082>.
 Al entrar, el portal le pide cambiar la contraseña en «Mi perfil» y **no deja hacer ningún cambio
 hasta que la cambie**. Los demás usuarios se crean en «Usuarios», con su rol y su grupo.
 
-Sin iniciar sesión se ven el mapa, los tableros publicados, las cifras y las fuentes. Las secciones
-que muestran lo recibido de las instituciones («Recibir envío», «Revisar pendientes»,
-«Equivalencias», «Operadores de campo») y los paneles para cargar archivos solo aparecen con sesión
-y con permiso.
+Sin iniciar sesión se ven el mapa, los tableros publicados, el territorio, los precios y las
+fuentes. **Lo interno solo lo ve el personal del INE** (administrador, analista o consulta, según
+su grupo): todo «Registros administrativos» («Recibir envío», «Revisar pendientes»,
+«Equivalencias», «Resultados y avance»), «Operadores de campo», «Antes y ahora», «Proceso» y
+«Muestreos automáticos», además del panel para armar tableros y los paneles para cargar archivos.
+Una cuenta de institución ve lo público y «Recibir envío»; un operador de campo, lo público y
+«Mi ruta de campo».
 
 La contraseña inicial no está escrita en el programa: la pone la instalación (`FARO_CLAVE_INICIAL`,
 que el despliegue con Docker deja en `admin`). Si quiere otra, cámbiela en `.env` **antes** del
@@ -579,7 +582,7 @@ LICENCIA.md             autoría del equipo y licencia al INE
 |---|---|
 | Repositorio con el código y la documentación | <https://github.com/tono88/faro-ine-2026> (historial desde el 23-nov-2026) |
 | Presentación en PDF para la exposición | [`entregables/FARO-presentacion.pdf`](entregables/FARO-presentacion.pdf) (y la misma, editable, en [PowerPoint](entregables/FARO-presentacion.pptx)); guion hablado en [`docs/17`](docs/17-presentacion-7-minutos.md) |
-| Video demostrativo de 2 a 3 minutos | Clip de 2:54 grabado del portal, sin voz, en [`entregables/FARO-video-demo.mp4`](entregables/FARO-video-demo.mp4), con sus [subtítulos](entregables/FARO-video-demo.srt); guion de la narradora y plan de montaje en [`docs/16`](docs/16-guion-video.md) |
+| Video demostrativo de 2 a 3 minutos | Clip de 2:55 grabado del portal, sin voz, en [`entregables/FARO-video-demo.mp4`](entregables/FARO-video-demo.mp4), con sus [subtítulos](entregables/FARO-video-demo.srt); guion de la narradora y plan de montaje en [`docs/16`](docs/16-guion-video.md) |
 | Además | [Manual de usuario gráfico](entregables/FARO-manual-de-usuario.pdf) · [documento técnico](entregables/FARO-documento-tecnico.pdf) · [matriz de conformidad](docs/26-conformidad-nota-conceptual.md) · [preguntas probables y respuestas](entregables/FARO-preguntas-y-respuestas.pdf) |
 
 ## Limitaciones y posibles mejoras

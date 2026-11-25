@@ -259,14 +259,14 @@
 <nav aria-label="Secciones">
   <h3>Panorama</h3>
   <button data-s="mapa" aria-selected="true">Mapa</button>
-  <button data-s="mejoras">Antes y ahora</button>
-  <button data-s="proceso">Proceso</button>
+  <button data-s="mejoras" data-ine="1">Antes y ahora</button>
+  <button data-s="proceso" data-ine="1">Proceso</button>
   <button data-s="tableros">Tableros</button>
   <h3>Registros administrativos</h3>
   <button data-s="recibir" data-sesion="1">Recibir envío</button>
   <button data-s="pendientes" data-sesion="1">Revisar pendientes <b id="npend" hidden></b></button>
   <button data-s="memoria" data-sesion="1">Equivalencias</button>
-  <button data-s="resultados">Resultados y avance</button>
+  <button data-s="resultados" data-ine="1">Resultados y avance</button>
   <h3>Territorio</h3>
   <button data-s="crecimiento">Población y crecimiento</button>
   <button data-s="vial">Red vial</button>
@@ -280,7 +280,7 @@
   <button data-s="rubros">Precios por rubro</button>
   <div id="menurubros" class="submenu" aria-label="Rubros de precios"></div>
   <button data-s="balance">Hoja de balance: derivados</button>
-  <button data-s="muestreos">Muestreos automáticos</button>
+  <button data-s="muestreos" data-ine="1">Muestreos automáticos</button>
   <h3>Datos</h3>
   <button data-s="ine">Portal del INE</button>
   <button data-s="capas">Capas publicadas</button>
@@ -548,7 +548,7 @@
   <section id="tableros">
     <div class="titulo"><h2>Tableros</h2><p>Arme un tablero escribiendo qué quiere ver o colocando piezas en el lienzo, fíltrelo por territorio y por condiciones, y publíquelo: los tableros publicados los ve cualquier visitante del portal, sin cuenta, con su propio enlace. No interviene ningún modelo: la frase se interpreta con reglas a la vista y el portal dice qué entendió.</p></div>
     <div id="tabgaleria">
-      <div class="panel">
+      <div class="panel" id="tabcrear">
         <label for="tabtexto" style="margin-top:0">¿Qué tablero necesita?</label>
         <textarea id="tabtexto" rows="2" maxlength="500" placeholder="Por ejemplo: mapa y tabla de desnutrición y población en Sololá, los 5 municipios más altos"></textarea>
         <div class="ejemplos" id="tabejemplos"></div>
@@ -1982,6 +1982,9 @@ const ROL = {admin:'Administrador', analista:'Analista', consulta:'Consulta', op
 // Cuenta de una institución que envía datos: ve lo público y sube solo lo de su institución.
 const deInstitucion = () => !!yo && yo.rol === 'institucion';
 // ¿Quien está en pantalla puede hacer cambios en esa sección? (analista o administrador, y su grupo la incluye).
+// Personal del INE: administrador, analista o consulta. Las instituciones, los operadores de campo y quien no ha
+// entrado ven solo lo público: no ven «Antes y ahora», «Proceso», «Muestreos automáticos» ni los registros administrativos.
+const delIne = () => !!yo && ['admin', 'analista', 'consulta'].includes(yo.rol);
 const puede = sec => !!yo && (yo.rol === 'admin' || (yo.rol === 'institucion' && sec === 'recibir') || (yo.rol === 'analista' && (!yo.secciones || yo.secciones.includes(sec))));
 function pintarSesion() {
   $('#acceso').innerHTML = yo ? `<span class="quien"><span><b data-no-traducir>${esc(yo.nombre)}</b> · <span id="mirol">${esc(deInstitucion() ? 'envía por ' + yo.institucion : ROL[yo.rol] || yo.rol)}</span></span><button class="accion chico suave" id="salir" style="margin:0" aria-label="Cerrar sesión"><span class="rec-largo">Cerrar sesión</span><span class="rec-corto">Salir</span></button></span>` : '<button class="accion" id="entrar" style="margin:0" aria-label="Iniciar sesión"><span class="rec-largo">Iniciar sesión</span><span class="rec-corto">Entrar</span></button>';
@@ -1992,7 +1995,10 @@ function pintarSesion() {
   document.querySelectorAll('nav > button[data-s]').forEach(b => { if (!b.classList.contains('con-sesion') && !b.classList.contains('solo-admin')) b.hidden = !!permitidas && !permitidas.has(b.dataset.s); });
   $('#menurubros').hidden = !!permitidas && !permitidas.has('rubros');
   // Secciones que muestran lo recibido de las instituciones o solo sirven para cargar archivos: sin sesión no aparecen.
-  document.querySelectorAll('nav > button[data-sesion]').forEach(b => { b.hidden = !yo || (deInstitucion() && b.dataset.s !== 'recibir') || (!!permitidas && !permitidas.has(b.dataset.s)) || (b.dataset.s === 'operadores' && !puede('operadores')); });
+  document.querySelectorAll('nav > button[data-sesion]').forEach(b => { b.hidden = !yo || yo.rol === 'operador' || (deInstitucion() && b.dataset.s !== 'recibir') || (!!permitidas && !permitidas.has(b.dataset.s)) || (b.dataset.s === 'operadores' && !puede('operadores')); });
+  document.querySelectorAll('nav > button[data-ine]').forEach(b => { b.hidden = !delIne() || (!!permitidas && !permitidas.has(b.dataset.s)); });
+  // Armar un tablero es para quien puede guardarlo; los demás ven solo los publicados.
+  $('#tabcrear').hidden = !puede('tableros');
   // Paneles y botones que cargan archivos o cambian algo: solo se muestran a quien puede usarlos. En su lugar queda una nota.
   document.querySelectorAll('[data-requiere]').forEach(x => { const ok = puede(x.dataset.requiere); x.hidden = !ok;
     if (x.classList.contains('panel')) { let n = x.nextElementSibling; if (!n || !n.classList.contains('nota-acceso')) { n = document.createElement('p'); n.className = 'nota nota-acceso'; n.textContent = 'Aquí se pueden cargar archivos propios. Inicie sesión con un usuario que tenga acceso a esta sección para verlo.'; x.after(n); } n.hidden = ok; } });

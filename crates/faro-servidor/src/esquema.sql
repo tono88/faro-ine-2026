@@ -170,9 +170,9 @@ CREATE TABLE IF NOT EXISTS grupos (
 );
 ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS grupo_id BIGINT REFERENCES grupos(id) ON DELETE SET NULL;
 INSERT INTO grupos (nombre, descripcion, secciones) VALUES
-  ('Registros administrativos', 'Recepción y homologación de envíos de instituciones', '{mapa,proceso,recibir,pendientes,memoria,resultados,tableros,ine,capas,acerca,perfil}'),
-  ('Territorio y cartografía', 'Población, crecimiento, red vial y operadores de campo', '{mapa,proceso,crecimiento,vial,operadores,alimentaria,tableros,capas,acerca,perfil}'),
-  ('Precios e índices', 'Precios de referencia, canasta, rubros, balance y muestreos', '{mapa,proceso,construccion,precios,canasta,rubros,balance,muestreos,tableros,acerca,perfil}')
+  ('Registros administrativos', 'Recepción y homologación de envíos de instituciones', '{mapa,mejoras,proceso,recibir,pendientes,memoria,resultados,tableros,ine,capas,acerca,perfil}'),
+  ('Territorio y cartografía', 'Población, crecimiento, red vial y operadores de campo', '{mapa,mejoras,proceso,crecimiento,vial,operadores,alimentaria,tableros,capas,acerca,perfil}'),
+  ('Precios e índices', 'Precios de referencia, canasta, rubros, balance y muestreos', '{mapa,mejoras,proceso,construccion,precios,canasta,rubros,balance,muestreos,tableros,acerca,perfil}')
 ON CONFLICT (nombre) DO NOTHING;
 
 -- Tableros armados por los usuarios (a partir de una frase o editándolos).

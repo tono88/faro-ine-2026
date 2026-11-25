@@ -1,6 +1,6 @@
 // Genera el documento entregable en PDF (entregables/FARO-documento-tecnico.pdf) con capturas
 // tomadas en el momento del portal en marcha. Requiere Node y Playwright con Chromium.
-// Uso: node scripts/entregables/generar_pdf.js http://localhost:8082
+// Uso: node scripts/entregables/generar_pdf.js http://localhost:8082 <usuario del INE> <contraseña>
 const { chromium } = require('playwright'); const fs = require('fs'); const path = require('path');
 const base = process.argv[2] || 'http://localhost:8082', raiz = path.resolve(__dirname, '../..'), dir = path.join(raiz, 'entregables'), cap = path.join(dir, 'capturas');
 const esc = t => String(t).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -24,6 +24,10 @@ if (require.main === module) (async () => {
   // Si la sesión sale a internet por un proxy, el navegador lo usa para las fotos satelitales (no para el portal).
   const proxy = process.env.HTTPS_PROXY; const b = await chromium.launch(proxy ? { proxy: { server: proxy, bypass: 'localhost,127.0.0.1' } } : {}); const p = await b.newPage({ viewport: { width: 1360, height: 860 }, deviceScaleFactor: 1 });
   await p.goto(base); await p.waitForSelector('#lienzo path.leaflet-interactive'); await p.waitForTimeout(800);
+  // «Proceso», «Antes y ahora» y el armado de tableros solo los ve el personal del INE: hace falta entrar.
+  if (process.argv[3]) { const r = await p.evaluate(async ([u, c]) => (await fetch('/api/sesion', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ usuario: u, clave: c }) })).status, [process.argv[3], process.argv[4]]); if (r !== 200) { console.error('No se pudo entrar:', r); process.exit(1); }
+    await p.reload(); await p.waitForSelector('#lienzo path.leaflet-interactive'); await p.waitForTimeout(800); await p.addStyleTag({ content: '#acceso .quien > span { visibility: hidden }' }); }
+  else console.log('Sin usuario: faltarán las capturas de las secciones internas.');
   const toma = async (n, pie) => { await p.screenshot({ path: path.join(cap, n + '.png') }); return { n, pie }; }; const tomas = [];
   tomas.push(await toma('01-mapa', 'Mapa por municipio: población proyectada por el INE.'));
   await p.fill('#buscalugar', 'panajachel'); await p.waitForSelector('#buscalista li[data-i]'); await p.keyboard.press('Enter'); await p.waitForSelector('#ficha svg'); await p.waitForTimeout(600);

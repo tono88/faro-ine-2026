@@ -346,6 +346,13 @@ Sin fotos de los integrantes mientras el equipo no las envíe (no tomarlas de Li
 `docs/26` y `docs/23`; si cambia una cifra allá, cambiarla aquí) y bloque «Cómo generar las tres claves»
 (también en `docs/15`). `generar_pdf.js` exporta `aHtml` y `esc`.
 
+Agregado después (v0.21.1): menú según quién mira. `delIne()` en `index.html` (admin/analista/consulta);
+botones de menú con `data-ine="1"` (`mejoras`, `proceso`, `resultados`, `muestreos`) solo para el personal del
+INE cuyo grupo los incluya; los `data-sesion` tampoco los ve el rol `operador`; `#tabcrear` (panel para armar
+tableros) solo con `puede('tableros')`. **Al agregar una sección interna: ponerle `data-ine` o `data-sesion`.**
+Es regla de pantalla, no de servidor. `generar_pdf.js <url> <usuario> <clave>` entra para sus capturas.
+Prueba: `.faro/pruebas/visibilidad_sin_sesion.js` (sin sesión, admin, institución, operador).
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)

@@ -10,6 +10,16 @@ tableta y celular, y cada cifra dice de dónde sale.
 > **Versión gráfica.** Este mismo manual, con una página por sección y la captura de cada pantalla
 > marcada paso a paso, está en [`entregables/FARO-manual-de-usuario.pdf`](../entregables/FARO-manual-de-usuario.pdf).
 
+## Qué ve cada quien
+
+| Quién | Qué ve en el menú |
+|---|---|
+| Cualquier visitante, sin cuenta | Mapa, tableros publicados, territorio (población, red vial, seguridad alimentaria), precios (menos los muestreos), portal del INE, capas y fuentes |
+| Cuenta de una institución | Lo anterior, más «Recibir envío» para subir los archivos de su institución |
+| Operador de campo | Lo público, más «Mi ruta de campo» |
+| Personal del INE (consulta, analista) | Además, según su grupo: los registros administrativos («Recibir envío», «Revisar pendientes», «Equivalencias», «Resultados y avance»), «Operadores de campo», «Antes y ahora», «Proceso», «Muestreos automáticos» y el panel para armar tableros (analista) |
+| Administrador | Todo, y «Usuarios» |
+
 ## Recorridos guiados
 
 En cualquier pantalla, el botón amarillo **«Recorrido guiado»** del encabezado explica lo que tiene

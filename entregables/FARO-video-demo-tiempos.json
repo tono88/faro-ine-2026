@@ -23,56 +23,56 @@
  {
   "escena": "territorio",
   "inicio": 50,
-  "fin": 72.19,
+  "fin": 72.28,
   "palabras": 43,
   "voz": "Lo mismo, en cada frente del INE. Para Censos y Encuestas y las delegaciones: el país hasta el lugar poblado, con población, censo y crecimiento urbano visto desde el satélite. Y la red vial como un grafo: setecientos siete lugares sin conexión mapeada."
  },
  {
   "escena": "campo",
-  "inicio": 71.82,
-  "fin": 88.47,
+  "inicio": 71.9,
+  "fin": 88.59,
   "palabras": 22,
   "voz": "Para el trabajo de campo: cada operador ve su ruta en el teléfono, y cada visita se comprueba con ubicación y foto."
  },
  {
   "escena": "precios",
-  "inicio": 88.09,
-  "fin": 107.61,
+  "inicio": 88.21,
+  "fin": 108.6,
   "palabras": 27,
   "voz": "Para Precios e Índices: más de ochenta y cinco mil precios leídos de dieciocho tiendas, comparados por código de barras, con su informe de precio de referencia."
  },
  {
   "escena": "tableros",
-  "inicio": 107.61,
-  "fin": 121.92,
+  "inicio": 108.6,
+  "fin": 122.89,
   "palabras": 17,
   "voz": "Y para quien necesita comunicar: un tablero se pide con palabras y se publica con un enlace."
  },
  {
   "escena": "convergencia",
-  "inicio": 121.92,
-  "fin": 130.92,
+  "inicio": 122.89,
+  "fin": 131.89,
   "palabras": 20,
   "voz": "No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral."
  },
  {
   "escena": "autonomia",
-  "inicio": 130.92,
-  "fin": 153.93,
+  "inicio": 131.89,
+  "fin": 154.9,
   "palabras": 54,
   "voz": "Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado."
  },
  {
   "escena": "escala",
-  "inicio": 153.93,
-  "fin": 165.93,
+  "inicio": 154.9,
+  "fin": 166.9,
   "palabras": 28,
   "voz": "Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, 96 pruebas automáticas, y se instala con un comando."
  },
  {
   "escena": "cierre",
-  "inicio": 165.93,
-  "fin": 173.93,
+  "inicio": 166.9,
+  "fin": 174.9,
   "palabras": 13,
   "voz": "Y en más de un idioma. FARO: que cada dato llegue a puerto."
  }
