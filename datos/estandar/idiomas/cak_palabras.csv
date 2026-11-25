@@ -1,37 +1,438 @@
 palabra,fuente,veces_en_la_fuente,ejemplo_kaqchikel,ejemplo_espanol,mensaje_o_entrada,usos_en_faro
-b'anikil,Mozilla (Pontoon),,,,,
-b'i'aj,Mozilla (Pontoon),,,,,
-chi,Mozilla (Pontoon),,,,,
-chik,Mozilla (Pontoon),,,,,
-ewan,Mozilla (Pontoon),,,,,
-jun,Mozilla (Pontoon),,,,,
-k'ojlib'äl,Mozilla (Pontoon),,,,,
-molojri'ïl,Mozilla (Pontoon),,,,,
-nab'ey,Mozilla (Pontoon),,,,,
-nisamäj,Mozilla (Pontoon),,,,,
-nuk'b'äl,Mozilla (Pontoon),,,,,
-rij,Mozilla (Pontoon),,,,,
-ronojel,Mozilla (Pontoon),,,,,
-rub'i,Mozilla (Pontoon),,,,,
-taqoya'l,Mozilla (Pontoon),,,,,
-tijal,Mozilla (Pontoon),,,,,
-tikamulüx,Mozilla (Pontoon),,,,,
-tikanöx,Mozilla (Pontoon),,,,,
-tiq'at,Mozilla (Pontoon),,,,,
-titikirisäx,Mozilla (Pontoon),,,,,
-titz'ajb'äx,Mozilla (Pontoon),,,,,
-titz'apïx,Mozilla (Pontoon),,,,,
-titz'et,Mozilla (Pontoon),,,,,
-titzolïx,Mozilla (Pontoon),,,,,
-tiwachib'ëx,Mozilla (Pontoon),,,,,
-tixim,Mozilla (Pontoon),,,,,
-tiyak,Mozilla (Pontoon),,,,,
-tiyuj,Mozilla (Pontoon),,,,,
-tzij,Mozilla (Pontoon),,,,,
-tzijoxikil,Mozilla (Pontoon),,,,,
-tzijïl,Mozilla (Pontoon),,,,,
-tzub'al,Mozilla (Pontoon),,,,,
-wakami,Mozilla (Pontoon),,,,,
-ximoj,Mozilla (Pontoon),,,,,
-xtz'uk,Mozilla (Pontoon),,,,,
-yakb'äl,Mozilla (Pontoon),,,,,
+a,Mozilla (Pontoon),2439,a,a,firefox:devtools/client/debugger.properties:sourcetabsclosealltabsaccesskey,1
+ab'ey,Mozilla (Pontoon),15,"Akanoxik, ab'ey","Tu búsqueda, a tu manera",focus-for-android:mozilla-mobile/focus-android/app/src/main/res/values/strings.xml:firstrun_search_title,1
+ab'i,Mozilla (Pontoon),293,Ab'i',Tu nombre,mozillalang:mozorg/contribute/index.lang:your-name,1
+achi'a,Mozilla (Pontoon),2,Jun choj kut kamixa' nïm rutele'm chuqa' kajtz'ik rub'anikil ri ruch'akulal. Ri etaman ruwäch chi kichin achi'a' o kichi,"Una camiseta de corte recto tiene los hombros anchos y un cuerpo que es casi cuadrado: lo que se conoce como ""para hombr",mozillians:LC_MESSAGES/django.po:a-straight-cut-shirt-has-wide-shoulders-and-a-body-which-is-almost-square-often-known-a,2
+achi'el,Mozilla (Pontoon),1323,Achi'el Seq',Como correo basura,thunderbird:mail/chrome/messenger/messenger.dtd:markasjunkcmdlabel,3
+achike,Mozilla (Pontoon),715,¿Achike ruma?,¿Por qué?,firefox:browser/browser/protectionsPanel.ftl:protections-panel-not-blocking-why-label,12
+achoq,Mozilla (Pontoon),102,Achoq chi re,Destino,firefox:toolkit/toolkit/printing/printUI.ftl:printui-destination-label,1
+aj,Mozilla (Pontoon),636,aj,de,firefox-beta:toolkit/chrome/global/printdialog.dtd:frompageinputlabel,2
+ajilaj,"ALMG-CLK, Kaqchikel Choltzij (2011)",4,ajilaj cifra,,entrada del diccionario,2
+ajilajil,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,ajilajil conteo,,entrada del diccionario,1
+ajk'amaya'l,Mozilla (Pontoon),965,Ajk'amaya'l b'ey,Canales web,firefox-beta:browser/chrome/browser/preferences/preferences.properties:webfeed,1
+ajtinamït,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,ajtinamït habitante,,entrada del diccionario,11
+akuchi,Mozilla (Pontoon),481,Akuchi' napon,Alcance,firefox:devtools/client/aboutdebugging.ftl:about-debugging-worker-scope,4
+amaq,Mozilla (Pontoon),76,Amaq',País,firefox:toolkit/toolkit/about/certviewer.ftl:certificate-viewer-country,5
+apetik,Mozilla (Pontoon),72,Ütz Apetik,Bienvenido de nuevo,firefox:browser/browser/aboutPocket.ftl:pocket-panel-home-welcome-back,1
+at,Mozilla (Pontoon),227,"At ütz,","Hola,",amo:LC_MESSAGES/django.po:hello,1
+atzij,Mozilla (Pontoon),548,Tzolin atzij,Tu respuesta,sumo:LC_MESSAGES/djangojs.po:you-replied,1
+b,Mozilla (Pontoon),396,B,A,firefox:devtools/client/inspector.properties:inspectorattributessubmenuaccesskey,1
+b'anikil,Mozilla (Pontoon),563,B'anikil,Estado,amo:LC_MESSAGES/djangojs.po:status,3
+b'anoj,Mozilla (Pontoon),63,B'anoj,Acción,firefox:browser/browser/preferences/preferences.ftl:applications-action-heading,2
+b'enam,Mozilla (Pontoon),45,Tz'aqät b'enam,Migración completada,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:migration_icon_description,4
+b'ey,Mozilla (Pontoon),332,B'ey,Ruta,firefox:security/manager/chrome/pippki/pippki.properties:devinfo_modpath,22
+b'eyajnem,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,b'eyajnem recorrido,,entrada del diccionario,2
+b'eyal,Mozilla (Pontoon),123,b'eyal,método,firefox:toolkit/toolkit/about/aboutTelemetry.ftl:about-telemetry-method-header,3
+b'eyalil,"ALMG-CLK, Kaqchikel Choltzij (2011)",19,b'eyalil wakami,,entrada del diccionario,1
+b'i'aj,Mozilla (Pontoon),1452,B'i'aj,Nombre,amo-frontend:LC_MESSAGES/amo.po:name,9
+b'itz'ib,Mozilla (Pontoon),314,b'itz'ib':,Código:,firefox-beta:toolkit/chrome/global/console.dtd:codeevallabel,7
+c,Mozilla (Pontoon),299,C,A,firefox:devtools/client/inspector.properties:inspectorhtmlpasteafteraccesskey,1
+ch'ab'äl,Mozilla (Pontoon),495,Ch'ab'äl,Idioma,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:preferences_language,3
+ch'aqa,Mozilla (Pontoon),1598,Ch'aqa'…,Más…,firefox:browser/browser/tabContextMenu.ftl:tab-context-share-more,4
+ch'ich,Mozilla (Pontoon),22,Loq'ob'äl ch'ich',Carrito de compras,firefox:toolkit/toolkit/global/contextual-identity.ftl:user-context-icon-cart,3
+ch'utikajtz'ik,Mozilla (Pontoon),37,ch'utikajtz'ik,celda,firefox:dom/chrome/accessibility/AccessFu.properties:cellabbr,1
+ch'utitzijol,Mozilla (Pontoon),99,ch'utitzijol,nota,firefox:dom/chrome/accessibility/mac/accessible.properties:note,2
+cha'el,Mozilla (Pontoon),68,cha'el,opcional,firefox-beta:devtools/shared/gcli.properties:helpmanoptional,1
+cha'onel,Mozilla (Pontoon),46,CSS cha'onel,Selector CSS,firefox:devtools/shared/screenshot.properties:inspectnodedesc,1
+chapil,"ALMG-CLK, Kaqchikel Choltzij (2011)",4,chapil tendencia,,entrada del diccionario,2
+chayub'äl,Mozilla (Pontoon),133,chayub'äl,filtro,firefox:dom/chrome/layout/css.properties:pefiltereof,5
+chi,Mozilla (Pontoon),7860,Chi re,Para,amo:LC_MESSAGES/django.po:to,31
+chijun,Mozilla (Pontoon),354,Chijun,General,amo:LC_MESSAGES/django.po:general,2
+chik,Mozilla (Pontoon),4915,Jun chik,Siguiente,amo:LC_MESSAGES/django.po:next,16
+chilab'enïk,Mozilla (Pontoon),77,Chilab'enïk,Recomendación,firefox:browser/browser/newtab/asrouter.ftl:cfr-doorhanger-feature-notification,1
+chojuch,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,chojuch' línea recta,,entrada del diccionario,1
+chojwi,Mozilla (Pontoon),18,Chojwi',Nivel,mozillians:LC_MESSAGES/django.po:level,1
+chokoy,Mozilla (Pontoon),562,chokoy,aplicación,firefox:dom/chrome/accessibility/mac/accessible.properties:application,1
+cholab'äl,Mozilla (Pontoon),3,Chuchi' Cholab'äl,Barra lateral,firefox:browser/browser/customkeys.ftl:customkeys-sidebar,1
+cholaj,Mozilla (Pontoon),165,cholaj,fila,firefox:dom/chrome/accessibility/AccessFu.properties:rowabbr,5
+cholajem,Mozilla (Pontoon),56,Cholajem,Lista,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:tab_view_list,3
+cholajin,Mozilla (Pontoon),56,Cholajin,Listado,amo:LC_MESSAGES/django.po:listed,2
+cholajitz,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,cholajitz serie,,entrada del diccionario,6
+cholajiïk,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,runuk' cholajiïk código de barras,,entrada del diccionario,1
+cholob'äl,Mozilla (Pontoon),2,K'ak'a' cholob'äl,Nueva barra,firefox-beta:toolkit/chrome/global/customizeToolbar.dtd:addnewtoolbarlabel,8
+cholxe'el,Mozilla (Pontoon),8,Ticholajïx cholxe'el,Enumerar base de datos,firefox:toolkit/toolkit/about/aboutSupport.ftl:media-capabilities-enumerate,1
+chupam,Mozilla (Pontoon),603,Chupam HTML,HTML interno,firefox:devtools/client/inspector.properties:inspectorpasteinnerhtmllabel,1
+chuqa,Mozilla (Pontoon),5278,chuqa',o,firefox-beta:browser/chrome/browser/preferences-old/sync.dtd:mobilepromo3iosbefore,35
+chuwäch,Mozilla (Pontoon),724,Chuwäch,Anterior,amo:LC_MESSAGES/django.po:previous,7
+chuxe,Mozilla (Pontoon),33,chuxe',abajo,firefox:dom/chrome/accessibility/AccessFu.properties:notation-bottom,1
+csv,Mozilla (Pontoon),11,logins.csv,logins.csv,firefox:browser/browser/aboutLogins.ftl:about-logins-export-file-picker-default-filename,2
+ctrl,Mozilla (Pontoon),32,Ctrl,Ctrl,firefox:toolkit/chrome/global-platform/unix/platformKeys.properties:vk_control,2
+desa,copiada del español (sigla o nombre propio),,,,,1
+diec,copiada del español (sigla o nombre propio),,,,,1
+e,Mozilla (Pontoon),910,e,e,firefox:toolkit/chrome/passwordmgr/passwordmgr.properties:notifybarneverrememberbuttonaccesskey2,1
+ek'ulun,Mozilla (Pontoon),19,Taq wayt ek'ulun,Bytes recibidos,firefox:toolkit/toolkit/about/aboutNetworking.ftl:about-networking-bytes-received,4
+ek'utun,Mozilla (Pontoon),16,Keyuj Konojel ek'utun,Eliminar todos los mostrados,firefox-beta:browser/chrome/browser/preferences/preferences.properties:removeallshowncookieslabel,1
+el,Mozilla (Pontoon),1285,Tel el,Salir,firefox-beta:toolkit/chrome/mozapps/profile/profileSelection.dtd:exitlabel,4
+elem,Mozilla (Pontoon),83,Tichayüx elem,Salida del filtro,firefox:devtools/client/webconsole.properties:webconsolefilterinputplaceholder,2
+elesan,Mozilla (Pontoon),64,Elesan ruma,Emitido por,firefox:devtools/client/netmonitor.properties:certmgrissuerinfolabel,2
+etab'äl,Mozilla (Pontoon),64,Taq etab'äl,Parámetros,firefox:devtools/client/netmonitor.properties:netmonitortabparams,1
+etal,Mozilla (Pontoon),189,Etal,Etiqueta,firefox:security/manager/chrome/pippki/pippki.properties:devinfo_label,1
+etaman,Mozilla (Pontoon),368,man etaman ta,desconocido,firefox:devtools/client/debugger.properties:serviceworkerinfounknown,1
+etz'eton,Mozilla (Pontoon),38,Etz'eton,Visitado,firefox:browser/browser/preferences/preferences.ftl:sitedata-accept-third-party-visited-option,2
+etz'ib'an,Mozilla (Pontoon),19,Taq Tzijoxïk Etz'ib'an,Valoraciones escritas,amo:LC_MESSAGES/djangojs.po:reviews-written,4
+ewan,Mozilla (Pontoon),1909,ewan,oculto,firefox:dom/chrome/accessibility/AccessFu.properties:hidden,9
+eyakon,Mozilla (Pontoon),124,Tijaq Tzijol Eyakon…,Abrir mensaje guardado...,thunderbird:mail/chrome/messenger/messenger.dtd:openmessagefilecmdlabel,1
+fao,copiada del español (sigla o nombre propio),,,,,1
+faro,copiada del español (sigla o nombre propio),,,,,7
+guatemala,Mozilla (Pontoon),3,Guatemala,Guatemala,firefox:toolkit/toolkit/intl/regionNames.ftl:region-name-gt,2
+ha,unidad de medida (igual en cualquier idioma),,,,,6
+ichinil,Mozilla (Pontoon),89,Ichinil,Propiedad,firefox:toolkit/toolkit/about/aboutTelemetry.ftl:about-telemetry-keys-header,2
+ik,Mozilla (Pontoon),239,Ik',Mes,firefox:toolkit/toolkit/global/datetimebox.ftl:datetime-month,4
+in,Mozilla (Pontoon),115,Man in jikïl ta,No estoy seguro,mozilla-monitor-website:app.ftl:micro-survey-unsure-response,1
+ine,copiada del español (sigla o nombre propio),,,,,13
+ixoqi,Mozilla (Pontoon),4,Ya'oj kuchuqa' ri Ixoqi' pa K'amab'ey,Empoderando a las mujeres en línea,mozillalang:mozorg/home/index-quantum.lang:empowering-women-online,3
+ja,Mozilla (Pontoon),498,Ja',Sí,amo:LC_MESSAGES/django.po:yes,2
+jalajnem,"ALMG-CLK, Kaqchikel Choltzij (2011)",4,jalajnem variación,,entrada del diccionario,2
+jalajöj,Mozilla (Pontoon),172,Jalajöj Ruwäch,Múltiples categorías,thunderbird:calendar/chrome/calendar/calendar.properties:multiplecategories,3
+jaloj,Mozilla (Pontoon),170,Taq jaloj,Cambios,firefox:devtools/client/inspector.properties:inspectorsidebarchangesviewtitle,7
+jampe,Mozilla (Pontoon),49,Jampe',Cuándo,thunderbird:calendar/chrome/calendar/calendar.properties:htmlprefixwhen,1
+jamäl,Mozilla (Pontoon),40,Jamäl okem pa k'amaya'l,Navegación fluida,mozillalang:firefox/hub/home-quantum.lang:smooth-browsing,1
+jaqäl,Mozilla (Pontoon),272,jaqäl,abierto,firefox:dom/chrome/accessibility/AccessFu.properties:openaction,1
+jaru'il,Mozilla (Pontoon),2,"Jaru'il, pa USD","Cantidad, en USD",amo:LC_MESSAGES/djangojs.po:amount-in-usd,10
+jay,Mozilla (Pontoon),77,JAY,Dirección,firefox:toolkit/chrome/global/printdialog.properties:headerfooterurl,3
+jek'a'n,"ALMG-CLK, Kaqchikel Choltzij (2011)",4,jek'a'n cálculo,,entrada del diccionario,1
+jek'anïk,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,jek'anïk calcular,,entrada del diccionario,2
+jikib'an,Mozilla (Pontoon),140,Jikib'an wi,Predeterminado,firefox:toolkit/toolkit/about/aboutAddons.ftl:detail-update-default,4
+jikib'anïk,Mozilla (Pontoon),105,Jikib'anïk,Validación,amo:LC_MESSAGES/django.po:validation,2
+jotöl,Mozilla (Pontoon),37,Jotöl,Fuerte,firefox:browser/browser/newtab/onboarding.ftl:mr2-onboarding-colorway-label-bold,3
+jub'a,Mozilla (Pontoon),722,Jub'a',Menos,firefox-beta:browser/chrome/browser/places/places.dtd:detailspanelesslabel,4
+juch'ilem,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,juch'ilem recta,,entrada del diccionario,1
+jujun,Mozilla (Pontoon),497,Jujun,Cada,thunderbird:calendar/chrome/calendar/calendar-event-dialog.dtd:eventrecurrencepatternmonthlyeverylabel,2
+jun,Mozilla (Pontoon),7870,jun,P,firefox-beta:browser/chrome/browser/browser.properties:lwthemeinstallrequestallowbuttonaccesskey2,34
+juna,Mozilla (Pontoon),109,Juna',Año,firefox:toolkit/toolkit/global/datetimepicker.ftl:date-spinner-year,24
+junam,Mozilla (Pontoon),173,Junam xe'el,Mismo Origen,firefox-beta:devtools/shared/gclicommands.properties:securityreferrerpolicysamedomain,3
+junamaxïk,Mozilla (Pontoon),12,Junamaxïk,Comparación,firefox:devtools/client/memory.properties:diffingcomparison,2
+junejqalem,"ALMG-CLK, Kaqchikel Choltzij (2011)",9,junejqalem equivalencia,,entrada del diccionario,5
+junilal,Mozilla (Pontoon),8,Junilal k'o wi rub'onil,Unidad de color predeterminada,firefox:devtools/client/toolbox-options.ftl:options-default-color-unit-label,1
+junumaj,"ALMG-CLK, Kaqchikel Choltzij (2011)",4,junumaj asimilación,,entrada del diccionario,1
+k'a,Mozilla (Pontoon),719,K'a:,Hasta:,thunderbird:calendar/chrome/calendar/calendar-event-dialog.dtd:eventuntillabel,10
+k'ak'a,Mozilla (Pontoon),1501,K'ak'a',Nuevo,amo:LC_MESSAGES/django.po:new,6
+k'amab'ey,Mozilla (Pontoon),534,K'amab'ey,Red,firefox:devtools/client/toolbox.properties:toolboxdebugtargetinfoconnectionnetwork,1
+k'amaya'l,Mozilla (Pontoon),2036,Ruxaq k'amaya'l,Sitio,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:preferences_passwords_saved_logins_site,3
+k'astajinem,Mozilla (Pontoon),1,K'astajinem,Visita guiada,test-pilot-website:app.ftl:tour,1
+k'ayesach,"ALMG-CLK, Kaqchikel Choltzij (2011)",4,k'ayesach crisis,,entrada del diccionario,1
+k'ayewal,Mozilla (Pontoon),670,k'ayewal,alerta,firefox:dom/chrome/accessibility/AccessFu.properties:alertabbr,2
+k'ayib'äl,"ALMG-CLK, Kaqchikel Choltzij (2011)",3,pa taq k'ayib'äl chuqa' pa qochoch richin niqetamaj chuqa' niqokisaj,,entrada del diccionario,9
+k'ayij,Mozilla (Pontoon),55,Taq k'ayij,Ventas,amo:LC_MESSAGES/djangojs.po:sales,17
+k'ayinel,Mozilla (Pontoon),5,K'ayinel,Fabricante,firefox:toolkit/toolkit/about/aboutSupport.ftl:media-device-vendor,4
+k'exoj,Mozilla (Pontoon),416,Taq K'exoj,Actualizaciones,firefox-beta:browser/chrome/browser/preferences/preferences.dtd:paneupdatestitle,1
+k'exon,Mozilla (Pontoon),52,K'exon,Reemplazado,firefox:security/manager/chrome/pipnss/pipnss.properties:certdumpsuperseded,1
+k'iyirisanem,Mozilla (Pontoon),7,Ri Firefox Developer Edition ja ri aninäq okik'amaya'l ri nusüj k'iyilal taq rusamajib'al k'iyirisanem cuqa' ri ruk'isib,"Firefox Developer Edition es tu rápido navegador de siempre, ahora con las mejores herramientas de desarrollo y las últi",mozillalang:firefox/products/developer-quantum.lang:firefox-developer-edition-is-the-blazing-fast-browser-that-offers-cu,1
+k'o,Mozilla (Pontoon),3066,k'o,existente,thunderbird:mail/chrome/messenger-newsblog/newsblog.properties:importfeedsexisting,10
+k'ojlemal,Mozilla (Pontoon),74,K'ojlemal,Ubicación,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:preference_phone_feature_location,1
+k'ojlib'äl,Mozilla (Pontoon),365,K'ojlib'äl,Ubicación,amo-frontend:LC_MESSAGES/amo.po:location,22
+k'u'x,Mozilla (Pontoon),75,Nimab'äl taq k'u'x,Religiones,mozilla-monitor-website:data-classes.ftl:religions,1
+k'ulb'at,Mozilla (Pontoon),3,k'ulb'at,Suburbio,firefox:browser/browser/preferences/formAutofill.ftl:autofill-address-suburb,1
+k'ulb'enïk,Mozilla (Pontoon),14,Titaq k'ulb'enïk,Enviar consulta,firefox:dom/chrome/layout/HtmlForm.properties:submit,1
+k'ulun,Mozilla (Pontoon),30,K'ulun,Recibidos,firefox:devtools/client/netmonitor.properties:netmonitorwstypereceived,3
+k'utsamaj,Mozilla (Pontoon),88,K'utsamaj,Menú,android-l10n:mozilla-mobile/android-components/components/browser/toolbar/src/main/res/values/strings.xml:mozac_browser_,2
+k'utuj,Mozilla (Pontoon),73,Taq k'utuj,Solicitud,firefox:devtools/client/netmonitor.properties:netmonitortabrequest,3
+k'utunel,Mozilla (Pontoon),9,K'utunel Samaj,Indicador de actividad,thunderbird:mail/chrome/messenger/messenger.dtd:throbberitemtitle,10
+k'utunem,"ALMG-CLK, Kaqchikel Choltzij (2011)",26,k'utunem interrogación,,entrada del diccionario,10
+k'ututzil,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,k'ututzil solicitud,,entrada del diccionario,1
+k'ïy,Mozilla (Pontoon),552,K'ïy k'oxom,Multimedia,android-l10n:mozilla-mobile/android-components/components/feature/media/src/main/res/values/strings.xml:mozac_feature_me,2
+ka'i,Mozilla (Pontoon),167,Ka'i' ramaj,Dos horas,firefox:browser/browser/panicButton.ftl:panic-button-2hr,1
+kajtz'ik,Mozilla (Pontoon),194,tunun kajtz'ik,caja deplegable,firefox:dom/chrome/accessibility/AccessFu.properties:combobox,8
+kajtz'uk,"ALMG-CLK, Kaqchikel Choltzij (2011)",16,kajtz'uk cuadro,,entrada del diccionario,3
+kamulub'äl,"ALMG-CLK, Kaqchikel Choltzij (2011)",10,kamulub'äl frecuencia,,entrada del diccionario,2
+kan,Mozilla (Pontoon),900,Jun kan,Anterior,firefox:toolkit/toolkit/pdfviewer/viewer.ftl:pdfjs-find-previous-button-label,2
+ke'elesäx,Mozilla (Pontoon),14,Ke'elesäx Konojel,Eliminar todo,firefox-beta:browser/chrome/browser/preferences-old/preferences.properties:removeallcookieslabel,2
+kema,Mozilla (Pontoon),158,Kema',Software,firefox-beta:devtools/client/webide.dtd:simulator_software,1
+kemoj,Mozilla (Pontoon),30,kemoj kajtz'ik,tabla,firefox:dom/chrome/accessibility/AccessFu.properties:table,7
+kenik'öx,Mozilla (Pontoon),42,Kenik'öx molaj,Explorar grupos,mozillians:LC_MESSAGES/django.po:browse-groups,2
+ketal,Mozilla (Pontoon),188,Ketal Samaj,Términos del servicio,firefox-beta:browser/chrome/browser/preferences/sync.dtd:prefstoslinklabel,1
+ketun,Mozilla (Pontoon),2,Man ketun taq ruxaq pa rub'eyal wuj,No unir páginas separadas,firefox:toolkit/toolkit/pdfviewer/viewer.ftl:pdfjs-spread-none-button,1
+ketz'et,Mozilla (Pontoon),130,K'a b'a ketz'et,Visitados recientemente,firefox-for-android:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:history_metadata_header_2,1
+ki,Mozilla (Pontoon),240,nikik'äm ki',coincidencias,thunderbird:mail/chrome/messenger/search-operators.properties:19,3
+kicholajem,Mozilla (Pontoon),75,Kicholajem jaloj,Registro de cambios,test-pilot-website:app.ftl:changelog,1
+kicholb'al,Mozilla (Pontoon),57,Kicholb'al taq Ichinil,Propiedades de lista,thunderbird:mail/chrome/messenger/messengercompose/EditorListProperties.dtd:windowtitlelabel,1
+kik'utuxik,Mozilla (Pontoon),20,Xtatz'ët jub'a kik'utuxik kuki,Verás menos solicitudes de cookies,firefox-for-android:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:reduce_cookie_banner_dialog_snackbar_text,1
+kikojol,Mozilla (Pontoon),189,chi kikojol q'inijuch',entre paréntesis,firefox:dom/chrome/accessibility/AccessFu.properties:mathmlenclosedabbr,3
+kimolaj,Mozilla (Pontoon),52,Kimolaj Tz'ib',Conjunto de caracteres,thunderbird:chat/irc.ftl:options-encoding,1
+kitzijol,Mozilla (Pontoon),204,kitzijol,mensajes,thunderbird:mail/messenger/retention.ftl:retention-messages,7
+kiwäch,Mozilla (Pontoon),274,Chapoj kiwäch,Capturas de pantalla,amo:LC_MESSAGES/django.po:screenshots,1
+km,unidad de medida (igual en cualquier idioma),,,,,5
+kojolil,Mozilla (Pontoon),1,Kojolil,Latitud,mozillians:LC_MESSAGES/django.po:latitude,1
+kojolwinäq,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,kojolwinäq sexo,,entrada del diccionario,2
+koköj,Mozilla (Pontoon),15,Koköj,Miniaturas,firefox:toolkit/toolkit/pdfviewer/viewer.ftl:pdfjs-thumbs-button-label,1
+komonin,Mozilla (Pontoon),18,Komonin Workers,Shared Workers,firefox:devtools/client/aboutdebugging.ftl:about-debugging-runtime-shared-workers,1
+konojel,Mozilla (Pontoon),454,Keyuj Konojel,Eliminar todos,firefox-beta:browser/chrome/browser/preferences/preferences.properties:removeallsitedatalabel,1
+kotz'öl,Mozilla (Pontoon),13,Kotz'öl:,Horizontal:,thunderbird:mail/chrome/messenger/messengercompose/EditorTableProperties.dtd:cellhorizontallabel,1
+kowöl,Mozilla (Pontoon),71,Kowöl,Vacío,firefox:devtools/client/netmonitor.properties:piechartunavailable,1
+kuchuj,Mozilla (Pontoon),11,Taq kuchuj,Capas,firefox:browser/pdfviewer/viewer.properties:layers_label,5
+kuma,Mozilla (Pontoon),125,Xchuputäj kuma ri taq tz'aqat,Deshabilitado por los complementos,firefox:toolkit/toolkit/about/aboutSupport.ftl:multi-process-status-7,1
+kuqub'äl,Mozilla (Pontoon),20,Kuqub'äl Tojtob'enïk,Evaluación inmediata,firefox:devtools/client/webconsole.properties:webconsoleconsolesettingsmenuitemeagerevaluationlabel,1
+lajulew,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,lajulew hectárea,,entrada del diccionario,1
+majun,Mozilla (Pontoon),1103,Majun,Ninguno,amo:LC_MESSAGES/django.po:none,49
+man,Mozilla (Pontoon),6872,Man tiyak,No guardar,android-l10n:mozilla-mobile/android-components/components/feature/prompts/src/main/res/values/strings.xml:mozac_feature_,23
+mes,"ALMG-CLK, Kaqchikel Choltzij (2011)",10,"syan, mes, lu'x mes",,entrada del diccionario,2
+mita,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,mita mínimo,,entrada del diccionario,1
+molaj,Mozilla (Pontoon),285,Molaj,Nombre,firefox:devtools/client/memory.properties:heapviewfieldname,11
+molajilanïk,"ALMG-CLK, Kaqchikel Choltzij (2011)",4,molajilanïk media,,entrada del diccionario,2
+molob'a,Mozilla (Pontoon),19,Rupas Molob'a',Panel de estadísticas,amo:LC_MESSAGES/django.po:statistics-dashboard,1
+moloj,Mozilla (Pontoon),248,Moloj,Entidad,firefox:toolkit/toolkit/about/aboutSupport.ftl:place-database-stats-entity,4
+molojri'ïl,Mozilla (Pontoon),870,Molojri'ïl,Evento,mozillalang:mozorg/contribute/index.lang:event,9
+mul,Mozilla (Pontoon),89,2mul Aninäq,2 veces más rápido,mozillalang:firefox/hub/home-quantum.lang:2x-faster,2
+na,Mozilla (Pontoon),316,Titaq Na,Enviar más tarde,thunderbird:mail/chrome/messenger/messengercompose/messengercompose.dtd:sendlatercmdlabel,2
+na'oj,Mozilla (Pontoon),380,Titaq na'oj,Dar opinión,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:preferences_feedback,2
+nab'ey,Mozilla (Pontoon),539,ri nab'ey,la primera,thunderbird:calendar/chrome/calendar/calendar-event-dialog.properties:repeatordinal1nounclass2,15
+nakanoj,Mozilla (Pontoon),92,Majun xilitäj achi'el ri nakanoj.,No hay resultados que coincidan con tu búsqueda,firefox:browser/browser/aboutLogins.ftl:about-logins-login-list-empty-search-description,1
+naqaj,Mozilla (Pontoon),33,Tikomonïx naqaj ximoj,Compartir enlace con dispositivos cercanos,firefox-for-android:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:qr_code_display_share_nearby,1
+natab'äl,Mozilla (Pontoon),268,Natab'äl,Historial,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:preferences_delete_browsing_data_browsing_history_,1
+nataxïk,Mozilla (Pontoon),1,Nataxïk,Memoria,firefox:browser/browser/aboutUnloads.ftl:about-unloads-column-memory,1
+nawajo,Mozilla (Pontoon),830,¿La nawajo' ato'ik?,¿Necesitas ayuda?,amo:LC_MESSAGES/django.po:need-help,1
+nijek,Mozilla (Pontoon),2,Man tikirel ta nijek',No se pudo calcular,firefox:devtools/client/accessibility.properties:accessibilitycontrasterror,1
+nik'on,Mozilla (Pontoon),42,nik'on,analizado,firefox:devtools/client/debugger.properties:serviceworkerinfoparsed,8
+nik'oxïk,Mozilla (Pontoon),52,Nik'oxïk,Diagnósticos,firefox:toolkit/toolkit/about/aboutSupport.ftl:graphics-diagnostics-title,2
+nik'ut,Mozilla (Pontoon),131,Nik'ut:,Mostrando:,mozilla-monitor-website:app.ftl:currently-showing,2
+nikik'äm,Mozilla (Pontoon),109,nikik'äm ki',coincidencias,thunderbird:mail/chrome/messenger/search-operators.properties:19,3
+nikokisaj,Mozilla (Pontoon),88,Re chokoy re' ütz chik nikokisaj xab'achike winäq.,Este complemento está listo para uso general.,amo:LC_MESSAGES/django.po:this-add-on-is-ready-for-general-use,1
+nima'q,Mozilla (Pontoon),81,Nima'q taq b'ey,Número máximo de canales,firefox:toolkit/toolkit/about/aboutSupport.ftl:max-audio-channels,1
+nimalaxel,Mozilla (Pontoon),2,Nimalaxel,Más antiguo,firefox-beta:toolkit/chrome/global/aboutTelemetry.dtd:abouttelemetryoptiongroupolder,1
+nimaläj,Mozilla (Pontoon),209,Nimaläj,Estricto,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:onboarding_tracking_protection_strict_option,3
+nimirisanem,"ALMG-CLK, Kaqchikel Choltzij (2011)",12,nimirisanem ampliación,,entrada del diccionario,7
+ninik'öx,Mozilla (Pontoon),86,Noyob'ëx ninik'öx,Esperando por revisión,sumo:LC_MESSAGES/django.po:waiting-for-review,1
+nisamajib'ëx,Mozilla (Pontoon),93,Nisamajib'ëx,Cargando,mozilla-accounts:LC_MESSAGES/server.po:loading,1
+nisamajïx,Mozilla (Pontoon),126,Tajin nisamajïx taq nimilem…,Trabajando tamaños…,firefox:devtools/client/memory.properties:dominatortreestatefetching,1
+nisamäj,Mozilla (Pontoon),419,Nisamäj,Cargando,firefox-for-android:mozilla-mobile/android-components/components/compose/base/src/main/res/values/strings.xml:mozac_comp,2
+nisik'ïx,Mozilla (Pontoon),85,Nisik'ïx ruxaq,Leyendo página,firefox:browser/browser/aiWindowContent.ftl:action-log-reading-page,1
+nitajin,Mozilla (Pontoon),18,Nitajin,En progreso,firefox-for-android:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:download_header_in_progress,1
+nitikirisäx,Mozilla (Pontoon),136,Nitikirisäx…,Inicializando…,firefox:devtools/client/accessibility.ftl:accessibility-progress-initializing,1
+nitz'ib'äx,Mozilla (Pontoon),73,Tajin nitz'ib'äx,Registro,firefox:toolkit/toolkit/about/aboutNetworking.ftl:about-networking-logging,1
+nojwuj,Mozilla (Pontoon),119,nojwuj,formulario,firefox:dom/chrome/accessibility/AccessFu.properties:formabbr,5
+nokisäx,Mozilla (Pontoon),302,Nokisäx k'exoj…,Aplicando actualización…,firefox:toolkit/chrome/mozapps/update/updates.properties:applyingupdate,3
+nrajo,Mozilla (Pontoon),299,Nrajo':,Quiere:,firefox:browser/chrome/browser/browser.properties:webextpermsoptionalpermslistintro,2
+nub'i,Mozilla (Pontoon),40,Ruwäch Nub'i',Mi perfil,amo:LC_MESSAGES/django.po:my-profile,1
+nub'ij,Mozilla (Pontoon),48,Ri nuk'samajel nub'ij chi re k'amal re' man rajowaxik ta yerumöl taq tzij.,El desarrollador dice que esta extensión no requiere recopilación de datos.,firefox-for-android:mozilla-mobile/android-components/components/feature/addons/src/main/res/values/strings.xml:mozac_fe,1
+nujikib'a,Mozilla (Pontoon),34,Ri ximonel xapïtz nujikib'a' chi xk'is ruq'ijul ri ataqoya'l.,El enlace en el que hiciste clic para verificar tu correo electrónico ha expirado.,mozilla-accounts:LC_MESSAGES/client.po:the-link-you-clicked-to-verify-your-email-is-expired,1
+nuk'samajilal,Mozilla (Pontoon),1,Xik'on ruchi' nuk'samajilal,Límite administrativo excedido,thunderbird:mail/chrome/mozldap/ldap.properties:11,3
+nuk'samajinel,Mozilla (Pontoon),3,Nuk'samajinel,Administrador,sumo:LC_MESSAGES/django.po:administratordb-karmatitlename,1
+nuk'umolaj,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,nuk'umolaj muestreo,,entrada del diccionario,6
+nuk'unem,Mozilla (Pontoon),7,Ruk'ojlem nuk'unem,Editar posición,firefox:devtools/client/boxmodel.properties:boxmodelgeometrybuttontooltip,1
+nuk'utuj,Mozilla (Pontoon),56,Re ruxaq nuk'utuj nutikirisaj molojri'ïl.,Este sitio te pide que inicies sesión.,firefox:toolkit/chrome/global/commonDialogs.properties:entercredentials,2
+nuk'äm,Mozilla (Pontoon),124,Nuk'äm ri',Coincide,firefox:devtools/shared/styleinspector.properties:rulestatusmatched,4
+nusamajij,Mozilla (Pontoon),67,Nusamajij,Cargando,android-l10n:mozilla-mobile/android-components/components/browser/toolbar/src/main/res/values/strings.xml:mozac_browser_,1
+nutikirisaj,Mozilla (Pontoon),25,Re ruxaq nuk'utuj nutikirisaj molojri'ïl.,Este sitio te pide que inicies sesión.,firefox:toolkit/chrome/global/commonDialogs.properties:entercredentials,1
+nutäq,Mozilla (Pontoon),36,Firefox Beta pa ruyonil nutäq k'utun tzij chi re Mozilla.,Firefox Beta envía opiniones y sugerencias a Mozilla automáticamente.,mozillalang:firefox/channel/index.lang:firefox-beta-automatically-sends-feedback-to-mozilla,2
+nuya,Mozilla (Pontoon),584,Nuya' jun rutoken winäq,Proporciona un token de cliente,firefox:devtools/shared/debugger.properties:serverreceiveoobtitle,1
+näj,Mozilla (Pontoon),140,näj,remoto,firefox:devtools/client/font-inspector.properties:fontinspectorremote,1
+nïm,Mozilla (Pontoon),445,Nïm,Grande,firefox:toolkit/toolkit/pictureinpicture/pictureinpicture.ftl:pictureinpicture-font-size-large,2
+o,Mozilla (Pontoon),2040,o,o,amo:LC_MESSAGES/django.po:or,9
+ochochib'äl,Mozilla (Pontoon),467,ochochib'äl,dirección,firefox:browser/extensions/formautofill/formautofill.properties:categoryaddress,1
+ochochil,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,ochochil hogar,,entrada del diccionario,7
+odbl,copiada del español (sigla o nombre propio),,,,,1
+okem,Mozilla (Pontoon),1080,Okem,Acceso,mozillians:LC_MESSAGES/django.po:access,1
+okisan,Mozilla (Pontoon),104,Okisan,Conectado,mozilla-accounts:LC_MESSAGES/client.po:connected,1
+okisanel,Mozilla (Pontoon),169,Okisanel,Usuario,sumo:LC_MESSAGES/django.po:user,5
+okisanela,Mozilla (Pontoon),147,Okisanela',Usuarios,amo-frontend:LC_MESSAGES/amo.po:users,3
+okisaxïk,Mozilla (Pontoon),15,Okisaxïk,Uso,amo:LC_MESSAGES/djangojs.po:usage,2
+openstreetmap,copiada del español (sigla o nombre propio),,,,,1
+oxi,Mozilla (Pontoon),54,oxi' | rox,tres | tercero,thunderbird:calendar/chrome/calendar/calendar-extract.properties:number3,1
+oxtz'ik,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,oxtz'ik pirámide,,entrada del diccionario,3
+oyob'en,Mozilla (Pontoon),355,oyob'en,pendiente,firefox-beta:devtools/shared/gclicommands.properties:addonpending,6
+oyonib'äl,Mozilla (Pontoon),192,Oyonib'äl,Mobile,amo:LC_MESSAGES/django.po:mobile,1
+pa,Mozilla (Pontoon),11050,pa,en,firefox:devtools/client/debugger.properties:eventinsource,55
+pa'äl,Mozilla (Pontoon),21,Pa'äl:,Vertical:,thunderbird:mail/chrome/messenger/messengercompose/EditorTableProperties.dtd:cellverticallabel,1
+pas,Mozilla (Pontoon),66,pas,panel,firefox:dom/chrome/accessibility/AccessFu.properties:pane,15
+pdf,Mozilla (Pontoon),63,pdf,pdf,firefox:browser/browser/browser.ftl:quickactions-cmd-editpdf,2
+pe,Mozilla (Pontoon),1362,Tik'ut pe,Mostrar,firefox:devtools/client/debugger.properties:displayevents,2
+peraj,Mozilla (Pontoon),262,peraj,sección,firefox:dom/chrome/accessibility/AccessFu.properties:sectionabbr,13
+peyonïk,Mozilla (Pontoon),39,Peyonïk,Invitación,mozillalang:mozorg/about/manifesto.lang:invitation,1
+pirwuj,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,pirwuj ficha,,entrada del diccionario,2
+q,unidad de medida (igual en cualquier idioma),,,,,11
+q'ab'aj,Mozilla (Pontoon),118,Chi q'ab'aj,Manualmente,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:close_tabs_manually,2
+q'e'elil,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,q'e'elil pendiente,,entrada del diccionario,1
+q'eqq'öj,Mozilla (Pontoon),2,Q'eqq'öj,Oscuro,firefox:browser/browser/newtab/onboarding.ftl:onboarding-multistage-theme-label-dark,1
+q'i'oj,Mozilla (Pontoon),66,Taq q'i'oj,Resultados,firefox:toolkit/toolkit/about/url-classifier.ftl:url-classifier-search-result-title,3
+q'ij,Mozilla (Pontoon),2046,q'ij,día,amo:LC_MESSAGES/django.po:day,8
+q'ijul,Mozilla (Pontoon),147,Q'ijul,Fecha,amo:LC_MESSAGES/django.po:date,3
+q'isamaj,"ALMG-CLK, Kaqchikel Choltzij (2011)",3,q'isamaj,,entrada del diccionario,1
+rajil,Mozilla (Pontoon),85,Rajil,Punto,firefox:toolkit/toolkit/global/contextual-identity.ftl:user-context-icon-circle,31
+rajilajitz,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,rajilajitz censo,,entrada del diccionario,7
+ramaj,Mozilla (Pontoon),349,1 Ramaj,1 hora,firefox-screenshots:server.ftl:shotpagekeeponehour,1
+rayb'äl,Mozilla (Pontoon),22,Rayb'äl,Objetivo,firefox-beta:devtools/client/markers.properties:markervaluedomeventtargetphase,1
+re,Mozilla (Pontoon),8698,Chi re,Para,amo:LC_MESSAGES/django.po:to,30
+renap,copiada del español (sigla o nombre propio),,,,,1
+retal,Mozilla (Pontoon),972,Retal,Valor,firefox:toolkit/toolkit/about/aboutTelemetry.ftl:about-telemetry-values-header,17
+retamab'alil,Mozilla (Pontoon),6,Retamab'alil ajilanïk,matemáticas,firefox:dom/chrome/accessibility/mac/accessible.properties:math,3
+ri,Mozilla (Pontoon),30158,ja ri',es,thunderbird:mail/chrome/messenger/search-operators.properties:2,137
+ri'ilem,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,"ri'ilem, rukojolil dispersión",,entrada del diccionario,1
+richin,Mozilla (Pontoon),7419,Richin,De,amo:LC_MESSAGES/django.po:from,64
+rij,Mozilla (Pontoon),1123,Chi rij,Atrás,amo:LC_MESSAGES/django.po:back,5
+rik'in,Mozilla (Pontoon),3395,rik'in:,con:,firefox-beta:browser/chrome/browser/browser.dtd:searchwithlabel,29
+rochochib'al,Mozilla (Pontoon),264,Rochochib'al,Dirección,firefox:browser/browser/places.ftl:places-view-sort-col-url,1
+ronojel,Mozilla (Pontoon),1049,Ronojel,Todos,amo-frontend:LC_MESSAGES/amo.po:all,17
+rox,Mozilla (Pontoon),140,Aj rox,Tercer lugar,firefox-for-android:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:sports_widget_third_place_title,1
+rub'anikil,Mozilla (Pontoon),946,Rub'anikil,Estilo,thunderbird:mail/messenger/preferences/preferences.ftl:chat-pane-styling-header,1
+rub'ey,Mozilla (Pontoon),109,Rub'ey Yakwuj,Carpeta destino,firefox:browser/installer/override.properties:dirsubtext,1
+rub'eyal,Mozilla (Pontoon),1179,Rub'eyal,Estado,firefox-beta:browser/chrome/browser/preferences/siteDataSettings.dtd:statuscollabel,6
+rub'i,Mozilla (Pontoon),1673,Rub'i' mol,Nombre de la colección,amo-frontend:LC_MESSAGES/amo.po:collection-name,10
+ruch'ab'äl,Mozilla (Pontoon),28,Ruch'ab'äl,Volumen,firefox:toolkit/toolkit/global/videocontrols.ftl:videocontrols-volume-control,2
+ruchajixik,Mozilla (Pontoon),80,Taq ruchajixik pa'alem,Controles de tamaño,firefox:browser/browser/browser.ftl:toolbar-zoom-controls,2
+ruchayub'al,Mozilla (Pontoon),29,Taq ruchayub'al:,Filtros para:,thunderbird:mail/messenger/filterEditor.ftl:filter-filters-for-prefix,1
+rucholajil,Mozilla (Pontoon),133,Rucholajil wujil:,Cadena de certificado:,firefox:toolkit/toolkit/neterror/certError.ftl:cert-error-details-cert-chain-label,1
+ruk'isib'äl,Mozilla (Pontoon),440,Ruk'isib'äl,Final,firefox-for-android:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:sports_widget_final,5
+ruk'iyinem,"ALMG-CLK, Kaqchikel Choltzij (2011)",7,ruk'iyinem,,entrada del diccionario,2
+ruk'u'x,Mozilla (Pontoon),573,Ütz ruk'u'x,Inocente,thunderbird:mail/chrome/messenger/messengercompose/messengercompose.dtd:smiley14cmdlabel,1
+ruk'utik,Mozilla (Pontoon),6,Ruk'utik,Presentación,firefox:devtools/client/application.ftl:manifest-item-presentation,1
+ruk'utuxik,Mozilla (Pontoon),67,Ruk'utuxik,Solicitar,firefox:toolkit/chrome/global/commonDialogs.properties:prompt,1
+ruka'n,Mozilla (Pontoon),128,ri ruka'n,la segunda,thunderbird:calendar/chrome/calendar/calendar-event-dialog.properties:repeatordinal2nounclass2,3
+ruma,Mozilla (Pontoon),1865,ruma,por,amo:LC_MESSAGES/django.po:by,3
+rumolik,Mozilla (Pontoon),24,Rumolik seq',Colección de basura,firefox-beta:devtools/client/markers.properties:markerlabelgarbagecollection2,4
+runa'oj,Mozilla (Pontoon),74,Runa'oj tz'ib'anïk,Registro de decisiones,firefox:toolkit/toolkit/about/aboutSupport.ftl:graphics-decision-log-title,1
+runik'ajal,Mozilla (Pontoon),8,Runik'ajal,Centro:,firefox:toolkit/toolkit/printing/printDialogs.ftl:hf-center-label,3
+runuk,Mozilla (Pontoon),11,Runuk' rutz'ib' re ruxaq re',Código fuente de esta página,firefox:browser/browser/menubar.ftl:menu-tools-page-source,1
+rupam,Mozilla (Pontoon),812,Rupam,Fondo,firefox:browser/browser/pageInfo.ftl:media-bg-img,1
+rupas,Mozilla (Pontoon),90,Rupas yakoj,Panel de almacenamiento,firefox:devtools/client/startup.properties:storagepanellabel,1
+ruq'ijul,Mozilla (Pontoon),272,ruq'ijul,fecha,firefox:dom/chrome/accessibility/AccessFu.properties:textinputtype_date,2
+rusamaj,Mozilla (Pontoon),308,Rusamaj,Rol,firefox:devtools/client/accessibility.properties:accessibilityrole,2
+rusamajela,Mozilla (Pontoon),7,Öj Rusamajela' ri Jaqäl Ajk'amaya'l,Pioneros de la web abierta,mozillalang:mozorg/about-2019.lang:pioneers-of-the-open-web,1
+rutinamit,Mozilla (Pontoon),12,Rutinamit Jay,Ciudad actual,thunderbird:mail/chrome/messenger/importMsgs.properties:2113,3
+rutzijol,Mozilla (Pontoon),2283,Rutzijol,Notificación,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:preference_phone_feature_notification,14
+ruwi,Mozilla (Pontoon),1898,ruwi',pestaña,firefox:dom/chrome/accessibility/AccessFu.properties:pagetab,2
+ruwäch,Mozilla (Pontoon),2295,Ruwäch,Versión,amo:LC_MESSAGES/django.po:version,25
+ruxaq,Mozilla (Pontoon),3320,Ruxaq,Página,firefox:browser/pdfviewer/viewer.properties:pagetitle,3
+ruxe'el,Mozilla (Pontoon),205,ruxe'el,origen,firefox:toolkit/toolkit/about/aboutTelemetry.ftl:about-telemetry-origin-origin,7
+ruya'l,"ALMG-CLK, Kaqchikel Choltzij (2011)",22,katok pa ruya'l kematz'ib' ingrese a internet,,entrada del diccionario,2
+ruyakb'al,Mozilla (Pontoon),140,Ruyakb'al Peraj,Archivo de módulo,firefox:toolkit/toolkit/about/aboutSupport.ftl:support-third-party-modules-module,1
+ruyonil,Mozilla (Pontoon),366,pa ruyonil,automático,firefox-health-report:fhr.lang:automatic,1
+röj,Mozilla (Pontoon),32,Chi qij röj,Acerca de nosotros,firefox:browser/browser/profile/default-bookmarks.ftl:default-bookmarks-firefox-about,1
+sachoj,Mozilla (Pontoon),781,Sachoj,Error,amo:LC_MESSAGES/djangojs.po:error,1
+samaj,Mozilla (Pontoon),1579,Samaj,Actividad,amo:LC_MESSAGES/django.po:activity,10
+samajel,Mozilla (Pontoon),144,Samajel,Worker,firefox:toolkit/toolkit/about/aboutPerformance.ftl:type-worker,2
+samajin,Mozilla (Pontoon),24,Man samajin ta,Sin procesar,firefox:devtools/client/netmonitor.properties:netmonitorresponseraw,1
+saqamaq,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,saqamaq' estado,,entrada del diccionario,4
+saqsöj,Mozilla (Pontoon),9,Saqsöj,Claro,firefox:browser/browser/newtab/onboarding.ftl:onboarding-multistage-theme-label-light,1
+setajulew,"ALMG-CLK, Kaqchikel Choltzij (2011)",0,,,entrada del diccionario,5
+setul,Mozilla (Pontoon),18,Ruwäch setul,Mapa,firefox:devtools/client/debugger.properties:scopesmaplabel,13
+sik'inem,Mozilla (Pontoon),51,Sik'inem tz'etoj,Vista de lectura,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:browser_menu_read,2
+silonem,Mozilla (Pontoon),53,silonem,animación,firefox:dom/chrome/accessibility/AccessFu.properties:animation,1
+t,Mozilla (Pontoon),697,T,A,firefox:browser/chrome/browser/browser.properties:storageaccessallowaccesskey,1
+ta,Mozilla (Pontoon),6703,Man k'o ta,No presente,firefox:security/manager/chrome/pippki/pippki.properties:devinfo_stat_notpresent,23
+tacha,Mozilla (Pontoon),441,Tacha' jun,Selecciona uno,firefox-for-android:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:preferences_category_select_default_search_,7
+tachapa,Mozilla (Pontoon),78,Tachapa' jun Ruwa,Captura una región,firefox-screenshots:server.ftl:homepagecaptureregion,1
+tajala,Mozilla (Pontoon),71,Tajala' ri ruwa,Cambia tu apariencia,firefoxcom:en/firefox/download/desktop.ftl:firefox-desktop-download-change-up-your,1
+tajin,Mozilla (Pontoon),1001,Tajin,Proceso,firefox:toolkit/toolkit/about/aboutThirdParty.ftl:third-party-th-process,2
+talun,Mozilla (Pontoon),40,Talun,Emitido,thunderbird:mail/chrome/messenger-smime/msgCompSecurityInfo.dtd:treeissueddate,12
+taluxïk,Mozilla (Pontoon),2,ruch'utitzijol taluxïk,notas de publicación,firefox-beta:toolkit/chrome/global/about.dtd:aboutrelnoteslinktitle,2
+tapitz'a,Mozilla (Pontoon),329,Tapitz'a',Clic,firefox:dom/chrome/accessibility/win/accessible.properties:click,2
+taq,Mozilla (Pontoon),16325,Taq mol,Colecciones,amo:LC_MESSAGES/djangojs.po:collections,192
+taqel,Mozilla (Pontoon),25,Taqel taqonem,Misión,mozillalang:main.lang:mission,1
+taqoj,Mozilla (Pontoon),224,Taqoj,Envío,firefox-for-android:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:review_quality_check_highlights_type_shippi,17
+taqonem,Mozilla (Pontoon),21,Taqel taqonem,Misión,mozillalang:main.lang:mission,1
+taqoya'l,Mozilla (Pontoon),1236,Taqoya'l,Correo electrónico,android-l10n:mozilla-mobile/android-components/components/feature/contextmenu/src/main/res/values/strings.xml:mozac_sele,4
+tatojtob'ej,Mozilla (Pontoon),361,Tatojtob'ej,Probar ahora,firefox:browser/browser/newtab/asrouter.ftl:firefoxview-cfr-primarybutton,1
+tatz'ib'aj,Mozilla (Pontoon),404,Tatz'ib'aj Awi',Registrarse,mozilla-monitor-website:app.ftl:sign-up,3
+tawachib'aj,"ALMG-CLK, Kaqchikel Choltzij (2011)",4,tawachib'aj ri nab'ey motzaj,,entrada del diccionario,1
+tel,Mozilla (Pontoon),79,Tel,Abandonar el sitio,android-l10n:mozilla-mobile/android-components/components/feature/prompts/src/main/res/values/strings.xml:mozac_feature_,1
+telesäx,Mozilla (Pontoon),117,Telesäx,Eliminar,firefox-beta:browser/chrome/browser/preferences-old/search.dtd:removeenginelabel,5
+tib'an,Mozilla (Pontoon),159,Tib'an:,Sí:,amo-frontend:LC_MESSAGES/amo.po:do,3
+tichayüx,Mozilla (Pontoon),26,Tichayüx elem,Salida del filtro,firefox:devtools/client/webconsole.properties:webconsolefilterinputplaceholder,2
+tijal,Mozilla (Pontoon),151,Tijal,Cambiar,mozilla-accounts:payments.ftl:pay-update-change-btn,1
+tijaq,Mozilla (Pontoon),452,Tijaq,Abrir,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:download_menu_open,3
+tijotob'äx,Mozilla (Pontoon),36,Tijotob'äx,Subir,firefox:browser/browser/preferences/languages.ftl:languages-customize-moveup,3
+tijunamäx,Mozilla (Pontoon),2,Tijunamäx,Comparar,mozillaorg:en/firefox/browsers/compare/index.ftl:compare-index-compare,1
+tik'is,Mozilla (Pontoon),37,Tik'is,Finalizar,firefox:browser/installer/mui.ftl:mui-buttontext-finish,1
+tik'ul,Mozilla (Pontoon),110,Tik'ul,Aceptar,amo:LC_MESSAGES/django.po:accept,2
+tik'utüx,Mozilla (Pontoon),109,Tik'utüx,Preguntar,firefox:browser/browser/aiWindow.ftl:smartwindow-ask-button,1
+tik'wäx,Mozilla (Pontoon),37,Tik'wäx el,Exportar,amo:LC_MESSAGES/django.po:export,1
+tikamulüx,Mozilla (Pontoon),27,Tikamulüx,Rehacer,firefox:browser/browser/menubar.ftl:menu-edit-redo,6
+tikanöx,Mozilla (Pontoon),363,Tikanöx,Buscar,amo:LC_MESSAGES/django.po:search,7
+tikirib'äl,Mozilla (Pontoon),255,Tikirib'äl,Inicio,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:preferences_home,1
+tikïl,"ALMG-CLK, Kaqchikel Choltzij (2011)",3,tikïl,,entrada del diccionario,1
+tinamital,Mozilla (Pontoon),27,Tinamital,Comunidad,amo:LC_MESSAGES/django.po:community,11
+tinamït,Mozilla (Pontoon),107,Tinamït,Ciudad,firefox:browser/extensions/formautofill/formautofill.properties:city,22
+tinik'öx,Mozilla (Pontoon),124,Tinik'öx,Analizar,firefox:devtools/client/netmonitor.properties:netmonitorperfnotice3,9
+tinimirisäx,Mozilla (Pontoon),47,Tinimirisäx,Expander,firefox:devtools/shared/styleinspector.properties:ruletwistyexpandlabel,1
+tinojisäx,Mozilla (Pontoon),13,Tinojisäx,Llenar,firefox:browser/browser/setDesktopBackground.ftl:set-background-fill,2
+tinuk,Mozilla (Pontoon),349,Tinuk',Editar,amo:LC_MESSAGES/django.po:edit,2
+tiq'at,Mozilla (Pontoon),482,Tiq'at,Cancelar,amo:LC_MESSAGES/djangojs.po:cancel,1
+tiqasäx,Mozilla (Pontoon),250,Tiqasäx,Descargar,amo:LC_MESSAGES/django.po:download,3
+tisilöx,Mozilla (Pontoon),60,Tisilöx Chik,Mover de nuevo,thunderbird:mail/messenger/messenger.ftl:menu-move-again,1
+titalüx,Mozilla (Pontoon),12,Titalüx rutzijol,Publicar,thunderbird:mail/chrome/messenger/messengercompose/editor.properties:publish,1
+titikirisäx,Mozilla (Pontoon),351,Titikirisäx,Comenzar,firefox:browser/browser/newtab/onboarding.ftl:mr1-onboarding-get-started-primary-button-label,4
+titojtob'ëx,Mozilla (Pontoon),166,Titojtob'ëx,Evaluar,firefox-beta:toolkit/chrome/global/console.dtd:evaluatelabel,1
+titz'ajb'äx,Mozilla (Pontoon),124,Titz'ajb'äx,Pegar,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:browser_toolbar_long_press_popup_paste,4
+titz'apïx,Mozilla (Pontoon),324,Titz'apïx,Cerrar,amo:LC_MESSAGES/django.po:close,4
+titz'et,Mozilla (Pontoon),241,Titz'et,Ver,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:create_collection_view,13
+titz'ib'äx,Mozilla (Pontoon),168,Titz'ib'äx,Escribir,firefox:toolkit/toolkit/about/aboutNetworking.ftl:rcwn-perf-write,4
+titz'uk,Mozilla (Pontoon),112,Titz'uk,Crear,firefox:mobile/android/mobile/android/aboutConfig.ftl:config-new-pref-create-button,6
+titzolïx,Mozilla (Pontoon),237,Titzolïx,Actualizar,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:browser_menu_refresh,2
+tiwachib'ëx,Mozilla (Pontoon),264,Tiwachib'ëx,Copiar,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:browser_toolbar_long_press_popup_copy,1
+tixim,Mozilla (Pontoon),41,Tixim,Sincronizar,firefox:browser/browser/newtab/onboarding.ftl:onboarding-fxa-title,2
+tiya,Mozilla (Pontoon),543,tiya',den,firefox:dom/chrome/accessibility/AccessFu.properties:denominatorabbr,2
+tiyak,Mozilla (Pontoon),426,Tiyak,Guardar,amo:LC_MESSAGES/django.po:save,5
+tiyuj,Mozilla (Pontoon),583,Tiyuj,Borrar,amo:LC_MESSAGES/django.po:delete,2
+to'ikem,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,to'ikem emergencia,,entrada del diccionario,2
+to'onel,Mozilla (Pontoon),119,Tiyak ADB to'onel,Instalar asistente ADB,firefox-beta:devtools/client/webide.dtd:runtimepanel_noadbhelper,1
+to'onela,Mozilla (Pontoon),74,to'onela',contribuyentes,firefox-beta:toolkit/chrome/global/about.dtd:aboutcreditslinktitle,1
+tob'äl,Mozilla (Pontoon),239,Tob'äl,Ayuda,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:preferences_help,1
+tokisäx,Mozilla (Pontoon),327,Tokisäx,Conectar,firefox:devtools/client/aboutdebugging.ftl:about-debugging-sidebar-item-connect-button,1
+tunub'anem,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,tunub'anem inclusión,,entrada del diccionario,1
+tuxlan,Mozilla (Pontoon),24,Tuxlan,Pausar,android-l10n:mozilla-mobile/android-components/components/feature/media/src/main/res/values/strings.xml:mozac_feature_me,1
+tz'aqät,Mozilla (Pontoon),157,Tz'aqät,Completar,firefox:toolkit/chrome/global/aboutStudies.properties:completestatus,1
+tz'etoj,Mozilla (Pontoon),72,Tz'etoj,Ver,firefox-beta:toolkit/chrome/global/viewSource.dtd:viewmenulabel,11
+tz'ib,Mozilla (Pontoon),335,Tz'ib':,Caracter:,thunderbird:mail/chrome/messenger/messengercompose/EditorInsertChars.dtd:characterlabel,1
+tz'ib'an,Mozilla (Pontoon),48,Tz'ib'an,Registrado,thunderbird:chat/irc.ftl:tooltip-registered,10
+tz'ib'atzij,Mozilla (Pontoon),19,tz'ib'atzij,registro,firefox:dom/chrome/accessibility/mac/accessible.properties:log,4
+tz'il,"ALMG-CLK, Kaqchikel Choltzij (2011)",6,rub'ey tz'il drenaje,,entrada del diccionario,1
+tzij,Mozilla (Pontoon),2920,tzij,término,firefox:dom/chrome/accessibility/AccessFu.properties:termabbr,32
+tzijoxikil,Mozilla (Pontoon),13,Tzijoxikil,Descripción,firefox:security/manager/security/certificates/deviceManager.ftl:devinfo-desc,2
+tzijïl,Mozilla (Pontoon),176,Tzijïl,Activado,android-l10n:mozilla-mobile/android-components/components/feature/addons/src/main/res/values/strings.xml:mozac_feature_a,2
+tzolin,Mozilla (Pontoon),194,Tzolin tzij,Respuesta,firefox:devtools/client/netmonitor.properties:netrequestresponse,1
+tzolinel,Mozilla (Pontoon),8,Tzolinel,Repetir,firefox:browser/browser/browserContext.ftl:main-context-menu-media-loop,1
+tzub'al,Mozilla (Pontoon),53,Taq tzub'al,Vista,firefox:browser/browser/places.ftl:places-view-button,3
+uchuq'alel,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,uchuq'alel electricidad,,entrada del diccionario,2
+wachel,Mozilla (Pontoon),211,wachel,disponible,thunderbird:chat/commands.ftl:back-key-key,1
+wachib'en,Mozilla (Pontoon),68,Wachib'en,copiado,firefox:devtools/shared/eyedropper.properties:colorvaluecopied,1
+wachib'enel,Mozilla (Pontoon),7,UX wachib'enel,Diseñador de UX,test-pilot-website:experiments.ftl:pageshotcontributors2title,1
+wachib'äl,Mozilla (Pontoon),628,wachib'äl,figura,firefox:dom/chrome/accessibility/mac/accessible.properties:figure,14
+wakami,Mozilla (Pontoon),1039,Wakami,Hoy,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:history_today,10
+wawe,Mozilla (Pontoon),349,wawe',aquí,firefox:devtools/client/netmonitor.properties:netrequestsizelimitmessagelink,2
+we,Mozilla (Pontoon),1190,Taju' we jub'a' 10 taq tz'ib',"Por favor, ingresa al menos 10 caracteres",firefox-for-android:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:webcompat_reporter_description_error,1
+we'il,Mozilla (Pontoon),8,Tinuk' we'il,Editar condición,firefox:devtools/client/debugger.properties:editoreditconditionbreakpoint,3
+wi,Mozilla (Pontoon),587,K'o wi,Predeterminado,firefox:browser/browser/newtab/onboarding.ftl:mr2-onboarding-theme-label-default,3
+winaqi,Mozilla (Pontoon),358,Winaqi',Personas,firefox:toolkit/toolkit/about/certviewer.ftl:certificate-viewer-tab-people,5
+winaqilem,Mozilla (Pontoon),2,"Ri Mozilla Nimasamaj jun aj ruwach'ulew kitinamit winaqi', ri nikinimaj chi ri tikirib'äl, tz'ukuj chuqa' ri samaj yalan","El proyecto Mozilla es una comunidad mundial de personas que cree que la apertura, la innovación y la oportunidad son fu",mozillalang:mozorg/about/manifesto.lang:the-mozilla-project-is-a-global-community-of-people-who-believe-that-openness-in,15
+wo'il,"ALMG-CLK, Kaqchikel Choltzij (2011)",3,wo'il,,entrada del diccionario,1
+wo'o,Mozilla (Pontoon),6,wo'o' | ro',cinco | quinto,thunderbird:calendar/chrome/calendar/calendar-extract.properties:number5,1
+wuj,Mozilla (Pontoon),289,wuj,docs,firefox:devtools/client/sourceeditor.properties:autocompletiondocslink,1
+x,Mozilla (Pontoon),249,x,d,firefox:devtools/client/debugger.properties:downloadfileaccesskey,3
+xa,Mozilla (Pontoon),1161,Xa xe tik'ut,Mostrar sólo,mozillians:LC_MESSAGES/django.po:display-only,5
+xak,Mozilla (Pontoon),88,Nïm xak,Grado alto,firefox:security/manager/chrome/pipnss/pipnss.properties:highgrade,11
+xb'an,Mozilla (Pontoon),42,Xb'an,Terminado,firefox-screenshots:webextension.properties:tourdone,1
+xe,Mozilla (Pontoon),934,xe,sub,firefox:dom/chrome/accessibility/AccessFu.properties:subscriptabbr,5
+xejikib'äx,Mozilla (Pontoon),2,Man xejikib'äx ta k'ulunela'. Tatz'ib'aj jun k'ulunel o kimolaj tzijol pa ri ruk'ojlem ochochib'äl.,"No se especificaron destinatarios. Por favor, ingresa un destinatario o grupo de noticias en el área de dirección.",thunderbird:mail/messenger/messengercompose/messengercompose.ftl:compose-no-recipients,1
+xeyak,Mozilla (Pontoon),34,Xeyak Yakb'äl,Archivos guardados,thunderbird:mail/chrome/messenger/aboutDownloads.dtd:aboutdownloadstitle,1
+xilitäj,Mozilla (Pontoon),458,Man Xilitäj ta,No encontrado,amo:LC_MESSAGES/django.po:not-found,2
+ximon,Mozilla (Pontoon),67,Ximon ruwi',Pestaña sincronizada,firefox:browser/browser/firefoxView.ftl:firefoxview-tabpickup-header,3
+ximonel,Mozilla (Pontoon),290,Ximonel,enlace,firefox:dom/chrome/accessibility/AccessFu.properties:link,3
+xjal,Mozilla (Pontoon),50,Xjal:,Canjeado:,mozillians:LC_MESSAGES/django.po:redeemed,2
+xjalatäj,Mozilla (Pontoon),23,Man xjalatäj ta ri rupam ruwäch,No se pudo cambiar el fondo de pantalla,firefox-for-android:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:wallpaper_select_error_snackbar_message,1
+xjikib'äx,Mozilla (Pontoon),78,Xjikib'äx,Confirmado,mozilla-accounts:LC_MESSAGES/client.po:confirmed,1
+xk'ul,Mozilla (Pontoon),18,Xk'ul,Aceptado,thunderbird:calendar/calendar/calendar.ftl:calendar-context-attendance-all-accepted,1
+xo'etok'al,"ALMG-CLK, Kaqchikel Choltzij (2011)",2,xo'etok'al kilómetro,,entrada del diccionario,1
+xsik'ïx,Mozilla (Pontoon),15,Man xsik'ïx ta Tzijol,Mensaje sin leer,thunderbird:mail/chrome/messenger/messenger.dtd:nextunreadmsgcmdlabel,1
+xsol,Mozilla (Pontoon),14,Xya' Retal achi'el Xsol,Marcado como resuelto,mozilla-monitor-website:app.ftl:marked-as-resolved-label,1
+xtikïr,Mozilla (Pontoon),159,Man xtikïr ta xutäq.,Envío fallido.,firefox-beta:toolkit/chrome/pluginproblem/pluginproblem.dtd:reportfailed,4
+xtz'apïx,Mozilla (Pontoon),6,Ruwi' xtz'apïx,Pestaña cerrada,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:snackbar_tab_closed,1
+xtz'uk,Mozilla (Pontoon),50,Xtz'uk,Creación,firefox:devtools/client/storage.ftl:storage-table-headers-cookies-creation-time,4
+xub'än,Mozilla (Pontoon),68,K'o itzel xub'än,Se ha producido un error,firefoxcom:en/500.ftl:error-page-something-went-wrong,1
+xusamajib'ej,Mozilla (Pontoon),11,Man xtikïr ta xusamajib'ej ri ruxaq,Error al cargar la página,firefox-beta:dom/chrome/netError.dtd:loaderrorlabel,1
+xwachisetulïx,Mozilla (Pontoon),1,(xwachisetulïx),(mapeado),firefox:devtools/client/debugger.properties:sourcefootermappedsuffix,2
+xya,Mozilla (Pontoon),163,Xya',Provisto,firefox:toolkit/toolkit/about/aboutWebrtc.ftl:about-webrtc-configuration-element-provided,1
+xyak,Mozilla (Pontoon),167,Xyak,Guardado,amo-frontend:LC_MESSAGES/amo.po:saved,5
+xyuj,Mozilla (Pontoon),123,Xyuj,Eliminado,thunderbird:calendar/calendar/calendar-invitation-panel.ftl:calendar-invitation-change-indicator-removed,3
+y,Mozilla (Pontoon),190,y,A,firefox:browser/chrome/browser/browser.properties:refreshblockedgobuttonaccesskey,1
+ya,Mozilla (Pontoon),13,"Richin nik'ut pe re ruxaq re', ri samajel k'o chi nutäq etamab'äl richin nukamuluj ronojel samaj (achi'el una rukanoxik ","Para ver esta página, la aplicación deberá enviar datos que repetirán cualquier acción realizada anteriormente (como una",firefox:dom/chrome/appstrings.properties:confirmrepostprompt,1
+ya'l,"ALMG-CLK, Kaqchikel Choltzij (2011)",18,ya'l red,,entrada del diccionario,2
+ya'oj,Mozilla (Pontoon),171,Nïm Ya'oj,Asignación grande,firefox:toolkit/toolkit/global/processTypes.ftl:process-type-weblargeallocation,5
+ya'on,Mozilla (Pontoon),445,Ya'on q'ij,Permitidos,firefox:browser/chrome/browser/browser.properties:contentblockingtrackersallowedlabel,3
+yakb'äl,Mozilla (Pontoon),1098,yakb'äl,archivo,firefox:dom/chrome/dom/dom.properties:genericfilename,9
+yekanöx,Mozilla (Pontoon),60,tzij yekanöx,términos de búsqueda,firefox-for-android:mozilla-mobile/android-components/components/feature/addons/src/main/res/values/strings.xml:mozac_fe,1
+yenik'öx,Mozilla (Pontoon),27,Yenik'öx taq natab'äl,Revisar recuerdos,firefox:browser/browser/aiWindowContent.ftl:action-log-checking-memories,1
+yonil,Mozilla (Pontoon),87,Yonil,Automático,android-l10n:mozilla-mobile/fenix/app/src/main/res/values/strings.xml:onboarding_theme_automatic_title,1
+yujun,Mozilla (Pontoon),30,Yujun Ruxaq,Página eliminada,firefox:browser/browser/aboutPocket.ftl:pocket-panel-saved-page-removed,2
+z,Mozilla (Pontoon),45,z,b,firefox:devtools/client/debugger.properties:breakpointmenuitemenableall2accesskey,1
+öj,Mozilla (Pontoon),26,Öj Achike Röj,Quiénes somos,mozillaorg:en/navigation_v2.ftl:navigation-v2-who-we-are,1
+ütz,Mozilla (Pontoon),1827,ÜTZ,Aceptar,amo:LC_MESSAGES/django.po:ok,2

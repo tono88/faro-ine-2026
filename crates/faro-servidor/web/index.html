@@ -238,7 +238,9 @@
   #idiomalista button:hover, #idiomalista button:focus-visible { background:var(--fondo); } #idiomalista button[aria-selected="true"] { background:var(--cielo); } #idiomalista button[aria-selected="true"] span { font-weight:600; color:var(--azul-oscuro); }
   #idiomalista small { color:var(--gris); font-size:12px; } #idiomalista p { margin:6px 4px 2px; padding:8px 6px 4px; border-top:1px solid var(--borde); font-size:12px; line-height:1.4; color:var(--gris); }
   #aviso-idioma { background:#fff7e6; border:1px solid #f5a623; border-radius:var(--radio); padding:10px 14px; margin-bottom:14px; font-size:14px; }
-  @media (max-width: 400px) { #idiomabtn b { display:none; } header { gap:6px; } }
+  @media (max-width: 400px) { #idiomabtn b { display:none; } header { gap:6px; } header .marca h1 { display:none; } }
+  /* En otro idioma el rótulo de salir o entrar puede ser más largo: en teléfono se recorta en vez de empujar el encabezado. */
+  @media (max-width: 700px) { header .acceso, header .acceso .quien { flex:0 1 auto; min-width:0; } header .acceso button { flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; } }
   @media (max-width: 700px) { #idiomabtn { padding:5px 7px; } #idiomalista { position:fixed; left:10px; right:10px; top:58px; width:auto; } #idiomalista button { min-height:44px; } }
   @media print { .idioma { display:none !important; } }
 </style>

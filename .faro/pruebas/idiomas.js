@@ -39,7 +39,7 @@ const ok = (c, t) => { console.log((c ? '  bien  ' : '  FALLA ') + t); if (!c) f
   const de = c => lista.idiomas.find(i => i.codigo === c) || {};
   ok(de('es').estado === 'origen' && de('en').estado === 'completo' && de('cak').estado === 'borrador', 'español es el origen, inglés está completo y kaqchikel es borrador');
   ok(de('en').cobertura_pct >= 99, `inglés cubre ${de('en').cobertura_pct} % de los ${lista.textos_de_la_pantalla} textos de la pantalla`);
-  ok(de('cak').cobertura_pct > 0 && de('cak').cobertura_pct < 50, `kaqchikel declara su cobertura real (${de('cak').cobertura_pct} %)`);
+  ok(de('cak').cobertura_pct > 20 && de('cak').cobertura_pct < 100, `kaqchikel declara su cobertura real (${de('cak').cobertura_pct} %)`);
   ok(lista.idiomas.map(i => i.codigo).join() === 'es,en,cak', 'orden: origen, completos, borradores');
   ok((await pedir('/api/idiomas/zz')).estado === 400 && (await pedir('/api/idiomas/EN')).estado === 400 && (await pedir('/api/idiomas/..%2Fmejoras')).estado === 400, 'un código que no existe o no es un código se rechaza');
   const en = (await pedir('/api/idiomas/en')).cuerpo;
@@ -94,13 +94,18 @@ const ok = (c, t) => { console.log((c ? '  bien  ' : '  FALLA ') + t); if (!c) f
 
   console.log('En kaqchikel (borrador)');
   await cambiar('cak');
-  ok(await p.isVisible('#aviso-idioma') && /borrador/.test(await p.textContent('#aviso-idioma')), 'avisa que es un borrador pendiente de revisión por hablantes');
+  ok(await p.isVisible('#aviso-idioma') && /[Bb]orrador sin revisar/.test(await p.textContent('#aviso-idioma')) && /asesoría experta/.test(await p.textContent('#aviso-idioma')), 'avisa que es un borrador sin revisar, a corregir con asesoría experta');
   ok(await p.getAttribute('html', 'lang') === 'es', 'la página no se declara en kaqchikel mientras casi todo siga en español');
-  ok(/Titz'apïx molojri'ïl/.test(await p.textContent('#salir')), 'los rótulos con fuente salen en kaqchikel («Cerrar sesión»)');
-  ok(await menu('mapa') === 'Mapa', 'lo que no tiene fuente sigue en español');
+  ok(/Titz'apïx molojri'ïl/i.test(await p.textContent('#salir')), 'los rótulos salen en kaqchikel («Cerrar sesión»)');
+  ok(await menu('mapa') === 'Ruwäch setul' && await menu('usuarios') === "Okisanela'", 'el menú con respaldo en las fuentes está en kaqchikel');
+  ok(await menu('vial') === 'Red vial', 'lo que no tiene respaldo en las fuentes sigue en español');
+  ok(await p.evaluate(() => document.querySelector('header').scrollWidth <= innerWidth + 1), 'el encabezado cabe con los rótulos en kaqchikel');
   const cak = await datos();
   ok(JSON.stringify(cak.deptos) === JSON.stringify(es.deptos) && cak.citas === es.citas && JSON.stringify(cak.cifras) === JSON.stringify(es.cifras), 'los datos tampoco cambian en kaqchikel');
   if (dir) await p.screenshot({ path: `${dir}/idiomas-kaqchikel.png` });
+  await p.setViewportSize({ width: 360, height: 760 }); await p.waitForTimeout(400);
+  ok(await p.evaluate(() => document.querySelector('header').scrollWidth <= innerWidth + 1 && document.documentElement.scrollWidth <= innerWidth + 1), 'en kaqchikel el encabezado también cabe en 360 px');
+  await p.setViewportSize({ width: 1366, height: 850 });
 
   console.log('De vuelta al español, y por enlace');
   await cambiar('es');
