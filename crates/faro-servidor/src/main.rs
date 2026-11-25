@@ -525,15 +525,43 @@ mod pruebas_de_reglas {
         }
     }
 
+    /// Palabras de un texto en kaqchikel, sin marcas, entidades, números ni datos; el saltillo cuenta
+    /// como letra dentro de la palabra.
+    fn palabras_de(texto: &str) -> Vec<String> {
+        let c: Vec<char> = texto.replace(['’', '‘', '`'], "'").chars().collect();
+        let (mut salida, mut actual, mut i) = (Vec::new(), String::new(), 0);
+        let mut cerrar = |w: &mut String, salida: &mut Vec<String>| {
+            let limpia = w.trim_matches('\'').to_lowercase();
+            if !limpia.is_empty() { salida.push(limpia); }
+            w.clear();
+        };
+        while i < c.len() {
+            let hasta = |fin: char, vale: &dyn Fn(char) -> bool| c[i + 1..].iter().position(|x| *x == fin).filter(|p| c[i + 1..i + 1 + p].iter().all(|x| vale(*x))).map(|p| i + 1 + p);
+            let salto = match c[i] {
+                '<' => hasta('>', &|x| x.is_ascii_digit() || x == '/'),
+                '&' => hasta(';', &|x| x.is_ascii_lowercase()),
+                '{' => hasta('}', &|x| x.is_ascii_digit()),
+                _ => None,
+            };
+            if let Some(f) = salto { cerrar(&mut actual, &mut salida); i = f + 1; continue; }
+            if c[i].is_alphabetic() || c[i] == '\'' { actual.push(c[i]); } else { cerrar(&mut actual, &mut salida); }
+            i += 1;
+        }
+        cerrar(&mut actual, &mut salida);
+        salida
+    }
+
     /// Cada traducción conserva las piezas de su clave: si no, el portal la descartaría en silencio.
-    /// En kaqchikel, además, no entra ningún término que no esté en el glosario con fuente.
+    /// En kaqchikel, además, cada rótulo debe constar en la hoja de revisión y cada una de sus palabras
+    /// en la lista de palabras con fuente: no entra nada sin procedencia.
     #[test]
     fn los_diccionarios_conservan_marcas_numeros_y_datos() {
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../datos/estandar/idiomas");
         let leer = |n: &str| -> Value { serde_json::from_str(&std::fs::read_to_string(dir.join(n)).unwrap()).unwrap_or_else(|e| panic!("{n}: {e}")) };
         let plantilla: std::collections::HashSet<String> = leer("plantilla.json")["textos"].as_array().unwrap().iter().map(|x| x.as_str().unwrap().to_string()).collect();
         assert!(plantilla.len() > 1500, "la plantilla debe traer los textos de la pantalla");
-        let glosario: std::collections::HashSet<String> = csv::Reader::from_path(dir.join("cak_glosario.csv")).unwrap().records().flatten().map(|r| r[1].to_string()).collect();
+        let columna = |archivo: &str, n: usize| -> std::collections::HashSet<String> { csv::Reader::from_path(dir.join(archivo)).unwrap().records().flatten().map(|r| r[n].to_string()).collect() };
+        let (con_fuente, en_revision) = (columna("cak_palabras.csv", 0), columna("cak_revision.csv", 1));
         for (codigo, minimo) in [("en", 0.99), ("cak", 0.0)] {
             let dic = leer(&format!("{codigo}.json"));
             let hechos = textos_traducidos(&dic);
@@ -542,7 +570,10 @@ mod pruebas_de_reglas {
                 assert_eq!(piezas_de(clave), piezas_de(valor), "{codigo}: «{clave}» → «{valor}»");
                 assert!(plantilla.contains(clave), "{codigo}: «{clave}» ya no es un texto de la pantalla (correr scripts/idiomas/comprobar.js --podar)");
                 if codigo == "cak" {
-                    assert!(glosario.contains(valor) || glosario.contains(valor.trim_end_matches('…')), "kaqchikel sin fuente en el glosario: «{clave}» → «{valor}»");
+                    assert!(en_revision.contains(valor), "kaqchikel fuera de la hoja de revisión (cak_revision.csv): «{clave}» → «{valor}»");
+                    for palabra in palabras_de(valor) {
+                        assert!(con_fuente.contains(&palabra), "kaqchikel: la palabra «{palabra}» de «{valor}» no está en cak_palabras.csv (sin fuente)");
+                    }
                 }
             }
             let cubre = hechos.len() as f64 / plantilla.len() as f64;

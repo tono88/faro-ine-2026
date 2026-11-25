@@ -8,8 +8,9 @@
 //   node scripts/idiomas/comprobar.js --podar      además quita las claves que ya no están en la pantalla
 //
 // Una traducción es válida si conserva las mismas marcas (<1>…</1>, <1/>), la misma cantidad de
-// números (#) y los mismos datos ({0}) que su clave. En kaqchikel, además, cada término debe estar
-// en el glosario con fuente (cak_glosario.csv): ahí no se admite nada sin procedencia.
+// números (#) y los mismos datos ({0}) que su clave. En kaqchikel, además, cada rótulo debe constar
+// en la hoja de revisión (cak_revision.csv) y cada una de sus palabras en la lista de palabras con
+// fuente (cak_palabras.csv): ahí no se admite nada sin procedencia.
 const fs = require('fs'), path = require('path');
 const DIR = path.join(__dirname, '..', '..', 'datos', 'estandar', 'idiomas');
 const completar = process.argv.includes('--completar'), podar = process.argv.includes('--podar');
@@ -19,7 +20,10 @@ const marcas = t => (t.match(/<\/?\d+\/?>/g) || []).sort().join(), datos = t => 
 const numeros = t => (t.match(/#/g) || []).length;
 // Anidado correcto de las marcas de la traducción.
 function bienAnidada(t) { const pila = []; for (const m of t.matchAll(/<(\/?)(\d+)(\/?)>/g)) { if (m[3]) continue; if (!m[1]) pila.push(m[2]); else if (pila.pop() !== m[2]) return false; } return pila.length === 0; }
-const glosario = fs.existsSync(path.join(DIR, 'cak_glosario.csv')) ? new Set(fs.readFileSync(path.join(DIR, 'cak_glosario.csv'), 'utf8').split('\n').slice(1).map(l => (l.match(/^(?:"[^"]*"|[^,]*),("(?:[^"]|"")*"|[^,]*)/) || [])[1]).filter(Boolean).map(c => c.replace(/^"|"$/g, '').replace(/""/g, '"'))) : null;
+// Lee una columna de un CSV sencillo (campos entre comillas dobles cuando llevan coma).
+const columna = (archivo, n) => { const r = path.join(DIR, archivo); if (!fs.existsSync(r)) return null; return new Set(fs.readFileSync(r, 'utf8').split('\n').slice(1).filter(Boolean).map(l => { const c = l.match(/("(?:[^"]|"")*"|[^,]*)(,|$)/g) || []; return (c[n] || '').replace(/,$/, '').replace(/^"|"$/g, '').replace(/""/g, '"'); })); };
+const conFuente = columna('cak_palabras.csv', 0), enRevision = columna('cak_revision.csv', 1);
+const palabrasDe = t => (t.replace(/[’‘`]/g, "'").replace(/<\/?\d+\/?>|&[a-z]+;|\{\d\}/g, ' ').match(/[\p{L}']+/gu) || []).map(w => w.replace(/^'+|'+$/g, '').toLowerCase()).filter(Boolean);
 let fallas = 0;
 for (const archivo of fs.readdirSync(DIR).filter(a => /^[a-z]{2,3}\.json$/.test(a)).sort()) {
   const ruta = path.join(DIR, archivo), dic = JSON.parse(fs.readFileSync(ruta, 'utf8')), textos = dic.textos || {};
@@ -30,12 +34,12 @@ for (const archivo of fs.readdirSync(DIR).filter(a => /^[a-z]{2,3}\.json$/.test(
     if (typeof v !== 'string' || !v.trim()) continue;
     if (marcas(k) !== marcas(v) || datos(k) !== datos(v) || numeros(k) !== numeros(v) || !bienAnidada(v) || /<(?!\/?\d+\/?>)/.test(v)) { malas.push(k); continue; }
     if (enPlantilla.has(k)) hechas++;
-    if (archivo === 'cak.json' && glosario && !glosario.has(v.replace(/…$/, '')) && !glosario.has(v)) sinFuente.push(`${k} → ${v}`);
+    if (archivo === 'cak.json' && conFuente && enRevision) { if (!enRevision.has(v)) sinFuente.push(`${k} → ${v} (falta en cak_revision.csv)`); for (const w of palabrasDe(v)) if (!conFuente.has(w)) sinFuente.push(`${k} → ${v} (palabra sin fuente: ${w})`); }
   }
   const faltan = plantilla.filter(k => !(typeof textos[k] === 'string' && textos[k].trim()));
   console.log(`${archivo}: ${dic.nombre} (${dic.estado}) · ${hechas} de ${plantilla.length} textos de la pantalla (${(hechas * 100 / plantilla.length).toFixed(1)} %) · faltan ${faltan.length} · sobran ${sobrantes.length} · inválidas ${malas.length}${sinFuente.length ? ' · sin fuente ' + sinFuente.length : ''}`);
   for (const k of malas.slice(0, 20)) console.log('   inválida: ' + k.slice(0, 110));
-  for (const k of sinFuente.slice(0, 20)) console.log('   sin fuente en el glosario: ' + k);
+  for (const k of sinFuente.slice(0, 20)) console.log('   sin fuente: ' + k);
   fallas += malas.length + sinFuente.length;
   if (completar || podar) {
     const nuevo = {};
