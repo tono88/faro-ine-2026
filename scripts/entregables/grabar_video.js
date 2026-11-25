@@ -36,15 +36,19 @@ const GUION = [
   { id: 'tableros', dur: 14, voz: 'Y para quien necesita comunicar: un tablero se pide con palabras y se publica con un enlace.' },
   { id: 'convergencia', dur: 10, voz: 'No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.' },
   { id: 'autonomia', dur: 23, voz: 'Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado.' },
-  { id: 'escala', dur: 14, voz: `Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, ${pruebas} pruebas automáticas, y se instala con un comando.` },
-  { id: 'cierre', dur: 8, voz: 'Y se lee en más de un idioma. FARO: que cada dato llegue a puerto.' },
+  { id: 'escala', dur: 13, voz: `Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, ${pruebas} pruebas automáticas, y se instala con un comando.` },
+  { id: 'cierre', dur: 6.5, voz: 'Y en más de un idioma. FARO: que cada dato llegue a puerto.' },
 ];
 const G = id => GUION.find(g => g.id === id);
 
 // ---------- Lo que se inyecta en la página: cursor, rótulos, bandas y tarjetas ----------
 const ICONO = `<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0051b3"/><path d="M26 21 5 12v17z" fill="#f5a623" opacity=".9"/><path d="M38 21 59 12v17z" fill="#f5a623" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffd27a"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#4d9ae1"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#4d9ae1"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg>`;
 const HAZ = `<svg class="vz-haz" viewBox="0 0 1000 562" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="vzh" x1="1" x2="0"><stop offset="0" stop-color="#f5a623" stop-opacity=".5"/><stop offset="1" stop-color="#f5a623" stop-opacity="0"/></linearGradient></defs><path d="M790 250 L0 30 L0 270 Z" fill="url(#vzh)"/><path d="M790 250 L0 320 L0 450 Z" fill="url(#vzh)" opacity=".45"/><g fill="none" stroke="#4d9ae1" stroke-width="2" opacity=".3"><path d="M0 505 q60 -20 120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0"/><path d="M-40 532 q60 -20 120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0 t120 0" opacity=".7"/></g></svg>`;
+// La última lista del resultado de un envío trae el valor de algunas filas («Fila N · variable · "valor"»).
+// En cámara esa lista no se dibuja en ningún momento (ni mientras aparece la banda que además la cubre):
+// en el video solo van conteos.
 const CSS = `
+#resultado ul:last-of-type { visibility: hidden !important; }
 .vz, .vz * { box-sizing: border-box; font-family: "Noto Sans", "Segoe UI", system-ui, sans-serif; }
 .vz { position: fixed; z-index: 2147483000; pointer-events: none; }
 #vz-cursor { position: fixed; z-index: 2147483647; left: 0; top: 0; right: auto; bottom: auto; inset: 0 auto auto 0; margin: 0; border: 0; padding: 0; background: transparent; overflow: visible; width: 26px; height: 26px; pointer-events: none; transform: translate(640px, 360px); filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); }
