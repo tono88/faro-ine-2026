@@ -16,7 +16,7 @@
       "origen": "Gerencia del INE, lanzamiento del 23-nov-2026",
       "ahora": "El INE escribe una vez qué pide (columnas, catálogos, qué es dato personal) y cada envío se valida contra esa solicitud al recibirlo.",
       "cifra": "51,719",
-      "cifra_de": "filas reales de 4 instituciones validadas en menos de 3 segundos",
+      "cifra_de": "filas reales de 3 instituciones (4 archivos) validadas en menos de 3 segundos",
       "ver": "recibir",
       "escala": "Una institución nueva es un archivo de solicitud más, sin programar. La plantilla para llenar se descarga del portal."
     },
