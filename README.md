@@ -7,18 +7,14 @@ Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejand
 
 ## Entregables
 
-Están numerados en la carpeta [`00-ENTREGABLES/`](00-ENTREGABLES/) (copia de [`entregables/`](entregables/)):
+Son los tres que pide la nota conceptual del Datatón INE 2026 («Entregables y presentación»,
+categoría 2). Están numerados en la carpeta [`00-ENTREGABLES/`](00-ENTREGABLES/):
 
-| N.º | Entregable | Archivo |
+| N.º | Entregable que pide la nota | Dónde está |
 |---|---|---|
-| 1 | **Repositorio con el código fuente y la documentación** | Este repositorio: <https://github.com/tono88/faro-ine-2026> · documentación en este README y en [`docs/`](docs/) |
-| 2 | **Presentación en PDF** para la exposición ante el jurado | [`2-Presentacion-FARO.pdf`](00-ENTREGABLES/2-Presentacion-FARO.pdf) · [editable en PowerPoint](00-ENTREGABLES/2-Presentacion-FARO-editable.pptx) |
-| 3 | **Video demostrativo** de 2 a 3 minutos | [`3-Video-demostrativo-FARO.mp4`](00-ENTREGABLES/3-Video-demostrativo-FARO.mp4) · [subtítulos](00-ENTREGABLES/3-Video-demostrativo-FARO-subtitulos.srt) |
-| 4 | Manual de usuario gráfico | [`4-Manual-de-usuario-FARO.pdf`](00-ENTREGABLES/4-Manual-de-usuario-FARO.pdf) |
-| 5 | Documento técnico | [`5-Documento-tecnico-FARO.pdf`](00-ENTREGABLES/5-Documento-tecnico-FARO.pdf) |
-| 6 | Preguntas probables y respuestas | [`6-Preguntas-y-respuestas-FARO.pdf`](00-ENTREGABLES/6-Preguntas-y-respuestas-FARO.pdf) |
-
-Los tres primeros son los que pide la nota conceptual; los demás los acompañan.
+| 1 | **Enlace al repositorio con el código fuente y la documentación** | Este repositorio: <https://github.com/tono88/faro-ine-2026> · documentación en este README y en [`docs/`](docs/) |
+| 2 | **Presentación en formato PDF** para la exposición ante el jurado | [`00-ENTREGABLES/2-Presentacion-FARO.pdf`](00-ENTREGABLES/2-Presentacion-FARO.pdf) |
+| 3 | **Video demostrativo de 2 a 3 minutos**, como respaldo de la demostración en vivo | [`00-ENTREGABLES/3-Video-demostrativo-FARO.mp4`](00-ENTREGABLES/3-Video-demostrativo-FARO.mp4) (2:55) |
 
 > **Para quien evalúa: use la «Guía para evaluadores».** Es lo primero del menú del portal, en rojo. Dice,
 > criterio por criterio (funcionalidad, aplicabilidad institucional, calidad técnica, innovación, rigor
@@ -628,7 +624,7 @@ LICENCIA.md             autoría del equipo y licencia al INE
 | Repositorio con el código y la documentación | <https://github.com/tono88/faro-ine-2026> (historial desde el 23-nov-2026) |
 | Presentación en PDF para la exposición | [`entregables/FARO-presentacion.pdf`](entregables/FARO-presentacion.pdf) (y la misma, editable, en [PowerPoint](entregables/FARO-presentacion.pptx)); guion hablado en [`docs/17`](docs/17-presentacion-7-minutos.md) |
 | Video demostrativo de 2 a 3 minutos | Clip de 2:55 grabado del portal, sin voz, en [`entregables/FARO-video-demo.mp4`](entregables/FARO-video-demo.mp4), con sus [subtítulos](entregables/FARO-video-demo.srt); guion de la narradora y plan de montaje en [`docs/16`](docs/16-guion-video.md) |
-| Además | [Manual de usuario gráfico](entregables/FARO-manual-de-usuario.pdf) · [documento técnico](entregables/FARO-documento-tecnico.pdf) · [matriz de conformidad](docs/26-conformidad-nota-conceptual.md) · [preguntas probables y respuestas](entregables/FARO-preguntas-y-respuestas.pdf) |
+| *Material de apoyo (no es entregable)* | [Manual de usuario gráfico](entregables/FARO-manual-de-usuario.pdf) · [documento técnico](entregables/FARO-documento-tecnico.pdf) · [matriz de conformidad](docs/26-conformidad-nota-conceptual.md) · [preguntas probables y respuestas](entregables/FARO-preguntas-y-respuestas.pdf) |
 
 ## Limitaciones y posibles mejoras
 

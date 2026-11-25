@@ -25,7 +25,9 @@ Cada versión es un release de GitHub sobre el historial de commits.
   tableros). Ninguna de las tres declara licencia abierta: se publican sumas con su cita.
 - **Encabezado:** «FARO for» y el logotipo del INE, en pequeño. El pie del menú sigue diciendo
   «Proyecto participante del Datatón INE 2026».
-- **Entregables numerados** en `00-ENTREGABLES/` (copia de `entregables/`,
+- **Entregables numerados** en `00-ENTREGABLES/`: solo los tres que pide la nota conceptual
+  (repositorio, presentación en PDF y video), confirmados contra el documento del INE; el manual,
+  el documento técnico y las preguntas son material de apoyo (copia de `entregables/`,
   `scripts/entregables/copiar_entregables.js`) y listados al inicio del README, con el enlace al
   portal en línea del equipo y el llamado a usar la guía para evaluadores.
 - 121 textos nuevos de la pantalla, traducidos al inglés. El kaqchikel sigue en 680 rótulos, que
