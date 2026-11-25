@@ -368,7 +368,7 @@ Los PDF de la resolución que envió el equipo como modelo traen datos personale
 pib_departamento,gestion_municipal}.csv`; se leen en `armar_capas` (`tabla()`); 37 indicadores. SAT y Banguat
 dicen «derechos reservados»: se publican sumas, nunca el original. Bloqueados: SENACYT, UNIS; Mintrab solo PDF.
 Encabezado: `.marca .para` («for» + `/vendor/ine-horizontal.svg`), pedido expreso del equipo.
-`00-ENTREGABLES/` = SOLO los tres entregables de la nota conceptual (repositorio, presentación PDF, video; decisión del equipo: los demás son material de apoyo y no van ahí ni en la lista inicial del README); copia numerada de `entregables/` (`scripts/entregables/copiar_entregables.js`; **correrlo
+`00-ENTREGABLES/` = los tres entregables de la nota conceptual (repositorio, presentación PDF, video) MÁS el documento técnico como apoyo (decisión del equipo: lo demás es material de apoyo y no van ahí ni en la lista inicial del README); copia numerada de `entregables/` (`scripts/entregables/copiar_entregables.js`; **correrlo
 después de regenerar cualquier entregable**). Portal en línea del equipo: https://faro.test-tecnodyne.site/.
 Idiomas: al extraer, la plantilla cambia según la base usada; se conserva lo anterior y se suma lo nuevo.
 Prueba: `.faro/pruebas/comparar_y_certificar.js`.

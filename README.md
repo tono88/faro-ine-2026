@@ -16,6 +16,9 @@ categoría 2). Están numerados en la carpeta [`00-ENTREGABLES/`](00-ENTREGABLES
 | 2 | **Presentación en formato PDF** para la exposición ante el jurado | [`00-ENTREGABLES/2-Presentacion-FARO.pdf`](00-ENTREGABLES/2-Presentacion-FARO.pdf) |
 | 3 | **Video demostrativo de 2 a 3 minutos**, como respaldo de la demostración en vivo | [`00-ENTREGABLES/3-Video-demostrativo-FARO.mp4`](00-ENTREGABLES/3-Video-demostrativo-FARO.mp4) (2:55) |
 
+Además, aunque la nota no lo pide, la carpeta lleva el **documento técnico** como apoyo para quien
+evalúa: [`00-ENTREGABLES/4-Documento-tecnico-FARO.pdf`](00-ENTREGABLES/4-Documento-tecnico-FARO.pdf).
+
 > **Para quien evalúa: use la «Guía para evaluadores».** Es lo primero del menú del portal, en rojo. Dice,
 > criterio por criterio (funcionalidad, aplicabilidad institucional, calidad técnica, innovación, rigor
 > y usabilidad), **qué revisar y en qué sección está**, y debajo trae el comparativo «antes y ahora» con

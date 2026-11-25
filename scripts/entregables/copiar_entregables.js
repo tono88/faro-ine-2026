@@ -6,6 +6,7 @@ const raiz = path.resolve(__dirname, '../..'), de = path.join(raiz, 'entregables
 const LISTA = [
   ['FARO-presentacion.pdf', '2-Presentacion-FARO.pdf', 'Presentación en formato PDF para la exposición ante el jurado (16 diapositivas)', true],
   ['FARO-video-demo.mp4', '3-Video-demostrativo-FARO.mp4', 'Video demostrativo de 2 a 3 minutos, grabado del portal en marcha', true],
+  ['FARO-documento-tecnico.pdf', '4-Documento-tecnico-FARO.pdf', 'Documento técnico. **No lo pide la nota**: se agrega como apoyo para quien evalúa (ficha, conformidad, arquitectura, verificación, seguridad y fuentes)', false],
 ];
 fs.mkdirSync(a, { recursive: true });
 for (const f of fs.readdirSync(a)) if (f !== 'LEEME.md' && !LISTA.some(l => l[1] === f)) fs.unlinkSync(path.join(a, f));
@@ -18,7 +19,7 @@ fs.writeFileSync(path.join(a, 'LEEME.md'), `# Entregables de FARO · Datatón IN
 Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión ${version}.
 
 Esta carpeta reúne **los tres entregables que pide la nota conceptual** («Entregables y presentación»,
-categoría 2), numerados, y nada más. Los dos archivos son copia de los de [\`entregables/\`](../entregables/).
+categoría 2), numerados, y además el documento técnico, que no se pide pero ayuda a evaluar. Los archivos son copia de los de [\`entregables/\`](../entregables/).
 
 | N.º | Archivo | Qué es | Tamaño | Huella (SHA-256, inicio) |
 |---|---|---|---|---|
@@ -32,7 +33,7 @@ equipo); para instalarlo en su máquina, vea «Cómo desplegarlo» en el [\`READ
 El video no lleva narración grabada: sus subtítulos y el guion de la narradora están en
 [\`entregables/FARO-video-demo.srt\`](../entregables/FARO-video-demo.srt) y [\`docs/16-guion-video.md\`](../docs/16-guion-video.md).
 
-Material de apoyo, que no es entregable: manual de usuario, documento técnico, presentación editable y
+Otro material de apoyo, que no es entregable: manual de usuario, presentación editable y
 preguntas probables, en [\`entregables/\`](../entregables/) y [\`docs/\`](../docs/).
 `);
 console.log(LISTA.length, 'entregables copiados a 00-ENTREGABLES');
