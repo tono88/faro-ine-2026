@@ -270,6 +270,21 @@ Prueba de clon limpio: `scratchpad/clon_limpio.sh`. Tres auditorías con agentes
 repetirlas antes de una entrega; sus hallazgos están resumidos en `docs/26`, sección 7.
 No decidir por el equipo: firma de los commits (hoy los firma el asistente), licencia para terceros.
 
+Agregado después (v0.19.0; sin cambios en el portal). Video: `scripts/entregables/grabar_video.js <url> <clave>
+[config.json]` → `entregables/FARO-video-demo.mp4` + `.srt` + `-tiempos.json`. Lleva el guion (`GUION`: texto y
+duración por escena; ~2.35 palabras por segundo). Captura con CDP `Page.startScreencast` y Chromium lanzado con
+`--force-device-scale-factor=1.5 --window-size=1280,720` y `viewport: null` (así los cuadros salen a 1920×1080;
+con `deviceScaleFactor` del contexto salen a 1280×720, y el zoom por CSS rompe Leaflet). Lo que se desplaza es
+`<main>`, no la ventana. El cursor es un elemento `popover` que se vuelve a subir al abrir un diálogo modal.
+La escena del teléfono se graba aparte y se compone con ffmpeg. El resultado de un envío trae valores por fila:
+en cámara quedan bajo la banda opaca (no quitar ese cuidado). En esta nube: `scratchpad/video/toma.sh` (base
+`farovideo`, servidor release en 8097, `preparar_real.js`, `config_real.json` con los archivos reales de la
+sesión; nada de eso va al repositorio; borrar la base y `datos/privado/envios` al terminar).
+Presentación (16 diapositivas): frentes por dirección, autocontenido/riesgo, crece sin programar, petición de
+piloto, apéndice. Decir «el portal no depende de una IA externa para funcionar», NUNCA «no usamos IA» (se
+programó con un asistente, declarado). En defunciones de RENAP pasan 15 de 82 columnas (no 14).
+Falta: la narración de Ana Lucía (la graba el equipo) y el montaje final.
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)

@@ -28,7 +28,7 @@ y cómo repetirlo.
    oficial tras entender los códigos de RENAP.
    Detalle (solo conteos): [`06-hallazgos-datos-reales.md`](06-hallazgos-datos-reales.md).
 
-4. **De 82 columnas con datos personales salen 14**: el nombre se elimina, el CUI se sustituye por
+4. **De 82 columnas con datos personales pasan 15** (se piden 16): el nombre se elimina, el CUI se sustituye por
    una llave no reversible que permite parear sin identificar, y las direcciones nunca pasan.
 
 ## Red vial (necesidad planteada por la Gerencia)

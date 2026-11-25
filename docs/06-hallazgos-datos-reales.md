@@ -48,7 +48,7 @@ vigente está más abajo, en «Archivos vueltos a pasar».
   de color de piel). FARO las lista para que la OCSE decida, no las reasigna.
 
 **Datos personales.** El archivo de defunciones trae CUI, nombres y direcciones de la persona
-fallecida, su madre y su padre. Con la solicitud de FARO, de 82 columnas salen 14: el nombre se
+fallecida, su madre y su padre. Con la solicitud de FARO, de 82 columnas pasan 15 (se piden 16): el nombre se
 elimina, el CUI se sustituye por una llave no reversible (permite parear sin identificar) y las
 direcciones nunca pasan porque no se piden.
 

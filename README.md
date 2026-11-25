@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.18.0.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.19.0.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -79,7 +79,7 @@ Todas salen de datos reales procesados durante el evento y se pueden comprobar e
 | | |
 |---|---|
 | **51,719** filas de RENAP, PNC y SE-CONRED validadas en menos de 3 segundos | **100 %** de los lugares de RENAP y PNC con código oficial; 99.9 % en SE-CONRED |
-| **82 → 14** columnas: lo que entra y lo que sale del archivo de defunciones, sin datos personales | **20,036** lugares poblados del Censo 2018, verificados código por código |
+| **82 → 15** columnas: lo que entra y lo que pasa del archivo de defunciones, sin nombres ni documentos | **20,036** lugares poblados del Censo 2018, verificados código por código |
 | **93,297 ha** construidas en 2020 (eran 30,722 en 1975), para los 340 municipios | **707** lugares poblados sin conexión vial y **83** enlaces que probablemente faltan |
 | **85,907** precios publicados por 18 tiendas, leídos por el propio portal | **16,291** productos comparables entre supermercados por su código de barras |
 | **29** indicadores por municipio en el mapa y los tableros | **94** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
@@ -490,7 +490,7 @@ LICENCIA.md             autoría del equipo y licencia al INE
 |---|---|
 | Repositorio con el código y la documentación | <https://github.com/tono88/faro-ine-2026> (historial desde el 23-nov-2026) |
 | Presentación en PDF para la exposición | [`entregables/FARO-presentacion.pdf`](entregables/FARO-presentacion.pdf) (y la misma, editable, en [PowerPoint](entregables/FARO-presentacion.pptx)); guion hablado en [`docs/17`](docs/17-presentacion-7-minutos.md) |
-| Video demostrativo de 2 a 3 minutos | Guion y plan de grabación en [`docs/16`](docs/16-guion-video.md); el video se entrega por el medio que indique el INE |
+| Video demostrativo de 2 a 3 minutos | Clip de 2:55 grabado del portal, sin voz, en [`entregables/FARO-video-demo.mp4`](entregables/FARO-video-demo.mp4), con sus [subtítulos](entregables/FARO-video-demo.srt); guion de la narradora y plan de montaje en [`docs/16`](docs/16-guion-video.md) |
 | Además | [Manual de usuario gráfico](entregables/FARO-manual-de-usuario.pdf) · [documento técnico](entregables/FARO-documento-tecnico.pdf) · [matriz de conformidad](docs/26-conformidad-nota-conceptual.md) |
 
 ## Limitaciones y posibles mejoras
@@ -557,7 +557,7 @@ Cada uno conserva su licencia original.
 - **Base de datos**: PostgreSQL 16 (licencia PostgreSQL). Imágenes de Docker oficiales `rust`,
   `debian` y `postgres`.
 - **Solo para pruebas y para generar los entregables** (no forman parte del portal): Playwright y
-  Chromium; `pptxgenjs` (MIT) para la presentación en PowerPoint;
+  Chromium; `pptxgenjs` (MIT) para la presentación en PowerPoint; `ffmpeg` para armar el video;
   `pdftotext` para leer un informe de SESAN; PyTorch para exportar el modelo una vez.
 - **Modelo de fotos**: Places365-ResNet18, de MIT CSAIL, usado sin cambios (pesos CC BY; código MIT).
   Cita: Zhou, Lapedriza, Khosla, Oliva y Torralba (2017), *Places: A 10 million Image Database for

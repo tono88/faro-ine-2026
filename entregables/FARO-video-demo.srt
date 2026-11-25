@@ -1,0 +1,135 @@
+1
+00:00:00,600 --> 00:00:05,231
+El INE ya tiene los datos que necesita. Pero cada institución
+
+2
+00:00:05,281 --> 00:00:09,912
+los envía a su manera, y no llegan en una forma
+
+3
+00:00:09,962 --> 00:00:13,316
+que se pueda usar. Para eso construimos FARO.
+
+4
+00:00:14,602 --> 00:00:19,233
+Este es un archivo real de RENAP: diez mil defunciones, con
+
+5
+00:00:19,283 --> 00:00:23,914
+nombres y documentos de identidad. La institución entra con su cuenta
+
+6
+00:00:23,964 --> 00:00:28,595
+y lo sube tal como sale de su sistema. En segundos,
+
+7
+00:00:28,645 --> 00:00:33,275
+FARO reconoce las columnas, pone el código oficial a cada lugar
+
+8
+00:00:33,325 --> 00:00:37,956
+y deja fuera los datos personales. El archivo original no se
+
+9
+00:00:38,006 --> 00:00:38,382
+guarda.
+
+10
+00:00:40,605 --> 00:00:45,236
+Y cuando hay duda, FARO no adivina: propone, una persona decide
+
+11
+00:00:45,286 --> 00:00:49,917
+una sola vez, y esa decisión queda aprendida para todas las
+
+12
+00:00:49,967 --> 00:00:50,342
+instituciones.
+
+13
+00:00:52,606 --> 00:00:57,237
+Lo mismo, en cada frente del INE. Para Censos y Encuestas
+
+14
+00:00:57,287 --> 00:01:01,918
+y las delegaciones: el país hasta el lugar poblado, con población,
+
+15
+00:01:01,968 --> 00:01:06,599
+censo y crecimiento urbano visto desde el satélite. Y la red
+
+16
+00:01:06,649 --> 00:01:10,854
+vial como un grafo: setecientos siete lugares sin conexión mapeada.
+
+17
+00:01:14,139 --> 00:01:18,770
+Para el trabajo de campo: cada operador ve su ruta en
+
+18
+00:01:18,820 --> 00:01:23,451
+el teléfono, y cada visita se comprueba con ubicación y foto.
+
+19
+00:01:30,626 --> 00:01:35,257
+Para Precios e Índices: más de ochenta y cinco mil precios
+
+20
+00:01:35,307 --> 00:01:39,938
+leídos de dieciocho tiendas, comparados por código de barras, con su
+
+21
+00:01:39,988 --> 00:01:42,065
+informe de precio de referencia.
+
+22
+00:01:49,099 --> 00:01:53,730
+Y para quien necesita comunicar: un tablero se pide con palabras
+
+23
+00:01:53,780 --> 00:01:56,283
+y se publica con un enlace.
+
+24
+00:02:03,528 --> 00:02:08,159
+No son cinco herramientas: es una sola. Atacar el problema desde
+
+25
+00:02:08,209 --> 00:02:11,989
+varios frentes los hace converger en una solución integral.
+
+26
+00:02:13,531 --> 00:02:17,985
+Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre,
+
+27
+00:02:18,035 --> 00:02:22,488
+en un servidor del INE: sin licencias, sin servicios de pago
+
+28
+00:02:22,538 --> 00:02:26,992
+y sin depender de una inteligencia artificial externa que mañana puede
+
+29
+00:02:27,042 --> 00:02:31,496
+cambiar de precio o desaparecer. Los datos se quedan en la
+
+30
+00:02:31,546 --> 00:02:35,590
+institución, y el mismo dato da siempre el mismo resultado.
+
+31
+00:02:36,540 --> 00:02:41,171
+Crece sin programar: sumar una institución es escribir un archivo. Y
+
+32
+00:02:41,221 --> 00:02:45,852
+está comprobado: más de cincuenta mil registros reales, 94 pruebas automáticas,
+
+33
+00:02:45,902 --> 00:02:48,405
+y se instala con un comando.
+
+34
+00:02:50,544 --> 00:02:53,473
+FARO: que cada dato llegue a puerto.

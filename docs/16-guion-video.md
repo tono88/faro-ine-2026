@@ -1,83 +1,139 @@
-# Guion y plan de grabación del video (2 a 3 minutos)
+# Video demostrativo: clip, guion de la narradora y plan de montaje
 
 *FARO · Que cada dato llegue a puerto.* Equipo La Sociedad de Almas.
 
 La nota conceptual pide un **video demostrativo de 2 a 3 minutos, como respaldo en caso de fallas
-técnicas durante la demostración en vivo**. Por eso el video sigue el mismo orden que la
-demostración de la presentación ([`17`](17-presentacion-7-minutos.md)): si el portal falla frente
-al jurado, se proyecta el video y se narra encima.
+técnicas durante la demostración en vivo**. No es la presentación: es el portal funcionando.
 
-**Idea central:** FARO convierte archivos dispares en datos oficiales, sin adivinar, y lo demuestra.
-**Duración objetivo:** 2:50 (límite: 3:00). **Formato:** captura de pantalla a 1920×1080, con voz
-y con subtítulos (para que se entienda también sin sonido).
+## 1. Qué hay y qué falta
 
-## 1. Preparación (una vez, antes de grabar)
-
-Todo lo que aparece en el video es de demostración: **ningún archivo real de una institución**.
-
-| Paso | Cómo |
-|---|---|
-| 1. Instalación nueva | `docker compose down -v` (borra la base de esa máquina) y `docker compose up -d --build` |
-| 2. Datos y cuentas de demostración | `node scripts/entregables/preparar_demo.js http://localhost:8082 <contraseña>` crea una cuenta de cada rol, sube los archivos de ejemplo ficticios, deja dos nombres por decidir en «Revisar pendientes», publica un tablero y carga la ruta de demostración |
-| 3. Navegador | Ventana de 1920×1080, zoom al 100 %, sin marcadores ni otras pestañas; modo claro |
-| 4. Internet | Encendido: la animación usa la foto satelital (si no hay, corre sin foto) |
-| 5. Archivo para subir | Descargarlo del propio portal: «Recibir envío» → «Descargar archivo de ejemplo (ficticio)» |
-| 6. Teléfono | Para la escena de campo basta la ventana del navegador en tamaño de teléfono (390×780). Con un teléfono real hace falta HTTPS |
-
-Cuentas que deja el guion de preparación (todas con la contraseña que se le indique):
-`admin` (administrador), `mlopez` (analista), `jperez` (consulta), `campo01` (operador),
-`enlace.pnc`, `enlace.renap` y `enlace.conred` (instituciones).
-
-## 2. Guion, escena por escena
-
-| # | Tiempo | Cuenta | En pantalla (acciones exactas) | Voz | Subtítulo |
-|---|---|---|---|---|---|
-| 0 | 0:00–0:10 | — | Portada: logotipo y lema sobre azul. Corte al mapa de municipios | «Cada institución le envía al INE sus registros a su manera: otros nombres, otros códigos, otros formatos. FARO es la herramienta para pedirlos, recibirlos y entenderlos.» | FARO · Que cada dato llegue a puerto |
-| 1 | 0:10–0:38 | `enlace.pnc` | Iniciar sesión → llega a «Recibir envío» con el rótulo «Usted envía por PNC» → elegir el archivo → «Validar y homologar» → aparece el resultado | «Cada institución entra con su cuenta y sube solo lo suyo, tal como sale de su sistema. En segundos el archivo queda validado, con códigos oficiales y sin datos personales: los nombres y documentos no se guardan.» | Recibir: el archivo llega como es y sale estándar |
-| 2 | 0:38–1:00 | `mlopez` | «Revisar pendientes» → en «Mixco zona 1» elegir la propuesta → desaparece de la lista → «Equivalencias» muestra quién la confirmó | «Con una regla que no se rompe: el sistema no adivina. Lo dudoso se propone, lo decide una persona una sola vez, y queda aprendido para todas las instituciones, con nombre y fecha.» | El sistema no adivina: propone, y una persona decide |
-| 3 | 1:00–1:24 | (sin sesión) | «Mapa» → buscar «Panajachel» → ficha con censo y pirámide → «Población y crecimiento» → tocar Guatemala → animación sobre la foto satelital → «Red vial» → «Ver en el mapa» de un enlace | «Con eso, el país se consulta hasta el lugar poblado: proyecciones del INE y Censo 2018 de veinte mil lugares. El crecimiento urbano se ve desde el satélite, de 1975 a 2020, y la red vial se trata como un grafo: 707 lugares sin conexión y 83 enlaces que probablemente faltan.» | Territorio: del país al lugar poblado |
-| 4 | 1:24–1:44 | `admin` (ventana de teléfono) | «Mi ruta de campo» → «Ver recorrido de demostración» → paradas en orden → «Registrar visita» → pasos de posición, foto y resultado | «En campo, cada operador ve su ruta en el teléfono. Al llegar, el teléfono entrega la posición y la foto confirma que es una vivienda. Si algo no coincide, el supervisor lo ve. La foto no se guarda.» | Campo: cada visita, comprobada |
-| 5 | 1:44–2:08 | (sin sesión) | «Precios por rubro» → escribir «arroz» → «Buscar» → pestaña «Mismo producto en varias tiendas» → «Diferencias de 50 % o más» → «Hacer informe de precio de referencia» | «Para precios, FARO lee lo que publican dieciocho tiendas: más de ochenta y cinco mil precios, cada uno con su dirección y su fecha. El código de barras compara el mismo producto sin interpretar nombres, y de una búsqueda sale el informe de precio de referencia.» | Precios: 85,907, cada uno con su evidencia |
-| 6 | 2:08–2:28 | `mlopez` | «Tableros» → escribir «mapa y tabla de población en Sololá» → «Armar tablero» → cambiar el filtro → «Publicar» → abrir el enlace en una ventana sin sesión | «¿Hace falta un tablero? Se escribe con palabras, se filtra y se publica: cualquiera lo abre con un enlace. Sin licencias.» | Tableros: de una frase a un enlace público |
-| 7 | 2:28–2:50 | (sin sesión) | Botón «Recorrido guiado» → dos pasos → «Antes y ahora» → «Acerca y fuentes» → cierre con logotipo y lema | «Cada pantalla se explica sola, cada cifra tiene su fuente, y FARO se revisa a sí mismo. Software libre, sin servicios de pago, y se levanta con un comando. FARO: que cada dato llegue a puerto.» | Software libre · un comando · github.com/tono88/faro-ine-2026 |
-
-La voz suma unas 300 palabras: a ritmo normal caben en 2:40, con margen para las transiciones.
-
-## 3. Reglas para grabar
-
-- **Nunca** mostrar archivos reales de instituciones, ni la carpeta de descargas con sus nombres.
-- No mostrar contraseñas: escribirlas con el campo oculto, o entrar antes de empezar la toma.
-- Mover el puntero despacio y dejar un segundo quieto antes de cada clic.
-- Si una pantalla tarda, cortar en la edición: el video demuestra el flujo, no mide tiempos.
-- Las cifras que se dicen (707, 83, 85,907, 18 tiendas, 20 mil lugares) están en la sección «Antes y
-  ahora» y en [`09-logros.md`](09-logros.md): si cambian ahí, cambian en el guion.
-- Lo que se muestra de trabajo de campo es la **ruta de demostración**, rotulada como tal.
-- Créditos al final: fuentes de las imágenes satelitales (NASA GIBS; Sentinel-2 sin nubes de EOX,
-  CC BY 4.0), © colaboradores de OpenStreetMap, datos del INE.
-
-## 4. Dos formas de producirlo
-
-| Forma | Qué hace falta | Resultado |
+| Pieza | Dónde | Estado |
 |---|---|---|
-| **A. Grabación automática** | Un guion de Playwright que recorre las ocho escenas con el portal en marcha y graba la ventana; `ffmpeg` une las tomas y quema los subtítulos de la tabla | Video sin voz, con subtítulos, reproducible con un comando. La voz se graba aparte y se monta encima |
-| **B. Grabación manual** | Grabador de pantalla (OBS o el del sistema) y una persona siguiendo la tabla | Video con voz en una sola toma por escena |
+| Clip de fondo, sin voz | [`entregables/FARO-video-demo.mp4`](../entregables/FARO-video-demo.mp4) · 1920×1080, 30 cuadros por segundo, H.264, **2:55**, con pista de audio en silencio | Hecho |
+| Subtítulos con los tiempos reales | [`entregables/FARO-video-demo.srt`](../entregables/FARO-video-demo.srt) | Hecho |
+| Línea de tiempo por escena (con el texto de cada una) | [`entregables/FARO-video-demo-tiempos.json`](../entregables/FARO-video-demo-tiempos.json) | Hecho |
+| Narración de Ana Lucía | Sección 3 de este documento | **Por grabar y montar** (postproducción del equipo) |
 
-Lo recomendable es A para tener un video de respaldo exacto y repetible, y sumarle la voz del
-equipo. En la máquina donde se preparó esta entrega hay `ffmpeg` y Playwright; no hay sintetizador
-de voz, así que la narración la graba una persona.
+El clip se grabó con el portal en marcha y con los **archivos reales que compartió el INE**
+(RENAP, PNC y SE-CONRED), en una base temporal. **En pantalla solo aparecen conteos y nombres de
+lugares**: nunca se abre el contenido de un archivo, y la lista con valores por fila que trae el
+resultado queda tapada por la banda de cifras. La base temporal se borró al terminar.
 
-## 5. Videos cortos opcionales (30 a 40 segundos cada uno)
+## 2. La idea: un caso resuelto, cinco frentes, tres pilares
 
-Con las mismas escenas se pueden cortar piezas por tema, para redes o para responder una pregunta
-del jurado: **Recibir y homologar** (escenas 1 y 2), **Territorio** (3), **Trabajo de campo** (4),
-**Precios** (5), **Tableros** (6). Cada una abre y cierra con el logotipo y el lema.
+1. **Gancho (14 s).** El problema en una frase: los datos existen, pero no llegan en forma útil.
+2. **Un caso real de principio a fin (38 s).** RENAP sube 10,034 defunciones con su propia cuenta;
+   en segundos quedan homologadas y sin datos personales; lo dudoso lo decide una persona, una vez.
+3. **Barrido por los otros frentes (68 s).** Territorio, campo, precios y tableros, cada uno con
+   el nombre de la dirección del INE a la que sirve.
+4. **Los pilares (47 s).** Varios frentes convergen en una sola herramienta; es **autocontenida**
+   (sin licencias, sin servicios de pago, sin depender de una IA externa); crece sin programar y
+   está comprobada.
+5. **Cierre (5 s).** Logotipo y lema.
 
-## 6. Lista de comprobación antes de entregar el video
+Por qué así (resultado de la búsqueda de buenas prácticas del 25-nov; se consultaron los resúmenes
+de las fuentes, no su texto completo, así que conviene abrirlas antes de citarlas):
 
-- [ ] Dura entre 2:00 y 3:00.
+- Mostrar **un caso resuelto**, no un recorrido por todas las funciones, es el consejo que más se
+  repite para videos de producto y de hackatón (<https://www.twine.net/blog/demo-video-production/>).
+- Lo más importante va en los **primeros 20 segundos**, y la atención cae después de los dos
+  minutos (<https://wistia.com/blog/optimal-video-length>).
+- El guion se escribe **contando palabras**: unas 140 a 150 por minuto
+  (<https://sozai.app/es/speaking-rate-by-language/>). Aquí son 327 palabras en 2:55: hay aire para
+  que se vea la pantalla.
+- La independencia tecnológica se plantea como **reducción de riesgo para la institución**, sin
+  atacar a nadie (marco «Public Money, Public Code»: <https://publiccode.eu/>).
+
+## 3. Guion de la narradora (Ana Lucía)
+
+Voz natural, de explicar a un colega; sin prisa. Las cifras se dicen completas. Cada bloque empieza
+medio segundo después de su marca de tiempo y debe terminar antes de la siguiente.
+
+| Tiempo | Escena | En pantalla | Narración |
+|---|---|---|---|
+| 0:00–0:14 | Apertura | Tarjeta azul con el problema; luego el logotipo y el lema | «El INE ya tiene los datos que necesita. Pero cada institución los envía a su manera, y no llegan en una forma que se pueda usar. Para eso construimos FARO.» |
+| 0:14–0:40 | Un caso real | RENAP entra con su cuenta («Usted envía por RENAP»), elige la solicitud, sube el archivo y pulsa «Validar y homologar». Banda: 10,034 registros · 100 % · 82 → 15 columnas · 0 datos personales guardados | «Este es un archivo real de RENAP: diez mil defunciones, con nombres y documentos de identidad. La institución entra con su cuenta y lo sube tal como sale de su sistema. En segundos, FARO reconoce las columnas, pone el código oficial a cada lugar y deja fuera los datos personales. El archivo original no se guarda.» |
+| 0:40–0:52 | La decisión | Sale RENAP, entra la analista; «Revisar pendientes»; elige «1312 La Democracia» para «La De Mocracia» | «Y cuando hay duda, FARO no adivina: propone, una persona decide una sola vez, y esa decisión queda aprendida para todas las instituciones.» |
+| 0:52–1:14 | Frente 2 · Territorio y censo | Busca Panajachel y abre su ficha; animación del crecimiento de Guatemala sobre la foto satelital; red vial | «Lo mismo, en cada frente del INE. Para Censos y Encuestas y las delegaciones: el país hasta el lugar poblado, con población, censo y crecimiento urbano visto desde el satélite. Y la red vial como un grafo: setecientos siete lugares sin conexión mapeada.» |
+| 1:14–1:30 | Frente 3 · Trabajo de campo | Un teléfono: la ruta de demostración, «Registrar visita», posición, foto y resultado | «Para el trabajo de campo: cada operador ve su ruta en el teléfono, y cada visita se comprueba con ubicación y foto.» |
+| 1:30–1:48 | Frente 4 · Precios e índices | Busca «arroz»; mismo producto en varias tiendas; diferencias de 50 % o más | «Para Precios e Índices: más de ochenta y cinco mil precios leídos de dieciocho tiendas, comparados por código de barras, con su informe de precio de referencia.» |
+| 1:48–2:03 | Frente 5 · Tableros | Escribe una frase, arma el tablero, lo guarda y lo publica | «Y para quien necesita comunicar: un tablero se pide con palabras y se publica con un enlace.» |
+| 2:03–2:13 | Convergencia | Los cinco frentes, con sus direcciones, confluyen en el faro | «No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.» |
+| 2:13–2:36 | Autocontenido | Tres ceros (licencias, servicios de pago, llamadas a una IA externa); luego la tabla de riesgo | «Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado.» |
+| 2:36–2:50 | Crece sin programar | El archivo de solicitud de una institución; 51,719 registros, 94 pruebas, 1 comando | «Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, noventa y cuatro pruebas automáticas, y se instala con un comando.» |
+| 2:50–2:55 | Cierre | Logotipo, lema, equipo y repositorio | «FARO: que cada dato llegue a puerto.» |
+
+**Lo que se dice y lo que no.** «Sin depender de una inteligencia artificial externa» se refiere al
+portal en funcionamiento, y es exacto. No decir «no usamos inteligencia artificial»: el equipo usó
+un asistente de IA para programar y está declarado en el README; además, el clasificador de fotos
+es un modelo, aunque local. Tampoco nombrar ni aludir a otros equipos.
+
+## 4. Montaje (postproducción)
+
+- **Voz.** Grabarla siguiendo el clip o el `.srt`. Si un bloque queda largo, recortar palabras
+  antes que acelerar. Nivelar a volumen de voz hablada y dejar el final en silencio un segundo.
+- **Subtítulos.** El `.srt` ya está sincronizado con el clip; si la voz se aparta, ajustar sus
+  tiempos. Para dejarlos fijos en la imagen:
+
+  ```bash
+  ffmpeg -i FARO-video-demo.mp4 -i narracion.wav -vf "subtitles=FARO-video-demo.srt:force_style='FontName=Noto Sans,FontSize=11,BorderStyle=3,Outline=1,Shadow=0,MarginV=10'" -map 0:v -map 1:a -c:v libx264 -crf 20 -c:a aac -shortest FARO-video-final.mp4
+  ```
+
+- **Si Ana Lucía aparece en imagen.** El mejor lugar es la esquina **superior derecha** durante las
+  escenas del portal (los rótulos van abajo a la izquierda y la banda de cifras ocupa la franja
+  inferior de 0:27 a 0:40). En las tarjetas azules conviene quitarla o ponerla a la derecha, que
+  queda libre, salvo en la de convergencia y en la del teléfono.
+- **Música.** Opcional y baja; debe ser de uso libre y hay que anotar su licencia en el README.
+- **Formato de entrega.** MP4 (H.264 y AAC). El clip pesa 16 MB.
+
+## 5. Cómo se grabó y cómo repetirlo
+
+Todo sale de un guion; no hay edición a mano.
+
+```bash
+# 1. Una instalación nueva, preparada para demostrar (cuentas y archivos de ejemplo ficticios)
+node scripts/entregables/preparar_demo.js http://localhost:8082 <contraseña>
+# 2. El clip, los subtítulos y la línea de tiempo
+node scripts/entregables/grabar_video.js http://localhost:8082 <contraseña> [config.json]
+```
+
+- `grabar_video.js` abre el portal a 1280×720 con escala 1.5 (sale a 1920×1080), captura cada
+  cuadro que cambia y lo une con `ffmpeg`. Lleva el **guion** (`GUION`: texto y duración de cada
+  escena): al cambiar un texto se ajusta la duración de su escena y se vuelve a grabar.
+- Sin configuración usa las cuentas de `preparar_demo.js` y sube el archivo de ejemplo ficticio.
+  Con un `config.json` se cambia la cuenta de la institución, la solicitud, el archivo que se sube
+  en cámara, el pendiente que se decide y los textos del caso. Así se hizo el clip entregado, con
+  los archivos reales; esa configuración no está en el repositorio porque apunta a archivos que
+  tampoco lo están.
+- La escena del teléfono se graba aparte (412×860) y se compone sobre un fondo.
+- Requiere Node, Playwright con Chromium y `ffmpeg`. Internet solo para la foto satelital de la
+  animación; sin él, corre sin foto.
+
+## 6. Reglas que cumple el clip
+
+- Ningún dato personal en pantalla: solo conteos, nombres de lugares y valores de catálogo.
+- Las contraseñas se escriben en campos ocultos.
+- El trabajo de campo usa la **ruta de demostración** del propio portal, rotulada como tal.
+- La foto de la visita es una foto de prueba de Wikimedia Commons (chamo estudio, CC BY 2.0), con
+  su crédito en pantalla.
+- La foto satelital es de NASA GIBS (Landsat) y de EOX (Sentinel-2, 2016, CC BY 4.0); el mapa de la
+  ruta, de © colaboradores de OpenStreetMap. Sus créditos se ven en el propio portal.
+- Las cifras dichas coinciden con el portal y con [`22-antes-y-ahora.md`](22-antes-y-ahora.md).
+
+## 7. Piezas cortas (opcionales)
+
+Con los tiempos de la sección 3 se recortan clips por tema sin volver a grabar:
+
+```bash
+ffmpeg -ss 0:14 -to 0:52 -i FARO-video-demo.mp4 -c:v libx264 -crf 20 -an clip-registros.mp4
+ffmpeg -ss 2:13 -to 2:36 -i FARO-video-demo.mp4 -c:v libx264 -crf 20 -an clip-autocontenido.mp4
+```
+
+## 8. Antes de entregar
+
+- [ ] La voz cabe en cada bloque y el video sigue durando menos de 3:00.
 - [ ] Se entiende sin sonido (subtítulos) y sin subtítulos (voz).
-- [ ] No aparece ningún dato real de una institución ni ninguna contraseña.
+- [ ] No aparece ningún dato personal ni ninguna contraseña (revisado en el clip; revisar otra vez
+      si se agrega material).
 - [ ] Las cifras dichas coinciden con el portal.
-- [ ] Abre y cierra con el logotipo y el lema.
-- [ ] Está en un formato que el INE pueda abrir (MP4, H.264) y pesa menos de lo que admita el
-      medio de entrega.
+- [ ] MP4 con H.264 y AAC, entregado por el medio que indique el INE.

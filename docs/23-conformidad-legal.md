@@ -49,7 +49,7 @@ propósito que no sea de carácter estadístico». Lo que FARO hace para respeta
   se elimina y el CUI se cambia por una llave (SHA-256 con un secreto de la instalación, `FARO_SAL`).
   Sin el secreto no se puede volver al CUI; **con el secreto, alguien podría probar CUI uno por uno**:
   por eso el secreto se guarda como una contraseña y la llave nunca se publica. En el archivo de defunciones
-  de RENAP, de 82 columnas salen 14.
+  de RENAP, de 82 columnas pasan 15.
 - **La base guarda conteos, no personas.** La tabla `hechos` solo tiene cuántos casos hubo por
   municipio, periodo y categoría.
 - **Queda una salida fila por fila, ya disociada, fuera de la base.** Cada envío deja en el volumen

@@ -4,7 +4,7 @@ Equipo **La Sociedad de Almas** · lema: **«Que cada dato llegue a puerto.»** 
 Misión, visión y objetivos: [`25-identidad.md`](25-identidad.md).
 
 **La presentación en PDF que pide la nota conceptual está en
-[`entregables/FARO-presentacion.pdf`](../entregables/FARO-presentacion.pdf)** (13 diapositivas 16:9,
+[`entregables/FARO-presentacion.pdf`](../entregables/FARO-presentacion.pdf)** (14 diapositivas 16:9 y dos de apéndice,
 con capturas tomadas del portal). La misma presentación está en PowerPoint, **editable**, en
 [`entregables/FARO-presentacion.pptx`](../entregables/FARO-presentacion.pptx): textos, tablas y formas
 nativos, colores en el tema y las notas del orador de cada diapositiva. Las dos se regeneran con
@@ -17,46 +17,53 @@ guion hablado.
 **FARO hace que el INE reciba de cualquier institución datos que puede usar el mismo día, sin
 adivinar nada, y deja prueba de cada paso.**
 
-## Estructura
+## Cómo está armada (v0.19.0)
 
-| Minuto | Tema | Idea que debe quedar |
+La presentación es para la final (27-nov): 7 minutos y 3 de preguntas. **No es el video**: el video
+es un respaldo de la demostración ([`16`](16-guion-video.md)). Sigue el orden que mejor funciona
+ante un jurado: problema → a quién sirve → respuesta → demostración → por qué adoptarla → petición.
+
+**Qué se cambió respecto de la versión anterior, y por qué:**
+
+| Antes | Ahora | Por qué |
 |---|---|---|
-| 0:00–0:40 | Los problemas, con las palabras del INE | Son diez y tienen la misma raíz: datos que ya existen, pero no llegan en una forma que se pueda usar (la misma lista del README) |
-| 0:40–2:00 | Demostración 1: pedir, recibir, homologar | No adivina; lo que una persona decide queda aprendido para siempre |
-| 2:00–2:50 | Demostración 2: territorio | Del país al lugar poblado; la mancha urbana sobre la foto satelital; red vial como grafo |
-| 2:50–3:40 | Demostración 3: trabajo de campo, en un teléfono | El operador ve su ruta, el teléfono da la posición, la foto se comprueba y se abre Microsoft Forms ya lleno |
-| 3:40–4:40 | Demostración 4: precios | 85 mil precios reales; código de barras; reglas para diferencias; informe de referencia |
-| 4:40–5:20 | Demostración 5: tableros | Una frase produce un tablero; se filtra, se publica y cualquiera lo abre con un enlace |
-| 5:20–6:10 | Por qué confiar | Se verifica a sí mismo; protege los conteos pequeños; conformidad legal analizada |
-| 6:10–7:00 | Antes y ahora, y adopción | La sección «Antes y ahora» en pantalla: 27 puntos con su cifra; se instala con un comando |
+| El problema era un solo ejemplo | Los diez problemas del README, con quién planteó cada uno | El portal atiende muchas necesidades, no una |
+| No decía a quién sirve cada parte | «Cinco frentes que convergen en una solución», con la dirección del INE de cada uno | La aplicabilidad institucional pesa 20 % y desempata |
+| No había un diferenciador explícito | «Autocontenido: el riesgo que el INE no corre» | Es lo que separa a FARO de una solución que depende de servicios externos |
+| «Configurable y escalable» estaba implícito | «Crece sin programar», con seis ejemplos concretos | El jurado pregunta cómo se mantiene y cómo crece |
+| Cerraba con las limitaciones | Cierra con «Antes y ahora» y una petición: un piloto | Se recuerda el final; las limitaciones pasan al apéndice, listas para las preguntas |
+| La matriz de la nota conceptual iba en el cuerpo | Va en el apéndice | Es evidencia para consultar, no para exponer |
 
 ## Las diapositivas y el reloj
 
-Cada diapositiva lleva al pie el criterio de evaluación al que responde.
+Cada diapositiva lleva al pie el criterio de evaluación al que responde. En el PowerPoint, cada una
+trae en las notas del orador lo que hay que decir.
 
 | # | Diapositiva | Minuto | Criterio que apoya | Qué se dice |
 |---|---|---|---|---|
 | 1 | Portada | 0:00 | — | Nombre, lema, equipo |
-| 2 | Los problemas que atiende | 0:10 | Aplicabilidad (20 %) | Diez necesidades con la misma raíz, y quién planteó cada una (sale de la tabla del README); un ejemplo rápido: el mismo municipio llega escrito de cuatro maneras |
-| 3 | La respuesta | 0:40 | Innovación (15 %) | Pide, recibe, homologa, aprovecha; el sistema no adivina |
-| 4 | Demostración 1: registros | 1:00 | Funcionalidad (25 %) | **En vivo**: una institución sube su archivo; el analista decide un pendiente |
-| 5 | Demostración 2: territorio | 2:00 | Funcionalidad | **En vivo**: ficha de un municipio, animación, red vial |
-| 6 | Demostración 3: campo | 2:50 | Aplicabilidad | **En vivo**, en ventana de teléfono: ruta y visita |
-| 7 | Demostración 4: precios | 3:40 | Funcionalidad | **En vivo**: búsqueda, mismo código de barras, informe |
-| 8 | Demostración 5: tableros y recorridos | 4:40 | Presentación y usabilidad (10 %) | **En vivo**: una frase → tablero publicado; botón «Recorrido guiado» |
-| 9 | Por qué confiar | 5:20 | Rigor en el uso de los datos (10 %) | INE fuente principal, secreto estadístico, verificación |
-| 10 | Lo que pide la nota conceptual | 5:50 | Calidad técnica (20 %) | Ocho lineamientos con su prueba |
-| 11 | Antes y ahora | 6:10 | Aplicabilidad | Seis cifras; qué necesita el INE para adoptarlo |
-| 12 | Lo que todavía no hace | 6:40 | Calidad técnica | Limitaciones y mejoras, dichas por el equipo |
-| 13 | Cierre | 6:55 | — | Lema y preguntas |
+| 2 | Datos que existen, pero no llegan en forma útil | 0:10 | Aplicabilidad (20 %) | Diez necesidades con la misma raíz; nombrar tres y quién las planteó |
+| 3 | Cinco frentes que convergen en una solución | 0:40 | Aplicabilidad | Cada dirección y su frente; no son cinco herramientas, es una |
+| 4 | Un solo camino para el dato, y una regla fija | 1:00 | Innovación (15 %) | Pide, recibe, homologa, aprovecha; el sistema no adivina |
+| 5–9 | Demostración (registros, territorio, campo, precios, tableros) | 1:20–4:20 | Funcionalidad (25 %) y usabilidad (10 %) | **En vivo**, tres minutos. Las diapositivas son el respaldo si el portal falla |
+| 10 | Autocontenido: el riesgo que el INE no corre | 4:20 | Aplicabilidad | Sin licencias, sin servicios de pago, sin IA externa para funcionar; cinco riesgos evitados |
+| 11 | Crece sin programar | 5:00 | Calidad técnica (20 %) | Una institución nueva es un archivo; las reglas son parámetros |
+| 12 | Se revisa a sí mismo y dice sus límites | 5:35 | Rigor (10 %) | INE fuente principal, secreto estadístico, verificación |
+| 13 | Antes y ahora, y la petición | 6:10 | Aplicabilidad | Seis cifras; **un piloto con una institución, en un servidor del INE, un mes** |
+| 14 | Cierre | 6:50 | — | Lema y preguntas |
+| 15 | *Apéndice:* cumple cada lineamiento | preguntas | Calidad técnica | Ocho lineamientos con su prueba |
+| 16 | *Apéndice:* lo que todavía no hace | preguntas | Calidad técnica | Limitaciones y mejoras, dichas por el equipo |
 
-Las diapositivas 4 a 8 traen capturas: si el portal falla, se narra sobre ellas o se proyecta el
-video ([`16-guion-video.md`](16-guion-video.md)). Para la demostración en vivo, dejar el portal
-preparado con `scripts/entregables/preparar_demo.js` y las ventanas ya abiertas.
+**Sobre el pilar de autonomía.** Se plantea como reducción de riesgo para el INE, sin atacar a
+nadie: «las API de inteligencia artificial son útiles; nuestra elección es que el INE pueda repetir
+el mismo resultado dentro de cinco años sin depender de un tercero». Lo que es exacto decir: el
+portal, para funcionar, no llama a ninguna IA ni servicio de pago. Lo que **no** hay que decir: «no
+usamos inteligencia artificial», porque el equipo programó con un asistente de IA (declarado en el
+README) y el clasificador de fotos es un modelo, aunque local.
 
-**Apoyo para quien presenta:** la sección «Antes y ahora» del portal (y `docs/22`) trae, para cada
-punto, qué se tenía y quién lo planteó, la cifra de FARO y cómo escala. Sirve de guion y de
-respaldo en las preguntas.
+**Ensayo.** Tres pasadas con reloj. Decidir quién maneja el portal y quién habla, y en qué momento
+se cambia al video si la demostración falla. Dejar el portal preparado con
+`scripts/entregables/preparar_demo.js` y las ventanas ya abiertas.
 
 ## Lo que nos distingue (decirlo explícitamente)
 

@@ -27,7 +27,8 @@
 - Al menos una base pública del INE como fuente principal; otras fuentes abiertas, citadas.
 - Repositorio Git desde el día 1 con acceso para el jurado; prototipo funcional y reproducible.
 - Servicios de pago o en la nube deben declararse.
-- Los integrantes ceden al INE los derechos de autor y propiedad intelectual.
+- Los integrantes conservan la autoría y otorgan al INE una licencia no exclusiva, gratuita, perpetua e
+  irrevocable (categoría 2; la cesión de derechos es la regla de la categoría 1). Ver `LICENCIA.md`.
 - Enviar por correo la nota de consentimiento firmada por todos los integrantes.
 
 ## Estado frente a cada propuesta de las presentaciones (24-nov-2026)

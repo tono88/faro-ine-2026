@@ -2,6 +2,23 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.19.0 · 25-nov-2026 · Video y presentación de venta
+
+Sin cambios en el portal.
+
+- **Video demostrativo** (`entregables/FARO-video-demo.mp4`, 2:55, 1920×1080): un recorrido del
+  portal en marcha con un caso real de principio a fin (RENAP sube 10,034 defunciones), los otros
+  cuatro frentes y tres tarjetas de pilares (convergencia, autocontenido, crece sin programar), con
+  rótulos, transiciones y el cursor a la vista. Sin voz: la narración se graba aparte. Lo genera
+  `scripts/entregables/grabar_video.js`, que también escribe los subtítulos y la línea de tiempo.
+  Se grabó con los archivos reales en una base temporal; en pantalla solo hay conteos.
+- **Guion de la narradora** y plan de montaje en `docs/16`: 327 palabras, escena por escena.
+- **Presentación recompuesta** (PDF y PowerPoint, 14 diapositivas y 2 de apéndice): frentes por
+  dirección del INE, «Autocontenido: el riesgo que el INE no corre», «Crece sin programar», cierre
+  con una petición (un piloto) y las limitaciones al apéndice. Guion en `docs/17`.
+- **Corrección de una cifra**: en defunciones de RENAP hoy pasan **15** columnas de 82, no 14 (la
+  solicitud creció a 16; el nombre se elimina y el documento se cambia por una llave).
+
 ## v0.18.0 · 25-nov-2026 · Revisión para la entrega
 
 Sin funciones nuevas: una revisión completa contra la nota conceptual del evento, con tres

@@ -37,8 +37,8 @@
       "antes": "Los archivos llegan con CUI, nombres y direcciones de personas.",
       "origen": "Hallado en los archivos compartidos por el INE",
       "ahora": "El nombre se elimina, el CUI se cambia por una llave que no se puede revertir y las direcciones nunca pasan. El archivo original no se guarda.",
-      "cifra": "82 → 14",
-      "cifra_de": "columnas en el archivo de defunciones de RENAP: salen 14, ninguna con datos personales",
+      "cifra": "82 → 15",
+      "cifra_de": "columnas en el archivo de defunciones de RENAP: se piden 16 y pasan 15, ninguna con nombre ni documento",
       "ver": "recibir",
       "escala": "La regla vive en la solicitud (campo «sensible»): vale igual para cualquier institución que se sume."
     },
