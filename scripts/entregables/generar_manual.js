@@ -67,6 +67,10 @@ const chip = r => `<span class="chip" style="--c:${ROLES[r][1]}">${ROLES[r][0]}<
   // Portada interior: la pantalla sin sesión, con las marcas del recorrido general.
   const general = { pasos: await pasosDe('portal'), img: await foto() };
   await p.click('#recorrido'); await p.click('#recglobo [data-r=sig]'); await p.waitForTimeout(400); const conGlobo = await foto(); await p.keyboard.press('Escape');
+  // La misma pantalla en inglés, con la lista de idiomas abierta; después se vuelve al español.
+  await p.evaluate(() => localStorage.setItem('faro_idioma', 'en')); await p.reload(); await p.waitForFunction(() => window.FARO_IDIOMA && !document.documentElement.classList.contains('idioma-espera')); await p.waitForTimeout(1800);
+  await p.click('#idiomabtn'); await p.waitForTimeout(400); const conIdiomas = await foto();
+  await p.evaluate(() => localStorage.setItem('faro_idioma', 'es')); await p.reload(); await p.waitForFunction(() => window.FARO_IDIOMA && !document.documentElement.classList.contains('idioma-espera')); await p.waitForTimeout(1800);
   // Teléfono.
   const tel = await (await nav.newContext({ viewport: { width: 390, height: 780 }, deviceScaleFactor: 2 })).newPage(); await tel.goto(base); await tel.waitForSelector('#lienzo path.leaflet-interactive'); await tel.waitForTimeout(700);
   const fotoTel = async () => 'data:image/jpeg;base64,' + (await tel.screenshot({ type: 'jpeg', quality: 84 })).toString('base64');
@@ -141,6 +145,12 @@ const chip = r => `<span class="chip" style="--c:${ROLES[r][1]}">${ROLES[r][0]}<
     <li><b class="num">?</b><div><h4>En cada sección</h4><p>«Ver cómo funciona esta pantalla», junto al título, hace lo mismo.</p></div></li>
     <li><b class="num">→</b><div><h4>Avance a su ritmo</h4><p>Siguiente y Anterior, o las flechas del teclado. Esc lo cierra.</p></div></li>
     <li><b class="num">★</b><div><h4>¿Primera vez?</h4><p>Desde el primer paso se abre el recorrido general del portal.</p></div></li></ol><div class="virtud"><h4>Por qué importa</h4><p>Nadie necesita capacitación previa para empezar: la ayuda está donde se necesita, en el momento en que se necesita.</p></div></div></div>`, '#f5a623');
+  // 5b. Idioma de la pantalla
+  pag('seccion', `<header class="cab"><p class="ante">Primeros pasos</p><h2>Idioma de la pantalla: español, inglés y kaqchikel</h2><p class="bajada">El botón del globo, arriba, cambia el idioma de la pantalla en cualquier sección y sin iniciar sesión. Se traduce la interfaz, nunca los datos.</p></header><div class="cuerpo"><div class="captura"><img src="${conIdiomas}"></div><div class="lado"><ol class="pasos sin">
+    <li><b class="num">1</b><div><h4>Qué cambia</h4><p>El menú, los títulos, los botones, las explicaciones y los recorridos guiados.</p></div></li>
+    <li><b class="num">2</b><div><h4>Qué no cambia</h4><p>Los nombres de lugares, instituciones y productos, las cifras y las citas: se muestran como los publica su fuente. Lo que se descarga es igual en cualquier idioma.</p></div></li>
+    <li><b class="num">3</b><div><h4>Kaqchikel: borrador</h4><p>Solo lleva los rótulos que ya existen en una fuente revisada por hablantes. Lo demás aparece en español, y la pantalla lo avisa.</p></div></li>
+    <li><b class="num">★</b><div><h4>Un idioma es un archivo</h4><p>Corregir una frase o sumar otro idioma nacional no pide programar.</p></div></li></ol><div class="virtud"><h4>Por qué importa</h4><p>Un dato no llega a puerto si quien lo necesita no puede leer la pantalla. Y traducir un dato sería alterarlo: por eso solo se traduce la pantalla.</p></div></div></div>`, '#4d9ae1');
   // 6. Índice visual (se llena al final, cuando se conocen las páginas)
   const indice = paginas.length; pag('indice', '');
   // Secciones
@@ -172,7 +182,7 @@ const chip = r => `<span class="chip" style="--c:${ROLES[r][1]}">${ROLES[r][0]}<
     ${v('Recuerda', 'Cada decisión queda en la memoria con nombre y fecha: no se corrige dos veces lo mismo.')}
     ${v('Se puede repetir', 'Cada resultado tiene un procedimiento que lo vuelve a obtener desde la fuente.')}
     ${v('Cada quien ve lo suyo', 'Roles, grupos y cuentas por institución; cada acción queda en la bitácora.')}
-    ${v('Se explica solo', 'Recorridos guiados en las 24 secciones y una frase que dice qué muestra cada pantalla.')}
+    ${v('Se explica solo', 'Recorridos guiados en las 24 secciones y una frase que dice qué muestra cada pantalla. También en inglés, y en kaqchikel como borrador con fuente.')}
     ${v('Queda en el INE', 'Hecho con software libre; corre en un servidor propio, sin servicios de pago. El INE recibe licencia perpetua para usarlo y modificarlo.')}</div>`);
   // Preguntas
   const q = (a, b) => `<div class="q"><h4>${a}</h4><p>${b}</p></div>`;

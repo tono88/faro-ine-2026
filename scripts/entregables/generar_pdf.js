@@ -72,6 +72,7 @@ function aHtml(md) {
   <div class="sec">${aHtml(leer('docs/10-imagenes-satelitales.md'))}</div>
   <div class="sec">${aHtml(leer('docs/14-manual-de-usuario.md'))}</div>
   <div class="sec">${aHtml(leer('docs/15-instalacion-y-dependencias.md'))}</div>
+  <div class="sec">${aHtml(leer('docs/29-idiomas-e-inclusion.md'))}</div>
   <div class="sec">${aHtml(leer('docs/28-defensa-del-codigo.md'))}</div>
   <div class="sec">${aHtml(leer('docs/11-fuentes-y-citas.md'))}</div>
   <div class="sec">${aHtml(leer('docs/27-componentes-de-terceros.md'))}</div>
