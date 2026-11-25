@@ -266,3 +266,7 @@ ON CONFLICT (nombre) DO NOTHING;
 -- Recorrido de demostración: paradas reales, visitas ficticias. Se rotula en la pantalla y en la
 -- tabla de visitas, y es el único en que se admite una posición simulada.
 ALTER TABLE rutas_campo ADD COLUMN IF NOT EXISTS demo BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Cuentas de institución: quien envía por una institución (PNC, RENAP…) entra con su usuario, ve lo
+-- público y sube solo los archivos de las solicitudes de su institución.
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS institucion TEXT NOT NULL DEFAULT '';

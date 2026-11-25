@@ -365,12 +365,13 @@ async fn autorizar(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
             return Err(Fallo(StatusCode::FORBIDDEN, "antes de hacer cambios debe cambiar su contraseña inicial en «Mi perfil»".into()));
         }
         // Los operadores de campo solo registran visitas (eso se autoriza aparte, en `operador_de_campo`).
-        return if s.rol == "consulta" || s.rol == "operador" { Err(Fallo(StatusCode::FORBIDDEN, format!("su usuario es de {}: no puede hacer cambios en esta parte", if s.rol == "consulta" { "consulta" } else { "campo" }))) } else { Ok(s) };
+        // Las cuentas de institución solo envían sus archivos (eso se autoriza aparte, en `quien_envia`).
+        return if s.rol != "admin" && s.rol != "analista" { Err(Fallo(StatusCode::FORBIDDEN, format!("su usuario es de {}: no puede hacer cambios en esta parte", match s.rol.as_str() { "consulta" => "consulta", "operador" => "campo", _ => "institución" }))) } else { Ok(s) };
     }
     // La clave de servicio se compara por su huella y recorriendo todos los bytes (tiempo constante).
     let igual = |a: &str, b: &str| { use sha2::{Digest, Sha256}; let (x, y) = (Sha256::digest(a.as_bytes()), Sha256::digest(b.as_bytes())); x.iter().zip(y.iter()).fold(0u8, |d, (p, q)| d | (p ^ q)) == 0 };
     match (&e.token, cabeceras.get("x-faro-token").and_then(|v| v.to_str().ok())) {
-        (Some(t), Some(dada)) if igual(t, dada) => Ok(Sesion { id: 0, usuario: "servicio".into(), nombre: "Clave de servicio".into(), rol: "analista".into(), debe_cambiar: false, secciones: None }),
+        (Some(t), Some(dada)) if igual(t, dada) => Ok(Sesion { id: 0, usuario: "servicio".into(), nombre: "Clave de servicio".into(), rol: "analista".into(), debe_cambiar: false, secciones: None, institucion: String::new() }),
         _ => Err(Fallo(StatusCode::UNAUTHORIZED, "inicie sesión para hacer cambios".into())),
     }
 }
@@ -378,6 +379,30 @@ async fn autorizar(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
 /// Lecturas que muestran lo que llegó de las instituciones: piden una sesión de cualquier rol.
 async fn con_sesion(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
     sesion_de(e, cabeceras).await?.ok_or(Fallo(StatusCode::UNAUTHORIZED, "inicie sesión para ver esta información".into()))
+}
+
+/// Lo que llegó de todas las instituciones (pendientes, equivalencias) lo ve solo el personal del
+/// INE: administradores, analistas y cuentas de consulta. No las cuentas de institución ni de campo.
+async fn personal_del_ine(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
+    let s = con_sesion(e, cabeceras).await?;
+    if matches!(s.rol.as_str(), "admin" | "analista" | "consulta") { Ok(s) } else { Err(Fallo(StatusCode::FORBIDDEN, "esta información es de uso interno del INE".into())) }
+}
+
+/// Quién puede subir un envío de esta solicitud: un analista o administrador con acceso a la
+/// recepción, o una cuenta de institución cuando la solicitud es de su misma institución.
+async fn quien_envia(e: &Estado, cabeceras: &HeaderMap, sol: &Solicitud) -> Res<Sesion> {
+    match sesion_de(e, cabeceras).await? {
+        Some(s) if s.rol == "institucion" => {
+            if s.debe_cambiar {
+                return Err(Fallo(StatusCode::FORBIDDEN, "antes de enviar debe cambiar su contraseña inicial en «Mi perfil»".into()));
+            }
+            if s.institucion.is_empty() || s.institucion != sol.institucion {
+                return Err(Fallo(StatusCode::FORBIDDEN, format!("su usuario envía por {}: no puede subir archivos de {}", if s.institucion.is_empty() { "ninguna institución" } else { &s.institucion }, sol.institucion)));
+            }
+            Ok(s)
+        }
+        _ => autorizar_en(e, cabeceras, "recibir").await,
+    }
 }
 
 /// Como `autorizar`, y además el grupo del usuario debe incluir la sección (los administradores entran a todas).
@@ -489,7 +514,12 @@ async fn api_catalogo(State(e): State<Compartido>, Ruta(nivel): Ruta<String>, Qu
 }
 
 async fn api_envios(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
-    con_sesion(&e, &cabeceras).await?;
+    let quien = con_sesion(&e, &cabeceras).await?;
+    if quien.rol == "operador" {
+        return Err(Fallo(StatusCode::FORBIDDEN, "esta información es de uso interno del INE".into()));
+    }
+    // Una cuenta de institución ve solo los envíos de su institución.
+    let solo_de: Option<String> = (quien.rol == "institucion").then(|| quien.institucion.clone());
     // Cada envío con el periodo de sus datos y si sigue vigente o fue reemplazado por uno posterior.
     let filas = e.bd.query(
         "SELECT e.id, e.solicitud, e.institucion, e.archivo, to_char(e.recibido, 'YYYY-MM-DD HH24:MI'), e.filas, e.pct_resuelto, e.problemas,
@@ -500,7 +530,7 @@ async fn api_envios(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Js
                 (SELECT max(x.envio_id) FROM hechos h JOIN hechos x ON x.solicitud = h.solicitud AND x.corte = h.corte AND x.envio_id > h.envio_id WHERE h.envio_id = e.id),
                 (SELECT min(periodo) FROM hechos h WHERE h.envio_id = e.id AND periodo <> ''), (SELECT max(periodo) FROM hechos h WHERE h.envio_id = e.id AND periodo <> ''),
                 (SELECT count(*) FROM (SELECT 1 FROM pendientes p WHERE p.envio_id = e.id AND NOT p.resuelto GROUP BY columna, nivel, contexto, valor) q)
-         FROM envios e ORDER BY e.id DESC LIMIT 200", &[]).await.map_err(interno)?;
+         FROM envios e WHERE $1::text IS NULL OR e.institucion = $1 ORDER BY e.id DESC LIMIT 200", &[&solo_de]).await.map_err(interno)?;
     let viejos = envios_con_reglas_anteriores(&e).await?;
     Ok(Json(json!(filas.iter().map(|f| json!({
         "reglas_anteriores": viejos.contains(&f.get::<_, i64>(0)),
@@ -555,8 +585,8 @@ fn agregar(rec: &Recepcion, corte: &[String]) -> BTreeMap<(String, String, Strin
 }
 
 async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabeceras: HeaderMap, mut partes: Multipart) -> Res<Json<Value>> {
-    let quien = autorizar_en(&e, &cabeceras, "recibir").await?;
     let sol = solicitudes(&e).map_err(interno)?.into_iter().find(|s| s.id == id).ok_or_else(|| pedido(format!("no existe la solicitud {id}")))?;
+    let quien = quien_envia(&e, &cabeceras, &sol).await?;
     let mut archivo = None;
     while let Some(parte) = partes.next_field().await.map_err(pedido)? {
         if parte.name() == Some("archivo") {
@@ -654,7 +684,7 @@ async fn api_enviar(State(e): State<Compartido>, Ruta(id): Ruta<String>, cabecer
 }
 
 async fn api_pendientes(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
-    con_sesion(&e, &cabeceras).await?;
+    personal_del_ine(&e, &cabeceras).await?;
     // Un mismo valor puede venir en varios envíos: se muestra una vez, con el total.
     let filas = e
         .bd
@@ -751,7 +781,7 @@ async fn api_confirmar(State(e): State<Compartido>, cabeceras: HeaderMap, Json(c
 }
 
 async fn api_equivalencias(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
-    con_sesion(&e, &cabeceras).await?;
+    personal_del_ine(&e, &cabeceras).await?;
     let filas = e
         .bd
         .query(
@@ -2166,9 +2196,12 @@ struct Sesion {
     debe_cambiar: bool,
     /// Secciones del portal que su grupo puede usar. `None` (usuario sin grupo) = todas las que su rol permite.
     secciones: Option<Vec<String>>,
+    /// Institución por la que envía (solo en las cuentas de rol «institucion»); vacío en las demás.
+    #[serde(default)]
+    institucion: String,
 }
 
-const ROLES: [&str; 4] = ["admin", "analista", "consulta", "operador"];
+const ROLES: [&str; 5] = ["admin", "analista", "consulta", "operador", "institucion"];
 const HORAS_DE_SESION: i64 = 12;
 
 fn huella_de_clave(clave: &str) -> Result<String, String> {
@@ -2192,8 +2225,8 @@ fn llave_de(cabeceras: &HeaderMap) -> Option<String> {
 
 async fn sesion_de(e: &Estado, cabeceras: &HeaderMap) -> Res<Option<Sesion>> {
     let Some(llave) = llave_de(cabeceras) else { return Ok(None) };
-    let f = e.bd.query_opt("SELECT u.id, u.usuario, u.nombre, u.rol, u.debe_cambiar, g.secciones, g.nombre FROM sesiones s JOIN usuarios u ON u.id = s.usuario_id LEFT JOIN grupos g ON g.id = u.grupo_id WHERE s.huella = $1 AND s.expira > now() AND u.activo", &[&huella_de_llave(&llave)]).await.map_err(interno)?;
-    Ok(f.map(|f| Sesion { id: f.get(0), usuario: f.get(1), nombre: f.get(2), rol: f.get(3), debe_cambiar: f.get(4), secciones: f.get(5) }))
+    let f = e.bd.query_opt("SELECT u.id, u.usuario, u.nombre, u.rol, u.debe_cambiar, g.secciones, g.nombre, u.institucion FROM sesiones s JOIN usuarios u ON u.id = s.usuario_id LEFT JOIN grupos g ON g.id = u.grupo_id WHERE s.huella = $1 AND s.expira > now() AND u.activo", &[&huella_de_llave(&llave)]).await.map_err(interno)?;
+    Ok(f.map(|f| Sesion { id: f.get(0), usuario: f.get(1), nombre: f.get(2), rol: f.get(3), debe_cambiar: f.get(4), secciones: f.get(5), institucion: f.get(7) }))
 }
 
 fn galleta(llave: &str, segundos: i64) -> (&'static str, String) {
@@ -2283,8 +2316,8 @@ async fn api_ingresar(State(e): State<Compartido>, Json(i): Json<Ingreso>) -> Re
     e.bd.execute("DELETE FROM sesiones WHERE expira < now()", &[]).await.map_err(interno)?;
     e.bd.execute("INSERT INTO sesiones (huella, usuario_id, expira) VALUES ($1, $2, now() + make_interval(hours => $3))", &[&huella_de_llave(&llave), &id, &(HORAS_DE_SESION as i32)]).await.map_err(interno)?;
     e.bd.execute("UPDATE usuarios SET ultimo_ingreso = now() WHERE id = $1", &[&id]).await.map_err(interno)?;
-    let secciones: Option<Vec<String>> = e.bd.query_one("SELECT g.secciones FROM usuarios u LEFT JOIN grupos g ON g.id = u.grupo_id WHERE u.id = $1", &[&id]).await.map_err(interno)?.get(0);
-    let s = Sesion { id, usuario: f.get(1), nombre: f.get(2), rol: f.get(3), debe_cambiar: f.get(4), secciones };
+    let extra = e.bd.query_one("SELECT g.secciones, u.institucion FROM usuarios u LEFT JOIN grupos g ON g.id = u.grupo_id WHERE u.id = $1", &[&id]).await.map_err(interno)?;
+    let s = Sesion { id, usuario: f.get(1), nombre: f.get(2), rol: f.get(3), debe_cambiar: f.get(4), secciones: extra.get(0), institucion: extra.get(1) };
     Ok(([galleta(&llave, HORAS_DE_SESION * 3600)], Json(json!({ "sesion": true, "usuario": s }))).into_response())
 }
 
@@ -2344,9 +2377,9 @@ async fn solo_admin(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
 
 async fn api_usuarios(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     solo_admin(&e, &cabeceras).await?;
-    let filas = e.bd.query("SELECT id, usuario, nombre, rol, activo, debe_cambiar, to_char(creado, 'YYYY-MM-DD'), to_char(ultimo_ingreso, 'YYYY-MM-DD HH24:MI'), grupo_id FROM usuarios ORDER BY id", &[]).await.map_err(interno)?;
+    let filas = e.bd.query("SELECT id, usuario, nombre, rol, activo, debe_cambiar, to_char(creado, 'YYYY-MM-DD'), to_char(ultimo_ingreso, 'YYYY-MM-DD HH24:MI'), grupo_id, institucion FROM usuarios ORDER BY id", &[]).await.map_err(interno)?;
     Ok(Json(json!(filas.iter().map(|f| json!({ "id": f.get::<_, i64>(0), "usuario": f.get::<_, String>(1), "nombre": f.get::<_, String>(2), "rol": f.get::<_, String>(3), "activo": f.get::<_, bool>(4),
-        "debe_cambiar": f.get::<_, bool>(5), "creado": f.get::<_, String>(6), "ultimo_ingreso": f.get::<_, Option<String>>(7), "grupo_id": f.get::<_, Option<i64>>(8) })).collect::<Vec<_>>())))
+        "debe_cambiar": f.get::<_, bool>(5), "creado": f.get::<_, String>(6), "ultimo_ingreso": f.get::<_, Option<String>>(7), "grupo_id": f.get::<_, Option<i64>>(8), "institucion": f.get::<_, String>(9) })).collect::<Vec<_>>())))
 }
 
 #[derive(Deserialize)]
@@ -2355,6 +2388,17 @@ struct UsuarioNuevo {
     nombre: String,
     rol: String,
     clave: String,
+    /// Para el rol «institucion»: por cuál institución envía (tal como figura en sus solicitudes).
+    #[serde(default)]
+    institucion: String,
+}
+
+/// Instituciones que tienen al menos una solicitud: las únicas a las que se puede atar una cuenta.
+fn instituciones(e: &Estado) -> Vec<String> {
+    let mut v: Vec<String> = solicitudes(e).unwrap_or_default().into_iter().map(|s| s.institucion).collect();
+    v.sort();
+    v.dedup();
+    v
 }
 
 async fn api_usuario_crear(State(e): State<Compartido>, cabeceras: HeaderMap, Json(u): Json<UsuarioNuevo>) -> Res<Json<Value>> {
@@ -2364,16 +2408,20 @@ async fn api_usuario_crear(State(e): State<Compartido>, cabeceras: HeaderMap, Js
         return Err(pedido("el usuario debe tener al menos 3 caracteres: letras sin tilde, números, punto, guion o guion bajo"));
     }
     if u.nombre.trim().is_empty() || !ROLES.contains(&u.rol.as_str()) {
-        return Err(pedido("indique el nombre y un rol: admin, analista o consulta"));
+        return Err(pedido("indique el nombre y un rol: admin, analista, consulta, operador o institucion"));
+    }
+    let institucion = if u.rol == "institucion" { u.institucion.trim().to_string() } else { String::new() };
+    if u.rol == "institucion" && !instituciones(&e).contains(&institucion) {
+        return Err(pedido(format!("una cuenta de institución debe indicar por cuál envía: {}", instituciones(&e).join(", "))));
     }
     clave_aceptable(&u.clave, &usuario)?;
     let clave = u.clave.clone();
     let huella = tokio::task::spawn_blocking(move || huella_de_clave(&clave)).await.map_err(interno)?.map_err(interno)?;
-    let n = e.bd.execute("INSERT INTO usuarios (usuario, nombre, rol, clave, debe_cambiar) VALUES ($1,$2,$3,$4, TRUE) ON CONFLICT (usuario) DO NOTHING", &[&usuario, &u.nombre.trim(), &u.rol, &huella]).await.map_err(interno)?;
+    let n = e.bd.execute("INSERT INTO usuarios (usuario, nombre, rol, clave, debe_cambiar, institucion) VALUES ($1,$2,$3,$4, TRUE, $5) ON CONFLICT (usuario) DO NOTHING", &[&usuario, &u.nombre.trim(), &u.rol, &huella, &institucion]).await.map_err(interno)?;
     if n == 0 {
         return Err(pedido(format!("ya existe el usuario {usuario}")));
     }
-    bitacora(&e, &admin.nombre, "cuenta_creada", &format!("{usuario} ({})", u.rol)).await;
+    bitacora(&e, &admin.nombre, "cuenta_creada", &format!("{usuario} ({}{})", u.rol, if institucion.is_empty() { String::new() } else { format!(": {institucion}") })).await;
     Ok(Json(json!({ "creado": usuario })))
 }
 
@@ -2385,13 +2433,21 @@ struct CambioUsuario {
     clave: Option<String>,
     /// Grupo al que pasa; 0 lo deja sin grupo (todas las secciones que su rol permite).
     grupo_id: Option<i64>,
+    /// Institución por la que envía (cuentas de rol «institucion»).
+    institucion: Option<String>,
 }
 
 async fn api_usuario_cambiar(State(e): State<Compartido>, Ruta(id): Ruta<i64>, cabeceras: HeaderMap, Json(c): Json<CambioUsuario>) -> Res<Json<Value>> {
     let admin = solo_admin(&e, &cabeceras).await?;
     let actual = e.bd.query_opt("SELECT rol, activo FROM usuarios WHERE id = $1", &[&id]).await.map_err(interno)?.ok_or_else(|| pedido("no existe ese usuario"))?;
     if c.rol.as_deref().is_some_and(|r| !ROLES.contains(&r)) {
-        return Err(pedido("rol no válido: admin, analista, consulta u operador"));
+        return Err(pedido("rol no válido: admin, analista, consulta, operador o institucion"));
+    }
+    if let Some(i) = c.institucion.as_deref().map(str::trim) {
+        if !i.is_empty() && !instituciones(&e).contains(&i.to_string()) {
+            return Err(pedido(format!("institución no reconocida; las que tienen solicitud son: {}", instituciones(&e).join(", "))));
+        }
+        e.bd.execute("UPDATE usuarios SET institucion = $1 WHERE id = $2", &[&i, &id]).await.map_err(interno)?;
     }
     // Nunca se queda el sistema sin un administrador activo.
     let deja_de_ser_admin = actual.get::<_, String>(0) == "admin" && actual.get::<_, bool>(1) && (c.rol.as_deref().is_some_and(|r| r != "admin") || c.activo == Some(false));
@@ -2516,7 +2572,7 @@ async fn operador_de_campo(e: &Estado, cabeceras: &HeaderMap) -> Res<Sesion> {
     if s.debe_cambiar {
         return Err(Fallo(StatusCode::FORBIDDEN, "antes de registrar visitas debe cambiar su contraseña inicial en «Mi perfil»".into()));
     }
-    if s.rol == "consulta" || (s.rol != "admin" && s.secciones.as_ref().is_some_and(|v| !v.iter().any(|x| x == "campo" || x == "operadores"))) {
+    if s.rol == "consulta" || s.rol == "institucion" || (s.rol != "admin" && s.secciones.as_ref().is_some_and(|v| !v.iter().any(|x| x == "campo" || x == "operadores"))) {
         return Err(Fallo(StatusCode::FORBIDDEN, "su usuario no tiene acceso al trabajo de campo".into()));
     }
     Ok(s)

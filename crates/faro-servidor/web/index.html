@@ -199,6 +199,24 @@
   /* Pantallas táctiles (tabletas y teléfonos): los controles chicos crecen para el dedo. */
   @media (pointer: coarse), (max-width: 1100px) { button.chico, .dec button, .ejemplos button, .niveles button { min-height:36px; } input[type=number], select { min-height:36px; } nav .submenu button { min-height:36px; } }
   code { overflow-wrap:anywhere; }
+  /* Recorridos guiados: botón explícito en el encabezado y en cada sección, foco sobre el elemento y globo con el paso. */
+  button.recorrer { display:inline-flex; align-items:center; gap:7px; background:#fff7e8; color:#6b4300; border:1.5px solid #f5a623; border-radius:999px; padding:6px 14px 6px 8px; font:600 13.5px/1.2 inherit; font-family:inherit; cursor:pointer; min-height:34px; }
+  button.recorrer::before { content:"?"; display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; background:#f5a623; color:#07306b; font-weight:800; font-size:14px; flex:none; }
+  button.recorrer:hover, button.recorrer:focus-visible { background:#ffe9bf; }
+  .titulo button.recorrer, .barra-rec button.recorrer { margin-top:8px; } .barra-rec { margin:0 0 12px; }
+  header #recorrido { margin-left:auto; } header #recorrido + .acceso { margin-left:0; }
+  #recfondo { position:fixed; inset:0; z-index:4000; }
+  #recfoco { position:fixed; z-index:4001; border-radius:10px; box-shadow:0 0 0 3px #f5a623, 0 0 0 9999px rgba(7,48,107,.62); pointer-events:none; }
+  #recglobo { position:fixed; z-index:4002; width:min(370px, calc(100vw - 20px)); background:#fff; color:var(--tinta); border-radius:14px; border-top:5px solid #f5a623; box-shadow:0 14px 44px rgba(7,48,107,.38); padding:14px 16px 12px; }
+  #recglobo h3 { margin:0 26px 6px 0; font-size:17px; color:var(--azul-oscuro); } #recglobo p { margin:0 0 10px; font-size:14.5px; line-height:1.45; }
+  #recglobo .cuenta { font-size:12px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:#8a5a00; margin:0 0 4px; }
+  #recglobo .puntos { display:flex; gap:5px; flex-wrap:wrap; margin:0 0 10px; } #recglobo .puntos i { width:18px; height:5px; border-radius:3px; background:var(--borde); } #recglobo .puntos i.ya { background:var(--azul); } #recglobo .puntos i.aqui { background:#f5a623; }
+  #recglobo .pie { display:flex; gap:8px; align-items:center; flex-wrap:wrap; } #recglobo .pie button { margin:0; } #recglobo .pie .otro { margin-left:auto; background:none; border:0; color:var(--azul); text-decoration:underline; cursor:pointer; font:inherit; font-size:13px; padding:6px 0; }
+  #recglobo .x { position:absolute; top:8px; right:8px; width:32px; height:32px; border:0; background:none; font-size:22px; line-height:1; color:var(--gris); cursor:pointer; border-radius:8px; } #recglobo .x:hover { background:var(--cielo); }
+  .envia-por { background:var(--cielo); border-left:5px solid #f5a623; border-radius:8px; padding:10px 14px; margin:0 0 12px; font-size:15px; } .envia-por b { color:var(--azul-oscuro); }
+  @media (prefers-reduced-motion: no-preference) { #recfoco { transition:top .22s, left .22s, width .22s, height .22s; } button.recorrer.nuevo { animation:latido 1.8s ease-in-out 4; } @keyframes latido { 50% { box-shadow:0 0 0 7px rgba(245,166,35,.35); } } }
+  @media (max-width: 700px) { header #recorrido { padding:5px 9px 5px 5px; font-size:12.5px; white-space:nowrap; } }
+  @media print { button.recorrer, .barra-rec, #recfondo, #recfoco, #recglobo { display:none !important; } }
   @media (prefers-reduced-motion: no-preference) { nav button, button.accion { transition:background .15s; } }
 </style>
 </head>
@@ -207,6 +225,7 @@
   <button id="menu" aria-label="Abrir el menú" aria-expanded="false">☰</button>
   <div class="marca"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0051b3"/><path d="M26 21 5 12v17z" fill="#f5a623" opacity=".9"/><path d="M38 21 59 12v17z" fill="#f5a623" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffd27a"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#4d9ae1"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#4d9ae1"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><h1>FARO</h1></div></div>
   <span><b>Que cada dato llegue a puerto.</b> Registros administrativos, territorio y precios · Datatón INE 2026</span>
+  <button class="recorrer" id="recorrido" title="Recorrido guiado: le muestra, paso a paso, qué hay en esta pantalla y para qué sirve">Recorrido guiado</button>
   <div class="acceso" id="acceso"><button class="accion" id="entrar" style="margin:0">Iniciar sesión</button></div>
 </header>
 <nav aria-label="Secciones">
@@ -280,6 +299,7 @@
     <div class="tarjetas" id="tarjetas" aria-live="polite"></div>
     <div class="panel">
       <h2>Recibir un envío</h2>
+      <p class="envia-por" id="enviapor" hidden></p>
       <p class="nota">Elija qué registro envía la institución y suba el archivo tal como llega (CSV o Excel). Solo pasan las columnas pedidas; nombres y documentos de identidad se eliminan o se sustituyen por una llave.</p>
       <label for="sol">Solicitud de datos</label><select id="sol"></select>
       <div id="solinfo" class="nota"></div>
@@ -537,7 +557,7 @@
   </section>
 
   <section id="usuarios">
-    <div class="titulo"><h2>Usuarios</h2><p>Quién puede entrar y qué puede hacer. <b>Administrador</b>: todo, incluido manejar usuarios. <b>Analista</b>: recibir envíos, decidir pendientes, cargar tablas y manejar muestreos. <b>Consulta</b>: solo ver.</p></div>
+    <div class="titulo"><h2>Usuarios</h2><p>Quién puede entrar y qué puede hacer. <b>Administrador</b>: todo, incluido manejar usuarios. <b>Analista</b>: recibir envíos, decidir pendientes, cargar tablas y manejar muestreos. <b>Consulta</b>: solo ver. <b>Operador de campo</b>: su ruta y sus visitas. <b>Institución</b>: ve lo público y sube únicamente los archivos de las solicitudes de su institución (PNC, RENAP…); no ve lo que enviaron las demás.</p></div>
     <div class="panel"><div class="tabla"><table id="tusuarios"></table></div></div>
     <div class="panel"><h2>Grupos</h2><p class="nota">Un grupo define a qué secciones del portal entra un usuario: solo esas aparecen en su menú y solo en ellas puede hacer cambios. Un usuario sin grupo ve todas las que su rol permite. Los administradores siempre ven todo.</p>
       <div class="tabla"><table id="tgrupos"></table></div>
@@ -549,7 +569,8 @@
     <div class="panel"><h2>Crear usuario</h2>
       <label for="uusuario">Usuario (para entrar)</label><input type="text" id="uusuario" autocomplete="off" style="max-width:320px">
       <label for="unombre">Nombre</label><input type="text" id="unombre" autocomplete="off">
-      <label for="urol">Rol</label><select id="urol" style="max-width:320px"><option value="analista">Analista</option><option value="consulta">Consulta</option><option value="operador">Operador de campo</option><option value="admin">Administrador</option></select>
+      <label for="urol">Rol</label><select id="urol" style="max-width:320px"><option value="analista">Analista</option><option value="consulta">Consulta</option><option value="operador">Operador de campo</option><option value="institucion">Institución (solo envía sus archivos)</option><option value="admin">Administrador</option></select>
+      <div id="uinstcaja" hidden><label for="uinst">Institución por la que envía</label><select id="uinst" style="max-width:320px"></select><p class="nota" style="margin:4px 0 0">Aparecen las instituciones que tienen al menos una solicitud de datos. Esta cuenta solo podrá subir archivos de esas solicitudes.</p></div>
       <label for="uclave">Contraseña inicial (al menos 10 caracteres, con letras y números o signos; deberá cambiarla al entrar)</label><input type="password" id="uclave" autocomplete="new-password" style="max-width:320px">
       <button class="accion" id="ucrear">Crear usuario</button></div>
   </section>
@@ -720,7 +741,10 @@ async function estado() {
 }
 async function cargarSolicitudes() {
   solicitudes = await api('/api/solicitudes');
-  $('#sol').innerHTML = solicitudes.map(s => `<option value="${esc(s.id)}">${esc(s.institucion)} · ${esc(s.titulo)}</option>`).join('');
+  const propias = deInstitucion() ? solicitudes.filter(s => s.institucion === yo.institucion) : solicitudes;
+  $('#enviapor').hidden = !deInstitucion();
+  if (deInstitucion()) $('#enviapor').innerHTML = `Usted envía por <b>${esc(yo.institucion)}</b>. Aquí aparecen solo las ${propias.length} solicitud(es) que el INE le hizo a su institución, y abajo solo sus propios envíos.`;
+  $('#sol').innerHTML = propias.map(s => `<option value="${esc(s.id)}">${esc(s.institucion)} · ${esc(s.titulo)}</option>`).join('');
   infoSolicitud();
 }
 function infoSolicitud() {
@@ -737,7 +761,7 @@ async function envios() {
     {t:'Archivo', f:f => esc(f.archivo)}, {t:'Corte (mes de registro)', f:periodo}, {t:'Filas (registros)', num:1, f:f => num(f.filas)}, {t:'Problemas (celdas)', num:1, f:f => num(f.problemas)},
     {t:'Lugares resueltos', f:f => `<div class="barra" title="${num(f.pct_resuelto)} %"><i style="width:${f.pct_resuelto}%"></i></div>${num(f.pct_resuelto)} %`},
     {t:'En las estadísticas', f:f => (f.reglas_anteriores && f.vigente ? '<span class="etq alerta" title="La solicitud cambió después de este envío">reglas anteriores: vuelva a subirlo</span><br>' : '') + (!f.vigente ? `<span class="etq">reemplazado${f.reemplazado_por ? ' por el n.º ' + f.reemplazado_por : ''}</span>` : f.periodos && f.periodos_vigentes < f.periodos ? `<span class="etq alerta">vigente en ${f.periodos_vigentes} de ${f.periodos} meses</span>` : `<span class="etq ok">vigente</span>${f.pendientes ? `<br><small>${num(f.pendientes)} por revisar</small>` : ''}`)},
-    {t:'', f:f => `<button class="accion chico suave" data-borrar-envio="${f.id}" data-n="${esc(f.archivo)}">Eliminar</button>`},
+    {t:'', f:f => puede('pendientes') || yo?.rol === 'admin' ? `<button class="accion chico suave" data-borrar-envio="${f.id}" data-n="${esc(f.archivo)}">Eliminar</button>` : ''},
   ], await api('/api/envios'), 'Todavía no hay envíos.');
 }
 $('#envios').onclick = async e => { const b = e.target.closest('button[data-borrar-envio]'); if (!b || !confirm(`¿Eliminar el envío n.º ${b.dataset.borrarEnvio} (${b.dataset.n})? Se borran sus conteos y sus pendientes; las equivalencias ya aprendidas se conservan.`)) return;
@@ -753,7 +777,7 @@ function mostrarResultado(r) {
     <table><tbody>${geo}</tbody></table>
     ${fuera ? `<h2 style="margin-top:14px">Valores fuera de catálogo</h2><ul>${fuera}</ul>` : ''}
     ${prob ? `<h2 style="margin-top:14px">Problemas de contenido (${num(rep.problemas.length + rep.problemas_omitidos)})</h2><ul>${prob}</ul>` : ''}
-    <p class="nota">${rec.pendientes.length} lugar(es) y ${rec.pendientes_valor.length} valor(es) de catálogo por revisar en la pestaña 2.
+    <p class="nota">${rec.pendientes.length} lugar(es) y ${rec.pendientes_valor.length} valor(es) de catálogo por revisar${deInstitucion() ? ' por el personal del INE' : ' en «Revisar pendientes»'}.
     ${Object.keys(rec.valores_por_memoria).length ? ' Valores resueltos con equivalencias ya confirmadas: ' + Object.entries(rec.valores_por_memoria).map(([k, n]) => `${esc(k)} (${num(n)})`).join(', ') + '.' : ''}
     ${Object.keys(rec.en_el_extranjero || {}).length ? ' Lugares de otro país (no se homologan): ' + Object.entries(rec.en_el_extranjero).map(([c, n]) => `${esc(c)} ${num(n)}`).join(', ') + '.' : ''}${Object.keys(rec.resueltos_por_respaldo).length ? ' Lugares resueltos con la columna de respaldo: ' + Object.entries(rec.resueltos_por_respaldo).map(([k, n]) => `${esc(k)} (${num(n)})`).join(', ') + '.' : ''}</p>`;
 }
@@ -1884,11 +1908,13 @@ $('#tvialenl').onclick = async e => { const b = e.target.closest('button[data-ve
   $('#lienzo').scrollIntoView({block:'center'}); };
 // ---- Sesión ----
 let yo = null;
-const ROL = {admin:'Administrador', analista:'Analista', consulta:'Consulta', operador:'Operador de campo'};
+const ROL = {admin:'Administrador', analista:'Analista', consulta:'Consulta', operador:'Operador de campo', institucion:'Institución'};
+// Cuenta de una institución que envía datos: ve lo público y sube solo lo de su institución.
+const deInstitucion = () => !!yo && yo.rol === 'institucion';
 // ¿Quien está en pantalla puede hacer cambios en esa sección? (analista o administrador, y su grupo la incluye).
-const puede = sec => !!yo && (yo.rol === 'admin' || (yo.rol === 'analista' && (!yo.secciones || yo.secciones.includes(sec))));
+const puede = sec => !!yo && (yo.rol === 'admin' || (yo.rol === 'institucion' && sec === 'recibir') || (yo.rol === 'analista' && (!yo.secciones || yo.secciones.includes(sec))));
 function pintarSesion() {
-  $('#acceso').innerHTML = yo ? `<span class="quien"><span><b>${esc(yo.nombre)}</b> · ${esc(ROL[yo.rol] || yo.rol)}</span><button class="accion chico suave" id="salir" style="margin:0">Cerrar sesión</button></span>` : '<button class="accion" id="entrar" style="margin:0">Iniciar sesión</button>';
+  $('#acceso').innerHTML = yo ? `<span class="quien"><span><b>${esc(yo.nombre)}</b> · ${esc(deInstitucion() ? 'envía por ' + yo.institucion : ROL[yo.rol] || yo.rol)}</span><button class="accion chico suave" id="salir" style="margin:0">Cerrar sesión</button></span>` : '<button class="accion" id="entrar" style="margin:0">Iniciar sesión</button>';
   document.querySelectorAll('.con-sesion').forEach(x => x.hidden = !yo); document.querySelectorAll('.solo-admin').forEach(x => x.hidden = !(yo && yo.rol === 'admin'));
   $('#aviso-clave').hidden = !(yo && yo.debe_cambiar);
   // Si su grupo limita las secciones, el menú muestra solo esas (los administradores ven todo).
@@ -1896,26 +1922,28 @@ function pintarSesion() {
   document.querySelectorAll('nav > button[data-s]').forEach(b => { if (!b.classList.contains('con-sesion') && !b.classList.contains('solo-admin')) b.hidden = !!permitidas && !permitidas.has(b.dataset.s); });
   $('#menurubros').hidden = !!permitidas && !permitidas.has('rubros');
   // Secciones que muestran lo recibido de las instituciones o solo sirven para cargar archivos: sin sesión no aparecen.
-  document.querySelectorAll('nav > button[data-sesion]').forEach(b => { b.hidden = !yo || (!!permitidas && !permitidas.has(b.dataset.s)) || (b.dataset.s === 'operadores' && !puede('operadores')); });
+  document.querySelectorAll('nav > button[data-sesion]').forEach(b => { b.hidden = !yo || (deInstitucion() && b.dataset.s !== 'recibir') || (!!permitidas && !permitidas.has(b.dataset.s)) || (b.dataset.s === 'operadores' && !puede('operadores')); });
   // Paneles y botones que cargan archivos o cambian algo: solo se muestran a quien puede usarlos. En su lugar queda una nota.
   document.querySelectorAll('[data-requiere]').forEach(x => { const ok = puede(x.dataset.requiere); x.hidden = !ok;
     if (x.classList.contains('panel')) { let n = x.nextElementSibling; if (!n || !n.classList.contains('nota-acceso')) { n = document.createElement('p'); n.className = 'nota nota-acceso'; n.textContent = 'Aquí se pueden cargar archivos propios. Inicie sesión con un usuario que tenga acceso a esta sección para verlo.'; x.after(n); } n.hidden = ok; } });
   const activa = document.querySelector('section.activa')?.id, boton = activa && document.querySelector(`nav > button[data-s="${activa}"]`); if (boton && boton.hidden) document.querySelector('nav button[data-s=mapa]').click();
   // «Mi ruta de campo» pide sesión y que el grupo incluya el trabajo de campo (o su coordinación).
-  document.querySelector('nav button[data-s=campo]').hidden = !yo || yo.rol === 'consulta' || (!!permitidas && !permitidas.has('campo') && !permitidas.has('operadores'));
+  document.querySelector('nav button[data-s=campo]').hidden = !yo || yo.rol === 'consulta' || deInstitucion() || (!!permitidas && !permitidas.has('campo') && !permitidas.has('operadores'));
   document.querySelectorAll('nav h3').forEach(h => { let x = h.nextElementSibling, alguno = false; while (x && x.tagName !== 'H3') { if (x.tagName === 'BUTTON' && !x.hidden) alguno = true; x = x.nextElementSibling; } if (!h.classList.contains('con-sesion')) h.hidden = !alguno; });
   if (permitidas && !permitidas.has(document.querySelector('section.activa')?.id)) document.querySelector('nav > button[data-s]:not([hidden])')?.click();
 }
-async function verSesion() { const r = await api('/api/sesion'); yo = r.sesion ? r.usuario : null; pintarSesion(); }
+async function verSesion() { const r = await api('/api/sesion'); yo = r.sesion ? r.usuario : null; pintarSesion(); if (solicitudes.length) cargarSolicitudes(); }
 $('#acceso').onclick = async e => {
   if (e.target.id === 'entrar') { $('#ingerror').textContent = ''; $('#ingreso').showModal(); $('#iusuario').focus(); }
-  if (e.target.id === 'salir') { await api('/api/sesion', {method:'DELETE'}); yo = null; pintarSesion(); document.querySelector('nav button[data-s=mapa]').click(); aviso('Sesión cerrada.'); }
+  if (e.target.id === 'salir') { await api('/api/sesion', {method:'DELETE'}); yo = null; pintarSesion(); cargarSolicitudes(); document.querySelector('nav button[data-s=mapa]').click(); aviso('Sesión cerrada.'); }
 };
 $('#formingreso').onsubmit = async e => { e.preventDefault();
-  try { const r = await api('/api/sesion', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({usuario: $('#iusuario').value, clave: $('#iclave').value})}); yo = r.usuario; $('#iclave').value = ''; $('#ingreso').close(); pintarSesion(); aviso(`Bienvenido, ${yo.nombre}.`); }
+  try { const r = await api('/api/sesion', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({usuario: $('#iusuario').value, clave: $('#iclave').value})}); yo = r.usuario; $('#iclave').value = ''; $('#ingreso').close(); pintarSesion(); cargarSolicitudes(); aviso(`Bienvenido, ${yo.nombre}.`);
+    // Quien entra por una institución viene a una cosa: enviar su archivo. Se le lleva ahí (salvo que deba cambiar la contraseña primero).
+    if (deInstitucion()) document.querySelector(`nav button[data-s=${yo.debe_cambiar ? 'perfil' : 'recibir'}]`).click(); }
   catch (x) { $('#ingerror').textContent = x.message; } };
 $('#irperfil').onclick = e => { e.preventDefault(); document.querySelector('nav button[data-s=perfil]').click(); };
-async function perfil() { if (!yo) return; $('#perfilinfo').textContent = `Usuario ${yo.usuario} · rol ${ROL[yo.rol] || yo.rol}.`; $('#pnombre').value = yo.nombre; }
+async function perfil() { if (!yo) return; $('#perfilinfo').textContent = `Usuario ${yo.usuario} · rol ${ROL[yo.rol] || yo.rol}${deInstitucion() ? ' · envía por ' + yo.institucion : ''}.`; $('#pnombre').value = yo.nombre; }
 $('#pguardar').onclick = async () => { try { await api('/api/perfil', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({nombre: $('#pnombre').value})}); await verSesion(); aviso('Nombre guardado.'); } catch (x) { aviso(x.message, true); } };
 $('#pclave').onclick = async () => { if ($('#pnueva').value !== $('#pnueva2').value) return aviso('Las dos contraseñas nuevas no coinciden.', true);
   try { await api('/api/perfil', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({clave_actual: $('#pactual').value, clave_nueva: $('#pnueva').value})}); ['#pactual', '#pnueva', '#pnueva2'].forEach(c => $(c).value = ''); await verSesion(); aviso('Contraseña cambiada.'); } catch (x) { aviso(x.message, true); } };
@@ -1927,6 +1955,8 @@ $('#gnuevo').onclick = () => formGrupo(null); $('#gcancelar').onclick = () => { 
 $('#gguardar').onclick = async () => { try { await api('/api/grupos' + (grupoEditado ? '/' + grupoEditado : ''), {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({nombre: $('#gnombre').value, descripcion: $('#gdesc').value, secciones: [...document.querySelectorAll('#gsecciones input:checked')].map(c => c.value)})}); $('#grupoform').hidden = true; aviso('Grupo guardado.'); usuarios(); } catch (x) { aviso(x.message, true); } };
 $('#tgrupos').onclick = async e => { const ed = e.target.closest('button[data-ed]'), bo = e.target.closest('button[data-bo]'); if (ed) formGrupo(grupos.find(g => g.id === +ed.dataset.ed));
   if (bo && confirm('¿Borrar el grupo? Sus usuarios quedarán sin grupo.')) { try { await api('/api/grupos/' + bo.dataset.bo, {method:'DELETE'}); aviso('Grupo borrado.'); usuarios(); } catch (x) { aviso(x.message, true); } } };
+const instituciones = () => [...new Set(solicitudes.map(s => s.institucion))].sort();
+$('#urol').onchange = () => { $('#uinstcaja').hidden = $('#urol').value !== 'institucion'; $('#uinst').innerHTML = instituciones().map(i => `<option>${esc(i)}</option>`).join(''); };
 async function usuarios() {
   const g = await api('/api/grupos'); grupos = g.grupos; seccionesPosibles = g.secciones;
   tabla('#tgrupos', [{t:'Grupo', f:f => `<b>${esc(f.nombre)}</b><br><small>${esc(f.descripcion)}</small>`}, {t:'Secciones a las que entra', f:f => `<small>${f.secciones.filter(x => x !== 'perfil').map(x => esc(NOMBRE_SECCION[x] || x)).join(' · ')}</small>`},
@@ -1934,15 +1964,16 @@ async function usuarios() {
   const l = await api('/api/usuarios');
   tabla('#tusuarios', [{t:'Usuario', f:f => `<b>${esc(f.usuario)}</b>${f.debe_cambiar ? ' <span class="etq alerta">contraseña inicial</span>' : ''}`}, {t:'Nombre', f:f => esc(f.nombre)},
     {t:'Rol', f:f => `<select data-rol="${f.id}" aria-label="Rol de ${esc(f.usuario)}" style="max-width:170px;padding:4px">${Object.entries(ROL).map(([k, v]) => `<option value="${k}" ${k === f.rol ? 'selected' : ''}>${v}</option>`).join('')}</select>`},
+    {t:'Institución', f:f => f.rol !== 'institucion' ? '<small>—</small>' : `<select data-inst="${f.id}" aria-label="Institución de ${esc(f.usuario)}" style="max-width:150px;padding:4px">${f.institucion ? '' : '<option value="">(elija)</option>'}${instituciones().map(i => `<option ${i === f.institucion ? 'selected' : ''}>${esc(i)}</option>`).join('')}</select>`},
     {t:'Grupo', f:f => `<select data-grupo="${f.id}" aria-label="Grupo de ${esc(f.usuario)}" style="max-width:210px;padding:4px"><option value="0">(sin grupo: todo lo de su rol)</option>${grupos.map(g => `<option value="${g.id}" ${g.id === f.grupo_id ? 'selected' : ''}>${esc(g.nombre)}</option>`).join('')}</select>`},
     {t:'Activo', f:f => `<label class="opcion" style="margin:0"><input type="checkbox" data-act="${f.id}" ${f.activo ? 'checked' : ''}> ${f.activo ? 'sí' : 'no'}</label>`},
     {t:'Creado', f:f => esc(f.creado)}, {t:'Último ingreso', f:f => esc(f.ultimo_ingreso || 'nunca')},
     {t:'Contraseña', f:f => `<button class="accion chico suave" data-clave="${f.id}" data-u="${esc(f.usuario)}">Poner una nueva</button>`}], l, 'Sin usuarios.');
 }
 const cambiarUsuario = async (id, cambio) => { try { await api('/api/usuarios/' + id, {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(cambio)}); aviso('Guardado.'); } catch (x) { aviso(x.message, true); } usuarios(); };
-$('#tusuarios').onchange = e => { const c = e.target; if (c.dataset.rol) cambiarUsuario(c.dataset.rol, {rol: c.value}); if (c.dataset.act) cambiarUsuario(c.dataset.act, {activo: c.checked}); if (c.dataset.grupo) cambiarUsuario(c.dataset.grupo, {grupo_id: +c.value}); };
+$('#tusuarios').onchange = e => { const c = e.target; if (c.dataset.rol) cambiarUsuario(c.dataset.rol, {rol: c.value}); if (c.dataset.act) cambiarUsuario(c.dataset.act, {activo: c.checked}); if (c.dataset.grupo) cambiarUsuario(c.dataset.grupo, {grupo_id: +c.value}); if (c.dataset.inst) cambiarUsuario(c.dataset.inst, {institucion: c.value}); };
 $('#tusuarios').onclick = e => { const b = e.target.closest('button[data-clave]'); if (!b) return; const nueva = prompt(`Contraseña nueva para ${b.dataset.u} (al menos 10 caracteres, con letras y números o signos). Deberá cambiarla al entrar.`); if (nueva) cambiarUsuario(b.dataset.clave, {clave: nueva}); };
-$('#ucrear').onclick = async () => { try { await api('/api/usuarios', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({usuario: $('#uusuario').value, nombre: $('#unombre').value, rol: $('#urol').value, clave: $('#uclave').value})});
+$('#ucrear').onclick = async () => { try { await api('/api/usuarios', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({usuario: $('#uusuario').value, nombre: $('#unombre').value, rol: $('#urol').value, clave: $('#uclave').value, institucion: $('#urol').value === 'institucion' ? $('#uinst').value : ''})});
   ['#uusuario', '#unombre', '#uclave'].forEach(c => $(c).value = ''); aviso('Usuario creado.'); usuarios(); } catch (x) { aviso(x.message, true); } };
 // ---- Seguridad alimentaria (CIF) ----
 async function alimentaria() {
@@ -1958,6 +1989,188 @@ async function alimentaria() {
     {t:'Con retardo en talla (%)', num:1, f:f => `<div class="barra" style="min-width:70px"><i style="width:${f.retardo_en_talla_pct}%;background:var(--mal)"></i></div><b>${esc(f.retardo_en_talla_pct)} %</b>`},
     {t:'Vulnerabilidad nutricional', f:f => `<span class="etq ${/alta/.test(f.vulnerabilidad) ? 'mal' : f.vulnerabilidad === 'moderada' ? 'alerta' : 'ok'}">${esc(f.vulnerabilidad)}</span>`}], r.talla || [], 'Este servidor no tiene cargado el censo de talla (se genera con "faro talla").');
 }
+
+// ---- Recorridos guiados ----
+// Cada sección tiene su recorrido: una lista de pasos que señalan un elemento de la pantalla y dicen para qué sirve.
+// `en` es el selector del elemento (si no está a la vista, el paso se salta); `sube` lo cambia por el contenedor más cercano.
+const RECORRIDOS = {
+  portal: [
+    {t:'Bienvenido a FARO', x:'FARO ayuda al INE a pedir, recibir y homologar los registros de otras instituciones, y a ver el territorio y los precios con fuentes citadas. Este recorrido dura un minuto.'},
+    {en:'nav, #menu', t:'El menú', x:'Todo está agrupado en cinco bloques: panorama, registros administrativos, territorio, precios y datos. Lo que pide una cuenta solo aparece al iniciar sesión.'},
+    {en:'#recorrido', t:'Este botón, siempre a mano', x:'En cualquier pantalla, «Recorrido guiado» le explica paso a paso lo que tiene delante. Cada sección tiene además su propio botón ámbar.'},
+    {en:'#acceso', t:'Iniciar sesión', x:'Sin cuenta se ve todo lo público. Con cuenta, cada quien ve lo suyo: el personal del INE recibe y revisa; una institución sube solo sus archivos; un operador ve su ruta.'},
+    {en:'section.activa .titulo', t:'Cada pantalla se explica sola', x:'Arriba de cada sección hay una frase que dice qué muestra y de dónde sale. Las cifras llevan su fuente y su fecha; lo que no es oficial está rotulado.'},
+  ],
+  mapa: [
+    {en:'.niveles', t:'Elija el nivel', x:'Departamentos, municipios o lugares poblados. El mapa y la ficha cambian con el nivel; el buscador encuentra cualquier lugar por nombre, alias o código.'},
+    {en:'#lienzo', t:'Toque un territorio', x:'Al tocar un departamento o un municipio se abre su ficha: población, censo, vías, registros recibidos, gráficas y un reporte para imprimir.'},
+    {en:'#indicador', sube:'.panel', t:'Qué colorear', x:'Escoja el indicador que pinta el mapa. La leyenda dice los rangos y la nota dice la fuente y el año.'},
+    {en:'#capavias', sube:'.panel', t:'Capas', x:'Encienda carreteras, enlaces que probablemente faltan, huella construida por época o la foto satelital. Se pueden combinar.'},
+  ],
+  mejoras: [
+    {en:'#mejareas', t:'Antes y ahora, por área', x:'Cada punto dice qué se tenía, qué hace FARO (con una cifra medida) y cómo escala. Filtre por área para ir a lo que le interesa.'},
+    {en:'#mejlista', t:'Las mejoras, una por una', x:'Son comparaciones comprobables: cada cifra sale de una prueba o de un dato del repositorio.'},
+    {en:'#mejimprimir', t:'Para llevar', x:'Imprima la comparación o guárdela como PDF.'},
+  ],
+  proceso: [
+    {en:'#flujo1', sube:'.panel', t:'De la solicitud a la estadística', x:'El camino de un registro administrativo: se pide, llega, se valida, se homologa y se publica solo como conteos.'},
+    {en:'#flujo2', sube:'.panel', t:'Fuentes abiertas', x:'Cómo una descarga pública se convierte en una capa con su procedencia.'},
+    {en:'#flujo3', sube:'.panel', t:'Precios', x:'De la canasta oficial al precio de referencia, con la evidencia de cada tienda.'},
+    {en:'#flujo4', sube:'.panel', t:'Trabajo de campo', x:'De la ruta asignada a la visita comprobada con ubicación y foto.'},
+  ],
+  tableros: [
+    {en:'#tabtexto', sube:'.panel', t:'Pida su tablero con palabras', x:'Escriba qué quiere ver («mapa y tabla de población en Sololá») y FARO arma las piezas. También puede empezar en blanco. No usa modelos externos: reconoce términos del catálogo.'},
+    {en:'#tabpublicados', sube:'.panel', t:'Tableros publicados', x:'Los ve cualquier visitante, con un enlace para compartir. Quien lo abre puede mover los filtros sin cambiar lo publicado.'},
+    {en:'#tabborradores', sube:'.panel', t:'Sus borradores', x:'Un tablero nuevo es un borrador: solo lo ve su autor hasta que lo publica.'},
+    {en:'.barra-est', t:'El diseñador', x:'Deshaga y rehaga, guarde, publique y copie el enlace. Abajo: filtros, lienzo con piezas y propiedades de la pieza elegida.'},
+  ],
+  recibir: [
+    {en:'#tarjetas', t:'Cómo va la recepción', x:'Envíos recibidos, filas procesadas, valores por revisar y equivalencias ya aprendidas.'},
+    {en:'#sol', sube:'.panel', t:'1 · Elija la solicitud y suba el archivo', x:'Suba el Excel o CSV tal como sale de su sistema: las columnas pueden venir con otro nombre o en otro orden. Hay un archivo de ejemplo para cada solicitud.'},
+    {en:'#enviar', t:'2 · Validar y homologar', x:'En segundos FARO reconoce las columnas, pone códigos oficiales a los lugares y quita los datos personales. El archivo original no se guarda.'},
+    {en:'#envios', sube:'.panel', t:'3 · El historial', x:'Cada envío queda con su fecha y su corte. Si llega de nuevo el mismo corte, reemplaza al anterior; nada se cuenta dos veces.'},
+  ],
+  pendientes: [
+    {en:'#tpend', sube:'.panel', t:'Lo que el sistema no quiso adivinar', x:'FARO solo asigna un código con coincidencia exacta y única. Lo demás lo propone aquí para que una persona decida.'},
+    {en:'#tpend', t:'Decida una vez', x:'Elija la propuesta o busque en el catálogo. La decisión queda con su nombre y no se vuelve a preguntar, venga de la institución que venga.'},
+  ],
+  memoria: [
+    {en:'#csvtabla', sube:'.panel', t:'Cargue una tabla de códigos', x:'Si una institución usa sus propios códigos, suba su tabla una vez y todos sus envíos se resuelven solos.'},
+    {en:'#tmem', sube:'.panel', t:'Equivalencias confirmadas', x:'La memoria del sistema: cada equivalencia dice quién la confirmó y cuándo. Se puede revocar.'},
+  ],
+  resultados: [
+    {en:'#tavance', sube:'.panel', t:'Avance de la recepción', x:'Qué institución ha enviado, cuánto y con qué porcentaje de lugares resueltos.'},
+    {en:'#tcobertura', sube:'.panel', t:'Cobertura por departamento', x:'Dónde hay datos y dónde faltan, por delegación.'},
+    {en:'#thechos', sube:'.panel', t:'Registros por departamento', x:'Solo conteos; las celdas pequeñas se protegen para que nadie pueda ser identificado.'},
+  ],
+  crecimiento: [
+    {en:'#tpob', sube:'.panel', t:'Población por municipio', x:'Proyecciones oficiales del INE 2015–2030. Puede extenderlas más allá: FARO lo rotula como no oficial y dice el método.'},
+    {en:'#reproducir', sube:'.panel', t:'Repita el cálculo', x:'Un botón vuelve a bajar el libro del INE y rehace el proceso, paso por paso, con constancia.'},
+    {en:'#tcons', sube:'.panel', t:'Superficie construida', x:'Lo que el satélite ve crecer en cada municipio, de 1975 a 2030.'},
+    {en:'#tcrec', sube:'.panel', t:'Edificaciones', x:'Crecimiento de edificaciones por municipio, con sus márgenes medidos.'},
+  ],
+  vial: [
+    {en:'#vialtarjetas', t:'La red en cifras', x:'Kilómetros de vías, lugares poblados conectados y los que no tienen camino mapeado cerca.'},
+    {en:'#tvialtipos', sube:'.panel', t:'Tipo y superficie', x:'Kilómetros por clase de vía y por superficie. La superficie solo está anotada en parte de la red: se dice siempre.'},
+    {en:'#tvialenl', sube:'.panel', t:'Enlaces que probablemente faltan', x:'Lugares cercanos a la red sin camino dibujado: candidatos para verificar en campo. Cada uno se puede ver en el mapa.'},
+  ],
+  operadores: [
+    {en:'#crpasos', t:'Un asistente de cinco pasos', x:'Para quién es la ruta, qué lugares visita, dónde está la encuesta, revisión y seguimiento. No se puede saltar un paso sin completarlo.'},
+    {en:'.paso:not([hidden])', t:'El paso actual', x:'Complete lo que pide y pulse «Siguiente». FARO ordena las paradas para acortar el recorrido.'},
+    {en:'#crdemo', t:'Vea una demostración', x:'Carga una ruta de muestra, siempre rotulada, para recorrer el proceso completo sin tocar datos reales.'},
+  ],
+  campo: [
+    {en:'#campotarjetas', t:'Su ruta de hoy', x:'Cuántas paradas tiene, cuántas visitó y cuántas faltan.'},
+    {en:'#campomapa', t:'El mapa de la ruta', x:'Las paradas en el orden sugerido y su posición, si la comparte.'},
+    {en:'#campoparadas', t:'Registrar una visita', x:'En cada parada: confirme su ubicación, tome la foto de la fachada y abra la encuesta. La foto no se guarda; solo su resultado.'},
+    {en:'#campodemo', t:'Ruta de demostración', x:'Para practicar el registro paso a paso antes de salir a campo.'},
+  ],
+  alimentaria: [
+    {en:'#ciftarjetas', t:'Inseguridad alimentaria aguda', x:'Personas por fase de la clasificación CIF, según SESAN. El dato es por departamento.'},
+    {en:'#tcif', sube:'.panel', t:'Por departamento', x:'Cuántas personas están en crisis o emergencia en cada departamento y en qué periodo.'},
+    {en:'#ttalla', sube:'.panel', t:'Desnutrición crónica', x:'Censo de talla en escolares, por municipio.'},
+  ],
+  construccion: [
+    {en:'#constarjetas', t:'Materiales de construcción', x:'Precios publicados por proveedores, llevados a los artículos oficiales del índice de materiales.'},
+    {en:'#tconsart', sube:'.panel', t:'Precio por artículo oficial', x:'Para cada artículo: cuántos precios hay, la mediana y el rango, con las tiendas que lo sustentan.'},
+    {en:'#tconsrev', sube:'.panel', t:'Productos por revisar', x:'Lo que no encajó con certeza en un artículo se propone; una persona decide.'},
+    {en:'#tconsprov', sube:'.panel', t:'Directorio de proveedores', x:'Quién publica precios y dónde.'},
+  ],
+  precios: [
+    {en:'#csvprecios', sube:'.panel', t:'De cotizaciones a precio de referencia', x:'Suba sus cotizaciones y FARO calcula el precio de referencia con el método declarado, marcando los valores atípicos.'},
+    {en:'#trefs', sube:'.panel', t:'Precios ya emitidos por el INE', x:'Busque entre los precios de referencia que el INE ya publicó.'},
+  ],
+  canasta: [
+    {en:'#tcanasta', sube:'.panel', t:'Canasta básica', x:'Cada producto de la canasta con el precio oficial del INE y lo que publican hoy las tiendas. Toque una fila para ver su gráfica.'},
+  ],
+  rubros: [
+    {en:'#rubrotarjetas', t:'Precios publicados', x:'Miles de precios leídos de las tiendas en línea, con fecha y dirección de cada uno.'},
+    {en:'#rubrosel', sube:'.panel', t:'Busque un producto', x:'Filtre por rubro, texto o tienda. Puede bajar el resultado en CSV o pedir un informe imprimible con la evidencia.'},
+    {en:'#rubrovistas', t:'Tres vistas', x:'El mismo código de barras entre tiendas, los cambios entre muestreos y las diferencias de 50 % o más, que una persona califica.'},
+  ],
+  balance: [
+    {en:'#hbaproducto', sube:'.panel', t:'Calculadora de derivados', x:'Elija un producto primario y una cantidad: FARO aplica las tasas de extracción de la FAO para Guatemala y muestra cada derivado.'},
+    {en:'#thba', sube:'.panel', t:'El resultado', x:'Cada derivado con su tasa y su fuente; los avisos dicen qué no se pudo calcular y por qué.'},
+    {en:'#hbatabla', sube:'.panel', t:'Pruebe con otra tabla', x:'Si el INE tiene tasas propias, se cargan aquí y el cálculo usa esas.'},
+  ],
+  muestreos: [
+    {en:'#tmuestreos', sube:'.panel', t:'Muestreos automáticos', x:'Cada tarea lee un catálogo público, con su frecuencia y su último resultado. Todo queda con fecha y dirección de origen.'},
+    {en:'#muestreostodas', t:'Ejecutar todas', x:'Lanza todas las lecturas a la vez; corren en segundo plano.'},
+  ],
+  ine: [
+    {en:'#tine', sube:'.panel', t:'Portal de datos abiertos del INE', x:'Los conjuntos que FARO vigila. «Sincronizar» revisa si alguno cambió y deja constancia.'},
+  ],
+  capas: [
+    {en:'#tcapas', sube:'.panel', t:'Capas publicadas', x:'Todo lo que FARO produce se puede bajar en GeoJSON o CSV, con su fuente y licencia, listo para un SIG.'},
+  ],
+  acerca: [
+    {en:'.identidad', t:'Quiénes somos', x:'Misión, visión y objetivos de FARO: que cada dato llegue a puerto.'},
+    {en:'#hecho', sube:'.panel', t:'Qué se ha hecho', x:'El inventario de lo construido, con sus cifras.'},
+    {en:'#citas', sube:'.panel', t:'Fuentes y citas', x:'Cada fuente con su institución, fecha de descarga, licencia y cómo citarla.'},
+  ],
+  perfil: [
+    {en:'#pnombre', sube:'.panel', t:'Su perfil', x:'Su nombre aparece en la bitácora junto a cada decisión que tome.'},
+    {en:'#pactual', sube:'.panel', t:'Cambie su contraseña', x:'Al menos 10 caracteres. Con una contraseña inicial no se pueden hacer cambios en el portal.'},
+  ],
+  usuarios: [
+    {en:'#tusuarios', sube:'.panel', t:'Usuarios', x:'Quién entra y con qué rol. A una cuenta de institución se le indica por cuál envía.'},
+    {en:'#tgrupos', sube:'.panel', t:'Grupos', x:'Un grupo limita a qué secciones entra un usuario.'},
+    {en:'#uusuario', sube:'.panel', t:'Crear un usuario', x:'Elija el rol; si es «Institución», elija también la institución. La persona deberá cambiar la contraseña al entrar.'},
+  ],
+};
+let rec = null;
+const aLaVista = el => !!el && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+function recorrer(cual, desde) {
+  cerrarRecorrido();
+  const pasos = (RECORRIDOS[cual] || []).map(p => { let el = p.en ? [...document.querySelectorAll(p.en)].find(aLaVista) : null; if (el && p.sube) el = el.closest(p.sube) || el; return {...p, el}; }).filter(p => !p.en || p.el);
+  if (!pasos.length) return aviso('Esta sección todavía no tiene nada a la vista que recorrer.', true);
+  document.querySelector('nav').classList.remove('abierto');
+  const fondo = document.createElement('div'); fondo.id = 'recfondo';
+  const foco = document.createElement('div'); foco.id = 'recfoco';
+  const globo = document.createElement('div'); globo.id = 'recglobo'; globo.setAttribute('role', 'dialog'); globo.setAttribute('aria-labelledby', 'rectitulo'); globo.setAttribute('aria-describedby', 'rectexto'); globo.tabIndex = -1;
+  document.body.append(fondo, foco, globo);
+  rec = {cual, pasos, i: 0, fondo, foco, globo, desde: desde || document.activeElement};
+  globo.onclick = e => { const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.r === 'sig') rec.i + 1 < rec.pasos.length ? pasoRecorrido(rec.i + 1) : cerrarRecorrido();
+    if (b.dataset.r === 'ant') pasoRecorrido(rec.i - 1);
+    if (b.dataset.r === 'fin') cerrarRecorrido();
+    if (b.dataset.r === 'portal') recorrer('portal', rec.desde); };
+  try { localStorage.setItem('faro_recorrido_visto', '1'); } catch (_) {}
+  $('#recorrido').classList.remove('nuevo');
+  pasoRecorrido(0);
+}
+function pasoRecorrido(i) {
+  if (!rec) return; rec.i = i; const p = rec.pasos[i], n = rec.pasos.length;
+  if (p.el) p.el.scrollIntoView({block: p.el.getBoundingClientRect().height > innerHeight * .6 ? 'start' : 'center', behavior:'instant'});
+  rec.globo.innerHTML = `<button class="x" data-r="fin" aria-label="Cerrar el recorrido">×</button><p class="cuenta">${esc(rec.cual === 'portal' ? 'Recorrido general' : NOMBRE_SECCION[rec.cual] || 'Recorrido')} · paso ${i + 1} de ${n}</p>
+    <div class="puntos" aria-hidden="true">${rec.pasos.map((_, k) => `<i class="${k < i ? 'ya' : k === i ? 'aqui' : ''}"></i>`).join('')}</div>
+    <h3 id="rectitulo">${esc(p.t)}</h3><p id="rectexto">${esc(p.x)}</p>
+    <div class="pie">${i ? '<button class="accion chico suave" data-r="ant">Anterior</button>' : ''}<button class="accion chico" data-r="sig">${i + 1 < n ? 'Siguiente' : 'Terminar'}</button>${rec.cual !== 'portal' && i === 0 ? '<button class="otro" data-r="portal">¿Primera vez? Recorrido general</button>' : ''}</div>`;
+  colocarRecorrido(); rec.globo.querySelector('[data-r=sig]').focus({preventScroll:true});
+}
+function colocarRecorrido() {
+  if (!rec) return; const p = rec.pasos[rec.i], g = rec.globo, alto = g.offsetHeight, ancho = g.offsetWidth, m = 10;
+  if (!p.el) { Object.assign(rec.foco.style, {top: innerHeight / 2 + 'px', left: innerWidth / 2 + 'px', width:'0px', height:'0px'}); g.style.top = Math.max(m, (innerHeight - alto) / 2) + 'px'; g.style.left = (innerWidth - ancho) / 2 + 'px'; return; }
+  const c = p.el.getBoundingClientRect(), arriba = Math.max(m, c.top - 6), abajo = Math.min(innerHeight - m, c.bottom + 6), izq = Math.max(m, c.left - 6), der = Math.min(innerWidth - m, c.right + 6);
+  Object.assign(rec.foco.style, {top: arriba + 'px', left: izq + 'px', width: Math.max(0, der - izq) + 'px', height: Math.max(0, abajo - arriba) + 'px'});
+  // El globo va debajo del elemento si cabe; si no, encima; si tampoco, sobre su parte baja.
+  const top = abajo + 12 + alto <= innerHeight - m ? abajo + 12 : arriba - 12 - alto >= m ? arriba - 12 - alto : innerHeight - alto - m;
+  g.style.top = top + 'px'; g.style.left = Math.min(Math.max(m, izq + (der - izq) / 2 - ancho / 2), innerWidth - ancho - m) + 'px';
+}
+function cerrarRecorrido() { if (!rec) return; const d = rec.desde; [rec.fondo, rec.foco, rec.globo].forEach(x => x.remove()); rec = null; if (d && d.focus && document.contains(d)) d.focus({preventScroll:true}); }
+addEventListener('resize', colocarRecorrido); addEventListener('scroll', colocarRecorrido, true);
+addEventListener('keydown', e => { if (!rec) return;
+  if (e.key === 'Escape') { e.preventDefault(); cerrarRecorrido(); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); rec.i + 1 < rec.pasos.length ? pasoRecorrido(rec.i + 1) : cerrarRecorrido(); }
+  else if (e.key === 'ArrowLeft' && rec.i) { e.preventDefault(); pasoRecorrido(rec.i - 1); }
+  else if (e.key === 'Tab') { const b = [...rec.globo.querySelectorAll('button')], k = b.indexOf(document.activeElement); e.preventDefault(); b[(k + (e.shiftKey ? -1 : 1) + b.length) % b.length].focus(); } }, true);
+const seccionActiva = () => document.querySelector('section.activa')?.id || 'mapa';
+$('#recorrido').onclick = () => recorrer(seccionActiva(), $('#recorrido'));
+// Cada sección lleva su propio botón, a la vista, junto al título.
+document.querySelectorAll('main section').forEach(sec => { if (!RECORRIDOS[sec.id]) return;
+  const b = document.createElement('button'); b.className = 'recorrer'; b.type = 'button'; b.dataset.recorrido = sec.id; b.textContent = 'Ver cómo funciona esta pantalla'; b.onclick = () => recorrer(sec.id, b);
+  const t = sec.querySelector(':scope > .titulo'); if (t) t.append(b); else { const d = document.createElement('div'); d.className = 'barra-rec'; d.append(b); sec.prepend(d); } });
+try { if (!localStorage.getItem('faro_recorrido_visto')) $('#recorrido').classList.add('nuevo'); } catch (_) {}
 const cargar = {mejoras, tableros, balance: hbaIniciar, rubros: () => rubros(false), alimentaria, perfil, usuarios, muestreos, canasta, proceso, acerca, construccion, mapa: iniciarMapa, capas: capasPublicadas, vial: redVial, precios: buscarReferencias, recibir: envios, pendientes, memoria, resultados: hechos, ine, crecimiento, operadores: campoCoordinar, campo};
 $('#menu').onclick = () => { const abierto = document.querySelector('nav').classList.toggle('abierto'); $('#menu').setAttribute('aria-expanded', abierto); };
 // Enlaces internos del tipo <a href="#seccion"> llevan a esa sección del menú.
