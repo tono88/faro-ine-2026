@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FARO · Que cada dato llegue a puerto</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwMDUxYjMiLz4KICA8cGF0aCBkPSJNMjYgMjEgNSAxMnYxN3oiIGZpbGw9IiNmNWE2MjMiIG9wYWNpdHk9Ii45Ii8+CiAgPHBhdGggZD0iTTM4IDIxIDU5IDEydjE3eiIgZmlsbD0iI2Y1YTYyMyIgb3BhY2l0eT0iLjkiLz4KICA8cGF0aCBkPSJNMzIgOGw4IDhIMjR6IiBmaWxsPSIjZmZmIi8+CiAgPHJlY3QgeD0iMjYiIHk9IjE2IiB3aWR0aD0iMTIiIGhlaWdodD0iOCIgcng9IjEiIGZpbGw9IiNmZmQyN2EiLz4KICA8cGF0aCBkPSJNMjcgMjZoMTBsNCAyOEgyM3oiIGZpbGw9IiNmZmYiLz4KICA8cGF0aCBkPSJNMjYuMSAzNGgxMS44bC45IDZIMjUuMnoiIGZpbGw9IiM0ZDlhZTEiLz4KICA8cGF0aCBkPSJNMjQuNCA0NmgxNS4ybC42IDRIMjMuOHoiIGZpbGw9IiM0ZDlhZTEiLz4KICA8cmVjdCB4PSIxOCIgeT0iNTQiIHdpZHRoPSIyOCIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwMDgwZmYiLz4KICA8cGF0aCBkPSJNMjYgMjEgNSAxMnYxN3oiIGZpbGw9IiNmZmQ1MDAiIG9wYWNpdHk9Ii45Ii8+CiAgPHBhdGggZD0iTTM4IDIxIDU5IDEydjE3eiIgZmlsbD0iI2ZmZDUwMCIgb3BhY2l0eT0iLjkiLz4KICA8cGF0aCBkPSJNMzIgOGw4IDhIMjR6IiBmaWxsPSIjZmZmIi8+CiAgPHJlY3QgeD0iMjYiIHk9IjE2IiB3aWR0aD0iMTIiIGhlaWdodD0iOCIgcng9IjEiIGZpbGw9IiNmZmU1NjYiLz4KICA8cGF0aCBkPSJNMjcgMjZoMTBsNCAyOEgyM3oiIGZpbGw9IiNmZmYiLz4KICA8cGF0aCBkPSJNMjYuMSAzNGgxMS44bC45IDZIMjUuMnoiIGZpbGw9IiM2NmIzZmYiLz4KICA8cGF0aCBkPSJNMjQuNCA0NmgxNS4ybC42IDRIMjMuOHoiIGZpbGw9IiM2NmIzZmYiLz4KICA8cmVjdCB4PSIxOCIgeT0iNTQiIHdpZHRoPSIyOCIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==">
 <meta name="description" content="FARO: portal para que el INE pida, reciba y homologue registros administrativos, y los aproveche junto al censo, el territorio y los precios.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>@font-face{font-family:"Ubuntu Sans";font-weight:400;font-style:normal;font-display:swap;src:url(/vendor/ubuntu-sans/ubuntu-sans-400.woff2) format("woff2")}@font-face{font-family:"Ubuntu Sans";font-weight:500;font-style:normal;font-display:swap;src:url(/vendor/ubuntu-sans/ubuntu-sans-500.woff2) format("woff2")}@font-face{font-family:"Ubuntu Sans";font-weight:600;font-style:normal;font-display:swap;src:url(/vendor/ubuntu-sans/ubuntu-sans-600.woff2) format("woff2")}@font-face{font-family:"Ubuntu Sans";font-weight:700;font-style:normal;font-display:swap;src:url(/vendor/ubuntu-sans/ubuntu-sans-700.woff2) format("woff2")}</style>
 <link rel="stylesheet" href="/vendor/leaflet.css">
 <script src="/idiomas.js"></script>
 <style>
-  /* Paleta y tipografía tomadas del sitio del INE (azules #0051b3 y #4d9ae1, texto #313131, Noto Sans). */
-  :root { --azul:#0051b3; --azul-oscuro:#07306b; --celeste:#4d9ae1; --cielo:#e8f1fb; --tinta:#313131; --gris:#5b6672; --fondo:#f4f6f9; --borde:#d9dfe6; --ok:#1a7f4b; --alerta:#a15c00; --mal:#b3261e; --radio:10px; }
+  /* Paleta y tipografía de la guía de diseño gráfico del INE para el Datatón (nov-2026): azul radiante #0080ff, azul oscuro
+     #004080 y blanco; amarillo #ffd500 como tono secundario; Ubuntu Sans, servida desde el propio portal. */
+  :root { --azul:#0080ff; --azul-oscuro:#004080; --celeste:#66b3ff; --cielo:#e5f2ff; --tinta:#313131; --gris:#5b6672; --fondo:#f4f6f9; --borde:#d9dfe6; --ok:#1a7f4b; --alerta:#a15c00; --mal:#b3261e; --radio:10px; }
   * { box-sizing: border-box; }
   html, body { height:100%; }
-  body { margin:0; font:15px/1.55 "Noto Sans", "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--tinta); background:var(--fondo); display:grid; grid-template-columns:248px 1fr; grid-template-rows:auto 1fr; }
+  body { margin:0; font:15px/1.55 "Ubuntu Sans", "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--tinta); background:var(--fondo); display:grid; grid-template-columns:248px 1fr; grid-template-rows:auto 1fr; }
   header { grid-column:1 / -1; background:#fff; border-bottom:3px solid var(--azul); padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
   header .marca { display:flex; align-items:center; gap:10px; }
   header .marca svg { width:36px; height:36px; display:block; } header > span b { color:var(--azul-oscuro); }
@@ -27,13 +27,13 @@
   header .acceso input { width:190px; padding:6px 8px; }
   #menu { display:none; border:1px solid var(--borde); background:#fff; border-radius:6px; padding:6px 10px; font:inherit; cursor:pointer; }
   nav { background:var(--azul-oscuro); color:#fff; padding:10px 8px 24px; overflow-y:auto; }
-  nav h3 { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:#a9c6ee; margin:16px 10px 6px; font-weight:600; }
-  nav button { display:flex; width:100%; gap:8px; align-items:center; border:0; background:none; color:#e9f0fa; padding:8px 10px; font:inherit; text-align:left; cursor:pointer; border-radius:7px; }
+  nav h3 { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:#99ccff; margin:16px 10px 6px; font-weight:600; }
+  nav button { display:flex; width:100%; gap:8px; align-items:center; border:0; background:none; color:#e5f2ff; padding:8px 10px; font:inherit; text-align:left; cursor:pointer; border-radius:7px; }
   nav button:hover { background:rgba(255,255,255,.09); }
   nav button[aria-selected=true] { background:#fff; color:var(--azul-oscuro); font-weight:600; }
-  nav .submenu { margin:0 0 4px 14px; border-left:2px solid rgba(255,255,255,.18); padding-left:6px; } nav .submenu button { padding:5px 10px; font-size:14px; color:#cfe0f6; } nav .submenu button small { margin-left:auto; color:#a9c6ee; font-size:12px; }
+  nav .submenu { margin:0 0 4px 14px; border-left:2px solid rgba(255,255,255,.18); padding-left:6px; } nav .submenu button { padding:5px 10px; font-size:14px; color:#cfe0f6; } nav .submenu button small { margin-left:auto; color:#99ccff; font-size:12px; }
   nav .submenu button[aria-current=true] { background:rgba(255,255,255,.16); color:#fff; font-weight:600; }
-  nav button b { margin-left:auto; background:#f5a623; color:#3b2a00; border-radius:10px; padding:0 7px; font-size:12px; }
+  nav button b { margin-left:auto; background:#ffd500; color:#3b2a00; border-radius:10px; padding:0 7px; font-size:12px; }
   main { overflow-y:auto; padding:20px 24px 40px; min-width:0; }
   main > .ancho { max-width:1180px; margin:0 auto; }
   section { display:none; } section.activa { display:block; }
@@ -50,14 +50,14 @@
   button.accion:hover { background:var(--azul-oscuro); }
   button.accion:disabled { opacity:.5; cursor:wait; } button.chico { padding:4px 10px; margin:0 4px 4px 0; font-size:14px; font-weight:500; }
   button.suave { background:var(--cielo); color:var(--azul-oscuro); }
-  button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid #f5a623; outline-offset:2px; }
+  button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid #ffd500; outline-offset:2px; }
   table { border-collapse:collapse; width:100%; font-size:14px; } th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--borde); vertical-align:top; }
   th { background:var(--cielo); color:var(--azul-oscuro); position:sticky; top:0; font-weight:600; z-index:1; } td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
   tbody tr:hover { background:#fafcff; }
   .tabla { overflow:auto; max-height:520px; border:1px solid var(--borde); border-radius:8px; }
   a { color:var(--azul); } code { background:var(--cielo); padding:1px 5px; border-radius:4px; font-size:.92em; }
   .etq { display:inline-block; padding:1px 9px; border-radius:10px; font-size:12px; font-weight:600; background:#e6ebf0; white-space:nowrap; }
-  .etq.ok { background:#dff3e7; color:var(--ok); } .etq.alerta { background:#fdeecf; color:var(--alerta); } .etq.mal { background:#fbe0de; color:var(--mal); }
+  .etq.ok { background:#dff3e7; color:var(--ok); } .etq.alerta { background:#fff6cc; color:var(--alerta); } .etq.mal { background:#fbe0de; color:var(--mal); }
   .barra { height:8px; background:#e6ebf0; border-radius:5px; overflow:hidden; min-width:80px; } .barra i { display:block; height:100%; background:var(--ok); }
   #aviso { position:fixed; right:16px; bottom:16px; background:var(--azul-oscuro); color:#fff; padding:10px 14px; border-radius:8px; display:none; max-width:420px; white-space:pre-line; z-index:2000; box-shadow:0 6px 20px rgba(0,0,0,.2); }
   #aviso.mal { background:var(--mal); }
@@ -85,15 +85,15 @@
   @media (max-width: 1250px) { .ficha-flotante .graficas { grid-template-columns:1fr; } .ficha-flotante .mini { grid-template-columns:1fr 1fr; } }
   .acceso .quien { display:flex; gap:8px; align-items:center; } .acceso .quien b { color:var(--azul-oscuro); } [hidden] { display:none !important; }
   .leaflet-encima-pane canvas { pointer-events:none; }
-  #aviso-clave { background:#fff7e6; border:1px solid #f3d9a4; border-radius:8px; padding:8px 12px; margin-bottom:14px; }
+  #aviso-clave { background:#fffbe5; border:1px solid #ffee99; border-radius:8px; padding:8px 12px; margin-bottom:14px; }
   .mini { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0; } .mini div { background:var(--cielo); border-radius:8px; padding:7px 9px; } .mini b { display:block; font-size:17px; color:var(--azul-oscuro); font-variant-numeric:tabular-nums; } .mini small { color:var(--gris); font-size:12px; line-height:1.3; display:block; }
   .ficha-flotante h3, dialog h3 { font-size:13px; margin:12px 0 4px; color:var(--azul-oscuro); } .ficha-flotante svg { width:100%; height:auto; display:block; }
   dialog { border:0; border-radius:14px; padding:22px; width:min(760px, 94vw); max-height:92vh; box-shadow:0 20px 60px rgba(0,0,0,.35); color:var(--tinta); } dialog::backdrop { background:rgba(7,48,107,.45); }
   #animlienzo { width:100%; height:auto; background:#f4f8fc; border:1px solid var(--borde); border-radius:8px; }
-  .rampa { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--gris); } .rampa i { display:block; height:10px; flex:1; border-radius:3px; background:linear-gradient(90deg,#fff3c4,#f9b24a,#e0561b,#8f1d0c); }
+  .rampa { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--gris); } .rampa i { display:block; height:10px; flex:1; border-radius:3px; background:linear-gradient(90deg,#fff3c4,#ffdd33,#e0561b,#8f1d0c); }
   tr.clic { cursor:pointer; } .etq.clic { cursor:pointer; text-decoration:underline dotted; }
   details.como { margin-top:12px; border:1px solid var(--borde); border-radius:8px; padding:8px 12px; background:#fbfcfe; } details.como summary { cursor:pointer; font-weight:600; color:var(--azul-oscuro); } details.como li { margin:4px 0; }
-  .proc { font-size:13px; } .aviso-suave { background:#fff7e6; border:1px solid #f3d9a4; border-radius:8px; padding:10px 12px; margin:10px 0; font-size:14px; }
+  .proc { font-size:13px; } .aviso-suave { background:#fffbe5; border:1px solid #ffee99; border-radius:8px; padding:10px 12px; margin:10px 0; font-size:14px; }
   textarea { width:100%; padding:8px 10px; font:inherit; border:1px solid #8a96a3; border-radius:7px; resize:vertical; }
   .ejemplos { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0; } .ejemplos button { border:1px dashed var(--celeste); background:var(--cielo); color:var(--azul-oscuro); border-radius:16px; padding:4px 12px; font:inherit; font-size:13px; cursor:pointer; text-align:left; }
   .casillas { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:2px 12px; padding:6px 4px; } .casillas label { font-weight:400; margin:3px 0; display:flex; gap:6px; align-items:center; }
@@ -111,10 +111,10 @@
   .pasos button.hecho b { background:var(--ok); color:#fff; } .pasos button:disabled { opacity:.55; cursor:default; }
   .paso > h2, .paso > h3 { margin-top:0; } .pasos-nav { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:16px; border-top:1px solid var(--borde); padding-top:12px; } .pasos-nav .accion { margin:0; }
   .paradas { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px; margin-bottom:16px; }
-  .parada { background:#fff; border:1px solid var(--borde); border-left:5px solid #c2c9d2; border-radius:var(--radio); padding:12px 14px; display:flex; flex-direction:column; gap:4px; } .parada.coherente { border-left-color:var(--ok); } .parada.revisar { border-left-color:#f5a623; } .parada.sin_datos { border-left-color:var(--celeste); }
+  .parada { background:#fff; border:1px solid var(--borde); border-left:5px solid #c2c9d2; border-radius:var(--radio); padding:12px 14px; display:flex; flex-direction:column; gap:4px; } .parada.coherente { border-left-color:var(--ok); } .parada.revisar { border-left-color:#ffd500; } .parada.sin_datos { border-left-color:var(--celeste); }
   .parada h3 { margin:0; font-size:15px; color:var(--azul-oscuro); } .parada small { color:var(--gris); } .parada .acc { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; } .parada .acc .accion { margin:0; text-decoration:none; }
-  .marca-parada { background:#07306b; color:#fff; border:2px solid #fff; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font:700 12px "Noto Sans", sans-serif; box-shadow:0 1px 4px rgba(0,0,0,.4); } .marca-parada.coherente { background:#1a7f4b; } .marca-parada.revisar { background:#c77700; } .marca-parada.sin_datos { background:#4d9ae1; }
-  .veredicto { border-radius:8px; padding:10px 12px; margin:10px 0; font-size:14px; } .veredicto.coherente { background:#e8f6ee; border:1px solid #b5e0c7; } .veredicto.revisar { background:#fff7e6; border:1px solid #f3d9a4; } .veredicto.sin_datos { background:var(--cielo); border:1px solid #cfe1f7; } .veredicto ul { margin:4px 0 0; padding-left:18px; } .veredicto b.t { font-size:15px; }
+  .marca-parada { background:#004080; color:#fff; border:2px solid #fff; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font:700 12px "Ubuntu Sans", sans-serif; box-shadow:0 1px 4px rgba(0,0,0,.4); } .marca-parada.coherente { background:#1a7f4b; } .marca-parada.revisar { background:#c77700; } .marca-parada.sin_datos { background:#66b3ff; }
+  .veredicto { border-radius:8px; padding:10px 12px; margin:10px 0; font-size:14px; } .veredicto.coherente { background:#e8f6ee; border:1px solid #b5e0c7; } .veredicto.revisar { background:#fffbe5; border:1px solid #ffee99; } .veredicto.sin_datos { background:var(--cielo); border:1px solid #cce6ff; } .veredicto ul { margin:4px 0 0; padding-left:18px; } .veredicto b.t { font-size:15px; }
   #campovisita { max-width:560px; width:calc(100% - 24px); } #cvvista img { max-width:100%; max-height:200px; border-radius:8px; margin-top:8px; display:block; }
   .mej-areas button { border-style:solid; } .mej-areas button[aria-pressed=true] { background:var(--azul); border-color:var(--azul); color:#fff; } .mej-areas button small { opacity:.8; margin-left:4px; }
   .mejora { margin:0 0 14px; break-inside:avoid; } .mej-cab { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 6px; } .mejora h3 { margin:0; font-size:16px; color:var(--azul-oscuro); }
@@ -130,15 +130,15 @@
   .tarj-tab h3 { margin:0; font-size:15px; color:var(--azul-oscuro); } .tarj-tab small { color:var(--gris); } .tarj-tab p { margin:0; font-size:13px; } .tarj-tab .acc { margin-top:auto; padding-top:6px; display:flex; flex-wrap:wrap; gap:6px; } .tarj-tab .acc button { margin:0; }
   .barra-est { position:sticky; top:0; z-index:5; display:flex; flex-wrap:wrap; align-items:center; gap:8px; background:#fff; border:1px solid var(--borde); border-radius:var(--radio); padding:8px 10px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,40,90,.08), 0 -22px 0 var(--fondo); } .barra-est button { margin:0; }
   .barra-est #tabtitulo { flex:1 1 220px; max-width:none; font-size:17px; font-weight:600; border:1px solid transparent; background:transparent; padding:6px 8px; color:var(--azul-oscuro); } .barra-est #tabtitulo:hover, .barra-est #tabtitulo:focus { border-color:#8a96a3; background:#fff; } .barra-est #tabtitulo:read-only { border-color:transparent; background:transparent; }
-  .barra-fil { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; background:var(--cielo); border:1px solid #cfe1f7; border-radius:var(--radio); padding:8px 10px; margin-bottom:10px; font-size:13.5px; } .barra-fil label { margin:0; font-weight:600; display:inline-flex; align-items:center; gap:6px; } .barra-fil select, .barra-fil input { padding:5px 8px; max-width:220px; } .barra-fil button { margin:0; }
-  .barra-fil .cond { display:inline-flex; flex-wrap:wrap; align-items:center; gap:4px; background:#fff; border:1px solid #cfe1f7; border-radius:10px; padding:3px 4px 3px 6px; } .barra-fil .cond input { width:96px; } .barra-fil .cond button { border:0; background:none; cursor:pointer; color:var(--gris); min-width:28px; min-height:28px; font-size:14px; }
+  .barra-fil { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; background:var(--cielo); border:1px solid #cce6ff; border-radius:var(--radio); padding:8px 10px; margin-bottom:10px; font-size:13.5px; } .barra-fil label { margin:0; font-weight:600; display:inline-flex; align-items:center; gap:6px; } .barra-fil select, .barra-fil input { padding:5px 8px; max-width:220px; } .barra-fil button { margin:0; }
+  .barra-fil .cond { display:inline-flex; flex-wrap:wrap; align-items:center; gap:4px; background:#fff; border:1px solid #cce6ff; border-radius:10px; padding:3px 4px 3px 6px; } .barra-fil .cond input { width:96px; } .barra-fil .cond button { border:0; background:none; cursor:pointer; color:var(--gris); min-width:28px; min-height:28px; font-size:14px; }
   .estudio { display:grid; grid-template-columns:232px minmax(0, 1fr) 272px; gap:12px; align-items:start; } .estudio.vista { grid-template-columns:minmax(0, 1fr); } .vista .solo-edicion, .barra-est.vista .solo-edicion { display:none; }
   .est-lado { background:#fff; border:1px solid var(--borde); border-radius:var(--radio); padding:10px 12px; position:sticky; top:62px; max-height:calc(100vh - 140px); overflow:auto; font-size:13.5px; } .est-lado h3 { font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--gris); margin:14px 0 6px; } .est-lado label { margin:10px 0 3px; font-size:13px; } .est-lado input, .est-lado select, .est-lado textarea { max-width:none; width:100%; }
   .pieza svg.alto { max-height:380px; }
   .viz { display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; } .viz button { border:1px solid var(--borde); background:#fff; border-radius:8px; padding:6px 2px 4px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; font:inherit; font-size:10.5px; color:var(--gris); min-height:52px; } .viz button svg { width:24px; height:24px; } .viz button:hover, .viz button[aria-pressed=true] { border-color:var(--azul); background:var(--cielo); color:var(--azul-oscuro); }
   .datos-ind { list-style:none; margin:6px 0 0; padding:0; max-height:240px; overflow:auto; } .datos-ind button { width:100%; text-align:left; border:0; background:none; font:inherit; font-size:13px; padding:6px; border-radius:6px; cursor:pointer; color:var(--tinta, #1f2a37); } .datos-ind button:hover { background:var(--cielo); } .datos-ind button[aria-pressed=true] { background:var(--cielo); font-weight:600; color:var(--azul-oscuro); } .datos-ind small { color:var(--gris); font-size:11.5px; }
   .lienzo { min-height:300px; align-content:start; } .lienzo.editando { background-image:radial-gradient(#cfd8e3 1px, transparent 1px); background-size:18px 18px; border-radius:var(--radio); padding:10px; }
-  .lienzo.editando .pieza { cursor:pointer; position:relative; } .lienzo.editando .pieza:hover { outline:2px dashed var(--celeste); outline-offset:1px; } .lienzo.editando .pieza.sel { outline:2px solid var(--azul); outline-offset:1px; box-shadow:0 4px 14px rgba(0,81,179,.18); } .lienzo .pieza.arrastre { opacity:.4; } .lienzo .pieza.destino { outline:2px solid #f5a623 !important; }
+  .lienzo.editando .pieza { cursor:pointer; position:relative; } .lienzo.editando .pieza:hover { outline:2px dashed var(--celeste); outline-offset:1px; } .lienzo.editando .pieza.sel { outline:2px solid var(--azul); outline-offset:1px; box-shadow:0 4px 14px rgba(0,81,179,.18); } .lienzo .pieza.arrastre { opacity:.4; } .lienzo .pieza.destino { outline:2px solid #ffd500 !important; }
   .pz-herr { position:absolute; top:-15px; right:8px; display:none; background:var(--azul-oscuro); border-radius:8px; padding:2px; z-index:2; } .pieza.sel .pz-herr { display:flex; } .pz-herr button { border:0; background:none; color:#fff; min-width:30px; height:30px; cursor:pointer; border-radius:6px; font-size:14px; } .pz-herr button:hover { background:rgba(255,255,255,.22); }
   .tablero .pieza.a1 { grid-column:span 1; } .tablero .pieza.a2 { grid-column:span 2; } .tablero .pieza.a3 { grid-column:span 3; } .tablero .pieza.a4 { grid-column:1 / -1; } .pieza.nota-texto p { margin:0; white-space:pre-wrap; font-size:14px; }
   .seg { display:inline-flex; border:1px solid #8a96a3; border-radius:7px; overflow:hidden; } .seg button { border:0; border-right:1px solid #d5dbe3; background:#fff; padding:6px 10px; font:inherit; font-size:13px; cursor:pointer; min-height:32px; } .seg button:last-child { border-right:0; } .seg button[aria-pressed=true] { background:var(--azul); color:#fff; }
@@ -151,7 +151,7 @@
   .descarga { margin-left:10px; font-size:14px; white-space:nowrap; }
   .pestanas { display:flex; gap:4px; flex-wrap:wrap; margin:12px 0 8px; border-bottom:2px solid var(--borde); }
   .pestanas button { border:0; background:none; font:inherit; padding:8px 12px; cursor:pointer; color:var(--gris); border-bottom:3px solid transparent; margin-bottom:-2px; border-radius:6px 6px 0 0; }
-  .pestanas .cuenta { background:#f5a623; color:#3b2a00; border-radius:10px; padding:0 7px; font-size:12px; margin-left:4px; }
+  .pestanas .cuenta { background:#ffd500; color:#3b2a00; border-radius:10px; padding:0 7px; font-size:12px; margin-left:4px; }
   .dec { display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin:3px 0; } .dec button { border:1px solid var(--borde); background:#fff; border-radius:6px; padding:2px 8px; font:inherit; font-size:12.5px; cursor:pointer; } .dec button:hover { background:var(--cielo); }
   .dec button[aria-pressed=true].si { background:#dff3e7; border-color:var(--ok); color:var(--ok); font-weight:600; } .dec button[aria-pressed=true].no { background:#fbe0de; border-color:var(--mal); color:var(--mal); font-weight:600; }
   .pestanas button[aria-selected=true] { color:var(--azul-oscuro); font-weight:600; border-bottom-color:var(--azul); background:var(--cielo); }
@@ -161,8 +161,8 @@
   .flujo .rol { position:sticky; left:0; z-index:1; background:var(--azul-oscuro); color:#fff; font-size:12px; font-weight:600; letter-spacing:.4px; padding:10px; display:flex; align-items:center; border-bottom:1px solid rgba(255,255,255,.2); min-width:118px; }
   .flujo .celda { border-bottom:1px solid var(--borde); border-left:1px dashed var(--borde); padding:10px 8px; min-width:168px; display:flex; align-items:stretch; }
   .flujo .carril:last-child .rol, .flujo .carril:last-child .celda { border-bottom:0; }
-  .etapa { position:relative; background:var(--cielo); border:1px solid #b9d6f5; border-left:4px solid var(--azul); border-radius:8px; padding:8px 10px; width:100%; font-size:13px; }
-  .etapa.decision { background:#fff7e6; border-color:#f3d9a4; border-left-color:#f5a623; }
+  .etapa { position:relative; background:var(--cielo); border:1px solid #b3d9ff; border-left:4px solid var(--azul); border-radius:8px; padding:8px 10px; width:100%; font-size:13px; }
+  .etapa.decision { background:#fffbe5; border-color:#ffee99; border-left-color:#ffd500; }
   .etapa.fin { background:#e9f7ef; border-color:#b9e2c8; border-left-color:var(--ok); }
   .etapa b { display:block; color:var(--azul-oscuro); font-size:13.5px; } .etapa i { font-style:normal; display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%; background:var(--azul); color:#fff; font-size:11px; font-weight:700; margin-right:6px; }
   .etapa p { margin:4px 0 0; color:var(--tinta); } .etapa strong { display:block; margin-top:6px; font-size:16px; color:var(--azul-oscuro); font-variant-numeric:tabular-nums; } .etapa strong small { font-weight:400; color:var(--gris); font-size:12px; }
@@ -208,20 +208,20 @@
   @media (prefers-reduced-motion: no-preference) { .cargando::before, #rubrovistas button .gira { animation:girar .8s linear infinite; } .cargando-barra i { animation:correr 1.2s ease-in-out infinite; } .relleno td i { animation:latir 1.2s ease-in-out infinite; }
     @keyframes girar { to { transform:rotate(360deg); } } @keyframes correr { 0% { margin-left:-35%; } 100% { margin-left:100%; } } @keyframes latir { 50% { opacity:.45; } } }
   /* Recorridos guiados: botón explícito en el encabezado y en cada sección, foco sobre el elemento y globo con el paso. */
-  button.recorrer { display:inline-flex; align-items:center; gap:7px; background:#fff7e8; color:#6b4300; border:1.5px solid #f5a623; border-radius:999px; padding:6px 14px 6px 8px; font:600 13.5px/1.2 inherit; font-family:inherit; cursor:pointer; min-height:34px; }
-  button.recorrer::before { content:"?"; display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; background:#f5a623; color:#07306b; font-weight:800; font-size:14px; flex:none; }
-  button.recorrer:hover, button.recorrer:focus-visible { background:#ffe9bf; }
+  button.recorrer { display:inline-flex; align-items:center; gap:7px; background:#fffbe5; color:#6b4300; border:1.5px solid #ffd500; border-radius:999px; padding:6px 14px 6px 8px; font:600 13.5px/1.2 inherit; font-family:inherit; cursor:pointer; min-height:34px; }
+  button.recorrer::before { content:"?"; display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; background:#ffd500; color:#004080; font-weight:800; font-size:14px; flex:none; }
+  button.recorrer:hover, button.recorrer:focus-visible { background:#fff2b3; }
   .titulo button.recorrer, .barra-rec button.recorrer { margin-top:8px; } .barra-rec { margin:0 0 12px; }
   header #recorrido { margin-left:auto; min-height:0; padding-top:4px; padding-bottom:4px; } header #recorrido + .acceso { margin-left:0; }
   #recfondo { position:fixed; inset:0; z-index:4000; }
-  #recfoco { position:fixed; z-index:4001; border-radius:10px; box-shadow:0 0 0 3px #f5a623, 0 0 0 9999px rgba(7,48,107,.62); pointer-events:none; }
-  #recglobo { position:fixed; z-index:4002; width:min(370px, calc(100vw - 20px)); background:#fff; color:var(--tinta); border-radius:14px; border-top:5px solid #f5a623; box-shadow:0 14px 44px rgba(7,48,107,.38); padding:14px 16px 12px; }
+  #recfoco { position:fixed; z-index:4001; border-radius:10px; box-shadow:0 0 0 3px #ffd500, 0 0 0 9999px rgba(7,48,107,.62); pointer-events:none; }
+  #recglobo { position:fixed; z-index:4002; width:min(370px, calc(100vw - 20px)); background:#fff; color:var(--tinta); border-radius:14px; border-top:5px solid #ffd500; box-shadow:0 14px 44px rgba(7,48,107,.38); padding:14px 16px 12px; }
   #recglobo h3 { margin:0 26px 6px 0; font-size:17px; color:var(--azul-oscuro); } #recglobo p { margin:0 0 10px; font-size:14.5px; line-height:1.45; }
   #recglobo .cuenta { font-size:12px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:#8a5a00; margin:0 0 4px; }
-  #recglobo .puntos { display:flex; gap:5px; flex-wrap:wrap; margin:0 0 10px; } #recglobo .puntos i { width:18px; height:5px; border-radius:3px; background:var(--borde); } #recglobo .puntos i.ya { background:var(--azul); } #recglobo .puntos i.aqui { background:#f5a623; }
+  #recglobo .puntos { display:flex; gap:5px; flex-wrap:wrap; margin:0 0 10px; } #recglobo .puntos i { width:18px; height:5px; border-radius:3px; background:var(--borde); } #recglobo .puntos i.ya { background:var(--azul); } #recglobo .puntos i.aqui { background:#ffd500; }
   #recglobo .pie { display:flex; gap:8px; align-items:center; flex-wrap:wrap; } #recglobo .pie button { margin:0; } #recglobo .pie .otro { margin-left:auto; background:none; border:0; color:var(--azul); text-decoration:underline; cursor:pointer; font:inherit; font-size:13px; padding:6px 0; }
   #recglobo .x { position:absolute; top:8px; right:8px; width:32px; height:32px; border:0; background:none; font-size:22px; line-height:1; color:var(--gris); cursor:pointer; border-radius:8px; } #recglobo .x:hover { background:var(--cielo); }
-  .envia-por { background:var(--cielo); border-left:5px solid #f5a623; border-radius:8px; padding:10px 14px; margin:0 0 12px; font-size:15px; } .envia-por b { color:var(--azul-oscuro); }
+  .envia-por { background:var(--cielo); border-left:5px solid #ffd500; border-radius:8px; padding:10px 14px; margin:0 0 12px; font-size:15px; } .envia-por b { color:var(--azul-oscuro); }
   @media (prefers-reduced-motion: no-preference) { #recfoco { transition:top .22s, left .22s, width .22s, height .22s; } button.recorrer.nuevo { animation:latido 1.8s ease-in-out 4; } @keyframes latido { 50% { box-shadow:0 0 0 7px rgba(245,166,35,.35); } } }
   /* El encabezado va siempre en una línea: la frase descriptiva se recorta y, en teléfono, los rótulos se acortan. */
   header #recorrido, header .acceso button { white-space:nowrap; flex:none; } header button span { font:inherit; color:inherit; } .rec-corto { display:none; }
@@ -230,6 +230,8 @@
   @media print { button.recorrer, .barra-rec, #recfondo, #recfoco, #recglobo { display:none !important; } }
   @media (prefers-reduced-motion: no-preference) { nav button, button.accion { transition:background .15s; } }
   /* Idioma de la interfaz (idiomas.js): se traduce la pantalla, nunca los datos. */
+  /* Logotipo del INE según su guía de diseño para el Datatón: en negativo sobre azul, al pie del menú. */
+  .pie-ine { margin:22px 10px 0; padding-top:16px; border-top:1px solid rgba(255,255,255,.18); } .pie-ine img { display:block; width:150px; height:auto; } .pie-ine small { display:block; margin-top:8px; font-size:11.5px; line-height:1.35; color:#b3d9ff; }
   .idioma { position:relative; flex:none; } header .idioma + .acceso { margin-left:0; }
   #idiomabtn { display:flex; align-items:center; gap:5px; border:1px solid var(--borde); background:#fff; color:var(--azul-oscuro); border-radius:999px; padding:4px 10px 4px 7px; font:inherit; font-size:13px; cursor:pointer; }
   #idiomabtn:hover, #idiomabtn[aria-expanded="true"] { background:var(--cielo); border-color:var(--celeste); } #idiomabtn svg { width:17px; height:17px; display:block; } #idiomabtn b { font-weight:600; letter-spacing:.3px; }
@@ -237,7 +239,7 @@
   #idiomalista button { display:flex; flex-direction:column; align-items:flex-start; gap:1px; width:100%; border:0; background:none; padding:8px 10px; border-radius:7px; font:inherit; color:var(--tinta); text-align:left; cursor:pointer; }
   #idiomalista button:hover, #idiomalista button:focus-visible { background:var(--fondo); } #idiomalista button[aria-selected="true"] { background:var(--cielo); } #idiomalista button[aria-selected="true"] span { font-weight:600; color:var(--azul-oscuro); }
   #idiomalista small { color:var(--gris); font-size:12px; } #idiomalista p { margin:6px 4px 2px; padding:8px 6px 4px; border-top:1px solid var(--borde); font-size:12px; line-height:1.4; color:var(--gris); }
-  #aviso-idioma { background:#fff7e6; border:1px solid #f5a623; border-radius:var(--radio); padding:10px 14px; margin-bottom:14px; font-size:14px; }
+  #aviso-idioma { background:#fffbe5; border:1px solid #ffd500; border-radius:var(--radio); padding:10px 14px; margin-bottom:14px; font-size:14px; }
   @media (max-width: 400px) { #idiomabtn b { display:none; } header { gap:6px; } header .marca h1 { display:none; } }
   /* En otro idioma el rótulo de salir o entrar puede ser más largo: en teléfono se recorta en vez de empujar el encabezado. */
   @media (max-width: 700px) { header .acceso, header .acceso .quien { flex:0 1 auto; min-width:0; } header .acceso button { flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; } }
@@ -248,7 +250,7 @@
 <body>
 <header>
   <button id="menu" aria-label="Abrir el menú" aria-expanded="false">☰</button>
-  <div class="marca"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0051b3"/><path d="M26 21 5 12v17z" fill="#f5a623" opacity=".9"/><path d="M38 21 59 12v17z" fill="#f5a623" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffd27a"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#4d9ae1"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#4d9ae1"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><h1>FARO</h1></div></div>
+  <div class="marca"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0080ff"/><path d="M26 21 5 12v17z" fill="#ffd500" opacity=".9"/><path d="M38 21 59 12v17z" fill="#ffd500" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffe566"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#66b3ff"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#66b3ff"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><h1>FARO</h1></div></div>
   <span><b>Que cada dato llegue a puerto.</b> Registros administrativos, territorio y precios · Datatón INE 2026</span>
   <button class="recorrer" id="recorrido" title="Recorrido guiado: le muestra, paso a paso, qué hay en esta pantalla y para qué sirve" aria-label="Recorrido guiado">Recorrido<span class="rec-largo">&nbsp;guiado</span></button>
   <div class="idioma"><button id="idiomabtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="idiomalista" aria-label="Idioma de la pantalla" title="Idioma de la pantalla: español, inglés o kaqchikel. Los datos no se traducen."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg><b data-no-traducir>ES</b></button><div id="idiomalista" role="listbox" aria-label="Idiomas disponibles" hidden></div></div>
@@ -286,6 +288,7 @@
   <h3 class="con-sesion" hidden>Cuenta</h3>
   <button data-s="perfil" class="con-sesion" hidden>Mi perfil</button>
   <button data-s="usuarios" class="solo-admin" hidden>Usuarios</button>
+  <div class="pie-ine"><img data-no-traducir src="/vendor/ine-horizontal-blanco.svg" alt="Instituto Nacional de Estadística" width="150" height="49"><small>Proyecto participante del Datatón INE 2026</small></div>
 </nav>
 <main><div class="ancho">
   <div id="aviso-clave" hidden>Está usando una contraseña inicial. Cámbiela en <a href="#" id="irperfil">Mi perfil</a>.</div>
@@ -686,7 +689,7 @@
   <section id="acerca">
     <div class="titulo"><h2>Acerca de FARO y sus fuentes</h2><p>Qué es, qué hace hoy y de dónde sale cada dato.</p></div>
     <div class="panel">
-      <div class="lema"><svg viewBox="0 0 64 64" role="img" aria-label="Logotipo de FARO"><rect width="64" height="64" rx="14" fill="#0051b3"/><path d="M26 21 5 12v17z" fill="#f5a623" opacity=".9"/><path d="M38 21 59 12v17z" fill="#f5a623" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffd27a"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#4d9ae1"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#4d9ae1"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><b>Que cada dato llegue a puerto.</b><span>FARO · un proyecto del equipo La Sociedad de Almas para el Datatón INE 2026</span></div></div>
+      <div class="lema"><svg viewBox="0 0 64 64" role="img" aria-label="Logotipo de FARO"><rect width="64" height="64" rx="14" fill="#0080ff"/><path d="M26 21 5 12v17z" fill="#ffd500" opacity=".9"/><path d="M38 21 59 12v17z" fill="#ffd500" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffe566"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#66b3ff"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#66b3ff"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><b>Que cada dato llegue a puerto.</b><span>FARO · un proyecto del equipo La Sociedad de Almas para el Datatón INE 2026</span></div></div>
       <div class="identidad">
         <div><h3>Misión</h3><p>Dar al INE una forma única, verificable y respetuosa de las personas para pedir, recibir y entender los registros de otras instituciones, y convertirlos en estadística útil junto al censo, el territorio y los precios.</p></div>
         <div><h3>Visión</h3><p>Un Sistema Estadístico Nacional en el que cada institución entrega sus datos una sola vez, en un formato común, y el país los aprovecha el mismo día, con la confianza de que nada se adivinó y todo se puede comprobar.</p></div>
@@ -854,7 +857,7 @@ async function cobertura() {
   const deps = {}; g.features.forEach(f => { const p = f.properties, d = deps[p.departamento_codigo] = deps[p.departamento_codigo] || {codigo: p.departamento_codigo, nombre: p.departamento, municipios: 0, con: {}, total: {}}; d.municipios++;
     sols.forEach(s => { const x = reg[s][p.codigo]; if (x && x.total > 0) { d.con[s] = (d.con[s] || 0) + 1; d.total[s] = (d.total[s] || 0) + x.total; } }); });
   tabla('#tcobertura', [{t:'Departamento', f:d => `<b>${esc(d.nombre)}</b> <small>${esc(d.codigo)}</small>`}, {t:'Municipios (cantidad)', num:1, f:d => d.municipios}].concat(sols.map(s => ({t:`${s} (municipios con registros)`, f:d => { const n = d.con[s] || 0, pct = 100 * n / d.municipios;
-    return `<div class="barra" title="${num(pct)} %"><i style="width:${pct}%;background:${pct >= 100 ? 'var(--ok)' : pct > 0 ? '#f5a623' : 'var(--mal)'}"></i></div>${n} de ${d.municipios}${n ? ` · <small>${num(d.total[s])} registros</small>` : ' · <span class="etq mal">sin registros</span>'}`; }}))),
+    return `<div class="barra" title="${num(pct)} %"><i style="width:${pct}%;background:${pct >= 100 ? 'var(--ok)' : pct > 0 ? '#ffd500' : 'var(--mal)'}"></i></div>${n} de ${d.municipios}${n ? ` · <small>${num(d.total[s])} registros</small>` : ' · <span class="etq mal">sin registros</span>'}`; }}))),
     Object.values(deps).sort((a, b) => a.codigo.localeCompare(b.codigo)), 'Sin departamentos.');
 }
 async function hechos() {
@@ -986,7 +989,7 @@ const INDICADORES = [
   {id:'censo_propietaria_mujer_pct', t:'Viviendas propias cuya propietaria es una mujer (Censo 2018)', f:p => p.censo_propietaria_mujer_pct, u:'%', nota:() => 'De los hogares con vivienda propia, aquellos en que la propietaria es una mujer (no cuenta la propiedad compartida). INE, Censo 2018, cuadro B1.', tonos:'azul', dec:1},
   {id:'limites', t:'Lugares del censo dentro del límite municipal', f:p => p.lugares_dentro_de_su_limite_pct, u:'%', nota:() => 'Porcentaje de lugares poblados que caen dentro del polígono de su municipio. Bajo = el límite y el censo no coinciden.', tonos:'verde'},
 ];
-const TONOS = {azul:['#e8f1fb','#b9d6f5','#7fb3ea','#3f86d6','#0051b3'], naranja:['#fff3e0','#ffd8a8','#ffb061','#f08a24','#b85c00'], verde:['#fdecea','#f9c9a8','#f3e48e','#a8d58a','#3c9a5f']};
+const TONOS = {azul:['#e5f2ff','#b3d9ff','#66b3ff','#0080ff','#004080'], naranja:['#fff3e0','#ffd8a8','#ffb061','#f08a24','#b85c00'], verde:['#fdecea','#f9c9a8','#f3e48e','#a8d58a','#3c9a5f']};
 let mapa, capaMuni, capaEnlaces, capaLugares, capaBase, capaSat, geoMuni, registros = {};
 // ¿Hay un fondo (calles o foto satelital) bajo los polígonos? Si lo hay, se pintan translúcidos.
 const hayBase = () => [capaBase, capaSat].some(c => c && mapa.hasLayer(c));
@@ -1051,7 +1054,7 @@ async function cambiarNivel(n, enfocar) {
     Object.entries(registros).forEach(([sol, m]) => { const d = registrosDep[sol] = {}; geoMuni.features.forEach(f => { const x = m[f.properties.codigo]; if (!x) return; const k = f.properties.departamento_codigo; const c = d[k] = d[k] || {total:0, pob:0, protegidas:0}; if (x.total == null) c.protegidas++; else c.total += x.total; });
       Object.entries(d).forEach(([k, x]) => { const pob = suma(municipiosDe(k), 'poblacion_actual'); x.por_100_mil = pob ? redondo(x.total * 1e5 / pob, 1) : null; }); });
     capaDep = L.geoJSON(geoDep, {onEachFeature: (f, capa) => { capa.bindTooltip(`${f.properties.nombre} · ${f.properties.municipios} municipios`, {sticky:true});
-      capa.on({click: () => fichaDepartamento(f.properties, capa), mouseover: () => capa.setStyle({weight:2.6, color:'#07306b'}), mouseout: () => capa.setStyle({weight:1, color:'#fff'})}); }});
+      capa.on({click: () => fichaDepartamento(f.properties, capa), mouseover: () => capa.setStyle({weight:2.6, color:'#004080'}), mouseout: () => capa.setStyle({weight:1, color:'#fff'})}); }});
   }
   if (n === 'lugar' && !capaNivelLugar) {
     const [todos, sueltos] = await Promise.all([fetch('/capas/lugares_poblados.geojson').then(x => x.json()), fetch('/capas/lugares_sin_conexion.geojson').then(x => x.ok ? x.json() : {features:[]})]);
@@ -1071,7 +1074,7 @@ async function cambiarNivel(n, enfocar) {
   pintarMigas(); pintarMapa(); pintarPuntos();
 }
 const FUERA = {fillColor:'#eef1f4', fillOpacity:.35, color:'#dfe5eb', weight:.5};
-const COLOR_CONEXION = {conectado:'#0051b3', tramo_suelto:'#7a3fb5', sin_camino:'#d9730d'};
+const COLOR_CONEXION = {conectado:'#0080ff', tramo_suelto:'#7a3fb5', sin_camino:'#d9730d'};
 function fichaDepartamento(p, capa) {
   const ms = municipiosDe(p.codigo), ind = indicadorActual(), orden = ms.map(m => [m, ind.f(m)]).filter(x => x[1] != null).sort((a, b) => b[1] - a[1]);
   const n = x => Number(x).toLocaleString('es-GT', {maximumFractionDigits: ind.dec ?? 0}), reg = Object.entries(registrosDep).map(([sol, d]) => d[p.codigo] ? `<li>${esc(sol)}: <b>${d[p.codigo].protegidas ? 'al menos ' : ''}${num(d[p.codigo].total)}</b> registros${d[p.codigo].protegidas ? ` <small>(sin contar ${d[p.codigo].protegidas} municipio(s) con conteo protegido)</small>` : d[p.codigo].por_100_mil != null ? ` (${num(d[p.codigo].por_100_mil)} por 100 mil hab., todos los periodos recibidos)` : ''}</li>` : '').join('');
@@ -1150,8 +1153,8 @@ function mini(serie, {barras = false, desde = null, unidad = ''} = {}) {
   if (!serie || !serie.length) return '<p class="nota">Sin datos.</p>';
   const W = 300, H = 92, mi = 6, mb = 16, ys = serie.map(p => p[1]), max = Math.max(...ys) * 1.05 || 1, min = barras ? 0 : Math.min(...ys) * .97;
   const X = i => mi + (W - 2 * mi) * (serie.length === 1 ? .5 : i / (serie.length - 1)), Y = y => H - mb - (H - mb - 6) * ((y - min) / (max - min || 1)), an = Math.max(5, (W - 2 * mi) / serie.length * .62);
-  const cuerpo = barras ? serie.map((p, i) => `<rect x="${X(i) - an / 2}" y="${Y(p[1])}" width="${an}" height="${Math.max(1, H - mb - Y(p[1]))}" fill="${desde != null && p[0] >= desde ? '#0051b3' : '#9cc3ef'}"><title>${p[0]}: ${num(p[1])} ${unidad}</title></rect>`).join('')
-    : `<polyline fill="none" stroke="#0051b3" stroke-width="2" points="${serie.map((p, i) => X(i) + ',' + Y(p[1])).join(' ')}"/>` + serie.map((p, i) => `<circle cx="${X(i)}" cy="${Y(p[1])}" r="5" fill="transparent"><title>${p[0]}: ${num(p[1])} ${unidad}</title></circle>`).join('');
+  const cuerpo = barras ? serie.map((p, i) => `<rect x="${X(i) - an / 2}" y="${Y(p[1])}" width="${an}" height="${Math.max(1, H - mb - Y(p[1]))}" fill="${desde != null && p[0] >= desde ? '#0080ff' : '#99ccff'}"><title>${p[0]}: ${num(p[1])} ${unidad}</title></rect>`).join('')
+    : `<polyline fill="none" stroke="#0080ff" stroke-width="2" points="${serie.map((p, i) => X(i) + ',' + Y(p[1])).join(' ')}"/>` + serie.map((p, i) => `<circle cx="${X(i)}" cy="${Y(p[1])}" r="5" fill="transparent"><title>${p[0]}: ${num(p[1])} ${unidad}</title></circle>`).join('');
   const u = serie[serie.length - 1];
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Serie de ${serie[0][0]} a ${u[0]} en ${unidad}">${cuerpo}<text x="${mi}" y="${H - 3}" font-size="10" fill="#5b6672">${serie[0][0]}: ${num(serie[0][1])}</text><text x="${W - mi}" y="${H - 3}" font-size="10" fill="#5b6672" text-anchor="end">${u[0]}: ${num(u[1])} ${unidad}</text></svg>`;
 }
@@ -1162,10 +1165,10 @@ function piramide(edades, anio, antes) {
   const W = 300, alto = 11, H = hoy.length * alto + 22, centro = W / 2, medio = 17, max = Math.max(...hoy.concat(prev).flatMap(e => [e[2], e[3]])) || 1, esc_ = v => (centro - medio - 6) * v / max;
   const total = hoy.reduce((s, e) => s + e[2] + e[3], 0), etq = d => d >= 70 ? '70+' : `${d}–${d + 4}`;
   const filas = hoy.map((e, i) => { const y = H - 22 - (i + 1) * alto, p = prev.find(x => x[1] === e[1]);
-    return `<rect x="${centro - medio - esc_(e[2])}" y="${y}" width="${esc_(e[2])}" height="${alto - 2}" fill="#0051b3"><title>Hombres de ${etq(e[1])} años: ${num(e[2])} (${num(100 * e[2] / total)} %)</title></rect><rect x="${centro + medio}" y="${y}" width="${esc_(e[3])}" height="${alto - 2}" fill="#4d9ae1"><title>Mujeres de ${etq(e[1])} años: ${num(e[3])} (${num(100 * e[3] / total)} %)</title></rect>
-      <text x="${centro}" y="${y + alto - 3}" font-size="8" fill="#5b6672" text-anchor="middle">${etq(e[1])}</text>${p ? `<line x1="${centro - medio - esc_(p[2])}" x2="${centro - medio - esc_(p[2])}" y1="${y}" y2="${y + alto - 2}" stroke="#07306b" stroke-width="1.5"/><line x1="${centro + medio + esc_(p[3])}" x2="${centro + medio + esc_(p[3])}" y1="${y}" y2="${y + alto - 2}" stroke="#07306b" stroke-width="1.5"/>` : ''}`; }).join('');
+    return `<rect x="${centro - medio - esc_(e[2])}" y="${y}" width="${esc_(e[2])}" height="${alto - 2}" fill="#0080ff"><title>Hombres de ${etq(e[1])} años: ${num(e[2])} (${num(100 * e[2] / total)} %)</title></rect><rect x="${centro + medio}" y="${y}" width="${esc_(e[3])}" height="${alto - 2}" fill="#66b3ff"><title>Mujeres de ${etq(e[1])} años: ${num(e[3])} (${num(100 * e[3] / total)} %)</title></rect>
+      <text x="${centro}" y="${y + alto - 3}" font-size="8" fill="#5b6672" text-anchor="middle">${etq(e[1])}</text>${p ? `<line x1="${centro - medio - esc_(p[2])}" x2="${centro - medio - esc_(p[2])}" y1="${y}" y2="${y + alto - 2}" stroke="#004080" stroke-width="1.5"/><line x1="${centro + medio + esc_(p[3])}" x2="${centro + medio + esc_(p[3])}" y1="${y}" y2="${y + alto - 2}" stroke="#004080" stroke-width="1.5"/>` : ''}`; }).join('');
   const jov = hoy.filter(e => e[1] < 15).reduce((s, e) => s + e[2] + e[3], 0), may = hoy.filter(e => e[1] >= 65).reduce((s, e) => s + e[2] + e[3], 0);
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pirámide de población de ${hoy[0][0]}">${filas}<text x="6" y="${H - 6}" font-size="9" fill="#0051b3">■ hombres</text><text x="${W - 6}" y="${H - 6}" font-size="9" fill="#2f7fcf" text-anchor="end">mujeres ■</text><text x="${centro}" y="${H - 6}" font-size="8.5" fill="#07306b" text-anchor="middle">| ${antes}</text></svg>
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pirámide de población de ${hoy[0][0]}">${filas}<text x="6" y="${H - 6}" font-size="9" fill="#0080ff">■ hombres</text><text x="${W - 6}" y="${H - 6}" font-size="9" fill="#2f7fcf" text-anchor="end">mujeres ■</text><text x="${centro}" y="${H - 6}" font-size="8.5" fill="#004080" text-anchor="middle">| ${antes}</text></svg>
     <p class="nota" style="margin:2px 0 0;font-size:12.5px">${num(100 * jov / total)} % menores de 15 años y ${num(100 * may / total)} % de 65 o más en ${hoy[0][0]}. La raya marca ${antes}: donde la barra la supera, ese grupo creció.</p>`;
 }
 // Umbral de protección estadística (lo informa el servidor en /api/estado).
@@ -1266,13 +1269,13 @@ async function detalle(codigo) {
       todas.forEach(t => { const im = TESELAS.get(t.url); if (im && im !== 'pedida') { x.drawImage(im, t.x, t.y, t.w + .5, t.h + .5); listas++; } else if (!im) { TESELAS.set(t.url, 'pedida'); const i = new Image(); i.onload = () => { TESELAS.set(t.url, i); if (vivo && $('#detalle').open) dibujar(+$('#animanio').value); }; i.onerror = () => TESELAS.set(t.url, null); i.src = t.url; } });
       // Lo que queda fuera del municipio se aclara para que el límite se lea.
       x.fillStyle = 'rgba(255,255,255,.5)'; x.beginPath(); x.rect(0, 0, W, H); anillos.forEach(an => an.forEach((p, i) => { const [a_, b_] = P(p[0], p[1]); i ? x.lineTo(a_, b_) : x.moveTo(a_, b_); })); x.fill('evenodd');
-      x.font = '12px "Noto Sans", sans-serif'; const pie = 'Foto: ' + foto.nombre + (listas ? '' : ' · cargando…'), ancho = x.measureText(pie).width; x.fillStyle = 'rgba(7,48,107,.82)'; x.fillRect(0, H - 22, ancho + 16, 22); x.fillStyle = '#fff'; x.fillText(pie, 8, H - 7);
+      x.font = '12px "Ubuntu Sans", sans-serif'; const pie = 'Foto: ' + foto.nombre + (listas ? '' : ' · cargando…'), ancho = x.measureText(pie).width; x.fillStyle = 'rgba(7,48,107,.82)'; x.fillRect(0, H - 22, ancho + 16, 22); x.fillStyle = '#fff'; x.fillText(pie, 8, H - 7);
     } else { x.fillStyle = '#fff'; trazo(); x.fill('evenodd'); }
     // Sobre la foto, cada bloque es más opaco cuanto más construido está: así lo poco construido deja ver el terreno.
     if ($('#animbloques').checked) { bloques.forEach(b => { const ha = b[2 + k]; if (ha >= 0.5) { const [a_, b_] = P(b[0], b[1]); x.globalAlpha = foto ? Math.min(.85, .2 + ha / 55) : 1; x.fillStyle = tono(ha); x.fillRect(a_ - lado / 2, b_ - lado / 2, lado, lado); } }); x.globalAlpha = 1; }
-    if (foto) { x.strokeStyle = '#fff'; x.lineWidth = 3.4; trazo(); x.stroke(); } x.strokeStyle = '#07306b'; x.lineWidth = 1.4; trazo(); x.stroke();
-    const total = d.construido.find(v => v[0] === ep[k]); x.font = '700 30px "Noto Sans", sans-serif'; if (foto) { x.fillStyle = 'rgba(255,255,255,.85)'; x.fillRect(6, 6, x.measureText(ep[k]).width + 18, 40); } x.fillStyle = '#07306b'; x.fillText(ep[k], 14, 36);
-    if (cargandoFotos && foto && !pedirEntera(foto).img && !pedirEntera(foto).fallo) { const t = cargandoFotos.match(/(\d+) de (\d+)/), parte = t ? t[1] / t[2] : 0; x.font = '600 13px "Noto Sans", sans-serif'; const ancho = Math.max(250, x.measureText(cargandoFotos).width + 28); x.fillStyle = 'rgba(7,48,107,.9)'; x.fillRect((W - ancho) / 2, H / 2 - 26, ancho, 52); x.fillStyle = '#fff'; x.textAlign = 'center'; x.fillText(cargandoFotos, W / 2, H / 2 - 4); x.textAlign = 'left'; x.fillStyle = 'rgba(255,255,255,.3)'; x.fillRect((W - ancho) / 2 + 14, H / 2 + 8, ancho - 28, 5); x.fillStyle = '#f5a623'; x.fillRect((W - ancho) / 2 + 14, H / 2 + 8, (ancho - 28) * parte, 5); }
+    if (foto) { x.strokeStyle = '#fff'; x.lineWidth = 3.4; trazo(); x.stroke(); } x.strokeStyle = '#004080'; x.lineWidth = 1.4; trazo(); x.stroke();
+    const total = d.construido.find(v => v[0] === ep[k]); x.font = '700 30px "Ubuntu Sans", sans-serif'; if (foto) { x.fillStyle = 'rgba(255,255,255,.85)'; x.fillRect(6, 6, x.measureText(ep[k]).width + 18, 40); } x.fillStyle = '#004080'; x.fillText(ep[k], 14, 36);
+    if (cargandoFotos && foto && !pedirEntera(foto).img && !pedirEntera(foto).fallo) { const t = cargandoFotos.match(/(\d+) de (\d+)/), parte = t ? t[1] / t[2] : 0; x.font = '600 13px "Ubuntu Sans", sans-serif'; const ancho = Math.max(250, x.measureText(cargandoFotos).width + 28); x.fillStyle = 'rgba(7,48,107,.9)'; x.fillRect((W - ancho) / 2, H / 2 - 26, ancho, 52); x.fillStyle = '#fff'; x.textAlign = 'center'; x.fillText(cargandoFotos, W / 2, H / 2 - 4); x.textAlign = 'left'; x.fillStyle = 'rgba(255,255,255,.3)'; x.fillRect((W - ancho) / 2 + 14, H / 2 + 8, ancho - 28, 5); x.fillStyle = '#ffd500'; x.fillRect((W - ancho) / 2 + 14, H / 2 + 8, (ancho - 28) * parte, 5); }
     $('#animetq').textContent = total ? `${ep[k]}: ${num(total[1])} ha` : ep[k]; $('#animanio').value = k;
   };
   const boton = () => { $('#animplay').textContent = corriendo ? '❚❚ Pausa' : k >= ep.length - 1 ? '↻ Ver de nuevo' : '▶ Animar'; };
@@ -1307,7 +1310,7 @@ async function iniciarMapa() {
   $('#indicador').innerHTML = INDICADORES.map(i => `<option value="${i.id}">${esc(i.t)}</option>`).join('') +
     Object.keys(registros).map(s => `<option value="reg:${esc(s)}">Registros recibidos: ${esc(s)}</option><option value="reg:${esc(s)}:tasa">Registros por 100 mil hab. (no es tasa anual): ${esc(s)}</option>`).join('');
   capaMuni = L.geoJSON(g, {onEachFeature: (f, capa) => { capa.bindTooltip(`${f.properties.nombre}, ${f.properties.departamento}`, {sticky:true});
-    capa.on({click: () => ficha(f.properties).catch(x => aviso(x.message, true)), mouseover: () => capa.setStyle({weight:2.2, color:'#07306b'}), mouseout: () => capa.setStyle(!dentro(f.properties) ? FUERA : nivel === 'lugar' ? {weight:.7, color:'#9fb3c8'} : {weight:.6, color:'#fff'})}); }}).addTo(mapa);
+    capa.on({click: () => ficha(f.properties).catch(x => aviso(x.message, true)), mouseover: () => capa.setStyle({weight:2.2, color:'#004080'}), mouseout: () => capa.setStyle(!dentro(f.properties) ? FUERA : nivel === 'lugar' ? {weight:.7, color:'#9fb3c8'} : {weight:.6, color:'#fff'})}); }}).addTo(mapa);
   mapa.fitBounds(capaMuni.getBounds()); pintarMapa();
 }
 // Un lienzo (capa dibujada en «canvas») sigue ocupando el mapa aunque ya no tenga nada dibujado, y se
@@ -1352,7 +1355,7 @@ $('#huellaanio').oninput = () => { clearInterval(huellaTimer); $('#huellaplay').
 $('#huellaplay').onclick = () => { if (huellaTimer) { clearInterval(huellaTimer); huellaTimer = null; $('#huellaplay').textContent = '▶ Animar'; return; }
   $('#huellaplay').textContent = '❚❚ Pausa'; huellaTimer = setInterval(() => { const m = +$('#huellaanio').max; $('#huellaanio').value = (+$('#huellaanio').value + 1) % (m + 1); pintarHuella(); }, 900); };
 $('#capapoblados').onchange = async e => { capaPoblados = await capaOpcional(e.target.checked, capaPoblados, async () => { const lienzoCapa = L.canvas({padding:.3, pane:'puntos'});
-  return L.geoJSON(await (await fetch('/capas/lugares_poblados.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {renderer: lienzoCapa, radius:2, stroke:false, fillColor:'#07306b', fillOpacity:.55}), onEachFeature:(f, c) => c.bindTooltip(`${f.properties.nombre} · ${f.properties.codigo}`)}); }); };
+  return L.geoJSON(await (await fetch('/capas/lugares_poblados.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {renderer: lienzoCapa, radius:2, stroke:false, fillColor:'#004080', fillOpacity:.55}), onEachFeature:(f, c) => c.bindTooltip(`${f.properties.nombre} · ${f.properties.codigo}`)}); }); };
 $('#capalugares').onchange = async e => { capaLugares = await capaOpcional(e.target.checked, capaLugares, async () => L.geoJSON(await (await fetch('/capas/lugares_sin_conexion.geojson')).json(), {pointToLayer:(f, ll) => L.circleMarker(ll, {pane:'puntos', radius:4, weight:1, color:'#fff', fillOpacity:.9, fillColor: f.properties.conexion === 'sin_camino' ? '#b85c00' : '#7a3fb5'}), onEachFeature:(f, c) => c.bindPopup(`<b>${esc(f.properties.nombre)}</b> <small>${esc(f.properties.codigo)}</small><br>${esc(f.properties.municipio)}, ${esc(f.properties.departamento)}<br>${f.properties.conexion === 'sin_camino' ? 'Sin camino mapeado cerca' + (f.properties.distancia_m ? ' (vía más cercana a ' + num(f.properties.distancia_m) + ' m)' : '') : 'En un tramo que no se une a la red principal'}`)})); };
 $('#capabase').onchange = async e => { capaBase = await capaOpcional(e.target.checked, capaBase, async () => L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:17, attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">colaboradores de OpenStreetMap</a> (ODbL)'})); if (capaBase && e.target.checked) capaBase.bringToBack(); pintarMapa(); };
 $('#capasat').onchange = async e => { capaSat = await capaOpcional(e.target.checked, capaSat, async () => L.tileLayer('https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg', {maxZoom:17, maxNativeZoom:13, attribution:'<a href="https://cloudless.eox.at" rel="noopener">EOxCloudless</a> de EOX IT Services GmbH (contiene datos Copernicus Sentinel modificados, 2016; CC BY 4.0)'})); if (capaSat && e.target.checked) capaSat.bringToBack(); pintarMapa(); };
@@ -1525,7 +1528,7 @@ function mapaPieza(g, alcance, id, resaltar, territorio) { const cods = new Set(
   const anillos = f => f.geometry.type === 'Polygon' ? f.geometry.coordinates : f.geometry.coordinates.flat(); fs.forEach(f => anillos(f).forEach(a => a.forEach(([x, y]) => { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); })));
   const k = Math.cos((y0 + y1) / 2 * Math.PI / 180), W = 400, H = Math.max(120, Math.min(420, W * (y1 - y0) / ((x1 - x0) * k || 1))), X = x => (x - x0) / (x1 - x0 || 1) * W, Y = y => (y1 - y) / (y1 - y0 || 1) * H;
   const dentro = fs.filter(f => cods.has(f.properties.codigo)), c = cortes(dentro.map(f => valorInd(f.properties, id))), tonos = TONOS.azul.slice(-(c.length + 1)), color = v => v == null || !isFinite(v) ? '#f1f3f5' : tonos[c.filter(x => v >= x).length], inf = infoInd(id);
-  return `<svg class="alto" viewBox="0 0 ${W} ${H.toFixed(0)}" role="img" aria-label="Mapa de ${esc(inf.nombre)}">${fs.map(f => { const p = f.properties, esta = cods.has(p.codigo); return `<path d="${anillos(f).map(a => 'M' + a.map(([x, y]) => X(x).toFixed(1) + ' ' + Y(y).toFixed(1)).join('L') + 'Z').join('')}" fill="${esta ? color(valorInd(p, id)) : '#eceff3'}" stroke="${p.codigo === resaltar ? '#f5a623' : '#fff'}" stroke-width="${p.codigo === resaltar ? 2.5 : .5}"><title>${esc(p.nombre)}: ${esta ? num(valorInd(p, id)) + ' ' + esc(inf.unidad) : 'fuera de los filtros'}</title></path>`; }).join('')}</svg>
+  return `<svg class="alto" viewBox="0 0 ${W} ${H.toFixed(0)}" role="img" aria-label="Mapa de ${esc(inf.nombre)}">${fs.map(f => { const p = f.properties, esta = cods.has(p.codigo); return `<path d="${anillos(f).map(a => 'M' + a.map(([x, y]) => X(x).toFixed(1) + ' ' + Y(y).toFixed(1)).join('L') + 'Z').join('')}" fill="${esta ? color(valorInd(p, id)) : '#eceff3'}" stroke="${p.codigo === resaltar ? '#ffd500' : '#fff'}" stroke-width="${p.codigo === resaltar ? 2.5 : .5}"><title>${esc(p.nombre)}: ${esta ? num(valorInd(p, id)) + ' ' + esc(inf.unidad) : 'fuera de los filtros'}</title></path>`; }).join('')}</svg>
     <small>${c.length ? 'De claro a oscuro: de menos a más (' + c.map(x => num(x)).join(' · ') + ' ' + esc(inf.unidad) + ')' : 'Sin datos'}${dentro.length < fs.length ? ' · en gris, los que los filtros dejan fuera' : ''}</small>`; }
 // Dispersión: cada punto es un municipio. Se informa la correlación de Pearson con su tamaño de muestra.
 function dispersionPieza(alcance, a, b, resaltar) { const pts = alcance.map(m => [valorInd(m, a), valorInd(m, b), m]).filter(x => x[0] != null && x[1] != null && isFinite(x[0]) && isFinite(x[1])), ia = infoInd(a), ib = infoInd(b);
@@ -1533,8 +1536,8 @@ function dispersionPieza(alcance, a, b, resaltar) { const pts = alcance.map(m =>
   const W = 400, H = 250, m = {l: 46, r: 10, t: 8, b: 32}, xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), X = x => m.l + (x - x0) / (x1 - x0 || 1) * (W - m.l - m.r), Y = y => H - m.b - (y - y0) / (y1 - y0 || 1) * (H - m.t - m.b);
   const n = pts.length, mx = xs.reduce((t, v) => t + v, 0) / n, my = ys.reduce((t, v) => t + v, 0) / n, sxy = pts.reduce((t, p) => t + (p[0] - mx) * (p[1] - my), 0), sxx = xs.reduce((t, v) => t + (v - mx) ** 2, 0), syy = ys.reduce((t, v) => t + (v - my) ** 2, 0), r = sxx && syy ? sxy / Math.sqrt(sxx * syy) : 0, pend = sxx ? sxy / sxx : 0, yDe = x => my + pend * (x - mx), fuerza = Math.abs(r) < .3 ? 'débil' : Math.abs(r) < .6 ? 'moderada' : 'fuerte';
   const corta = (y) => Math.max(m.t, Math.min(H - m.b, Y(y)));
-  return `<svg class="alto" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dispersión de ${esc(ia.nombre)} contra ${esc(ib.nombre)}"><path d="M${m.l} ${m.t}V${H - m.b}H${W - m.r}" fill="none" stroke="#9aa5b1"/><line x1="${X(x0)}" y1="${corta(yDe(x0))}" x2="${X(x1)}" y2="${corta(yDe(x1))}" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="5 4"/>
-    ${pts.map(([x, y, p]) => `<circle cx="${X(x).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="${p.codigo === resaltar ? 5 : 3}" fill="${p.codigo === resaltar ? '#f5a623' : '#0051b3'}" fill-opacity="${p.codigo === resaltar ? 1 : .55}"><title>${esc(p.nombre)}, ${esc(p.departamento)}: ${num(x)} ${esc(ia.unidad)} · ${num(y)} ${esc(ib.unidad)}</title></circle>`).join('')}
+  return `<svg class="alto" viewBox="0 0 ${W} ${H}" role="img" aria-label="Dispersión de ${esc(ia.nombre)} contra ${esc(ib.nombre)}"><path d="M${m.l} ${m.t}V${H - m.b}H${W - m.r}" fill="none" stroke="#9aa5b1"/><line x1="${X(x0)}" y1="${corta(yDe(x0))}" x2="${X(x1)}" y2="${corta(yDe(x1))}" stroke="#ffd500" stroke-width="1.5" stroke-dasharray="5 4"/>
+    ${pts.map(([x, y, p]) => `<circle cx="${X(x).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="${p.codigo === resaltar ? 5 : 3}" fill="${p.codigo === resaltar ? '#ffd500' : '#0080ff'}" fill-opacity="${p.codigo === resaltar ? 1 : .55}"><title>${esc(p.nombre)}, ${esc(p.departamento)}: ${num(x)} ${esc(ia.unidad)} · ${num(y)} ${esc(ib.unidad)}</title></circle>`).join('')}
     <text x="${m.l}" y="${H - 18}" font-size="10" fill="#5b6672">${num(x0)}</text><text x="${W - m.r}" y="${H - 18}" font-size="10" fill="#5b6672" text-anchor="end">${num(x1)}</text><text x="${(W + m.l) / 2}" y="${H - 5}" font-size="10.5" fill="#1f2a37" text-anchor="middle">${esc(ia.nombre.slice(0, 58))} (${esc(ia.unidad)})</text>
     <text x="${m.l - 4}" y="${H - m.b}" font-size="10" fill="#5b6672" text-anchor="end">${num(y0)}</text><text x="${m.l - 4}" y="${m.t + 9}" font-size="10" fill="#5b6672" text-anchor="end">${num(y1)}</text><text transform="translate(11 ${(H - m.b + m.t) / 2}) rotate(-90)" font-size="10.5" fill="#1f2a37" text-anchor="middle">${esc(ib.nombre.slice(0, 40))} (${esc(ib.unidad)})</text></svg>
     <small>Cada punto es un municipio (${n}). Correlación de Pearson r = ${r.toFixed(2)}: relación ${fuerza}${fuerza !== 'débil' && r < 0 ? ' e inversa' : ''}. La línea es el ajuste por mínimos cuadrados; una correlación no prueba que una cosa cause la otra.</small>`; }
@@ -1547,7 +1550,7 @@ async function pintarTablero() {
   const herr = '<div class="pz-herr" role="toolbar" aria-label="Acciones de la pieza"><button type="button" data-a="izq" title="Mover antes" aria-label="Mover antes">←</button><button type="button" data-a="der" title="Mover después" aria-label="Mover después">→</button><button type="button" data-a="menos" title="Más angosta" aria-label="Más angosta">−</button><button type="button" data-a="mas" title="Más ancha" aria-label="Más ancha">+</button><button type="button" data-a="dup" title="Duplicar" aria-label="Duplicar">⧉</button><button type="button" data-a="quitar" title="Quitar" aria-label="Quitar">✕</button></div>';
   const piezas = tabDef.piezas.map((p, i) => { const inf = infoInd(p.indicador), tit = esc(p.titulo || inf.nombre), filas = alcance.map(m => [m, valorInd(m, p.indicador)]).filter(x => x[1] != null && isFinite(x[1])).sort((a, b) => p.orden === 'asc' ? a[1] - b[1] : b[1] - a[1]), ver = filas.slice(0, p.n), max = Math.max(...ver.map(x => Math.abs(x[1])), 1e-9), marca = m => m.codigo === t.codigo && t.nivel === 'municipio';
     const cuerpo = p.tipo === 'tarjeta' ? `<h3>${tit}</h3><b>${num(valorInd(total, p.indicador))} <small>${esc(inf.unidad)}</small></b><small>${esc(t.nombre)}${t.nivel === 'municipio' ? '' : ` · ${alcance.length} municipios`}${pais ? ` · país: ${num(valorInd(pais, p.indicador))}` : ''}</small>`
-      : p.tipo === 'barras' ? `<h3>${tit}: ${p.orden === 'asc' ? 'los ' + ver.length + ' menores' : 'los ' + ver.length + ' mayores'} (${esc(inf.unidad)})</h3>${ver.map(([m, v]) => `<div class="barrah"><span title="${esc(m.nombre)}">${marca(m) ? '<b>' + esc(m.nombre) + '</b>' : esc(m.nombre)}</span><i style="width:${Math.abs(v) / max * 100}%;${marca(m) ? 'background:#f5a623' : ''}"></i><b>${num(v)}</b></div>`).join('') || '<small>Ningún municipio cumple los filtros.</small>'}`
+      : p.tipo === 'barras' ? `<h3>${tit}: ${p.orden === 'asc' ? 'los ' + ver.length + ' menores' : 'los ' + ver.length + ' mayores'} (${esc(inf.unidad)})</h3>${ver.map(([m, v]) => `<div class="barrah"><span title="${esc(m.nombre)}">${marca(m) ? '<b>' + esc(m.nombre) + '</b>' : esc(m.nombre)}</span><i style="width:${Math.abs(v) / max * 100}%;${marca(m) ? 'background:#ffd500' : ''}"></i><b>${num(v)}</b></div>`).join('') || '<small>Ningún municipio cumple los filtros.</small>'}`
       : p.tipo === 'tabla' ? `<h3>${tit}</h3><div class="tabla"><table><thead><tr><th scope="col">#</th><th scope="col">Municipio</th><th scope="col">Departamento</th><th scope="col" class="num">${esc(inf.unidad)}</th></tr></thead><tbody>${ver.map(([m, v], j) => `<tr><td>${j + 1}</td><td>${marca(m) ? '<b>' + esc(m.nombre) + '</b>' : esc(m.nombre)}</td><td>${esc(m.departamento)}</td><td class="num">${num(v)}</td></tr>`).join('')}</tbody></table></div>`
       : p.tipo === 'mapa' ? `<h3>${tit}</h3>${mapaPieza(g, alcance, p.indicador, t.nivel === 'municipio' ? t.codigo : null, territorio)}`
       : p.tipo === 'dispersion' ? `<h3>${esc(p.titulo || inf.nombre + ' y ' + infoInd(p.indicador2).nombre)}</h3>${dispersionPieza(alcance, p.indicador, p.indicador2, t.nivel === 'municipio' ? t.codigo : null)}`
@@ -1728,7 +1731,7 @@ function pintarRuta() {
 function mapaDeRuta(r) {
   if (!campoMapa) { campoMapa = L.map('campomapa', {zoomControl: true, attributionControl: true}); L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">colaboradores de OpenStreetMap</a> (ODbL)'}).addTo(campoMapa); campoCapa = L.layerGroup().addTo(campoMapa); }
   campoCapa.clearLayers(); const pts = r.paradas.map(p => [p.latitud, p.longitud]);
-  L.polyline(pts, {color: '#0051b3', weight: 3, opacity: .7, dashArray: '6 6'}).addTo(campoCapa);
+  L.polyline(pts, {color: '#0080ff', weight: 3, opacity: .7, dashArray: '6 6'}).addTo(campoCapa);
   r.paradas.forEach(p => L.marker([p.latitud, p.longitud], {icon: L.divIcon({className: '', html: `<div class="marca-parada ${p.visita ? p.visita.coherencia : ''}">${p.orden}</div>`, iconSize: [26, 26], iconAnchor: [13, 13]}), title: p.nombre}).bindPopup(`<b>${p.orden}. ${esc(p.nombre)}</b><br>${p.visita ? esc(NOMBRE_CRUCE[p.visita.coherencia] || '') : 'Pendiente'}`).addTo(campoCapa));
   if (campoYo) L.circleMarker(campoYo, {radius: 8, color: '#fff', weight: 2, fillColor: '#e0561b', fillOpacity: 1}).bindPopup('Usted está aquí').addTo(campoCapa);
   setTimeout(() => { campoMapa.invalidateSize(); if (pts.length) campoMapa.fitBounds(L.latLngBounds(campoYo ? [...pts, campoYo] : pts).pad(.2), {maxZoom: 15}); }, 60);
@@ -1931,9 +1934,9 @@ function graficaGrande(serie, unidad) {
   const marcas = serie.map((p, i) => (i === 0 && !serie.slice(1, 4).some(x => String(x[0]).endsWith('-01'))) || String(p[0]).endsWith('-01') ? `<line x1="${X(i)}" x2="${X(i)}" y1="${H - mb}" y2="${H - mb + 5}" stroke="#8a96a3"/><text x="${X(i)}" y="${H - mb + 18}" font-size="11" fill="#5b6672" text-anchor="${i === 0 ? 'start' : 'middle'}">${esc(String(p[0]).endsWith('-01') ? String(p[0]).slice(0, 4) : p[0])}</text>` : '').join('');
   const imax = ys.indexOf(hi), imin = ys.indexOf(lo), punto = (i, color) => `<circle cx="${X(i)}" cy="${Y(ys[i])}" r="4.5" fill="${color}" stroke="#fff" stroke-width="1.5"/>`;
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Histórico de ${serie[0][0]} a ${serie[serie.length - 1][0]}" style="width:100%;height:auto">${guias}${marcas}
-    <polygon fill="#0051b3" opacity=".08" points="${X(0)},${H - mb} ${serie.map((p, i) => X(i) + ',' + Y(p[1])).join(' ')} ${X(serie.length - 1)},${H - mb}"/>
-    <polyline fill="none" stroke="#0051b3" stroke-width="2.2" points="${serie.map((p, i) => X(i) + ',' + Y(p[1])).join(' ')}"/>
-    ${punto(imin, '#1a7f4b')}${punto(imax, '#b3261e')}${punto(serie.length - 1, '#0051b3')}
+    <polygon fill="#0080ff" opacity=".08" points="${X(0)},${H - mb} ${serie.map((p, i) => X(i) + ',' + Y(p[1])).join(' ')} ${X(serie.length - 1)},${H - mb}"/>
+    <polyline fill="none" stroke="#0080ff" stroke-width="2.2" points="${serie.map((p, i) => X(i) + ',' + Y(p[1])).join(' ')}"/>
+    ${punto(imin, '#1a7f4b')}${punto(imax, '#b3261e')}${punto(serie.length - 1, '#0080ff')}
     ${serie.map((p, i) => `<circle cx="${X(i)}" cy="${Y(p[1])}" r="7" fill="transparent"><title>${esc(p[0])}: ${unidad}${Number(p[1]).toFixed(2)}</title></circle>`).join('')}</svg>`;
 }
 let datosCanasta = null;

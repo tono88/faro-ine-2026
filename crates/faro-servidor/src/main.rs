@@ -337,6 +337,11 @@ async fn main() -> Result<(), String> {
         .route("/idiomas.js", get(|| async { ([("content-type", "text/javascript; charset=utf-8"), ("cache-control", "no-cache")], include_str!("../web/idiomas.js")) }))
         .route("/api/idiomas", get(api_idiomas))
         .route("/api/idiomas/:codigo", get(api_idioma))
+        .route("/vendor/ubuntu-sans/ubuntu-sans-400.woff2", get(|| async { ([("content-type", "font/woff2"), ("cache-control", "public, max-age=604800")], include_bytes!("../web/vendor/ubuntu-sans/ubuntu-sans-400.woff2").as_slice()) }))
+        .route("/vendor/ubuntu-sans/ubuntu-sans-500.woff2", get(|| async { ([("content-type", "font/woff2"), ("cache-control", "public, max-age=604800")], include_bytes!("../web/vendor/ubuntu-sans/ubuntu-sans-500.woff2").as_slice()) }))
+        .route("/vendor/ubuntu-sans/ubuntu-sans-600.woff2", get(|| async { ([("content-type", "font/woff2"), ("cache-control", "public, max-age=604800")], include_bytes!("../web/vendor/ubuntu-sans/ubuntu-sans-600.woff2").as_slice()) }))
+        .route("/vendor/ubuntu-sans/ubuntu-sans-700.woff2", get(|| async { ([("content-type", "font/woff2"), ("cache-control", "public, max-age=604800")], include_bytes!("../web/vendor/ubuntu-sans/ubuntu-sans-700.woff2").as_slice()) }))
+        .route("/vendor/ine-horizontal-blanco.svg", get(|| async { ([("content-type", "image/svg+xml"), ("cache-control", "public, max-age=604800")], include_str!("../web/vendor/ine-horizontal-blanco.svg")) }))
         .route("/vendor/leaflet.js", get(|| async { ([("content-type", "text/javascript; charset=utf-8"), ("cache-control", "public, max-age=86400")], include_str!("../web/vendor/leaflet.js")) }))
         .route("/vendor/leaflet.css", get(|| async { ([("content-type", "text/css; charset=utf-8"), ("cache-control", "public, max-age=86400")], include_str!("../web/vendor/leaflet.css")) }))
         // Tope general de 20 MB; solo la recepción de envíos admite archivos grandes.
@@ -376,9 +381,9 @@ async fn seguridad(pedido: axum::extract::Request, siguiente: axum::middleware::
     c.insert("referrer-policy", HeaderValue::from_static("no-referrer"));
     // La posición y la cámara solo las puede pedir el propio portal (registro de visitas de campo); nadie más.
     c.insert("permissions-policy", HeaderValue::from_static("geolocation=(self), camera=(self), microphone=()"));
-    // Los guiones y estilos van dentro de la propia página (por eso 'unsafe-inline'); de fuera solo
-    // se admiten la tipografía, las teselas del mapa base y las fotos de productos, por https.
-    c.insert("content-security-policy", HeaderValue::from_static("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"));
+    // Los guiones y estilos van dentro de la propia página (por eso 'unsafe-inline'); la tipografía la
+    // sirve el propio portal; de fuera solo se admiten las teselas del mapa base y las fotos, por https.
+    c.insert("content-security-policy", HeaderValue::from_static("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"));
     respuesta
 }
 
