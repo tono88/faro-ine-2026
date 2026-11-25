@@ -55,7 +55,7 @@ Cómo se mide cada uno, con cifras: [`22-antes-y-ahora.md`](22-antes-y-ahora.md)
 | Icono | [`identidad/faro-icono.svg`](identidad/faro-icono.svg) | Encabezado del portal, pestaña del navegador, redes |
 
 Qué representa: la torre blanca es el catálogo oficial, fijo; las dos franjas son los niveles que
-ordena (departamento y municipio); la luz ámbar, a ambos lados, es el dato que sale ya entendido
+ordena (departamento y municipio); la luz amarilla, a ambos lados, es el dato que sale ya entendido
 hacia quien lo necesita.
 
 Reglas de uso:
@@ -63,27 +63,41 @@ Reglas de uso:
 - Deje alrededor un espacio libre igual a la mitad del alto del icono.
 - Tamaño mínimo del icono: 24 px en pantalla, 8 mm impreso.
 - No lo deforme, no cambie sus colores ni lo ponga sobre fotos sin un fondo liso.
-- **No se usa junto al logotipo del INE** como si fuera una marca institucional: FARO es una
-  propuesta de un equipo participante.
+- **Junto al logotipo del INE, como lo pide su guía.** El INE envió a los equipos su *Guía de diseño
+  gráfico para Datatón* (noviembre de 2026). Su logotipo va en el **cintillo inferior**, en la
+  esquina inferior derecha, dentro de un recuadro con la esquina superior izquierda curva. FARO lo
+  usa así en el pie del menú del portal, la presentación, el manual, el documento técnico y las
+  tarjetas del video, con el rótulo «Proyecto participante del Datatón INE 2026»: FARO es una
+  propuesta de un equipo participante, no un producto oficial del INE. Los archivos del logotipo
+  (versiones permitidas, en color y en negativo) están en [`identidad/ine/`](identidad/ine/); son
+  del INE y no se modifican.
 
 ## Colores
 
 | Color | Código | Uso |
 |---|---|---|
-| Azul INE | `#0051b3` | Acciones, enlaces, fondo del icono |
-| Azul profundo | `#07306b` | Títulos, menú lateral |
-| Celeste | `#4d9ae1` | Apoyo, franjas, bordes activos |
-| Cielo | `#e8f1fb` | Fondos de avisos y filtros |
-| Ámbar de la luz | `#f5a623` | Lo que hay que mirar: resaltados y avisos |
+| Azul radiante (tono principal del INE) | `#0080FF` | Acciones, botones, fondo del icono, acentos |
+| Azul oscuro (tono principal del INE) | `#004080` | Títulos, menú lateral, texto destacado |
+| Blanco (tono principal del INE) | `#FFFFFF` | Fondos |
+| Azul claro (el radiante con más luz) | `#66B3FF`, `#B3D9FF`, `#E5F2FF` | Apoyo, franjas, fondos de avisos y filtros, escala del mapa |
+| Amarillo (tono secundario del INE) | `#FFD500` | La luz del faro; lo que hay que mirar: recorridos y resaltados |
 | Tinta | `#313131` | Texto |
 | Gris | `#5b6672` | Texto secundario |
 
-Los azules son los de la identidad del INE, para que el portal se sienta de casa. El ámbar es
-propio de FARO y se usa poco: solo donde algo pide atención.
+La paleta es la de la *Guía de diseño gráfico para Datatón* del INE: predominan sus tres tonos
+principales y el amarillo, que la guía admite como tono secundario, se usa poco, solo donde algo
+pide atención. Sustituye al ámbar que FARO usó hasta la v0.20.1 (`#f5a623`), que quedaba fuera de
+la guía y se parecía al dorado reservado al Despacho Superior. El gris del texto y los colores de
+estado (verde, rojo) no cambiaron.
 
 ## Tipografía
 
-**Noto Sans** en todo: 700 para títulos y cifras, 400 para texto. Cifras con ancho fijo en tablas.
+**Ubuntu Sans**, la tipografía de la identidad del INE, en todo: 700 para títulos y cifras, 400
+para texto. Cifras con ancho fijo en tablas. Va incluida en el portal
+(`crates/faro-servidor/web/vendor/ubuntu-sans/`, cuatro pesos reducidos a los caracteres del
+español y del kaqchikel) y en los documentos que se generan: no se pide a ningún servicio externo.
+Licencia: Ubuntu Font Licence 1.0. Para editar la presentación en PowerPoint hay que tener
+instalada Ubuntu Sans (viene en la guía del INE); si no, PowerPoint la sustituye por otra.
 
 ## Voz
 

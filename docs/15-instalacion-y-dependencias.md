@@ -103,7 +103,7 @@ Nginx o el que use el INE), con `FARO_ESCUCHA=0.0.0.0` y `FARO_HTTPS=1`. En la p
 | argon2 | Contraseñas | MIT / Apache-2.0 |
 | PostgreSQL 16 | Base de datos | PostgreSQL |
 | Leaflet 1.9.4 (incluido en el repositorio) | Mapa | BSD-2 |
-| Noto Sans (Google Fonts, opcional) | Tipografía | OFL |
+| Ubuntu Sans (incluida en el portal) | Tipografía de la guía de diseño del INE | Ubuntu Font Licence 1.0 |
 
 Las versiones exactas están en `Cargo.lock` y la lista completa, con la licencia de cada biblioteca,
 en [`27-componentes-de-terceros.md`](27-componentes-de-terceros.md). No se usan servicios de pago.
@@ -115,7 +115,6 @@ Servicios en línea consultados en ejecución (todos públicos y sin clave):
 | El servidor | Páginas públicas de las tiendas | Muestreos de precios y fotos de producto para el informe | Sí: las tareas vienen apagadas |
 | El navegador | Teselas de OpenStreetMap | Mapa base | Sí: una casilla |
 | El navegador | NASA GIBS y EOX | Foto satelital de la animación y del mapa | Sí |
-| El navegador | Google Fonts | Tipografía Noto Sans (si no hay internet, usa la del sistema) | Sí |
 | El teléfono del operador | Microsoft Forms del INE | Abrir la encuesta de campo | Sí: solo si el INE la configura |
 
 ## Si algo falla

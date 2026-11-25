@@ -69,6 +69,8 @@ Todo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, 
   - Uso en FARO: Análisis de conformidad legal y de protección estadística (docs/23).
 - Congreso de la República de Guatemala. (2003). Ley de Idiomas Nacionales, Decreto 19-2003 [documento]. Edición de la Universidad de San Carlos de Guatemala. https://digi.usac.edu.gt/bvsalud/documentos/eblueinfo/ML/ML_016.pdf Consultado el 25 de noviembre de 2026.
   - Uso en FARO: Marco de los idiomas de la pantalla y de por qué no se traducen los nombres de lugares: artículos 8, 10, 11, 14 y 15 (docs/29).
+- Instituto Nacional de Estadística (INE). (2026). Guía de diseño gráfico para Datatón (extracto del Manual de Imagen Institucional 2025: logotipo, tonos y tipografía) [documento]. INE. Consultado el 25 de noviembre de 2026.
+  - Uso en FARO: Paleta, tipografía y uso del logotipo del INE en el portal y en los entregables (docs/25). Licencia: material del INE entregado a los equipos del Datatón para su uso en el evento.
 
 ## Métodos y programas
 
@@ -92,6 +94,8 @@ Todo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, 
   - Uso en FARO: Mapa de la pantalla. Licencia: BSD de 2 cláusulas.
 - Academia de Lenguas Mayas de Guatemala, Comunidad Lingüística Kaqchikel (Kaqchikel Cholchi'). (2011). Kaqchikel Choltzij: Kolon chuqa' K'ak'a' taq Tzij (vocabulario de neologismos y palabras rescatadas, kaqchikel–castellano y castellano–kaqchikel) [libro]. ALMG. https://almg.org.gt/wp-content/uploads/2026/09/Diccionario-2-Kaqchikel.pdf Consultado el 25 de noviembre de 2026.
   - Uso en FARO: Términos de población, territorio, matemáticas e informática del borrador en kaqchikel de la pantalla (los que no están en la memoria de Mozilla). Licencia: no declara licencia; se usan términos sueltos, citando la fuente.
+- Canonical Ltd. y Dalton Maag. (2023). Ubuntu Sans (familia tipográfica) [programa]. Canonical. https://design.ubuntu.com/font Consultado el 25 de noviembre de 2026.
+  - Uso en FARO: Tipografía del portal y de los documentos, según la guía de diseño del INE; incluida en el repositorio, reducida a los caracteres usados. Licencia: Ubuntu Font Licence 1.0.
 
 ## Cómo citar FARO
 

@@ -12,7 +12,7 @@ tableta y celular, y cada cifra dice de dónde sale.
 
 ## Recorridos guiados
 
-En cualquier pantalla, el botón ámbar **«Recorrido guiado»** del encabezado explica lo que tiene
+En cualquier pantalla, el botón amarillo **«Recorrido guiado»** del encabezado explica lo que tiene
 delante: señala cada parte y dice para qué sirve. Cada sección tiene además su propio botón, «Ver
 cómo funciona esta pantalla», junto al título. Se avanza con «Siguiente» o con las flechas del
 teclado; Esc lo cierra. Desde el primer paso se puede abrir el recorrido general del portal.

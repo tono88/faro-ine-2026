@@ -2,6 +2,26 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.21.0 · 25-nov-2026 · Guía de diseño gráfico del INE
+
+El INE envió a los equipos su *Guía de diseño gráfico para Datatón* (paleta, tipografía y
+logotipo). Se aplicó al portal y a todos los entregables.
+
+- **Paleta del INE**: azul radiante `#0080FF`, azul oscuro `#004080` y blanco como tonos
+  principales; el **amarillo `#FFD500`** (tono secundario de la guía) sustituye al ámbar de FARO.
+  La escala del mapa, las gráficas, el logotipo de FARO y el icono de pestaña usan los tonos nuevos.
+- **Ubuntu Sans**, la tipografía del INE, incluida en el portal (cuatro pesos, 64 KB en total) y
+  en los documentos que se generan. **El portal ya no pide nada a Google Fonts**: se cierra el
+  hallazgo 20 de seguridad y la política de contenido deja de admitir estilos y tipografías de fuera.
+- **Logotipo del INE en el cintillo inferior**, como indica la guía (esquina inferior derecha,
+  recuadro con la esquina superior izquierda curva): pie del menú del portal, presentación, manual,
+  documento técnico y tarjetas del video, con el rótulo «Proyecto participante del Datatón INE
+  2026». Cambia la decisión anterior del equipo de no usar el logotipo. Archivos en
+  `docs/identidad/ine/`.
+- **Entregables regenerados** con la identidad nueva: presentación (PDF y PowerPoint, con Ubuntu
+  Sans como tipografía del tema), manual, documento técnico y video.
+- `docs/25-identidad.md` actualizado. Sin cambios de función.
+
 ## v0.20.1 · 25-nov-2026 · Kaqchikel ampliado (borrador por revisar)
 
 Pedido del equipo: que el kaqchikel cubra una parte considerable de la pantalla, dejando dicho que

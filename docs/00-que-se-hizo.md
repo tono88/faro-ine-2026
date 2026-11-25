@@ -131,6 +131,6 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 | Tareas de muestreo de precios | 26 |
 | Precios publicados en el levantamiento | 85,907 (18 tiendas, 6 rubros) |
 | Capas publicadas | 21 |
-| Fuentes citadas | 40 |
+| Fuentes citadas | 42 |
 | Idiomas de la pantalla | español, inglés (1,873 textos) y kaqchikel en borrador (680 rótulos, 36 %, por revisar) |
 | Hallazgos documentados | [más de 35](09-logros.md) |

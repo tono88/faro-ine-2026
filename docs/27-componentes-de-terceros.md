@@ -78,7 +78,8 @@ o con `cargo tree`.
 | Componente | Versión | Licencia | Dónde está y para qué |
 |---|---|---|---|
 | [Leaflet](https://leafletjs.com) | 1.9.4 | BSD de 2 cláusulas | Incluido en `crates/faro-servidor/web/vendor/` con su archivo de licencia: mapas de la pantalla |
-| [Noto Sans](https://fonts.google.com/noto/specimen/Noto+Sans) | — | SIL Open Font License 1.1 | Tipografía; el navegador la pide a Google Fonts si hay internet (si no, usa la del sistema) |
+| [Ubuntu Sans](https://design.ubuntu.com/font) | — | Ubuntu Font Licence 1.0 | Tipografía de la guía de diseño del INE; incluida en `crates/faro-servidor/web/vendor/ubuntu-sans/` con su licencia (cuatro pesos, reducidos a los caracteres usados) |
+| Logotipo del INE | — | Del Instituto Nacional de Estadística; uso según su guía de diseño gráfico para el Datatón | Cintillo inferior del portal y de los entregables (`docs/identidad/ine/`) |
 | [PostgreSQL](https://www.postgresql.org) | 16 | Licencia PostgreSQL (permisiva) | Base de datos; imagen oficial `postgres:16` |
 | Imágenes de Docker `rust:1-bookworm` y `debian:bookworm-slim` | — | Software libre (Debian; Rust: MIT o Apache-2.0) | Compilar y ejecutar el portal |
 | [Places365-ResNet18](http://places2.csail.mit.edu) (MIT CSAIL) | — | Pesos: CC BY; código: MIT | `datos/modelos/` ([procedencia](../datos/modelos/PROCEDENCIA.md)): clasificador de fotos del trabajo de campo, sin cambios |

@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.20.1.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.21.0.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -594,8 +594,11 @@ Cada uno conserva su licencia original.
   `image` y `tract-onnx`. Versiones exactas en `Cargo.lock`.
 - **Mapas**: Leaflet 1.9.4 (BSD de 2 cláusulas), incluido en `crates/faro-servidor/web/vendor/` con
   su licencia. Mapa base opcional: teselas de OpenStreetMap (© colaboradores, ODbL).
-- **Tipografía**: Noto Sans (SIL Open Font License 1.1), que el navegador pide a Google Fonts si
-  hay internet.
+- **Tipografía**: Ubuntu Sans (Ubuntu Font Licence 1.0), la de la guía de diseño del INE, incluida
+  en el portal; no se pide a ningún servicio externo.
+- **Identidad del INE**: paleta, tipografía y logotipo según la *Guía de diseño gráfico para
+  Datatón* que el INE envió a los equipos (noviembre de 2026). El logotipo es del INE y se usa solo
+  en el cintillo inferior, como indica la guía ([`docs/25`](docs/25-identidad.md)).
 - **Base de datos**: PostgreSQL 16 (licencia PostgreSQL). Imágenes de Docker oficiales `rust`,
   `debian` y `postgres`.
 - **Solo para pruebas y para generar los entregables** (no forman parte del portal): Playwright y
@@ -620,7 +623,7 @@ internet solo para:
 
 - descargar fuentes abiertas (portal del INE, HDX, Comisión Europea) y leer páginas públicas de tiendas;
 - mostrar, en el navegador de quien mira, el mapa base de OpenStreetMap, las fotos satelitales de
-  NASA y EOX y la tipografía de Google Fonts (todos opcionales);
+  NASA y EOX (opcionales);
 - bajar la foto de un producto para comparar empaques en el informe de precio (se guarda una huella,
   no la foto);
 - abrir la encuesta de Microsoft Forms del INE desde el teléfono del operador (opcional; las

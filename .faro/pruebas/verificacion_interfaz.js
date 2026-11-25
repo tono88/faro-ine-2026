@@ -76,7 +76,7 @@ Mapa, tableros y precios por rubro en laptop de 15.6", tableta y celular: \`entr
 - Laptop de 15.6": menú lateral fijo y contenido a 1,180 px como máximo, para que las líneas no sean demasiado largas en Full HD.
 - Tableta y celular (980 px o menos): el menú pasa a un botón; a 700 px o menos todo va en una columna, la ficha del mapa es una hoja inferior y los campos usan 16 px para que el teléfono no amplíe la página al escribir.
 - Las tablas anchas se desplazan dentro de su propio marco, con el encabezado fijo.
-- Colores y tipografía del INE (#0051b3, #4d9ae1, Noto Sans); el foco del teclado siempre es visible.
+- Colores y tipografía de la guía de diseño del INE (#0080FF, #004080, Ubuntu Sans); el foco del teclado siempre es visible.
 `;
   if (!enOtroIdioma) fs.writeFileSync(path.join(raiz, 'docs/20-verificacion-interfaz.md'), md); else console.log(detalle.join('\n'));
   console.log(problemas ? `PROBLEMAS: ${problemas}` : 'sin hallazgos'); await b.close();

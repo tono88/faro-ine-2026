@@ -156,7 +156,7 @@ contraseña inicial que BLOQUEA los cambios hasta cambiarla, `FARO_ESCUCHA` (127
 `tableros`, `/api/tableros*`, sección "Tableros"). Los guiones de prueba entran con
 `.faro/pruebas/_sesion.js` (cambia admin/admin por `Faro-Prueba-2026` en bases nuevas).
 Pendiente de seguridad: grupo de conexiones a la base, HMAC en la llave de pareo, envío en una
-transacción, tipografía servida localmente, `cargo audit`.
+transacción, `cargo audit` (la tipografía ya se sirve localmente desde la v0.21.0).
 
 Agregado después (v0.15.1): campo `pais`/`pais_local` de la columna (`recepcion.rs`: `en_el_extranjero`);
 `es_sin_dato` compara los números con su signo (antes "-1" anulaba el "1"). Archivos reales vueltos a
@@ -317,6 +317,19 @@ portal está traducido al kaqchikel». Cómo se rehace: paquetes de evidencia po
 agentes → validación de palabras (guiones en el scratchpad de la sesión: `kaq_herr/paquetes.py`,
 `armar_cak.py`; no están en el repositorio). Encabezado en teléfono: a 400 px o menos se oculta la palabra
 «FARO» (queda el icono) y el botón de sesión se recorta con puntos suspensivos.
+
+Agregado después (v0.21.0): identidad según la *Guía de diseño gráfico para Datatón* que el INE envió a los
+equipos (25-nov). **Paleta**: azul radiante `#0080ff`, azul oscuro `#004080`, blanco; tintes `#66b3ff`,
+`#b3d9ff`, `#e5f2ff`; **amarillo `#ffd500`** en lugar del ámbar `#f5a623` (decisión del equipo). **Tipografía**:
+Ubuntu Sans (UFL 1.0) en `crates/faro-servidor/web/vendor/ubuntu-sans/` (woff2 reducidos; rutas
+`/vendor/ubuntu-sans/ubuntu-sans-<peso>.woff2`); ya no se usa Google Fonts y la CSP no lo admite. Los
+generadores la incrustan con `scripts/entregables/_tipografia.js` (`CSS`, `ine(nombre)`). **Logotipo del INE**
+(esto reemplaza el «Sin logotipo del INE» de la v0.6.0): solo en el cintillo inferior, esquina inferior
+derecha, recuadro con la esquina superior izquierda curva: `.pie-ine` al pie del menú, `.ine` en presentación
+y manual, portada del documento técnico, `.vz-ine` en las tarjetas del video; siempre con «Proyecto
+participante del Datatón INE 2026» cerca. Archivos del INE en `docs/identidad/ine/` (no modificarlos; al
+incrustar varios SVG en una misma página usar `<img>`, porque comparten nombres de clase). El PowerPoint usa
+Ubuntu Sans como tipografía del tema: quien lo edite debe tenerla instalada.
 
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que

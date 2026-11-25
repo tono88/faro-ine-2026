@@ -42,7 +42,7 @@ Cada corrección tiene una prueba automática en `.faro/pruebas/tableros_grupos_
 | 17 | Baja | Las celdas del CSV que empiezan con `=`, `+`, `-`, `@` se abrirían como fórmulas | **Corregido** | Se neutralizan con un apóstrofo, en el CSV de precios y (desde la v0.18.0) en el de visitas de campo |
 | 18 | Baja | El guardado de un envío no es una sola transacción | **Pendiente** | Si se corta a medias puede quedar incompleto; se detecta en el avance |
 | 19 | Informativa | Claves de `crear_env.ps1` con un generador no criptográfico | **Corregido** (sin probar en Windows) | Usa el generador criptográfico del sistema |
-| 20 | Informativa | La tipografía se pide a Google Fonts | **Pendiente** | Servirla desde el propio portal evita esa petición a un tercero |
+| 20 | Informativa | La tipografía se pedía a Google Fonts | **Corregido** (v0.21.0) | Ubuntu Sans se sirve desde el propio portal; la política de contenido ya no admite estilos ni tipografías de fuera |
 
 ## Cambios de la versión 0.16.0
 

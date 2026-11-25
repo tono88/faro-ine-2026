@@ -520,6 +520,32 @@
    "consultado": "25 de noviembre de 2026",
    "uso": "Términos de población, territorio, matemáticas e informática del borrador en kaqchikel de la pantalla (los que no están en la memoria de Mozilla).",
    "cita": "Academia de Lenguas Mayas de Guatemala, Comunidad Lingüística Kaqchikel (Kaqchikel Cholchi'). (2011). Kaqchikel Choltzij: Kolon chuqa' K'ak'a' taq Tzij (vocabulario de neologismos y palabras rescatadas, kaqchikel–castellano y castellano–kaqchikel) [libro]. ALMG. https://almg.org.gt/wp-content/uploads/2026/09/Diccionario-2-Kaqchikel.pdf Consultado el 25 de noviembre de 2026."
+  },
+  {
+   "id": "ine-guia-diseno",
+   "autor": "Instituto Nacional de Estadística (INE)",
+   "anio": "2026",
+   "titulo": "Guía de diseño gráfico para Datatón (extracto del Manual de Imagen Institucional 2025: logotipo, tonos y tipografía)",
+   "tipo": "documento",
+   "editor": "INE",
+   "url": "",
+   "licencia": "material del INE entregado a los equipos del Datatón para su uso en el evento",
+   "consultado": "25 de noviembre de 2026",
+   "uso": "Paleta, tipografía y uso del logotipo del INE en el portal y en los entregables (docs/25).",
+   "cita": "Instituto Nacional de Estadística (INE). (2026). Guía de diseño gráfico para Datatón (extracto del Manual de Imagen Institucional 2025: logotipo, tonos y tipografía) [documento]. INE. Consultado el 25 de noviembre de 2026."
+  },
+  {
+   "id": "ubuntu-sans",
+   "autor": "Canonical Ltd. y Dalton Maag",
+   "anio": "2023",
+   "titulo": "Ubuntu Sans (familia tipográfica)",
+   "tipo": "programa",
+   "editor": "Canonical",
+   "url": "https://design.ubuntu.com/font",
+   "licencia": "Ubuntu Font Licence 1.0",
+   "consultado": "25 de noviembre de 2026",
+   "uso": "Tipografía del portal y de los documentos, según la guía de diseño del INE; incluida en el repositorio, reducida a los caracteres usados.",
+   "cita": "Canonical Ltd. y Dalton Maag. (2023). Ubuntu Sans (familia tipográfica) [programa]. Canonical. https://design.ubuntu.com/font Consultado el 25 de noviembre de 2026."
   }
  ]
 }

@@ -91,7 +91,7 @@ nacionales con sus hablantes».
   tiempos. Para dejarlos fijos en la imagen:
 
   ```bash
-  ffmpeg -i FARO-video-demo.mp4 -i narracion.wav -vf "subtitles=FARO-video-demo.srt:force_style='FontName=Noto Sans,FontSize=11,BorderStyle=3,Outline=1,Shadow=0,MarginV=10'" -map 0:v -map 1:a -c:v libx264 -crf 20 -c:a aac -shortest FARO-video-final.mp4
+  ffmpeg -i FARO-video-demo.mp4 -i narracion.wav -vf "subtitles=FARO-video-demo.srt:force_style='FontName=Ubuntu Sans,FontSize=11,BorderStyle=3,Outline=1,Shadow=0,MarginV=10'" -map 0:v -map 1:a -c:v libx264 -crf 20 -c:a aac -shortest FARO-video-final.mp4
   ```
 
 - **Si Ana Lucía aparece en imagen.** El mejor lugar es la esquina **superior derecha** durante las
