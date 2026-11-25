@@ -332,8 +332,9 @@ incrustar varios SVG en una misma página usar `<img>`, porque comparten nombres
 Ubuntu Sans como tipografía del tema: quien lo edite debe tenerla instalada.
 
 Agregado después (v0.21.0, segunda parte): carta de presentación del equipo en `docs/identidad/equipo/`
-(`sociedad-de-almas.svg` = emblema ORIGINAL dibujado para el proyecto, NO una copia del emblema de la foto
-que envió el equipo, que es de una obra con derechos; `qr-*.svg` con segno; `carta-de-presentacion.svg`).
+(`sociedad-de-almas.svg` = emblema ORIGINAL dibujado para el proyecto: placa pentagonal con vetas y tres
+llamas. El equipo pidió conservar el guiño a la placa de la foto que envió, que es de una obra con derechos:
+se conserva la forma pentagonal y las vetas, NUNCA la calavera ni otro elemento copiado; `qr-*.svg` con segno; `carta-de-presentacion.svg`).
 `scripts/entregables/pie_equipo.js` pone la carta al final del README y de cada `docs/NN-*.md` tras la marca
 `<!-- equipo -->` (**volver a correrlo después de regenerar docs 11, 20, 22 y 27**); `_tipografia.js`:
 `carta()`, `sinPie()`. La carta va también en la contraportada del manual, la última página del documento

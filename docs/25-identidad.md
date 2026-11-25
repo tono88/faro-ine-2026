@@ -75,8 +75,8 @@ Reglas de uso:
 ## El equipo y su carta de presentación
 
 El equipo se llama **La Sociedad de Almas**. Su emblema es un diseño propio hecho para este
-proyecto: un escudo azul oscuro con filete amarillo, tres llamas (una por integrante) y el nombre
-dentro. Usa la misma paleta y la misma tipografía que FARO.
+proyecto: una placa pentagonal azul oscuro con filete amarillo y vetas hacia el centro, tres llamas (una
+por integrante) dentro de un círculo y el nombre dentro. Usa la misma paleta y la misma tipografía que FARO.
 
 ![Carta de presentación del equipo](identidad/equipo/carta-de-presentacion.svg)
 
