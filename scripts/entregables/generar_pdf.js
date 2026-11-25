@@ -43,7 +43,7 @@ function aHtml(md) {
   tomas.push(await toma('09-animacion', 'Crecimiento urbano del municipio de Guatemala sobre la foto satelital (si no hay internet, sin foto).')); await p.click('#detalle .cerrar');
   // Capturas del trabajo de campo: las deja el guion .faro/pruebas/trabajo_de_campo.js cuando se le da esta carpeta.
   for (const [n, pie] of [['101-campo-coordinacion', 'Trabajo de campo: quien coordina arma la ruta de cada operador y revisa las visitas.'], ['103-campo-ruta-movil', 'Trabajo de campo en el teléfono del operador: sus paradas en orden y el resultado de cada visita.'], ['102b-campo-foto-comercio', 'Una visita con foto de comercio queda marcada para revisar, con la razón.']]) if (fs.existsSync(path.join(cap, n + '.png'))) tomas.push({ n, pie });
-  const leer = f => fs.readFileSync(path.join(raiz, f), 'utf8'); const img = n => 'data:image/png;base64,' + fs.readFileSync(path.join(cap, n + '.png')).toString('base64');
+  const leer = f => require('./_tipografia.js').sinPie(fs.readFileSync(path.join(raiz, f), 'utf8')); const img = n => 'data:image/png;base64,' + fs.readFileSync(path.join(cap, n + '.png')).toString('base64');
   const figura = t => `<figure><img src="${img(t.n)}"><figcaption>${esc(t.pie)}</figcaption></figure>`;
   const version = (leer('docs/08-versiones.md').match(/## (v[\d.]+)/) || [])[1] || '';
   const html = `<!doctype html><html lang="es"><meta charset="utf-8"><title>FARO · Documento técnico</title><style>
@@ -77,7 +77,8 @@ function aHtml(md) {
   <div class="sec">${aHtml(leer('docs/28-defensa-del-codigo.md'))}</div>
   <div class="sec">${aHtml(leer('docs/11-fuentes-y-citas.md'))}</div>
   <div class="sec">${aHtml(leer('docs/27-componentes-de-terceros.md'))}</div>
-  <div class="sec">${aHtml(leer('LICENCIA.md'))}</div></body></html>`;
+  <div class="sec">${aHtml(leer('LICENCIA.md'))}</div>
+  <div class="sec" style="display:flex;flex-direction:column;justify-content:center;height:230mm"><h2 style="text-align:center;border:0">Equipo La Sociedad de Almas</h2><p style="text-align:center;color:#5b6672">Gracias por leer hasta aquí. Esta es nuestra carta de presentación.</p><div style="margin:8mm auto 0;width:170mm">${require('./_tipografia.js').carta()}</div></div></body></html>`;
   const d = await b.newPage(); await d.setContent(html, { waitUntil: 'load' });
   const salida = path.join(dir, 'FARO-documento-tecnico.pdf');
   await d.pdf({ path: salida, format: 'Letter', printBackground: true, displayHeaderFooter: true, headerTemplate: '<span></span>', footerTemplate: '<div style="font-size:8px;color:#5b6672;width:100%;text-align:center">FARO · Datatón INE 2026 · <span class="pageNumber"></span> de <span class="totalPages"></span></div>', margin: { top: '18mm', bottom: '18mm', left: '16mm', right: '16mm' } });

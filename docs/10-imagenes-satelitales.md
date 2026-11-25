@@ -105,3 +105,10 @@ ese lugar poblado ([`24-clasificador-de-fotos.md`](24-clasificador-de-fotos.md) 
 tipo de edificio (residencial o no, en cinco tramos de altura). Para Guatemala son tres mosaicos de
 6 a 79 MB. Y con imagen de dron del INE o de municipalidades se puede seguir el método del reto de
 DrivenData, que ya incluye a Mixco.
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260" role="img" aria-label="La Sociedad de Almas">
+<path d="M120 8 222 52v96c0 52-44 86-102 104C62 234 18 200 18 148V52z" fill="#004080"/>
+<path d="M120 22 209 60v88c0 44-38 73-89 90-51-17-89-46-89-90V60z" fill="none" stroke="#ffd500" stroke-width="3"/>
+<g fill="#ffd500"><path d="M120 44c14 18 20 30 20 42a20 20 0 0 1-40 0c0-12 6-24 20-42z"/><path d="M78 70c10 13 15 22 15 31a15 15 0 0 1-30 0c0-9 5-18 15-31z" opacity=".85"/><path d="M162 70c10 13 15 22 15 31a15 15 0 0 1-30 0c0-9 5-18 15-31z" opacity=".85"/></g>
+<g fill="#004080"><circle cx="120" cy="88" r="6"/><circle cx="78" cy="102" r="4.5"/><circle cx="162" cy="102" r="4.5"/></g>
+<path d="M52 128h136" stroke="#66b3ff" stroke-width="2"/>
+<text x="120" y="152" text-anchor="middle" font-family="'Ubuntu Sans','Segoe UI',Arial,sans-serif" font-weight="700" font-size="15" letter-spacing="2.5" fill="#fff">LA SOCIEDAD</text>
+<text x="120" y="174" text-anchor="middle" font-family="'Ubuntu Sans','Segoe UI',Arial,sans-serif" font-weight="700" font-size="15" letter-spacing="2.5" fill="#fff">DE ALMAS</text>
+<text x="120" y="198" text-anchor="middle" font-family="'Ubuntu Sans','Segoe UI',Arial,sans-serif" font-weight="500" font-size="9.5" letter-spacing="1.5" fill="#b3d9ff">DATATÓN INE 2026</text>
+</svg>

@@ -61,3 +61,10 @@
 | Más indicadores | Hecho: quince del Censo 2018, uno de uso del suelo y tres de vías en los tableros (29 en total; el mapa tiene además el porcentaje de vías pavimentadas, con su advertencia) |
 | Mapeo y tipo de carretera | Hecho con lo que ya se tenía: tipo de vía en toda la red y superficie donde está anotada (38 %), por municipio y en el mapa. No se halló una capa abierta del RIC ni de la Dirección General de Caminos |
 | Inclusión: que la pantalla se lea en más de un idioma (pedido del equipo, 25-nov) | Hecho en inglés (completo). Kaqchikel **en borrador**: 680 rótulos (36 % de la pantalla) armados con vocabulario escrito por hablantes; falta la revisión de una persona experta y los textos largos. Se traduce la interfaz, nunca los datos (`docs/29`) |
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

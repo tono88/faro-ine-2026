@@ -95,3 +95,10 @@ Detalle: [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
 - Completar red vial: predicción de enlaces en grafos y comparación con OpenStreetMap. **Hecho** el
   día 2 con un criterio más simple y explicable: componentes conexos y el hueco más corto hasta la
   red principal (`vial.rs`); no se usó predicción de enlaces.
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

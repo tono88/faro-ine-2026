@@ -111,3 +111,10 @@ Cómo trae el lugar cada institución:
 - **PNC**: código de municipio del INE en una sola columna, sin el cero inicial, y además el nombre.
 - **SE-CONRED**: nombres de departamento, municipio y lugar, sin códigos.
 - **INSIVUMEH** (calidad del aire): el lugar es el nombre de la estación en el encabezado.
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

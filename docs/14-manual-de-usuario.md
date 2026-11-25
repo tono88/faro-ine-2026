@@ -144,3 +144,10 @@ quién) y **acerca y fuentes** (cada dato con su cita, y el resumen de protecci�
 - **No inventa.** Todo dato es real, con fuente, fecha y licencia; lo calculado se puede repetir con un comando.
 - **Se revisa a sí mismo.** Verificación estadística, de interfaz y de seguridad, con sus informes en `docs/19` a `docs/21`.
 - **Protege a las personas.** Solo agregados, conteos pequeños ocultos, fotos que no se guardan y una bitácora de quién hizo qué, que los administradores consultan en «Usuarios» (`docs/23`).
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

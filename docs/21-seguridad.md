@@ -108,3 +108,10 @@ posición), y la protección de conteos no compara tablas entre sí.
 cerradas sin sesión; rechazo de peticiones de otro origen; bloqueo tras intentos fallidos; rechazo de
 contraseñas débiles; recorrido de rutas; permisos por grupo (403 fuera de su sección). No se hizo una
 prueba de penetración externa ni se corrió `cargo audit`: conviene hacerlo antes de un uso real.
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

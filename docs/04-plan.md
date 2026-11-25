@@ -36,3 +36,10 @@ Versión por versión: [`08-versiones.md`](08-versiones.md). Conformidad con la 
 - Dar acceso al repositorio a los cinco correos del jurado.
 - Enviar la nota de consentimiento firmada.
 - ~~Descargar el "Listado de lugares poblados" (XLSX) del INE y agregarlo al proyecto.~~ Hecho el 23-nov: catálogo verificado y lugares poblados cargados con coordenadas.
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

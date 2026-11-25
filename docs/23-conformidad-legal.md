@@ -329,3 +329,10 @@ procesa sin guardarlas y el informe se imprime para uso interno.
 - **Código Regional de la CEPAL.** Se leyó en una presentación de la CEPAL alojada por la ONU; el
   enunciado literal del principio de confidencialidad no se pudo confirmar.
 - **GSBPM, X-Road y la licencia de las publicaciones de SESAN.** No verificados.
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

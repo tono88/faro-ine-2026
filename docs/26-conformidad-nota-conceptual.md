@@ -140,3 +140,10 @@ hizo.
 - [ ] Decidir la licencia para terceros (salvedad 7).
 - [ ] (Después de la entrega) Pedir a una persona experta que revise y complete el borrador en kaqchikel; la
       autoridad en su escritura es la Academia de Lenguas Mayas de Guatemala (`29`, sección 4).
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

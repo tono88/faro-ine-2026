@@ -28,3 +28,10 @@ Ordenados por viabilidad para el INE.
 Recomendación: empezar por el 1, porque se alimenta de lo que FARO ya guarda y no exige datos nuevos.
 La regla de oro no cambia con ningún modelo: el modelo propone y ordena candidatos; asignar un
 código sin coincidencia exacta lo decide una persona.
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

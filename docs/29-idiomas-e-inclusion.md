@@ -251,3 +251,10 @@ personas usuarias; la medición del contraste de cada color; versiones en otros 
 - Congreso de la República de Guatemala. (2003). *Ley de Idiomas Nacionales, Decreto 19-2003*.
   Texto consultado el 25 de noviembre de 2026 en
   <https://digi.usac.edu.gt/bvsalud/documentos/eblueinfo/ML/ML_016.pdf>.
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

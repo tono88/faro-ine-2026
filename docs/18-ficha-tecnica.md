@@ -28,3 +28,10 @@
 | **Conformidad con la nota conceptual** | Lineamiento por lineamiento y criterio por criterio: `docs/26-conformidad-nota-conceptual.md` |
 | **Entregables** | Repositorio; presentación (`entregables/FARO-presentacion.pdf`); manual de usuario gráfico; documento técnico; video de 2 a 3 minutos (guion en `docs/16-guion-video.md`) |
 | **Repositorio** | <https://github.com/tono88/faro-ine-2026> (historial desde el 23-nov-2026) |
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

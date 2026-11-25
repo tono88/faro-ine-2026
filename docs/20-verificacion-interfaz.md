@@ -33,3 +33,10 @@ Mapa, tableros y precios por rubro en laptop de 15.6", tableta y celular: `entre
 - Tableta y celular (980 px o menos): el menú pasa a un botón; a 700 px o menos todo va en una columna, la ficha del mapa es una hoja inferior y los campos usan 16 px para que el teléfono no amplíe la página al escribir.
 - Las tablas anchas se desplazan dentro de su propio marco, con el encabezado fijo.
 - Colores y tipografía de la guía de diseño del INE (#0080FF, #004080, Ubuntu Sans); el foco del teclado siempre es visible.
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

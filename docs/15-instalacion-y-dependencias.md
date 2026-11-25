@@ -130,3 +130,10 @@ Servicios en línea consultados en ejecución (todos públicos y sin clave):
 | Un pendiente dice «reglas anteriores» | Ese envío se analizó antes de un cambio en la solicitud: vuelva a subir el archivo |
 | La animación no muestra la foto satelital | El navegador no tiene internet; la animación funciona igual sin foto |
 | Tras actualizar no cambian los precios publicados | El levantamiento se recarga solo si la tabla cambió de tamaño; `docker compose down -v` lo fuerza (borra lo demás) |
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

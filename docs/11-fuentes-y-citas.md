@@ -100,3 +100,10 @@ Todo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, 
 ## Cómo citar FARO
 
 Sandoval, E., Echeverría, A. y Sandoval, A. (2026). FARO: recepción y homologación de registros administrativos, territorio y precios [programa]. Datatón INE 2026, categoría 2. https://github.com/tono88/faro-ine-2026
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>

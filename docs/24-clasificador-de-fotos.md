@@ -98,3 +98,10 @@ Guatemala no está medido**: la única medición propia es la prueba de 16 fotos
 El modelo viene en `datos/modelos/` y la imagen de Docker lo incluye. Si esa carpeta no está (o se
 indica otra con `FARO_MODELOS`), el portal sigue funcionando: registra las visitas y las cruza con
 la posición, el satélite y el censo, y avisa que la foto no se evaluó.
+
+<!-- equipo -->
+---
+
+<p align="center"><img src="identidad/equipo/carta-de-presentacion.svg" alt="Equipo La Sociedad de Almas: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval, con el código QR del perfil de LinkedIn de cada uno" width="760"></p>
+
+<p align="center"><a href="https://www.linkedin.com/in/estuardoantoniosandoval/">Estuardo Sandoval</a> · <a href="https://www.linkedin.com/in/analuciaecheverria/">Ana Echeverría</a> · <a href="https://www.linkedin.com/in/alejandro-jos%C3%A9-sandoval-acevedo-998781aa/">Alejandro Sandoval</a><br>Equipo La Sociedad de Almas · Datatón INE 2026</p>
