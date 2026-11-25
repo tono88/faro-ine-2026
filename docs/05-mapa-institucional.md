@@ -78,3 +78,6 @@ empezar hoy con archivos y pasar a X-Road cuando cada institución esté lista.
 - Nombres reales de columnas de cada registro (para llenar los `alias`): se obtienen al
   descargar los conjuntos con `faro fuentes descargar`.
 - Catálogos oficiales de pueblo, delito y causa que usa hoy el INE.
+- Idiomas de la pantalla: quién completa y revisa el kaqchikel (la autoridad en su escritura es la
+  Academia de Lenguas Mayas de Guatemala) y qué otros idiomas nacionales conviene sumar según las
+  instituciones y delegaciones que usen el portal (`29`).

@@ -2,6 +2,39 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.20.0 · 25-nov-2026 · Idiomas e inclusión
+
+- **La pantalla cambia de idioma** con el botón del globo del encabezado: español (origen),
+  **inglés** (completo: 1,873 textos, con los recorridos guiados, los avisos y los reportes
+  imprimibles) y **kaqchikel** (borrador). La elección se recuerda en el navegador; un enlace
+  `?idioma=en` la fija.
+- **Se traduce la interfaz, nunca los datos.** Nombres de lugares, instituciones y productos,
+  valores de catálogo, cifras y citas salen como los publica su fuente; la base, las capas y las
+  descargas no cambian. De los 4,267 textos distintos que muestra el portal, 2,394 eran datos y
+  quedaron fuera del diccionario.
+- **Kaqchikel sin inventar.** Solo los 32 rótulos que coinciden con un término ya publicado y
+  revisado por hablantes (localización de Firefox y de Mozilla Accounts, MPL 2.0), cada uno con su
+  archivo de origen en `cak_glosario.csv` (71 términos). El selector dice el porcentaje real
+  (1.7 %) y la pantalla avisa que es un borrador. `cargo test` no deja entrar un término sin fuente.
+- **Cómo está hecho.** `web/idiomas.js` traduce al vuelo con diccionarios que son datos
+  (`datos/estandar/idiomas/`): la clave es el texto en español; los números y las etiquetas se
+  conservan; una palabra con dos sentidos lleva contexto (`data-ctx`). `/api/idiomas` y
+  `/api/idiomas/<código>` los sirven del disco: una corrección se ve al recargar. Sin servicio de
+  traducción.
+- **Herramientas**: `scripts/idiomas/extraer.js` (arma la lista de textos de la pantalla) y
+  `scripts/idiomas/comprobar.js` (valida y dice cuánto cubre cada idioma).
+- **Pruebas**: 96 de Rust (dos nuevas: los diccionarios conservan marcas, números y datos; el
+  código de idioma no deja leer otros archivos) y un guion de navegador con 37 comprobaciones
+  (`.faro/pruebas/idiomas.js`). `verificacion_interfaz.js` admite `FARO_IDIOMA=en`.
+- **Documentos**: `docs/29-idiomas-e-inclusion.md` (qué se traduce, cómo se protege el dato, marco
+  de la Ley de Idiomas Nacionales, límites) y el apartado de inclusión en el README y en los
+  documentos 00, 03, 09, 14, 15, 17, 18, 21, 23, 26 y 28. 39 fuentes (se suman la localización de
+  Mozilla al kaqchikel y el Decreto 19-2003); 28 puntos en «Antes y ahora».
+- **Entregables regenerados**: manual (página nueva «Idioma de la pantalla»), documento técnico,
+  presentación (mención en el cierre) y video (mención en la tarjeta final).
+- **Correcciones de paso**: el nombre de la persona y su rol ya no comparten elemento en el
+  encabezado; el README decía 14 columnas donde son 15; la matriz decía 13 diapositivas.
+
 ## v0.19.0 · 25-nov-2026 · Video y presentación de venta
 
 Sin cambios en el portal.

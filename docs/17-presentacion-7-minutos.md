@@ -17,7 +17,7 @@ guion hablado.
 **FARO hace que el INE reciba de cualquier institución datos que puede usar el mismo día, sin
 adivinar nada, y deja prueba de cada paso.**
 
-## Cómo está armada (v0.19.0)
+## Cómo está armada (v0.20.0)
 
 La presentación es para la final (27-nov): 7 minutos y 3 de preguntas. **No es el video**: el video
 es un respaldo de la demostración ([`16`](16-guion-video.md)). Sigue el orden que mejor funciona
@@ -50,7 +50,7 @@ trae en las notas del orador lo que hay que decir.
 | 11 | Crece sin programar | 5:00 | Calidad técnica (20 %) | Una institución nueva es un archivo; las reglas son parámetros |
 | 12 | Se revisa a sí mismo y dice sus límites | 5:35 | Rigor (10 %) | INE fuente principal, secreto estadístico, verificación |
 | 13 | Antes y ahora, y la petición | 6:10 | Aplicabilidad | Seis cifras; **un piloto con una institución, en un servidor del INE, un mes** |
-| 14 | Cierre | 6:50 | — | Lema y preguntas |
+| 14 | Cierre | 6:50 | — | **Mención de inclusión, una frase** (ver abajo); lema y preguntas |
 | 15 | *Apéndice:* cumple cada lineamiento | preguntas | Calidad técnica | Ocho lineamientos con su prueba |
 | 16 | *Apéndice:* lo que todavía no hace | preguntas | Calidad técnica | Limitaciones y mejoras, dichas por el equipo |
 
@@ -60,6 +60,15 @@ el mismo resultado dentro de cinco años sin depender de un tercero». Lo que es
 portal, para funcionar, no llama a ninguna IA ni servicio de pago. Lo que **no** hay que decir: «no
 usamos inteligencia artificial», porque el equipo programó con un asistente de IA (declarado en el
 README) y el clasificador de fotos es un modelo, aunque local.
+
+**La mención de inclusión (v0.20.0).** Va al final, en una frase, sobre la diapositiva de cierre,
+que la lleva escrita: «La pantalla también se lee en inglés y está preparada para los idiomas
+nacionales; el kaqchikel empieza como borrador, solo con términos tomados de una fuente revisada
+por hablantes. Se traduce la pantalla, nunca los datos». Si hay diez segundos, mostrarlo en vivo:
+el botón del globo, inglés, y señalar que los nombres de los municipios no cambiaron. Lo que
+**no** hay que decir: «el portal está en kaqchikel». Cubre 1.7 % de la pantalla y así lo dice el
+propio selector; lo defendible es que FARO no inventa una traducción a un idioma maya y que
+completarla es llenar un archivo con una persona hablante ([`29`](29-idiomas-e-inclusion.md)).
 
 **Ensayo.** Tres pasadas con reloj. Decidir quién maneja el portal y quién habla, y en qué momento
 se cambia al video si la demostración falla. Dejar el portal preparado con
@@ -74,6 +83,7 @@ se cambia al video si la demostración falla. Dejar el portal preparado con
 5. **Listo para usarse**: usuarios, roles, grupos, una cuenta por institución que solo sube lo suyo, recorridos guiados en cada pantalla, manual gráfico, bitácora, auditoría de seguridad atendida, y funciona en celular.
 6. **Cumple y lo demuestra**: secreto estadístico (solo agregados, conteos pequeños protegidos), datos personales disociados antes de guardar, y un análisis norma por norma que dice también lo que falta (`docs/23`).
 7. **Llega hasta el campo**: de la asignación del operador a la visita comprobada con posición, foto, satélite y censo.
+8. **Incluye sin inventar**: la pantalla se lee en inglés y está preparada para los idiomas nacionales; el kaqchikel empieza con términos que tienen fuente y dice su porcentaje real. Se traduce la pantalla, nunca los datos.
 
 ## Cifras para citar
 
@@ -86,6 +96,7 @@ se cambia al video si la demostración falla. Dejar el portal preparado con
 - 93,297 hectáreas construidas en 2020; solo 1.6 % es no residencial.
 - Curvas de población contra el INE: error mediano de 1.05 % (exponencial) y 0.17 % (logística) a cinco años.
 - Clasificador de fotos: 11 aciertos, 0 errores y 5 no concluyentes en 16 fachadas.
+- Idiomas: 1,873 textos de la pantalla en inglés; 32 rótulos en kaqchikel con fuente (1.7 %); 2,394 textos que eran datos quedaron fuera del diccionario; ningún dato traducido.
 
 ## Preguntas probables y respuesta corta
 
@@ -99,6 +110,9 @@ se cambia al video si la demostración falla. Dejar el portal preparado con
 | ¿Y los datos personales? | Los archivos reales se procesan en un temporal que se borra siempre; la salida no lleva nombres ni identificadores; en el repositorio no hay ninguno. |
 | ¿Cómo se relaciona con X-Road? | X-Road transporta; FARO define qué se pide y comprueba lo que llega. Se complementan. |
 | ¿Qué tan difícil es agregar una institución? | Un archivo de solicitud con sus columnas. Sin programar. |
+| ¿Está en idiomas mayas? | Está preparado: un idioma es un archivo. En kaqchikel hay un borrador con los 32 rótulos que ya existen en una fuente revisada por hablantes (la localización de Firefox); es 1.7 % de la pantalla y el selector lo dice. No usamos traducción automática para un idioma maya porque no podríamos comprobarla. Lo que sigue es trabajarlo con hablantes y con la Academia de Lenguas Mayas. |
+| ¿Tradujeron los datos? | No. Se traduce la pantalla; los nombres de lugares, las cifras y las citas salen como los publica su fuente, y lo que se descarga es idéntico en cualquier idioma. Hay una prueba automática que lo comprueba. |
+| ¿Quién tradujo al inglés? | El equipo, con el asistente de IA declarado en el README, sobre un glosario fijo. Quedó como un diccionario en el repositorio; el portal no llama a ningún servicio de traducción. No tiene revisión profesional. |
 | ¿Y si se equivoca al homologar? | Solo asigna con coincidencia exacta y única o con una decisión humana registrada, que se puede revertir. |
 | ¿Sus proyecciones son confiables? | Lo medimos: al proyectar diez años, 8 de cada 10 veces el error fue de 20 % o menos. Ese es el margen que el portal muestra. |
 | ¿Los precios publicados sirven de referencia? | Como antecedente: son fuentes secundarias y el informe lo dice. La regla de la Dirección de Precios pide más de 50 % de cotizaciones directas. |

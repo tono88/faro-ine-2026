@@ -291,7 +291,7 @@
       "origen": "Lineamientos del evento: solución usable y documentada",
       "ahora": "Un botón siempre visible, «Recorrido guiado», señala cada parte de la pantalla y dice para qué sirve. El manual gráfico se genera desde el portal con las mismas marcas.",
       "cifra": "24 de 24",
-      "cifra_de": "secciones con recorrido guiado; manual de 36 páginas generado con un comando",
+      "cifra_de": "secciones con recorrido guiado; manual de 37 páginas generado con un comando",
       "ver": "acerca",
       "escala": "Una sección nueva suma sus pasos a una lista y queda en el recorrido y en el manual a la vez."
     },
@@ -301,10 +301,21 @@
       "antes": "Un prototipo que solo corre en la máquina de quien lo hizo no se puede evaluar ni adoptar; y una lista de fuentes sin fecha no se puede verificar.",
       "origen": "Nota conceptual del Datatón: reproducibilidad, fecha de descarga de cada base y componentes de terceros listados",
       "ahora": "Clon limpio, cuatro pasos y un comando: el portal queda arriba. Cada descarga está en un manifiesto versionado con dirección, fecha y huella; cada biblioteca, con su licencia; y una matriz dice cómo se cumple cada lineamiento.",
-      "cifra": "88",
+      "cifra": "107",
       "cifra_de": "descargas con dirección, fecha y huella SHA-256 en el manifiesto; instalación desde cero comprobada el 25-nov-2026",
       "ver": "acerca",
       "escala": "Cada fuente nueva queda anotada sola al descargarla con `faro fuentes`; la matriz se revisa al cerrar cada versión."
+    },
+    {
+      "area": "Datos y publicación",
+      "tema": "Una pantalla que se lee en más de un idioma",
+      "antes": "El portal solo estaba en español. Traducir una herramienta suele significar reescribirla o contratar un servicio, y para un idioma maya no hay traducción automática que se pueda comprobar.",
+      "origen": "Pedido del equipo el 25-nov-2026; Ley de Idiomas Nacionales (Decreto 19-2003)",
+      "ahora": "La pantalla cambia de idioma con un botón: inglés completo y kaqchikel como borrador, solo con términos que ya existen en una fuente abierta revisada por hablantes. Se traduce la interfaz, nunca los datos: nombres oficiales, cifras y citas salen iguales.",
+      "cifra": "1,873",
+      "cifra_de": "textos de la pantalla también en inglés; 32 rótulos en kaqchikel, cada uno con su fuente; ningún dato traducido",
+      "ver": "acerca",
+      "escala": "Otro idioma nacional es un archivo más, sin programar; una corrección se ve al recargar la página."
     }
   ]
 }

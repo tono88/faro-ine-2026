@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.19.0.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.20.0.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -16,6 +16,7 @@ territorio y los precios. Corre completo en una computadora, con software libre.
 [manual en texto](docs/14-manual-de-usuario.md) ·
 [conformidad legal](docs/23-conformidad-legal.md) ·
 [conformidad con la nota conceptual](docs/26-conformidad-nota-conceptual.md) ·
+[idiomas e inclusión](docs/29-idiomas-e-inclusion.md) ·
 [presentación (PDF)](entregables/FARO-presentacion.pdf)
 
 ## Misión, visión y objetivos
@@ -82,7 +83,8 @@ Todas salen de datos reales procesados durante el evento y se pueden comprobar e
 | **82 → 15** columnas: lo que entra y lo que pasa del archivo de defunciones, sin nombres ni documentos | **20,036** lugares poblados del Censo 2018, verificados código por código |
 | **93,297 ha** construidas en 2020 (eran 30,722 en 1975), para los 340 municipios | **707** lugares poblados sin conexión vial y **83** enlaces que probablemente faltan |
 | **85,907** precios publicados por 18 tiendas, leídos por el propio portal | **16,291** productos comparables entre supermercados por su código de barras |
-| **29** indicadores por municipio en el mapa y los tableros | **94** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
+| **29** indicadores por municipio en el mapa y los tableros | **96** pruebas automáticas, 24 secciones revisadas en seis tamaños de pantalla |
+| **1,873** textos de la pantalla también en inglés; kaqchikel en borrador, solo con términos con fuente | **0** datos traducidos: nombres oficiales, cifras y citas salen iguales en cualquier idioma |
 
 ## Qué hace
 
@@ -195,15 +197,37 @@ Secciones: *Tableros*, *Antes y ahora*, *Proceso*, *Capas publicadas*, *Portal d
   autor, delitos informáticos y licencias de datos). Es un análisis técnico: debe revisarlo la
   asesoría jurídica del INE.
 
+### 7. Idiomas e inclusión
+
+- **La pantalla cambia de idioma con un botón**, en cualquier sección y sin iniciar sesión:
+  **español** (origen), **inglés** (completo: 1,873 textos, con los recorridos guiados y los
+  reportes) y **kaqchikel** como **borrador**.
+- **Se traduce la interfaz, nunca los datos.** Los nombres de departamentos, municipios, lugares,
+  instituciones y productos, los valores de los catálogos, las cifras y las citas se muestran como
+  los publica su fuente. Lo que se descarga y lo que guarda la base no cambian con el idioma.
+- **El kaqchikel no se inventa.** FARO no traduce por su cuenta a un idioma maya: solo muestra los
+  32 rótulos que ya existen, escritos y revisados por hablantes, en una fuente abierta (la
+  localización comunitaria de Firefox, MPL 2.0), cada uno con su procedencia. El resto aparece en
+  español, la pantalla lo avisa y el selector dice el porcentaje real (1.7 %). Completarlo es
+  trabajo de una persona hablante, no de un programa.
+- **Un idioma es un archivo, no código.** Otro idioma nacional se suma llenando un diccionario; una
+  corrección se ve al recargar la página, sin reiniciar. No hay servicio de traducción: es un
+  diccionario fijo que vive en el servidor del INE.
+- **También es inclusión**: funciona en el teléfono (seis tamaños comprobados), cada sección se
+  explica con su recorrido guiado y quien envía datos solo necesita un navegador.
+
+Cómo funciona, qué protege al dato, el marco de la Ley de Idiomas Nacionales y lo que falta:
+[`docs/29`](docs/29-idiomas-e-inclusion.md).
+
 ## Antes y ahora
 
-Los diez puntos principales; los 27 están en [`docs/22`](docs/22-antes-y-ahora.md) y en el portal.
+Los diez puntos principales; los 28 están en [`docs/22`](docs/22-antes-y-ahora.md) y en el portal.
 
 | Antes | Con FARO | Cómo escala |
 |---|---|---|
 | Cada institución envía con su formato; no hay estándar | Solicitud única y validación al recibir: **51,719 filas** reales en menos de 3 s | Una institución nueva es un archivo de solicitud más |
 | Los lugares se corrigen a mano en cada entrega | Código oficial solo sin duda; lo decidido se recuerda: **100 %** en RENAP y PNC | La memoria crece con cada envío |
-| Los archivos traen CUI, nombres y direcciones | De **82** columnas salen **14**, sin datos personales | La regla va en la solicitud |
+| Los archivos traen CUI, nombres y direcciones | De **82** columnas salen **15**, sin datos personales | La regla va en la solicitud |
 | Se pidió detectar crecimiento urbano con imágenes | Serie 1975–2020 de los 340 municipios: **30,722 → 93,297 ha** | Una capa nueva se procesa con un comando |
 | Hay carreteras sin mapear | Grafo de 144,866 km: **707** lugares sin conexión, **83** enlaces probables | Se repite con cada corte de OpenStreetMap |
 | Operadores asignados lejos de su casa | Reparto exacto de distancia mínima; ruta, posición y encuesta en el teléfono | Funciona en cualquier teléfono, sin instalar nada |
@@ -349,7 +373,7 @@ Quien quiera compilarlo sin Docker encuentra los pasos en [`docs/15`](docs/15-in
 
 ## Cómo se comprueba
 
-- **Pruebas automáticas** (`cargo test`, para quien compile el código): 94 pruebas de las reglas (homologación, recepción, curvas, rutas, cruce de visitas, protección de celdas).
+- **Pruebas automáticas** (`cargo test`, para quien compile el código): 96 pruebas de las reglas (homologación, recepción, curvas, rutas, cruce de visitas, protección de celdas, diccionarios de idiomas).
 - **`faro verificar`** vuelve a calcular las cifras y escribe [`docs/19`](docs/19-verificacion-estadistica.md):
   consistencia de las tablas, prueba hacia atrás de las proyecciones, curvas de población,
   intervalos de confianza, umbrales de precios.
@@ -359,6 +383,9 @@ Quien quiera compilarlo sin Docker encuentra los pasos en [`docs/15`](docs/15-in
 - **Guiones de navegador** (`.faro/pruebas/`): recorren el portal como lo haría una persona, en
   laptop, tableta y teléfono ([`docs/20`](docs/20-verificacion-interfaz.md)).
 - **Seguridad**: auditoría y correcciones en [`docs/21`](docs/21-seguridad.md).
+- **Idiomas**: un guion de navegador cambia de idioma y comprueba que el menú, los recorridos y los
+  avisos se traducen y que **los nombres de los departamentos, las cifras y las citas no cambian**
+  ([`docs/29`](docs/29-idiomas-e-inclusion.md)).
 
 ## Estados de homologación
 
@@ -403,6 +430,7 @@ complementan. Cada fila dice cuándo se descargó. La cita completa de cada una 
 | **INE**, Hoja de Balance de Alimentos, actualización 2024 (datos.ine.gob.gt; no declara licencia), descargada el 24-nov-2026 | Cuentas de utilización y suministro para contrastar las tasas | `datos/referencia/hba_2024_cuentas.csv` |
 | **INE**, diccionario de variables de estadísticas vitales y catálogo del portal (105 conjuntos), 23 y 24-nov-2026 | Códigos «Extranjero» e «Ignorado»; conjuntos vigilados | `datos/crudo/inventario_ine.csv` |
 | FAO, factores técnicos de conversión, sección Guatemala (términos de uso de la FAO: no comercial, citando la fuente), descargado el 24-nov-2026 | Calculadora de derivados | `datos/estandar/tasas_extraccion_fao_guatemala.csv` (transcripción traducida) |
+| Mozilla y colaboradores, localización de Firefox y de Mozilla Accounts al kaqchikel (`cak`; MPL 2.0; [firefox-l10n](https://github.com/mozilla-l10n/firefox-l10n/tree/main/cak)), descargada el 25-nov-2026 | Términos del borrador en kaqchikel de la pantalla | `datos/estandar/idiomas/cak_glosario.csv` (71 términos, cada uno con su archivo y su mensaje de origen) |
 | Páginas públicas de 18 tiendas en línea, consultadas el 24-nov-2026 | Precios publicados por rubro | `datos/referencia/precios_publicados.csv` (85,907 precios, cada uno con su dirección) |
 | `datos/solicitudes/` | Solicitudes de datos para RENAP (defunciones, nacimientos), PNC (detenidos) y SE-CONRED (emergencias) | Incluido |
 | Archivos de ejemplo de instituciones compartidos por el INE (23-nov-2026) | Diseño y prueba de las solicitudes | **No están en el repositorio** (contienen datos personales) |
@@ -411,7 +439,7 @@ complementan. Cada fila dice cuándo se descargó. La cita completa de cada una 
 | `datos/ejemplos/` | Envío, solicitud, serie de edificaciones, operadores y puestos **ficticios** para demostración ([detalle](datos/ejemplos/LEEME.md)) | Incluido |
 
 El repositorio no contiene datos de personas. Los ejemplos son inventados. Cada descarga quedó
-anotada en [`datos/crudo/manifiesto.jsonl`](datos/crudo/manifiesto.jsonl) (88 descargas) con su
+anotada en [`datos/crudo/manifiesto.jsonl`](datos/crudo/manifiesto.jsonl) (107 descargas) con su
 dirección exacta, fecha y hora, licencia y huella SHA-256; `faro fuentes citar` las lista.
 
 ## Arquitectura y tecnologías
@@ -451,13 +479,13 @@ crates/faro-servidor/   servidor web, base de datos y pantalla
 crates/faro-cli/        ejecutable `faro`
 datos/catalogo/         catálogo oficial de lugares (código, nombre, nivel, padre)
 datos/catalogo_precios/ catálogos de precios (IPMC, canasta, precios de referencia)
-datos/estandar/         solicitudes tipo, tareas de muestreo, fuentes y comparativo
+datos/estandar/         solicitudes tipo, tareas de muestreo, fuentes, comparativo e idiomas de la pantalla
 datos/referencia/       tablas derivadas de fuentes oficiales y abiertas
 datos/solicitudes/      qué pide el INE a cada institución
 datos/modelos/          modelo del clasificador de fotos y su procedencia
 datos/ejemplos/         archivos ficticios de muestra, rotulados
-scripts/                guiones para repetir cada etapa, exportar el modelo, preparar la demostración y generar los PDF
-docs/                   documentación (00 a 28)
+scripts/                guiones para repetir cada etapa, exportar el modelo, preparar la demostración, generar los PDF y mantener los idiomas
+docs/                   documentación (00 a 29)
 entregables/            presentación, manual de usuario gráfico y documento técnico, en PDF, y capturas
 LICENCIA.md             autoría del equipo y licencia al INE
 ```
@@ -480,7 +508,8 @@ LICENCIA.md             autoría del equipo y licencia al INE
 | [11 Fuentes y citas](docs/11-fuentes-y-citas.md) | [24 Clasificador de fotos](docs/24-clasificador-de-fotos.md) |
 | [12 Flujo de proceso](docs/12-proceso.md) | [25 Identidad: logotipo, lema, misión y visión](docs/25-identidad.md) |
 | [26 Conformidad con la nota conceptual](docs/26-conformidad-nota-conceptual.md) | [27 Componentes de terceros y licencias](docs/27-componentes-de-terceros.md) |
-| [28 Guía para explicar y defender el código](docs/28-defensa-del-codigo.md) | [Autoría y licencia](LICENCIA.md) |
+| [28 Guía para explicar y defender el código](docs/28-defensa-del-codigo.md) | [29 Idiomas e inclusión](docs/29-idiomas-e-inclusion.md) |
+| [Autoría y licencia](LICENCIA.md) | |
 | [Documento técnico (PDF)](entregables/FARO-documento-tecnico.pdf) | [Manual de usuario gráfico (PDF)](entregables/FARO-manual-de-usuario.pdf) |
 | [Presentación para el jurado (PDF)](entregables/FARO-presentacion.pdf) | [Presentación editable (PowerPoint)](entregables/FARO-presentacion.pptx) |
 
@@ -519,6 +548,10 @@ LICENCIA.md             autoría del equipo y licencia al INE
 - **Intercambio entre sistemas**: hoy se suben archivos; el diseño prevé recibir lo mismo por
   X-Road ([arquitectura](docs/03-arquitectura.md)).
 - **No probado en Windows**: `iniciar.bat` y los guiones `.ps1`.
+- **El kaqchikel es un comienzo, no una traducción**: 32 rótulos con fuente (1.7 % de la
+  pantalla); falta la revisión de hablantes. **El inglés no tiene revisión profesional.** Los
+  documentos y el manual están solo en español, y no se ha hecho una auditoría formal de
+  accesibilidad.
 - **Los muestreos no leen `robots.txt`** ni se revisaron los términos de uso de cada tienda; vienen
   apagados y se detienen si una tienda los rechaza.
 - **«Registros por 100 mil habitantes» no es una tasa anual**: suma todos los periodos recibidos.
@@ -539,6 +572,8 @@ LICENCIA.md             autoría del equipo y licencia al INE
 8. **Tiempos de viaje** en lugar de distancias en línea recta para rutas y asignación.
 9. **Respaldo y restauración** de la base con un comando, y recuperación de contraseña.
 10. **Seguridad**: bloqueo por origen, HMAC en la llave de pareo, envío en una sola transacción.
+11. **Completar el kaqchikel con personas hablantes** (Academia de Lenguas Mayas de Guatemala) y
+    sumar otros idiomas nacionales; auditoría de accesibilidad con lectores de pantalla.
 
 ## Componentes de terceros
 
@@ -563,6 +598,9 @@ Cada uno conserva su licencia original.
   Cita: Zhou, Lapedriza, Khosla, Oliva y Torralba (2017), *Places: A 10 million Image Database for
   Scene Recognition*, IEEE TPAMI.
 - **Fotos satelitales de fondo**: NASA GIBS (Landsat) y EOX (Sentinel-2, CC BY 4.0).
+- **Términos en kaqchikel**: de la localización comunitaria de Firefox y de Mozilla Accounts al
+  kaqchikel (MPL 2.0); 71 términos cortos, cada uno con su archivo de origen en
+  `datos/estandar/idiomas/cak_glosario.csv`.
 
 Todo el código de FARO se escribió durante el evento: homologación, método húngaro, grafo vial,
 lectores de Shapefile y GeoTIFF, muestreo de precios, diseñador de tableros y lo demás.
@@ -596,6 +634,10 @@ no usa: la serie de crecimiento urbano que se muestra es la de GHSL.
   procesaron con FARO en ese mismo entorno de trabajo privado para diseñar y probar las solicitudes.
   No están en el repositorio ni en ningún documento: solo se conservaron conteos
   ([`docs/06`](docs/06-hallazgos-datos-reales.md)).
+- **En la traducción de la pantalla.** El **inglés** lo tradujo el equipo con el mismo asistente y
+  quedó como un diccionario fijo en el repositorio; no ha pasado por un traductor profesional. El
+  **kaqchikel no se tradujo con IA**: solo lleva términos tomados de una fuente abierta revisada por
+  hablantes. El portal no llama a ningún servicio de traducción.
 - **En el portal.** Una sola pieza usa un modelo entrenado: el clasificador de fotos del trabajo de
   campo (Places365), que corre dentro del servidor, sin nube, y cuyo resultado solo marca una
   visita para revisión. Todo lo demás son reglas fijas y a la vista: el mismo dato de entrada da

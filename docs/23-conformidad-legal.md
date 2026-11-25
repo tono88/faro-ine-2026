@@ -28,6 +28,7 @@ Abreviaturas de las fuentes más citadas:
 | Ley de Derecho de Autor (D. 33-98), arts. 15, 16, 24, 30 y 35 | El programa es una obra protegida; los datos en sí no | Código escrito en el evento, dependencias de licencia libre, autoría del equipo y licencia perpetua al INE (`LICENCIA.md`) | Cumple |
 | Código Penal, arts. 274 "A" a "G" | Delitos informáticos: obtener datos sin autorización, alterar registros | Solo se leen páginas públicas, sin saltar bloqueos ni sesiones | Cumple |
 | Licencias de los datos (ODbL, CC BY 4.0, portal del INE) | Atribuir, indicar cambios y, en ODbL, compartir igual la base derivada | Cada descarga guarda su licencia; el mapa y las capas citan la fuente | Cumple |
+| Ley de Idiomas Nacionales (D. 19-2003), arts. 8, 10, 11, 14 y 15 | Uso de los idiomas mayas, garífuna y xinka; respeto a la escritura de los nombres de lugares; atención gradual en el idioma de cada comunidad | La pantalla admite otros idiomas como archivos; los nombres de lugares nunca se traducen; kaqchikel en borrador con términos con fuente | Avance parcial: falta la revisión de hablantes |
 | Principios de la ONU (A/RES/68/261) y Código Regional de la CEPAL | Registros administrativos como fuente válida; confidencialidad | Es el propósito del proyecto | Alineado |
 
 ## 2. Norma por norma
@@ -234,7 +235,34 @@ la foto, y cuánto tiempo se conservan las visitas.
 | Imágenes Landsat (NASA GIBS) | Uso libre | Reconocer a NASA GIBS/ESDIS | El pie de cada cuadro de la animación nombra la foto |
 | SESAN (CIF y Censo de Talla) | Publicación oficial | Citar | Citada; la licencia no se pudo verificar |
 
-### 2.14 Referentes internacionales
+### 2.14 Ley de Idiomas Nacionales (Decreto 19-2003)
+
+Texto consultado el 25-nov-2026: <https://digi.usac.edu.gt/bvsalud/documentos/eblueinfo/ML/ML_016.pdf>
+(edición de la Universidad de San Carlos; no es la publicación del Diario de Centro América).
+
+- **Art. 8, utilización.** Los idiomas mayas, garífuna y xinka «podrán utilizarse en las comunidades
+  lingüísticas que correspondan, en todas sus formas, sin restricciones en el ámbito público y
+  privado». *FARO:* la pantalla cambia de idioma con un diccionario por idioma; sumar uno no pide
+  programar.
+- **Art. 10, estadísticas.** Las entidades del Estado «deberán llevar registros, actualizar y
+  reportar datos sobre la pertenencia sociolingüística de los usuarios de sus servicios». *FARO:* una
+  solicitud puede pedir esa variable y homologarla contra su catálogo, como ya se hace con «pueblo»
+  en los registros del RENAP. Qué variable y qué catálogo usar lo decide el INE.
+- **Art. 11, registros.** Las normas de escritura de cada idioma, «referentes a nombres propios y de
+  lugares, deberán ser atendidas y respetadas en todos los actos registrales». *FARO:* los nombres
+  de lugares no se traducen ni se reescriben en ningún idioma; la homologación asigna un código y
+  conserva el texto original que envió la institución.
+- **Arts. 14 y 15, servicios públicos.** El Estado vela por que en los servicios públicos se observe
+  la comunicación en el idioma de la comunidad lingüística, con salud, educación, justicia y
+  seguridad como sectores prioritarios y «la incorporación gradual de los demás servicios». *FARO:*
+  es una herramienta interna del INE y de las instituciones que le envían datos, no un servicio de
+  atención al público; el kaqchikel empieza como borrador con términos de una fuente revisada por
+  hablantes. **Falta** la traducción y revisión por hablantes; el art. 9 encarga las traducciones
+  oficiales a la Academia de Lenguas Mayas de Guatemala.
+
+Detalle de cómo se traduce y qué se protege: [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
+
+### 2.15 Referentes internacionales
 
 - **Principios Fundamentales de las Estadísticas Oficiales** (ONU, A/RES/68/261). El principio 5
   admite los registros administrativos como fuente; el 6 pide que los datos individuales sean

@@ -285,6 +285,26 @@ piloto, apéndice. Decir «el portal no depende de una IA externa para funcionar
 programó con un asistente, declarado). En defunciones de RENAP pasan 15 de 82 columnas (no 14).
 Falta: la narración de Ana Lucía (la graba el equipo) y el montaje final.
 
+Agregado después (v0.20.0): idiomas de la pantalla. `crates/faro-servidor/web/idiomas.js` (servido en
+`/idiomas.js`; lo cargan `index.html`, `reporte.html` e `informe_precio.html`) traduce al vuelo con
+diccionarios que son datos: `datos/estandar/idiomas/<código>.json` (clave = el texto en español; `#` = un
+número; `<1>…</1>` y `<1/>` = etiquetas; `{0}` = un dato que pasa igual; `ctx|texto` para palabras con dos
+sentidos, con `data-ctx` en el elemento). `plantilla.json` (lista de textos de la pantalla) la arma
+`scripts/idiomas/extraer.js <url> <admin> <clave>`; `plantilla_extra.json` trae los moldes hechos a mano;
+`scripts/idiomas/comprobar.js [--completar] [--podar]` valida y dice la cobertura. `/api/idiomas` y
+`/api/idiomas/:codigo` leen del disco en cada pedido. **Regla del equipo: se traduce la interfaz, nunca los
+datos**; lo que es dato se marca `data-no-traducir` (nombres de personas, citas); dentro de `tbody`/`select`
+no se aplican moldes. **Kaqchikel (`cak`) es BORRADOR y solo admite términos de `cak_glosario.csv`** (fuente:
+localización de Firefox, MPL 2.0; `cargo test` lo exige): NO traducir a un idioma maya por cuenta propia ni
+componer frases; decir siempre el porcentaje real (1.7 %) y nunca «el portal está en kaqchikel». El inglés
+lo tradujo el asistente (declarado en el README). **Al agregar o cambiar texto en la pantalla: correr
+`extraer.js`, traducir lo nuevo en `en.json` y correr `comprobar.js --completar --podar`** (si no, `cargo
+test` falla o el texto sale en español). Selector: `#idiomabtn`/`#idiomalista`; `localStorage.faro_idioma`;
+`?idioma=en`; `volverASeccion()`. Prueba: `.faro/pruebas/idiomas.js`; `FARO_IDIOMA=en` en
+`verificacion_interfaz.js`. Documento: `docs/29-idiomas-e-inclusion.md` (también el marco de la Ley de
+Idiomas Nacionales, Decreto 19-2003). El video y la presentación llevan una mención final de inclusión.
+Los documentos (`docs/`), el manual y la presentación siguen solo en español.
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)
@@ -292,16 +312,19 @@ Falta: la narración de Ana Lucía (la graba el equipo) y el montaje final.
    de Cloudflare a clientes automáticos desde la nube; probar desde la máquina del equipo.
 3. Ampliar las reglas del IPMC a más artículos y sumar proveedores con precios (ferreterías del
    interior: sus precios no están en línea; haría falta cotización directa).
-4. (Hecho por el equipo: hay etiquetas v0.1.0 a v0.17.1 en el remoto.) Falta el release de v0.18.0.
+4. (Hecho por el equipo: hay etiquetas v0.1.0 a v0.17.1 en el remoto.) Faltan los releases de v0.18.0, v0.19.0 y v0.20.0.
 5. Más fuentes de gobierno ya verificadas (descarga directa, con código de municipio), por integrar
    en este orden: CONRED incidentes 2024 y MAGA afectaciones a cultivos 2024 (portal del INE,
    conjunto de8af067…); SEGEPLAN ranking de gestión municipal 2025 (JSON); MSPAS inventario de
    sistemas de agua 2024; MINEDUC establecimientos 2025; PNC hechos de tránsito 2025; INAB
    PROBOSQUE 2024; SAT parque vehicular (solo nombres de municipio: buen caso de homologación).
    Bloqueados desde la nube (Cloudflare): MINFIN, datos.gob.gt, SIGSA/MSPAS, MEM, MIDES, CONAP.
-6. Entregables: presentación, manual y documento técnico en PDF, hechos. Falta el **video (2–3 min)**:
-   guion en `docs/16`; grabar con Playwright + ffmpeg (no hay sintetizador de voz en esta nube).
-   Falta también: invitar al jurado al repositorio y la nota de consentimiento (lista en `docs/26`, sección 8).
+6. Entregables: presentación, manual, documento técnico y clip del video, hechos (se regeneran al
+   cerrar versión). Falta la **narración** del video (la graba el equipo; guion en `docs/16`; no hay
+   sintetizador de voz en esta nube), invitar al jurado al repositorio y la nota de consentimiento
+   (lista en `docs/26`, sección 8).
 7. De la v0.16.0: medir el clasificador con fotos de campo del INE; bajar los pesos del sitio oficial
    de Places365 y comparar la huella; publicar con HTTPS para el trabajo de campo; decidir el umbral de
    celdas; firma electrónica de constancias; GHS-BUILT-C (10 m) para altura y tipo de edificio.
+8. Idiomas: completar y revisar el kaqchikel con personas hablantes (ALMG); revisión profesional del
+   inglés; otros idiomas nacionales; auditoría de accesibilidad (WCAG) con lectores de pantalla.

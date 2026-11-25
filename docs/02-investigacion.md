@@ -60,6 +60,27 @@ son reutilizables.
   las fuentes sean cotizaciones del mercado relevante.
 - Guatecompras publica datos en estándar OCDS, reutilizables para precios históricos adjudicados.
 
+## 3a. Idiomas de la pantalla (día 3)
+
+Pregunta: ¿se puede ofrecer la pantalla en kaqchikel sin inventar la traducción?
+
+- **Fuente con términos revisados por hablantes y licencia abierta:** la localización comunitaria
+  de Firefox al kaqchikel (`cak`), de Mozilla (MPL 2.0). Sus archivos comparten identificador de
+  mensaje con las versiones en español e inglés, así que cada término se puede alinear y citar.
+  Se revisaron 3,470 cadenas (Firefox y Mozilla Accounts).
+- **Lo que no se halló** (búsqueda del 25-nov): MediaWiki no tiene la interfaz en kaqchikel en su
+  repositorio; Common Voice y el sitio de complementos de Mozilla no tienen esa localización.
+  **No se revisaron** los materiales de la Academia de Lenguas Mayas de Guatemala, que publica
+  traducciones en PDF: es el siguiente lugar donde buscar términos, con hablantes.
+- **Resultado:** 32 rótulos de FARO coinciden palabra por palabra con un término de esa fuente. Los
+  términos propios de la estadística (población, municipio, precio, mapa) no están; no se
+  inventaron. Marco legal revisado: Ley de Idiomas Nacionales, Decreto 19-2003, artículos 8, 10,
+  11, 14 y 15 (`23`, sección 2.14).
+- **Regla que se siguió:** traducir la interfaz y dejar los nombres oficiales, los valores y las
+  cifras como los publica la fuente.
+
+Detalle: [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
+
 ## 4. Lo que quedó por investigar el día 1, y en qué terminó
 
 - Asignación de operadores: problema de asignación (algoritmo húngaro) y variantes con capacidad.

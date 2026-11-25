@@ -21,8 +21,8 @@ equipo todavía debe hacer. Categoría 2: Tecnológica y ciencias de datos.
 | Lineamiento | Cómo se cumple | Dónde se comprueba | Estado |
 |---|---|---|---|
 | **Datos.** Fuente principal: al menos una base pública del portal del INE | Siete conjuntos del portal de datos abiertos del INE: lugares poblados y cuadros del Censo 2018, proyecciones de población 2015–2030, IPMC, precios de referencia, canasta básica, Hoja de Balance 2024 y diccionario de estadísticas vitales | README, sección «Datos»; `datos/estandar/fuentes.json`; «Acerca y fuentes» en el portal | Cumple |
-| Otras fuentes abiertas, citadas correctamente | 37 fuentes con autor, año, título, dirección, licencia y fecha de consulta | `11-fuentes-y-citas.md` (se genera con `faro citas`) | Cumple |
-| La documentación indica las bases usadas y su **fecha de descarga** | Cada fila de la tabla «Datos» lleva su fecha; el manifiesto guarda 88 descargas con dirección exacta, fecha y hora, tamaño, licencia y huella SHA-256 | `datos/crudo/manifiesto.jsonl` (versionado); `faro fuentes citar` | Cumple |
+| Otras fuentes abiertas, citadas correctamente | 39 fuentes con autor, año, título, dirección, licencia y fecha de consulta | `11-fuentes-y-citas.md` (se genera con `faro citas`) | Cumple |
+| La documentación indica las bases usadas y su **fecha de descarga** | Cada fila de la tabla «Datos» lleva su fecha; el manifiesto guarda 107 descargas con dirección exacta, fecha y hora, tamaño, licencia y huella SHA-256 | `datos/crudo/manifiesto.jsonl` (versionado); `faro fuentes citar` | Cumple |
 | **Tecnología.** Libre elección; se recomienda código abierto o sin costo | Rust, PostgreSQL 16, Leaflet, Docker Compose. Ninguna licencia de pago | `03-arquitectura.md`; `27-componentes-de-terceros.md` | Cumple |
 | Declarar servicios de pago o en la nube | No hay servicios de pago. Están declarados los servicios gratuitos que piden el servidor y el navegador, y el uso de GitHub y de un asistente de IA en la nube durante el desarrollo | README, «Servicios en la nube»; `15-instalacion-y-dependencias.md` | Cumple |
 | **Desarrollo durante el evento.** No presentar proyectos anteriores | Todo el código se escribió del 23 al 25 de noviembre. Se usan bibliotecas públicas preexistentes, que la nota permite | Historial del repositorio (primer cambio: 23-nov-2026); `08-versiones.md` | Cumple |
@@ -51,9 +51,9 @@ equipo todavía debe hacer. Categoría 2: Tecnológica y ciencias de datos.
 | La nota pide | Estado |
 |---|---|
 | Enlace al repositorio con el código fuente y la documentación | Listo: <https://github.com/tono88/faro-ine-2026> |
-| Presentación en formato PDF para la exposición | Lista: [`entregables/FARO-presentacion.pdf`](../entregables/FARO-presentacion.pdf), 13 diapositivas; guion en `17`. La misma, editable, en `entregables/FARO-presentacion.pptx` |
+| Presentación en formato PDF para la exposición | Lista: [`entregables/FARO-presentacion.pdf`](../entregables/FARO-presentacion.pdf), 14 diapositivas y 2 de apéndice; guion en `17`. La misma, editable, en `entregables/FARO-presentacion.pptx` |
 | Video demostrativo de 2 a 3 minutos | Clip listo: [`entregables/FARO-video-demo.mp4`](../entregables/FARO-video-demo.mp4), 2:55, grabado del portal en marcha, con subtítulos. **Falta la narración**, que el equipo graba y monta (`16-guion-video.md`) |
-| (Adicionales del equipo) | Manual de usuario gráfico (36 páginas), documento técnico, esta matriz, guía para defender el código |
+| (Adicionales del equipo) | Manual de usuario gráfico (37 páginas), documento técnico, esta matriz, guía para defender el código |
 
 ## 5. Términos y condiciones
 
@@ -68,12 +68,12 @@ equipo todavía debe hacer. Categoría 2: Tecnológica y ciencias de datos.
 
 | Criterio | Peso | Qué mostrar | Evidencia |
 |---|---|---|---|
-| **Funcionalidad** | 25 % | Subir un archivo y verlo homologado; decidir un pendiente; ficha de un municipio; precios; tablero publicado | 94 pruebas automáticas; 20 guiones de pantalla, con clic real; instalación desde cero comprobada; `20-verificacion-interfaz.md` |
-| **Aplicabilidad institucional** | 20 % | Responde a necesidades planteadas por la Gerencia y las direcciones; se instala con un comando en un servidor del INE; agregar una institución es escribir un archivo | `01` (estado de cada necesidad, incluido lo no hecho); `22-antes-y-ahora.md` (27 puntos con cifra y cómo escala); `05-mapa-institucional.md` |
+| **Funcionalidad** | 25 % | Subir un archivo y verlo homologado; decidir un pendiente; ficha de un municipio; precios; tablero publicado | 96 pruebas automáticas; 21 guiones de pantalla, con clic real; instalación desde cero comprobada; `20-verificacion-interfaz.md` |
+| **Aplicabilidad institucional** | 20 % | Responde a necesidades planteadas por la Gerencia y las direcciones; se instala con un comando en un servidor del INE; agregar una institución es escribir un archivo | `01` (estado de cada necesidad, incluido lo no hecho); `22-antes-y-ahora.md` (28 puntos con cifra y cómo escala); `05-mapa-institucional.md` |
 | **Calidad técnica** | 20 % | Cinco módulos con responsabilidades separadas; reglas declarativas; documentación numerada | `03`, `28`, `15`, `08`; `cargo test` |
 | **Innovación** | 15 % | El sistema no adivina y recuerda; la solicitud como contrato; red vial como grafo; margen de proyección medido, no supuesto; manual que se genera del propio portal | `09-logros.md`; `19` |
 | **Rigor en el uso de los datos** | 10 % | INE como fuente principal; cada cifra con fuente y fecha; errores hallados en fuentes oficiales y documentados; rótulos de «no oficial» | `11`, `19`, `06`; manifiesto |
-| **Presentación y usabilidad** | 10 % | Recorrido guiado en las 24 secciones; funciona en teléfono; identidad propia | Manual gráfico; `20`; `25-identidad.md` |
+| **Presentación y usabilidad** | 10 % | Recorrido guiado en las 24 secciones; funciona en teléfono; identidad propia; pantalla en inglés y, como borrador con fuente, en kaqchikel (la interfaz, nunca los datos) | Manual gráfico; `20`; `25-identidad.md`; `29-idiomas-e-inclusion.md` |
 
 En caso de empate prevalece la **aplicabilidad institucional**: conviene cerrar la presentación con
 «Antes y ahora» y con lo que el INE necesita para adoptarlo.
@@ -119,6 +119,11 @@ hizo.
 7. **Licencia para terceros.** `LICENCIA.md` deja escrita la licencia al INE. Si el equipo quiere
    además publicar FARO como software libre para cualquiera (por ejemplo, con licencia MIT o
    Apache-2.0), es una decisión suya que aún no está tomada.
+8. **Idiomas.** El inglés lo tradujo el equipo con el asistente de IA y no tiene revisión
+   profesional. El kaqchikel es un **borrador** que cubre 1.7 % de la pantalla: solo términos
+   tomados de una fuente abierta revisada por hablantes, sin traducción automática. No debe
+   presentarse como «el portal está en kaqchikel», sino como «está preparado para estarlo y lo
+   poco que hay tiene fuente» (`29`).
 
 ## 8. Lo que falta hacer antes de entregar
 
@@ -131,3 +136,5 @@ hizo.
 - [ ] Ensayar la presentación con reloj (7 minutos) y las preguntas de `17` y `28`.
 - [ ] Probar `iniciar.bat` en una máquina con Windows, si la demostración se hará ahí.
 - [ ] Decidir la licencia para terceros (salvedad 7).
+- [ ] (Después de la entrega) Pedir a una persona hablante que complete y revise el kaqchikel; la
+      autoridad en su escritura es la Academia de Lenguas Mayas de Guatemala (`29`, sección 4).

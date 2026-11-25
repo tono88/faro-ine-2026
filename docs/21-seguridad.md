@@ -84,6 +84,15 @@ Siguen pendientes los puntos 3, 10, 15, 18 y 20 de la tabla anterior, y dos nuev
 portal con HTTPS es **obligatorio** para el trabajo de campo (sin HTTPS el teléfono no entrega la
 posición), y la protección de conteos no compara tablas entre sí.
 
+## Cambios de la versión 0.20.0 (idiomas de la pantalla)
+
+| # | Tema | Riesgo | Qué se hizo |
+|---|---|---|---|
+| 40 | Diccionarios de idioma | El código del idioma llega en la dirección y se usa para abrir un archivo: podría pedirse otro archivo del servidor | Solo se aceptan dos o tres letras minúsculas (`codigo_de_idioma`); cualquier otra cosa responde 400 sin tocar el disco. Probado en `cargo test` y en el navegador (`/api/idiomas/..%2Fmejoras`) |
+| 41 | Texto traducido | Un diccionario alterado podría meter HTML o guiones en la página | La traducción se inserta siempre como **texto** (nodos de texto), nunca como HTML; las etiquetas que aparecen en la frase son las mismas que ya estaban en la página, reutilizadas. Una traducción con marcas distintas de las de su clave se descarta |
+| 42 | Datos mostrados | Una traducción podría cambiar un dato a la vista | Solo se traduce lo que está en el diccionario, que no contiene datos; dentro de tablas no se aplican moldes; nombres de personas y citas van marcados para no tocarse. El idioma no llega a la base, a las capas ni a las descargas |
+| 43 | Privacidad | El idioma elegido es una preferencia de la persona | Se guarda solo en su navegador (`localStorage`); el servidor no lo registra. Los diccionarios se sirven sin sesión porque no contienen nada reservado |
+
 ## Lo que debe hacer quien lo instale
 
 1. Entrar con `admin` y la contraseña inicial (`admin` en el despliegue con Docker, o la que haya puesto en

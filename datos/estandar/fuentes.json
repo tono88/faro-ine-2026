@@ -481,6 +481,32 @@
    "consultado": "24 de noviembre de 2026",
    "uso": "Mapa de la pantalla.",
    "cita": "Agafonkin, V. y colaboradores. (2023). Leaflet 1.9.4: biblioteca de mapas interactivos [programa]. https://leafletjs.com Consultado el 24 de noviembre de 2026."
+  },
+  {
+   "id": "mozilla-l10n-cak",
+   "autor": "Mozilla y colaboradores de la localización al kaqchikel",
+   "anio": "2026",
+   "titulo": "Firefox y Mozilla Accounts: localización al kaqchikel (cak)",
+   "tipo": "programa",
+   "editor": "Mozilla",
+   "url": "https://github.com/mozilla-l10n/firefox-l10n/tree/main/cak",
+   "licencia": "MPL 2.0",
+   "consultado": "25 de noviembre de 2026",
+   "uso": "Glosario del borrador en kaqchikel de la pantalla: cada término con su archivo y su mensaje de origen (datos/estandar/idiomas/cak_glosario.csv).",
+   "cita": "Mozilla y colaboradores de la localización al kaqchikel. (2026). Firefox y Mozilla Accounts: localización al kaqchikel (cak) [programa]. Mozilla. https://github.com/mozilla-l10n/firefox-l10n/tree/main/cak Consultado el 25 de noviembre de 2026."
+  },
+  {
+   "id": "ley-idiomas-nacionales",
+   "autor": "Congreso de la República de Guatemala",
+   "anio": "2003",
+   "titulo": "Ley de Idiomas Nacionales, Decreto 19-2003",
+   "tipo": "documento",
+   "editor": "Edición de la Universidad de San Carlos de Guatemala",
+   "url": "https://digi.usac.edu.gt/bvsalud/documentos/eblueinfo/ML/ML_016.pdf",
+   "licencia": "",
+   "consultado": "25 de noviembre de 2026",
+   "uso": "Marco de los idiomas de la pantalla y de por qué no se traducen los nombres de lugares: artículos 8, 10, 11, 14 y 15 (docs/29).",
+   "cita": "Congreso de la República de Guatemala. (2003). Ley de Idiomas Nacionales, Decreto 19-2003 [documento]. Edición de la Universidad de San Carlos de Guatemala. https://digi.usac.edu.gt/bvsalud/documentos/eblueinfo/ML/ML_016.pdf Consultado el 25 de noviembre de 2026."
   }
  ]
 }

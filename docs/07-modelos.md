@@ -9,7 +9,9 @@
 Detalle, reglas y prueba con 16 fotos: [`24-clasificador-de-fotos.md`](24-clasificador-de-fotos.md).
 Procedencia de los pesos: `datos/modelos/PROCEDENCIA.md`. **Todo lo demás en FARO son reglas fijas**:
 la homologación, los tableros «desde una frase», las diferencias de precios y la huella de fotos de
-producto no usan modelos entrenados.
+producto no usan modelos entrenados. La traducción de la pantalla tampoco: es un diccionario fijo
+(`29-idiomas-e-inclusion.md`); el inglés se tradujo una vez, con el asistente declarado en el
+README, y el portal no llama a ningún servicio de traducción.
 
 ## Los que tendría sentido entrenar (ninguno está hecho)
 

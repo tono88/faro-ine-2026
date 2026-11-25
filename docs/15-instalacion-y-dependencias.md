@@ -76,6 +76,13 @@ se corren así, desde un clon, no dentro del contenedor.
 | `FARO_FORMULARIOS` | Servicios donde puede estar la encuesta de campo, separados por coma | Microsoft Forms |
 | `FARO_MODELOS` | Carpeta del modelo de fotos (sin Docker) | `datos/modelos` |
 
+**Idiomas de la pantalla.** No hay nada que instalar ni configurar: los diccionarios van en
+`datos/estandar/idiomas/` (dentro de la imagen de Docker) y el botón del globo los ofrece. Para
+corregir una traducción se edita el archivo del idioma y se recarga la página; para sumar un idioma
+se agrega un archivo ([`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md)). Con Docker, el
+cambio se hace en la carpeta del repositorio y se reconstruye la imagen, o se monta esa carpeta
+como volumen.
+
 **Trabajo de campo y HTTPS.** Los teléfonos solo entregan su posición a páginas con HTTPS. Para que
 los operadores registren visitas, publique el portal detrás de un proxy con certificado (Caddy,
 Nginx o el que use el INE), con `FARO_ESCUCHA=0.0.0.0` y `FARO_HTTPS=1`. En la propia máquina

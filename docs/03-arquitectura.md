@@ -71,8 +71,9 @@ la salida fila por fila, ya sin nombres ni identificadores, queda en un volumen 
 | `faro-cli` | Rust, clap | Ejecutable `faro`: los mismos módulos desde la línea de comandos, para regenerar cada tabla y cada informe |
 | Base de datos | PostgreSQL 16 | 20 tablas y dos vistas (`envios_vigentes`, `precios_ultimos`) |
 | Pantalla | HTML, CSS y JavaScript sin marcos; Leaflet 1.9.4 | 24 secciones, recorridos guiados, diseñador de tableros, mapa; funciona en teléfono |
+| Idiomas de la pantalla | JavaScript sin marcos (`web/idiomas.js`); diccionarios JSON | Español de origen, inglés completo y kaqchikel en borrador; `datos/estandar/idiomas/`; se traduce la interfaz, no los datos |
 | Despliegue | Docker Compose | `docker compose up -d --build`; probado desde un clon limpio |
-| Pruebas | `cargo test`; Playwright con Chromium | 94 pruebas de reglas y 20 guiones de pantalla (`.faro/pruebas/`) |
+| Pruebas | `cargo test`; Playwright con Chromium | 96 pruebas de reglas y 21 guiones de pantalla (`.faro/pruebas/`) |
 
 Bibliotecas y licencias: [`27-componentes-de-terceros.md`](27-componentes-de-terceros.md).
 Instalación y dependencias: [`15-instalacion-y-dependencias.md`](15-instalacion-y-dependencias.md).
@@ -108,6 +109,24 @@ Instalación y dependencias: [`15-instalacion-y-dependencias.md`](15-instalacion
 - **Secreto estadístico:** solo se publican conteos; los menores que el umbral (3, configurable) se
   ocultan a quien no es analista, con supresión complementaria.
 - Detalle: [`21-seguridad.md`](21-seguridad.md) y [`23-conformidad-legal.md`](23-conformidad-legal.md).
+
+## Idiomas de la pantalla
+
+La pantalla está escrita en español y no se reescribió para traducirla. Un guion aparte
+(`web/idiomas.js`) la traduce al vuelo con un diccionario cuya clave es el propio texto en español;
+los números y las etiquetas de cada frase se conservan, y lo que la pantalla pinta después se
+traduce al aparecer. Decisiones:
+
+- **Los diccionarios son datos** (`datos/estandar/idiomas/<código>.json`), como las solicitudes y las
+  tareas de muestreo: sumar un idioma o corregir una frase no pide programar ni reiniciar.
+- **El servidor solo los entrega** (`/api/idiomas`, `/api/idiomas/<código>`); el idioma vive en el
+  navegador y no toca la base, las capas ni las descargas.
+- **Solo se traduce lo que está en el diccionario**, y la lista de textos de la pantalla
+  (`plantilla.json`) deja fuera lo que es dato. Dentro de las tablas no se aplican moldes.
+- **Sin servicio de traducción**: un diccionario fijo da siempre el mismo resultado y funciona sin
+  internet.
+
+Detalle en [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
 
 ## Relación con X-Road
 

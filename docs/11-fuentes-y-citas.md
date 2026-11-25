@@ -65,6 +65,8 @@ Todo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, 
   - Uso en FARO: Referencia: en Guatemala la extensión urbana se midió con Landsat, pero los techos se clasificaron con imagen submétrica.
 - Congreso de la República de Guatemala y Jefatura de Estado. (1985–2021). Normas consultadas para el análisis de conformidad: Decreto Ley 3-85 (Ley Orgánica del INE) y su reglamento, Decreto 57-2008, Decreto 90-2005, Decreto 57-92, Decreto 47-2008, Decreto 5-2021, Decreto 33-98 y Decreto 17-73 [documento]. Varias ediciones; la lista con el enlace de cada una está en docs/23-conformidad-legal.md. https://www.ine.gob.gt/ine/wp-content/uploads/2022/01/Ley_Reglamento_INE_dic21.pdf Consultado el 24 de noviembre de 2026.
   - Uso en FARO: Análisis de conformidad legal y de protección estadística (docs/23).
+- Congreso de la República de Guatemala. (2003). Ley de Idiomas Nacionales, Decreto 19-2003 [documento]. Edición de la Universidad de San Carlos de Guatemala. https://digi.usac.edu.gt/bvsalud/documentos/eblueinfo/ML/ML_016.pdf Consultado el 25 de noviembre de 2026.
+  - Uso en FARO: Marco de los idiomas de la pantalla y de por qué no se traducen los nombres de lugares: artículos 8, 10, 11, 14 y 15 (docs/29).
 
 ## Métodos y programas
 
@@ -86,6 +88,8 @@ Todo dato que muestra FARO viene de una de estas fuentes. La fecha de consulta, 
   - Uso en FARO: Mejora 2-opt para ordenar las paradas de una ruta de campo.
 - Agafonkin, V. y colaboradores. (2023). Leaflet 1.9.4: biblioteca de mapas interactivos [programa]. https://leafletjs.com Consultado el 24 de noviembre de 2026.
   - Uso en FARO: Mapa de la pantalla. Licencia: BSD de 2 cláusulas.
+- Mozilla y colaboradores de la localización al kaqchikel. (2026). Firefox y Mozilla Accounts: localización al kaqchikel (cak) [programa]. Mozilla. https://github.com/mozilla-l10n/firefox-l10n/tree/main/cak Consultado el 25 de noviembre de 2026.
+  - Uso en FARO: Glosario del borrador en kaqchikel de la pantalla: cada término con su archivo y su mensaje de origen (datos/estandar/idiomas/cak_glosario.csv). Licencia: MPL 2.0.
 
 ## Cómo citar FARO
 

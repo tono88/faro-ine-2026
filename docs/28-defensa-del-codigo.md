@@ -105,6 +105,13 @@ solicitud. Lo que llegó de las instituciones solo lo lee el personal del INE.
 sustituyen por «protegido» para quien no es analista; si en una fila queda un solo valor oculto, se
 oculta un segundo para que no se obtenga por resta.
 
+**Idiomas de la pantalla.** El portal sigue escrito en español. `web/idiomas.js` recorre lo que se
+ve y busca cada frase en un diccionario cuya clave es la propia frase en español; antes de buscar
+cambia los números por `#` (y los devuelve tal cual) y las etiquetas por marcas numeradas (y las
+reutiliza). Si la frase no está, no se toca: por eso un nombre de municipio o de producto nunca
+cambia. El kaqchikel solo lleva términos del glosario con fuente; `cargo test` rechaza cualquier
+otro.
+
 ## 3. Decisiones que conviene saber defender
 
 | Pregunta | Respuesta |
@@ -118,14 +125,17 @@ oculta un segundo para que no se obtenga por resta.
 | ¿Por qué el umbral de celda es 3? | Es un valor por omisión razonable y configurable (`FARO_UMBRAL_CELDA`); la norma la fija el INE |
 | ¿Por qué admin/admin? | Para que quien instala pueda entrar. El portal obliga a cambiarla y bloquea todo cambio hasta entonces; por omisión solo atiende en la propia máquina |
 | ¿Dónde están las claves? | En `.env`, que no se versiona; `.env.example` trae textos de relleno y `iniciar.bat` las genera |
+| ¿Por qué no se traducen los datos? | Porque traducir un dato es alterarlo: un nombre oficial tiene un código, y la Ley de Idiomas Nacionales (art. 11) pide respetar la escritura propia de los nombres de lugares. Además, lo que se descarga debe ser idéntico para todos |
+| ¿Por qué el kaqchikel cubre tan poco? | Porque el equipo no lo habla y no hay forma de comprobar una traducción automática a un idioma maya. Se usan solo términos ya publicados y revisados por hablantes (la localización de Firefox), y se dice el porcentaje real. Completarlo es trabajo de una persona hablante: el mecanismo ya está |
+| ¿Por qué no un servicio de traducción? | Sería una dependencia externa y de pago, enviaría textos fuera del INE y podría dar hoy una traducción y mañana otra. Un diccionario fijo se revisa, se corrige y funciona sin internet |
 | ¿Qué pasa si la tienda cambia su página? | La tarea de muestreo falla y lo dice; no se inventa un precio. Cada tipo de tienda tiene su función y su prueba |
 
 ## 4. Cómo se comprueba que funciona
 
 | Qué | Cómo |
 |---|---|
-| Reglas del núcleo | `cargo test`: 94 pruebas (homologación, recepción, curvas, rutas, cruce de visitas, precios, protección de celdas) |
-| La pantalla | 20 guiones en `.faro/pruebas/` con Chromium: clic real en el mapa, teléfono con posición simulada, permisos por rol, recorridos, carga de precios |
+| Reglas del núcleo | `cargo test`: 96 pruebas (homologación, recepción, curvas, rutas, cruce de visitas, precios, protección de celdas, diccionarios de idiomas) |
+| La pantalla | 21 guiones en `.faro/pruebas/` con Chromium: clic real en el mapa, teléfono con posición simulada, permisos por rol, recorridos, carga de precios, idiomas (los datos no cambian al traducir) |
 | Seis tamaños de pantalla × 24 secciones | `.faro/pruebas/verificacion_interfaz.js` → [`20-verificacion-interfaz.md`](20-verificacion-interfaz.md) |
 | Estadística | `faro verificar` → [`19-verificacion-estadistica.md`](19-verificacion-estadistica.md) |
 | Instalación | Clon limpio → `.env` → `docker compose up -d --build` → portal arriba (probado el 25-nov-2026) |

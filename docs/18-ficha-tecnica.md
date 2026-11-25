@@ -20,7 +20,8 @@
 | **Reproducibilidad** | Cada tabla derivada tiene un comando `faro …` (y las principales, además, un procedimiento descargable desde el portal); las descargas quedan en un manifiesto versionado con fecha y huella SHA-256. La instalación se probó desde un clon limpio |
 | **Verificación** | Estadística (`docs/19`), de interfaz en laptop de 15.6", tableta y celular (`docs/20`) y de seguridad (`docs/21`), las tres con informe regenerable |
 | **Acceso** | Usuarios con rol (administrador, analista, consulta, operador de campo e institución) y grupo por secciones; una cuenta por institución que solo sube sus archivos; contraseñas con Argon2; bitácora de acciones a la vista de los administradores |
-| **Pruebas** | 94 pruebas automáticas (`cargo test`) y recorridos de la pantalla en Chromium, incluidos teléfono con posición simulada y clic real en el mapa |
+| **Idiomas e inclusión** | Pantalla en español, inglés (completo) y kaqchikel (borrador con términos de una fuente revisada por hablantes). Se traduce la interfaz, nunca los datos. Un idioma es un archivo; sin servicio de traducción. Funciona en teléfono; recorridos guiados en todas las secciones. Detalle: `docs/29-idiomas-e-inclusion.md` |
+| **Pruebas** | 96 pruebas automáticas (`cargo test`) y recorridos de la pantalla en Chromium, incluidos teléfono con posición simulada y clic real en el mapa |
 | **Datos personales** | Ninguno en el repositorio; los archivos reales se procesan en un temporal y no se guardan |
 | **Limitaciones conocidas** | Ver la tabla de estado en `docs/01-necesidades-ine.md` y los avisos de cada sección |
 | **Licencia** | Autoría del equipo; licencia no exclusiva, gratuita, perpetua e irrevocable al INE (`LICENCIA.md`). Componentes de terceros con su licencia: `docs/27-componentes-de-terceros.md` |

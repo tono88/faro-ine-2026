@@ -131,3 +131,11 @@ Ver `CLAUDE.md` ("Pendiente, en orden"). Fuentes de gobierno verificadas por int
 - v0.18.0. Auditar con agentes independientes rinde: hallaron una resta que deshacía la supresión complementaria (dos rutas con reglas distintas), dos licencias mal declaradas y documentos del día 1 que seguían en el PDF técnico. Regla: una sola función decide qué celdas se ocultan.
 - Clon limpio: `git clone --depth 1` + `.env.example` + Dockerfile de nube → imagen en 252 s. Tras borrar `target/` hubo que liberar la caché de construcción de Docker (27 GB).
 - `faro citas` exige que el `tipo` de cada fuente pertenezca a un grupo; `fuentes.json` va con sangría de 1 espacio.
+- v0.20.0. Idiomas sin tocar el código de la pantalla: traducir el DOM con un diccionario cuya clave es el texto en español (números → `#`, etiquetas → marcas numeradas que se REUTILIZAN, no se recrean: así no se pierden ids ni manejadores). `MutationObserver` + `takeRecords()` para no reaccionar a los cambios propios. La traducción se inserta como nodos de texto (nunca `innerHTML`).
+- Separar interfaz de dato: cosechar en marcha lo que se ve y aceptar solo lo que está escrito en el código de la pantalla o en los textos del servidor. Las cadenas del código se cosechan con el mismo guion (`recogerHtml`), con `${…}` como hueco → molde `{0}`. Un molde con poco texto fijo se descarta (podría calzar con un dato).
+- Carrera real: una tabla que termina de cargar después de limpiar la cosecha se colaba como «texto del código» (167 productos). Limpiar, cosechar y leer en un solo `evaluate`.
+- Kaqchikel: la única fuente abierta alineable es la localización de Mozilla (`firefox-l10n/cak`, mismos identificadores que `es-MX` y `en-US`): 3,470 cadenas; 32 coinciden palabra por palabra con rótulos de FARO. MediaWiki no tiene `cak.json`; Common Voice y AMO no tienen `cak`. No componer frases.
+- Agentes para traducir: seis trozos de ~18 mil caracteres, salida como objeto id → traducción (no lista: evita desalinearse), con validación de marcas, `#` y `{n}`. Unificar ortografía después (salió británica y estadounidense mezclada).
+- Una palabra con dos sentidos («media») no se puede traducir por diccionario sin contexto: `data-ctx`.
+- Encabezado en teléfono de 360 px: el selector queda solo con el globo (≤ 400 px).
+

@@ -217,6 +217,32 @@ y cómo repetirlo.
    responder: un lienzo vacío quedaba encima y se quedaba con los clics. Los reportó el equipo al
    usar el portal; ahora hay una prueba con clic real que recorre esos pasos.
 
+## Idiomas e inclusión
+
+11c. **Traducir la pantalla sin tocar los datos, y demostrarlo.** Al armar la lista de textos de la
+   pantalla, el portal mostraba 4,267 textos distintos: 1,873 eran interfaz y **2,394 eran datos**
+   (lugares, productos, tiendas). Solo los primeros entraron al diccionario. La prueba de navegador
+   cambia de idioma y comprueba que los 22 nombres de departamento, las cifras y las 39 citas salen
+   idénticos en español, inglés y kaqchikel.
+
+11d. **El kaqchikel que se puede sostener cubre 1.7 % de la pantalla.** De 1,873 textos, solo 32
+   coinciden palabra por palabra con un término ya publicado y revisado por hablantes (la
+   localización de Firefox). Faltan sobre todo los términos de la estadística: población,
+   municipio, precio, mapa. FARO muestra ese porcentaje en lugar de rellenar con una traducción
+   automática que nadie puede comprobar.
+
+11e. **Un fallo propio hallado al construirlo.** En una pasada, la herramienta que arma la lista
+   de textos dejó entrar 167 nombres de productos como si fueran texto de la pantalla: una tabla
+   terminó de cargar justo después de limpiar la cosecha anterior. Se corrigió leyendo cada
+   cosecha en un solo paso, y `cargo test` rechaza cualquier entrada que ya no sea un texto de la
+   pantalla.
+
+11f. **Una palabra, dos sentidos.** «media» es el promedio de un precio y también el nivel medio
+   de confianza de una proyección. Para no traducir mal una de las dos, la segunda lleva contexto
+   (`confianza|media`).
+
+Detalle: [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
+
 ## Lo que ya no hay que hacer a mano
 
 12. **Lo que una persona decide una vez no se vuelve a preguntar**, sea un lugar ("El puerto" es San
@@ -227,7 +253,7 @@ y cómo repetirlo.
    RENAP ni ver sus envíos: el servidor responde 403, comprobado en la prueba
    `institucion_y_recorridos.js` junto con otros 30 puntos.
 14. **El portal se explica solo.** 24 secciones con recorrido guiado propio; el manual gráfico
-   (36 páginas) se genera desde el portal y usa las mismas marcas, así que no se desactualiza.
+   (37 páginas) se genera desde el portal y usa las mismas marcas, así que no se desactualiza.
 15. **La instalación se comprobó desde cero.** Un clon limpio del repositorio, los pasos del README
    y un comando: la imagen se construyó en 4 minutos y el portal quedó arriba con sus 85,907 precios
    cargados (25-nov-2026).

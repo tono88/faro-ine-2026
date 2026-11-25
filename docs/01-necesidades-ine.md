@@ -57,6 +57,7 @@
 | Que los filtros se apliquen al tablero ya creado y saber cómo se publican | Hecho: barra de filtros sobre todo el tablero; borrador y publicado, con enlace |
 | Un modelo distinto de la recta para población y crecimiento | Hecho: tasa constante junto a la recta (superficie construida) y, para población después de 2030, exponencial a corto plazo y logística a largo plazo |
 | Análisis de conformidad legal y protección estadística | Hecho: `docs/23`; conteos menores que 3 protegidos |
-| Apartado comparativo de qué se tenía, qué mejora y cómo escala | Hecho: sección «Antes y ahora» (27 puntos) y `docs/22` |
+| Apartado comparativo de qué se tenía, qué mejora y cómo escala | Hecho: sección «Antes y ahora» (28 puntos) y `docs/22` |
 | Más indicadores | Hecho: quince del Censo 2018, uno de uso del suelo y tres de vías en los tableros (29 en total; el mapa tiene además el porcentaje de vías pavimentadas, con su advertencia) |
 | Mapeo y tipo de carretera | Hecho con lo que ya se tenía: tipo de vía en toda la red y superficie donde está anotada (38 %), por municipio y en el mapa. No se halló una capa abierta del RIC ni de la Dirección General de Caminos |
+| Inclusión: que la pantalla se lea en más de un idioma (pedido del equipo, 25-nov) | Hecho en inglés (completo). Kaqchikel **en borrador**: 32 rótulos con fuente revisada por hablantes (1.7 % de la pantalla); falta la traducción y revisión de hablantes. Se traduce la interfaz, nunca los datos (`docs/29`) |

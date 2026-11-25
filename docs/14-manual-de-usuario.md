@@ -17,6 +17,19 @@ delante: señala cada parte y dice para qué sirve. Cada sección tiene además 
 cómo funciona esta pantalla», junto al título. Se avanza con «Siguiente» o con las flechas del
 teclado; Esc lo cierra. Desde el primer paso se puede abrir el recorrido general del portal.
 
+## Idioma de la pantalla
+
+El botón del globo, en el encabezado, cambia el idioma de la pantalla: **español**, **inglés** o
+**kaqchikel**. No hace falta iniciar sesión y la elección se recuerda en ese navegador.
+
+- Cambian el menú, los títulos, los botones, las explicaciones y los recorridos guiados.
+- **No cambian los datos**: los nombres de lugares, instituciones y productos, las cifras y las
+  citas se muestran como los publica su fuente. Lo que se descarga es igual en cualquier idioma.
+- El **kaqchikel es un borrador**: solo están en kaqchikel los rótulos que ya existen en una fuente
+  revisada por hablantes; lo demás aparece en español, y la pantalla lo avisa.
+- Para corregir una traducción o sumar otro idioma no hace falta programar: ver
+  [`29-idiomas-e-inclusion.md`](29-idiomas-e-inclusion.md).
+
 ## Primer ingreso
 
 Entre con `admin` / `admin`. El portal le pedirá cambiar la contraseña en «Mi perfil» y, por

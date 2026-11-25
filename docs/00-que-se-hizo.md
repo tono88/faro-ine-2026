@@ -70,7 +70,7 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 - Se entra con usuario y contraseña; cinco roles (administrador, analista, consulta, operador de
   campo e institución); una bitácora registra quién hizo qué y cuándo.
 - Cada institución tiene su propia cuenta: ve lo público y sube solo sus archivos.
-- Recorridos guiados en las 24 secciones y un manual de usuario gráfico de 36 páginas, generado
+- Recorridos guiados en las 24 secciones y un manual de usuario gráfico de 37 páginas, generado
   desde el portal con las mismas marcas que el recorrido.
 
 ## 8. Tableros, grupos y verificación
@@ -100,7 +100,17 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 - Protección estadística: los conteos menores que 3 no se publican a quien no es analista.
 - Análisis de conformidad legal, norma por norma ([`23`](23-conformidad-legal.md)).
-- Comparativo «antes y ahora» de 27 puntos ([`22`](22-antes-y-ahora.md)).
+- Comparativo «antes y ahora» de 28 puntos ([`22`](22-antes-y-ahora.md)).
+
+## 8d. Idiomas e inclusión
+
+- La pantalla cambia de idioma con un botón: **español**, **inglés** (completo) y **kaqchikel**
+  (borrador). Se traduce la interfaz, **nunca los datos**: nombres oficiales, cifras y citas salen
+  iguales en cualquier idioma, y lo que se descarga no cambia.
+- El kaqchikel no se inventa: solo lleva los rótulos que ya existen en una fuente abierta revisada
+  por hablantes, cada uno con su procedencia; lo demás aparece en español y la pantalla lo avisa.
+- Un idioma es un archivo, no código; una corrección se ve al recargar la página.
+- Detalle, marco legal y límites: [`29`](29-idiomas-e-inclusion.md).
 
 ## 9. Trazabilidad
 
@@ -112,12 +122,13 @@ Dónde: pantalla "Población y crecimiento" y el mapa.
 
 | | |
 |---|---|
-| Pruebas automáticas | 94 |
+| Pruebas automáticas | 96 |
 | Comandos de `faro` | 29 |
 | Secciones de la pantalla | 24 |
 | Indicadores por municipio | 29 |
 | Tareas de muestreo de precios | 26 |
 | Precios publicados en el levantamiento | 85,907 (18 tiendas, 6 rubros) |
 | Capas publicadas | 21 |
-| Fuentes citadas | 37 |
+| Fuentes citadas | 39 |
+| Idiomas de la pantalla | español, inglés (1,873 textos) y kaqchikel en borrador (32 rótulos con fuente) |
 | Hallazgos documentados | [más de 35](09-logros.md) |
