@@ -10,8 +10,8 @@ Cada versión es un release de GitHub sobre el historial de commits.
   `?idioma=en` la fija.
 - **Se traduce la interfaz, nunca los datos.** Nombres de lugares, instituciones y productos,
   valores de catálogo, cifras y citas salen como los publica su fuente; la base, las capas y las
-  descargas no cambian. De los 4,267 textos distintos que muestra el portal, 2,394 eran datos y
-  quedaron fuera del diccionario.
+  descargas no cambian. Al recorrer el portal, la herramienta separó 1,873 textos de interfaz y dejó
+  fuera del diccionario 2,394 que eran datos.
 - **Kaqchikel sin inventar.** Solo los 32 rótulos que coinciden con un término ya publicado y
   revisado por hablantes (localización de Firefox y de Mozilla Accounts, MPL 2.0), cada uno con su
   archivo de origen en `cak_glosario.csv` (71 términos). El selector dice el porcentaje real
@@ -30,8 +30,12 @@ Cada versión es un release de GitHub sobre el historial de commits.
   de la Ley de Idiomas Nacionales, límites) y el apartado de inclusión en el README y en los
   documentos 00, 03, 09, 14, 15, 17, 18, 21, 23, 26 y 28. 39 fuentes (se suman la localización de
   Mozilla al kaqchikel y el Decreto 19-2003); 28 puntos en «Antes y ahora».
-- **Entregables regenerados**: manual (página nueva «Idioma de la pantalla»), documento técnico,
-  presentación (mención en el cierre) y video (mención en la tarjeta final).
+- **Entregables regenerados**: manual (página nueva «Idioma de la pantalla», 37 páginas), documento
+  técnico, presentación (mención en el cierre) y video (2:56; mención en la tarjeta final).
+- **Corrección en el video.** El clip de la v0.19.0 dejaba leer cerca de un segundo la lista
+  «Problemas de contenido» del envío (número de fila y un valor de catálogo, sin nombres ni
+  documentos) antes de que la banda de cifras la cubriera. El guion de grabación ahora la oculta
+  desde el principio y el clip se volvió a grabar.
 - **Correcciones de paso**: el nombre de la persona y su rol ya no comparten elemento en el
   encabezado; el README decía 14 columnas donde son 15; la matriz decía 13 diapositivas.
 

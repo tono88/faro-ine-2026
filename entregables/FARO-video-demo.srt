@@ -11,125 +11,129 @@ los envía a su manera, y no llegan en una forma
 que se pueda usar. Para eso construimos FARO.
 
 4
-00:00:14,602 --> 00:00:19,233
+00:00:14,600 --> 00:00:19,231
 Este es un archivo real de RENAP: diez mil defunciones, con
 
 5
-00:00:19,283 --> 00:00:23,914
+00:00:19,281 --> 00:00:23,912
 nombres y documentos de identidad. La institución entra con su cuenta
 
 6
-00:00:23,964 --> 00:00:28,595
+00:00:23,962 --> 00:00:28,593
 y lo sube tal como sale de su sistema. En segundos,
 
 7
-00:00:28,645 --> 00:00:33,275
+00:00:28,643 --> 00:00:33,273
 FARO reconoce las columnas, pone el código oficial a cada lugar
 
 8
-00:00:33,325 --> 00:00:37,956
+00:00:33,323 --> 00:00:37,954
 y deja fuera los datos personales. El archivo original no se
 
 9
-00:00:38,006 --> 00:00:38,382
+00:00:38,004 --> 00:00:38,380
 guarda.
 
 10
-00:00:40,605 --> 00:00:45,236
+00:00:40,602 --> 00:00:45,233
 Y cuando hay duda, FARO no adivina: propone, una persona decide
 
 11
-00:00:45,286 --> 00:00:49,917
+00:00:45,283 --> 00:00:49,914
 una sola vez, y esa decisión queda aprendida para todas las
 
 12
-00:00:49,967 --> 00:00:50,342
+00:00:49,964 --> 00:00:50,339
 instituciones.
 
 13
-00:00:52,606 --> 00:00:57,237
+00:00:52,604 --> 00:00:57,235
 Lo mismo, en cada frente del INE. Para Censos y Encuestas
 
 14
-00:00:57,287 --> 00:01:01,918
+00:00:57,285 --> 00:01:01,916
 y las delegaciones: el país hasta el lugar poblado, con población,
 
 15
-00:01:01,968 --> 00:01:06,599
+00:01:01,966 --> 00:01:06,597
 censo y crecimiento urbano visto desde el satélite. Y la red
 
 16
-00:01:06,649 --> 00:01:10,854
+00:01:06,647 --> 00:01:10,852
 vial como un grafo: setecientos siete lugares sin conexión mapeada.
 
 17
-00:01:14,139 --> 00:01:18,770
+00:01:14,270 --> 00:01:18,901
 Para el trabajo de campo: cada operador ve su ruta en
 
 18
-00:01:18,820 --> 00:01:23,451
+00:01:18,951 --> 00:01:23,582
 el teléfono, y cada visita se comprueba con ubicación y foto.
 
 19
-00:01:30,626 --> 00:01:35,257
+00:01:31,000 --> 00:01:35,631
 Para Precios e Índices: más de ochenta y cinco mil precios
 
 20
-00:01:35,307 --> 00:01:39,938
+00:01:35,681 --> 00:01:40,312
 leídos de dieciocho tiendas, comparados por código de barras, con su
 
 21
-00:01:39,988 --> 00:01:42,065
+00:01:40,362 --> 00:01:42,439
 informe de precio de referencia.
 
 22
-00:01:49,099 --> 00:01:53,730
+00:01:49,515 --> 00:01:54,146
 Y para quien necesita comunicar: un tablero se pide con palabras
 
 23
-00:01:53,780 --> 00:01:56,283
+00:01:54,196 --> 00:01:56,699
 y se publica con un enlace.
 
 24
-00:02:03,528 --> 00:02:08,159
+00:02:04,067 --> 00:02:08,698
 No son cinco herramientas: es una sola. Atacar el problema desde
 
 25
-00:02:08,209 --> 00:02:11,989
+00:02:08,748 --> 00:02:12,528
 varios frentes los hace converger en una solución integral.
 
 26
-00:02:13,531 --> 00:02:17,985
+00:02:14,069 --> 00:02:18,523
 Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre,
 
 27
-00:02:18,035 --> 00:02:22,488
+00:02:18,573 --> 00:02:23,026
 en un servidor del INE: sin licencias, sin servicios de pago
 
 28
-00:02:22,538 --> 00:02:26,992
+00:02:23,076 --> 00:02:27,530
 y sin depender de una inteligencia artificial externa que mañana puede
 
 29
-00:02:27,042 --> 00:02:31,496
+00:02:27,580 --> 00:02:32,034
 cambiar de precio o desaparecer. Los datos se quedan en la
 
 30
-00:02:31,546 --> 00:02:35,590
+00:02:32,084 --> 00:02:36,128
 institución, y el mismo dato da siempre el mismo resultado.
 
 31
-00:02:36,540 --> 00:02:41,171
+00:02:37,078 --> 00:02:41,709
 Crece sin programar: sumar una institución es escribir un archivo. Y
 
 32
-00:02:41,221 --> 00:02:45,852
-está comprobado: más de cincuenta mil registros reales, 94 pruebas automáticas,
+00:02:41,759 --> 00:02:46,390
+está comprobado: más de cincuenta mil registros reales, 96 pruebas automáticas,
 
 33
-00:02:45,902 --> 00:02:48,405
+00:02:46,440 --> 00:02:48,943
 y se instala con un comando.
 
 34
-00:02:50,544 --> 00:02:53,473
-FARO: que cada dato llegue a puerto.
+00:02:50,080 --> 00:02:54,711
+Y en más de un idioma. FARO: que cada dato llegue
+
+35
+00:02:54,761 --> 00:02:55,562
+a puerto.

@@ -219,9 +219,9 @@ y cómo repetirlo.
 
 ## Idiomas e inclusión
 
-11c. **Traducir la pantalla sin tocar los datos, y demostrarlo.** Al armar la lista de textos de la
-   pantalla, el portal mostraba 4,267 textos distintos: 1,873 eran interfaz y **2,394 eran datos**
-   (lugares, productos, tiendas). Solo los primeros entraron al diccionario. La prueba de navegador
+11c. **Traducir la pantalla sin tocar los datos, y demostrarlo.** Al recorrer el portal para armar
+   la lista de textos, la herramienta separó 1,873 textos de interfaz y dejó fuera **2,394 que eran
+   datos** (lugares, productos, tiendas). Solo los primeros entraron al diccionario. La prueba de navegador
    cambia de idioma y comprueba que los 22 nombres de departamento, las cifras y las 39 citas salen
    idénticos en español, inglés y kaqchikel.
 

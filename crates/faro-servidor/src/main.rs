@@ -548,7 +548,8 @@ mod pruebas_de_reglas {
             let cubre = hechos.len() as f64 / plantilla.len() as f64;
             assert!(cubre >= minimo, "{codigo} cubre {:.1} % de la pantalla y se anuncia como completo", cubre * 100.0);
         }
-        assert_eq!(leer("cak.json")["estado"], "borrador", "el kaqchikel sigue siendo borrador hasta que lo revise una persona hablante");
+        let cak = leer("cak.json");
+        assert!(cak["estado"] == "borrador" || cak["revisado_por"].as_str().is_some_and(|n| !n.trim().is_empty()), "el kaqchikel sigue siendo borrador hasta que lo revise una persona hablante y conste su nombre en «revisado_por»");
     }
 
     #[test]
