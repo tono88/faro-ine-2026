@@ -27,7 +27,7 @@ debe completarse con la asesoría de una persona experta.
   sesión se recorta, para que quepan rótulos más largos.
 - **Documentos y entregables** actualizados con el nuevo estado: README, `docs/29` (sección 4
   reescrita), 00, 01, 02, 04, 07, 09, 14, 16, 17, 18, 23, 26 y 28; manual, presentación, documento
-  técnico y video (la tarjeta final dice «kaqchikel en borrador, por revisar con hablantes»).
+  técnico y video (2:58; la tarjeta final dice «kaqchikel en borrador, por revisar con hablantes»).
   40 fuentes; 111 descargas en el manifiesto. `.faro/pruebas/idiomas.js`: 41 comprobaciones.
 
 ## v0.20.0 · 25-nov-2026 · Idiomas e inclusión

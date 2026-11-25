@@ -9,7 +9,7 @@ técnicas durante la demostración en vivo**. No es la presentación: es el port
 
 | Pieza | Dónde | Estado |
 |---|---|---|
-| Clip de fondo, sin voz | [`entregables/FARO-video-demo.mp4`](../entregables/FARO-video-demo.mp4) · 1920×1080, 30 cuadros por segundo, H.264, **2:56**, con pista de audio en silencio | Hecho |
+| Clip de fondo, sin voz | [`entregables/FARO-video-demo.mp4`](../entregables/FARO-video-demo.mp4) · 1920×1080, 30 cuadros por segundo, H.264, **2:58**, con pista de audio en silencio | Hecho |
 | Subtítulos con los tiempos reales | [`entregables/FARO-video-demo.srt`](../entregables/FARO-video-demo.srt) | Hecho |
 | Línea de tiempo por escena (con el texto de cada una) | [`entregables/FARO-video-demo-tiempos.json`](../entregables/FARO-video-demo-tiempos.json) | Hecho |
 | Narración de Ana Lucía | Sección 3 de este documento | **Por grabar y montar** (postproducción del equipo) |
@@ -47,7 +47,7 @@ de las fuentes, no su texto completo, así que conviene abrirlas antes de citarl
 - Lo más importante va en los **primeros 20 segundos**, y la atención cae después de los dos
   minutos (<https://wistia.com/blog/optimal-video-length>).
 - El guion se escribe **contando palabras**: unas 140 a 150 por minuto
-  (<https://sozai.app/es/speaking-rate-by-language/>). Aquí son 333 palabras en 2:56: hay aire para
+  (<https://sozai.app/es/speaking-rate-by-language/>). Aquí son 333 palabras en 2:58: hay aire para
   que se vea la pantalla.
 - La independencia tecnológica se plantea como **reducción de riesgo para la institución**, sin
   atacar a nadie (marco «Public Money, Public Code»: <https://publiccode.eu/>).
@@ -64,12 +64,12 @@ medio segundo después de su marca de tiempo y debe terminar antes de la siguien
 | 0:40–0:52 | La decisión | Sale RENAP, entra la analista; «Revisar pendientes»; elige «1312 La Democracia» para «La De Mocracia» | «Y cuando hay duda, FARO no adivina: propone, una persona decide una sola vez, y esa decisión queda aprendida para todas las instituciones.» |
 | 0:52–1:14 | Frente 2 · Territorio y censo | Busca Panajachel y abre su ficha; animación del crecimiento de Guatemala sobre la foto satelital; red vial | «Lo mismo, en cada frente del INE. Para Censos y Encuestas y las delegaciones: el país hasta el lugar poblado, con población, censo y crecimiento urbano visto desde el satélite. Y la red vial como un grafo: setecientos siete lugares sin conexión mapeada.» |
 | 1:14–1:30 | Frente 3 · Trabajo de campo | Un teléfono: la ruta de demostración, «Registrar visita», posición, foto y resultado | «Para el trabajo de campo: cada operador ve su ruta en el teléfono, y cada visita se comprueba con ubicación y foto.» |
-| 1:30–1:49 | Frente 4 · Precios e índices | Busca «arroz»; mismo producto en varias tiendas; diferencias de 50 % o más | «Para Precios e Índices: más de ochenta y cinco mil precios leídos de dieciocho tiendas, comparados por código de barras, con su informe de precio de referencia.» |
-| 1:49–2:03 | Frente 5 · Tableros | Escribe una frase, arma el tablero, lo guarda y lo publica | «Y para quien necesita comunicar: un tablero se pide con palabras y se publica con un enlace.» |
-| 2:03–2:13 | Convergencia | Los cinco frentes, con sus direcciones, confluyen en el faro | «No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.» |
-| 2:13–2:36 | Autocontenido | Tres ceros (licencias, servicios de pago, llamadas a una IA externa); luego la tabla de riesgo | «Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado.» |
-| 2:36–2:49 | Crece sin programar | El archivo de solicitud de una institución; 51,719 registros, 96 pruebas, 1 comando | «Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, noventa y seis pruebas automáticas, y se instala con un comando.» |
-| 2:49–2:56 | Cierre, con la mención de inclusión | Logotipo y lema; «También en inglés · kaqchikel en borrador, por revisar con hablantes»; equipo y repositorio | «Y en más de un idioma. FARO: que cada dato llegue a puerto.» |
+| 1:30–1:51 | Frente 4 · Precios e índices | Busca «arroz»; mismo producto en varias tiendas; diferencias de 50 % o más | «Para Precios e Índices: más de ochenta y cinco mil precios leídos de dieciocho tiendas, comparados por código de barras, con su informe de precio de referencia.» |
+| 1:51–2:05 | Frente 5 · Tableros | Escribe una frase, arma el tablero, lo guarda y lo publica | «Y para quien necesita comunicar: un tablero se pide con palabras y se publica con un enlace.» |
+| 2:05–2:15 | Convergencia | Los cinco frentes, con sus direcciones, confluyen en el faro | «No son cinco herramientas: es una sola. Atacar el problema desde varios frentes los hace converger en una solución integral.» |
+| 2:15–2:38 | Autocontenido | Tres ceros (licencias, servicios de pago, llamadas a una IA externa); luego la tabla de riesgo | «Y tomamos una decisión de ingeniería: FARO es autocontenido. Software libre, en un servidor del INE: sin licencias, sin servicios de pago y sin depender de una inteligencia artificial externa que mañana puede cambiar de precio o desaparecer. Los datos se quedan en la institución, y el mismo dato da siempre el mismo resultado.» |
+| 2:38–2:51 | Crece sin programar | El archivo de solicitud de una institución; 51,719 registros, 96 pruebas, 1 comando | «Crece sin programar: sumar una institución es escribir un archivo. Y está comprobado: más de cincuenta mil registros reales, noventa y seis pruebas automáticas, y se instala con un comando.» |
+| 2:51–2:58 | Cierre, con la mención de inclusión | Logotipo y lema; «También en inglés · kaqchikel en borrador, por revisar con hablantes»; equipo y repositorio | «Y en más de un idioma. FARO: que cada dato llegue a puerto.» |
 
 **Lo que se dice y lo que no.** «Sin depender de una inteligencia artificial externa» se refiere al
 portal en funcionamiento, y es exacto. No decir «no usamos inteligencia artificial»: el equipo usó
@@ -143,7 +143,7 @@ Con los tiempos de la sección 3 se recortan clips por tema sin volver a grabar:
 
 ```bash
 ffmpeg -ss 0:14 -to 0:52 -i FARO-video-demo.mp4 -c:v libx264 -crf 20 -an clip-registros.mp4
-ffmpeg -ss 2:13 -to 2:36 -i FARO-video-demo.mp4 -c:v libx264 -crf 20 -an clip-autocontenido.mp4
+ffmpeg -ss 2:15 -to 2:38 -i FARO-video-demo.mp4 -c:v libx264 -crf 20 -an clip-autocontenido.mp4
 ```
 
 ## 8. Antes de entregar

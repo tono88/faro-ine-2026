@@ -52,7 +52,7 @@ equipo todavía debe hacer. Categoría 2: Tecnológica y ciencias de datos.
 |---|---|
 | Enlace al repositorio con el código fuente y la documentación | Listo: <https://github.com/tono88/faro-ine-2026> |
 | Presentación en formato PDF para la exposición | Lista: [`entregables/FARO-presentacion.pdf`](../entregables/FARO-presentacion.pdf), 14 diapositivas y 2 de apéndice; guion en `17`. La misma, editable, en `entregables/FARO-presentacion.pptx` |
-| Video demostrativo de 2 a 3 minutos | Clip listo: [`entregables/FARO-video-demo.mp4`](../entregables/FARO-video-demo.mp4), 2:56, grabado del portal en marcha, con subtítulos. **Falta la narración**, que el equipo graba y monta (`16-guion-video.md`) |
+| Video demostrativo de 2 a 3 minutos | Clip listo: [`entregables/FARO-video-demo.mp4`](../entregables/FARO-video-demo.mp4), 2:58, grabado del portal en marcha, con subtítulos. **Falta la narración**, que el equipo graba y monta (`16-guion-video.md`) |
 | (Adicionales del equipo) | Manual de usuario gráfico (37 páginas), documento técnico, esta matriz, guía para defender el código |
 
 ## 5. Términos y condiciones
