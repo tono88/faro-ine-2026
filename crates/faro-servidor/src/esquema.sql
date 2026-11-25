@@ -262,3 +262,7 @@ CREATE INDEX IF NOT EXISTS visitas_campo_parada ON visitas_campo (parada_id);
 INSERT INTO grupos (nombre, descripcion, secciones) VALUES
   ('Operadores de campo', 'Encuestadores: ven su ruta, registran cada visita con su posición y abren la encuesta', '{mapa,campo,acerca,perfil}')
 ON CONFLICT (nombre) DO NOTHING;
+
+-- Recorrido de demostración: paradas reales, visitas ficticias. Se rotula en la pantalla y en la
+-- tabla de visitas, y es el único en que se admite una posición simulada.
+ALTER TABLE rutas_campo ADD COLUMN IF NOT EXISTS demo BOOLEAN NOT NULL DEFAULT FALSE;

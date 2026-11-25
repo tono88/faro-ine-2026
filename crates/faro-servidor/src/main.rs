@@ -282,6 +282,7 @@ async fn main() -> Result<(), String> {
         .route("/api/campo/rutas", post(api_campo_ruta))
         .route("/api/campo/rutas/:id", axum::routing::delete(api_campo_ruta_borrar))
         .route("/api/campo/visitas", post(api_campo_visita))
+        .route("/api/campo/demo", post(api_campo_demo).delete(api_campo_demo_borrar))
         .route("/api/campo/visitas.csv", get(api_campo_visitas_csv))
         .route("/api/cif", get(|State(e): State<Compartido>| async move {
             let mut talla: Vec<Value> = e.talla.values().map(|f| { let mut v = json!(f); v["departamento"] = json!(f.get("municipio").and_then(|m| e.catalogo.por_codigo(&m[..2])).map(|d| d.nombre.clone())); v }).collect();
@@ -2531,7 +2532,7 @@ fn coordina_campo(s: &Sesion) -> bool {
 async fn api_campo(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
     let s = operador_de_campo(&e, &cabeceras).await?;
     let coordina = coordina_campo(&s);
-    let rutas = e.bd.query("SELECT r.id, r.nombre, r.operador_id, u.nombre, r.formulario <> '', r.largo_km, to_char(r.creada, 'YYYY-MM-DD'), r.creada_por FROM rutas_campo r JOIN usuarios u ON u.id = r.operador_id WHERE $1 OR r.operador_id = $2 ORDER BY r.id DESC LIMIT 200", &[&coordina, &s.id]).await.map_err(interno)?;
+    let rutas = e.bd.query("SELECT r.id, r.nombre, r.operador_id, u.nombre, r.formulario <> '', r.largo_km, to_char(r.creada, 'YYYY-MM-DD'), r.creada_por, r.demo FROM rutas_campo r JOIN usuarios u ON u.id = r.operador_id WHERE $1 OR r.operador_id = $2 ORDER BY r.id DESC LIMIT 200", &[&coordina, &s.id]).await.map_err(interno)?;
     let ids: Vec<i64> = rutas.iter().map(|f| f.get(0)).collect();
     let paradas = e
         .bd
@@ -2558,7 +2559,7 @@ async fn api_campo(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Jso
     };
     Ok(Json(json!({ "coordina": coordina, "operadores": operadores, "formularios_admitidos": e.formularios, "clasificador": clasificador_de_fotos().map(|c| c.descripcion()),
         "reglas": { "cerca_m": campo::CERCA_M, "lejos_m": campo::LEJOS_M, "confianza_minima": campo::CONFIANZA_MINIMA },
-        "rutas": rutas.iter().map(|f| { let id: i64 = f.get(0); json!({ "id": id, "nombre": f.get::<_, String>(1), "operador_id": f.get::<_, i64>(2), "operador": f.get::<_, String>(3), "con_formulario": f.get::<_, bool>(4), "largo_km": f.get::<_, f32>(5), "creada": f.get::<_, String>(6), "creada_por": f.get::<_, String>(7), "paradas": de_ruta(id) }) }).collect::<Vec<_>>() })))
+        "rutas": rutas.iter().map(|f| { let id: i64 = f.get(0); json!({ "id": id, "nombre": f.get::<_, String>(1), "operador_id": f.get::<_, i64>(2), "operador": f.get::<_, String>(3), "con_formulario": f.get::<_, bool>(4), "largo_km": f.get::<_, f32>(5), "creada": f.get::<_, String>(6), "creada_por": f.get::<_, String>(7), "demo": f.get::<_, bool>(8), "paradas": de_ruta(id) }) }).collect::<Vec<_>>() })))
 }
 
 #[derive(Deserialize)]
@@ -2628,23 +2629,74 @@ struct VisitaNueva {
     foto: String,
     #[serde(default)]
     notas: String,
+    /// Solo en el recorrido de demostración: usar una posición simulada junto a la parada.
+    #[serde(default)]
+    simulada: bool,
+}
+
+/// Evidencia de una visita a partir de su posición y su foto: distancia al punto de la parada,
+/// bloque de 1 km del satélite y techo del lugar según el censo; y el cruce que resulta.
+fn cruce_de_visita(e: &Estado, lugar: &str, punto: (f64, f64), posicion: Option<(f64, f64)>, precision: Option<f64>, foto: Option<(String, f32)>) -> (Option<f64>, campo::Cruce) {
+    let distancia = posicion.map(|pos| campo::distancia_m(pos, punto));
+    // Bloque de 1 km más cercano a la posición: vale si su centro está a menos de 750 m (dentro del bloque o pegado a él).
+    let bloque = posicion.and_then(|pos| e.uso_bloques.iter().map(|b| (campo::distancia_m(pos, (b.0, b.1)), b)).filter(|(d, _)| *d <= 750.0).min_by(|a, b| a.0.total_cmp(&b.0)).map(|(_, b)| *b));
+    let evidencia = campo::Evidencia { distancia_m: distancia, precision_m: precision, foto, construido_ha: bloque.map(|b| b.2), no_residencial_ha: bloque.map(|b| b.3), hay_satelite: !e.uso_bloques.is_empty(), techo: e.techo_lugar.get(lugar).cloned() };
+    (distancia, campo::cruzar(&evidencia))
+}
+
+/// Dirección de formulario del recorrido de demostración. Ese formulario no existe: sirve para ver
+/// cómo queda el enlace con el lugar, la posición y el número de visita.
+const FORMULARIO_DE_DEMOSTRACION: &str = "https://forms.office.com/r/DEMOSTRACION?lugar={lugar}&latitud={latitud}&longitud={longitud}&visita={visita}&operador={operador}";
+
+/// Carga (o vuelve a cargar) el recorrido de demostración de quien lo pide: seis lugares poblados
+/// reales de Sololá y dos visitas ficticias ya registradas, una que coincide y otra lejos del punto.
+async fn api_campo_demo(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let quien = operador_de_campo(&e, &cabeceras).await?;
+    e.bd.execute("DELETE FROM rutas_campo WHERE demo AND operador_id = $1", &[&quien.id]).await.map_err(interno)?;
+    let paradas: Vec<(&faro_homologa::Lugar, (f64, f64))> = e.catalogo.de_nivel(Nivel::LugarPoblado, Some("0701")).filter_map(|l| Some((l, (l.longitud?, l.latitud?)))).take(6).collect();
+    if paradas.len() < 3 {
+        return Err(pedido("este servidor no tiene el catálogo de lugares poblados de Sololá para armar la demostración"));
+    }
+    let puntos: Vec<(f64, f64)> = paradas.iter().map(|p| p.1).collect();
+    let orden = campo::ordenar_ruta(&puntos);
+    let km = campo::largo_m(&puntos, &orden) / 1000.0;
+    let ruta: i64 = e.bd.query_one("INSERT INTO rutas_campo (nombre, operador_id, formulario, largo_km, creada_por, demo) VALUES ($1,$2,$3,$4,$5, TRUE) RETURNING id", &[&"Recorrido de demostración (visitas ficticias)", &quien.id, &FORMULARIO_DE_DEMOSTRACION, &(km as f32), &quien.nombre]).await.map_err(interno)?.get(0);
+    for (n, i) in orden.iter().enumerate() {
+        let (l, (lon, lat)) = &paradas[*i];
+        let parada: i64 = e.bd.query_one("INSERT INTO paradas_campo (ruta_id, orden, lugar, nombre, longitud, latitud) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id", &[&ruta, &(n as i32 + 1), &l.codigo, &l.nombre, lon, lat]).await.map_err(interno)?.get(0);
+        // Dos visitas de muestra: la primera junto al punto; la segunda, a unos 17 km, para ver una visita marcada.
+        let posicion = match n { 0 => Some((lon + 0.0010, lat + 0.0012)), 1 => Some((*lon, lat + 0.15)), _ => None };
+        if let Some(pos) = posicion {
+            let (distancia, cruce) = cruce_de_visita(&e, &l.codigo, (*lon, *lat), Some(pos), Some(15.0), None);
+            e.bd.execute("INSERT INTO visitas_campo (parada_id, operador, longitud, latitud, precision_m, distancia_m, coherencia, cruce, notas) VALUES ($1,$2,$3,$4,15,$5,$6,$7,'Visita ficticia del recorrido de demostración.')",
+                &[&parada, &format!("{} (demostración)", quien.nombre), &pos.0, &pos.1, &distancia.map(|d| d as f32), &cruce.coherencia, &json!({ "cruce": cruce, "foto": Value::Null })]).await.map_err(interno)?;
+        }
+    }
+    Ok(Json(json!({ "ruta": ruta, "paradas": paradas.len() })))
+}
+
+/// Quita el recorrido de demostración de quien lo pide.
+async fn api_campo_demo_borrar(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Json<Value>> {
+    let quien = operador_de_campo(&e, &cabeceras).await?;
+    let n = e.bd.execute("DELETE FROM rutas_campo WHERE demo AND operador_id = $1", &[&quien.id]).await.map_err(interno)?;
+    Ok(Json(json!({ "borradas": n })))
 }
 
 /// Registra una visita: posición del teléfono, foto (se clasifica y se descarta) y cruce con el
 /// satélite y el censo. Devuelve el resultado y la dirección del formulario ya llena.
 async fn api_campo_visita(State(e): State<Compartido>, cabeceras: HeaderMap, Json(v): Json<VisitaNueva>) -> Res<Json<Value>> {
     let quien = operador_de_campo(&e, &cabeceras).await?;
-    let p = e.bd.query_opt("SELECT p.lugar, p.nombre, p.longitud, p.latitud, r.operador_id, r.formulario, r.id FROM paradas_campo p JOIN rutas_campo r ON r.id = p.ruta_id WHERE p.id = $1", &[&v.parada_id]).await.map_err(interno)?.ok_or_else(|| pedido("no existe esa parada"))?;
+    let p = e.bd.query_opt("SELECT p.lugar, p.nombre, p.longitud, p.latitud, r.operador_id, r.formulario, r.id, r.demo FROM paradas_campo p JOIN rutas_campo r ON r.id = p.ruta_id WHERE p.id = $1", &[&v.parada_id]).await.map_err(interno)?.ok_or_else(|| pedido("no existe esa parada"))?;
     if p.get::<_, i64>(4) != quien.id && !coordina_campo(&quien) {
         return Err(Fallo(StatusCode::FORBIDDEN, "esa parada es de la ruta de otro operador".into()));
     }
     let (lugar, nombre): (String, String) = (p.get(0), p.get(1));
+    let (demo, punto): (bool, (f64, f64)) = (p.get(7), (p.get(2), p.get(3)));
+    let simulada = v.simulada && demo;
     // La posición vale solo si es un punto real del planeta; lo demás se toma como «sin posición».
-    let posicion = v.longitud.zip(v.latitud).filter(|(lon, lat)| lon.is_finite() && lat.is_finite() && lon.abs() <= 180.0 && lat.abs() <= 90.0);
-    let precision = v.precision_m.filter(|x| x.is_finite() && *x >= 0.0 && *x < 100_000.0);
-    let distancia = posicion.map(|pos| campo::distancia_m(pos, (p.get(2), p.get(3))));
-    // Bloque de 1 km más cercano a la posición: vale si su centro está a menos de 750 m (dentro del bloque o pegado a él).
-    let bloque = posicion.and_then(|pos| e.uso_bloques.iter().map(|b| (campo::distancia_m(pos, (b.0, b.1)), b)).filter(|(d, _)| *d <= 750.0).min_by(|a, b| a.0.total_cmp(&b.0)).map(|(_, b)| *b));
+    // En el recorrido de demostración se puede pedir una posición simulada, a unos 170 m de la parada.
+    let posicion = if simulada { Some((punto.0 + 0.0010, punto.1 + 0.0012)) } else { v.longitud.zip(v.latitud).filter(|(lon, lat)| lon.is_finite() && lat.is_finite() && lon.abs() <= 180.0 && lat.abs() <= 90.0) };
+    let precision = if simulada { Some(15.0) } else { v.precision_m.filter(|x| x.is_finite() && *x >= 0.0 && *x < 100_000.0) };
     let mut foto = None;
     let mut foto_detalle = Value::Null;
     if !v.foto.is_empty() {
@@ -2664,9 +2716,8 @@ async fn api_campo_visita(State(e): State<Compartido>, cabeceras: HeaderMap, Jso
             None => foto_detalle = json!({ "aviso": "el clasificador de fotos no está instalado en este servidor: la foto no se evaluó" }),
         }
     }
-    let evidencia = campo::Evidencia { distancia_m: distancia, precision_m: precision, foto: foto.clone(), construido_ha: bloque.map(|b| b.2), no_residencial_ha: bloque.map(|b| b.3), hay_satelite: !e.uso_bloques.is_empty(), techo: e.techo_lugar.get(&lugar).cloned() };
-    let cruce = campo::cruzar(&evidencia);
-    let notas: String = v.notas.trim().chars().take(500).collect();
+    let (distancia, cruce) = cruce_de_visita(&e, &lugar, punto, posicion, precision, foto.clone());
+    let notas: String = format!("{}{}", if simulada { "Posición simulada (demostración). " } else { "" }, v.notas.trim()).chars().take(500).collect();
     let fila = e
         .bd
         .query_one(
@@ -2680,20 +2731,20 @@ async fn api_campo_visita(State(e): State<Compartido>, cabeceras: HeaderMap, Jso
     let formulario = (!plantilla.is_empty()).then(|| campo::enlace_formulario(&plantilla, &[("visita", id.to_string()), ("lugar", lugar.clone()), ("nombre", nombre.clone()), ("municipio", lugar.get(..4).unwrap_or("").to_string()),
         ("latitud", posicion.map(|x| format!("{:.6}", x.1)).unwrap_or_default()), ("longitud", posicion.map(|x| format!("{:.6}", x.0)).unwrap_or_default()), ("precision", precision.map(|x| format!("{x:.0}")).unwrap_or_default()), ("operador", quien.usuario.clone()), ("fecha", cuando.clone())]));
     bitacora(&e, &quien.nombre, "visita_de_campo", &format!("visita n.º {id} en {nombre} ({lugar}): {}", cruce.coherencia)).await;
-    Ok(Json(json!({ "id": id, "cuando": cuando, "distancia_m": distancia.map(|d| d.round()), "cruce": cruce, "foto": foto_detalle, "formulario": formulario })))
+    Ok(Json(json!({ "id": id, "cuando": cuando, "distancia_m": distancia.map(|d| d.round()), "cruce": cruce, "foto": foto_detalle, "formulario": formulario, "simulada": simulada, "demo": demo })))
 }
 
 /// Visitas en CSV, para unirlas con las respuestas del formulario por el número de visita.
 async fn api_campo_visitas_csv(State(e): State<Compartido>, cabeceras: HeaderMap) -> Res<Response> {
     autorizar_en(&e, &cabeceras, "operadores").await?;
-    let filas = e.bd.query("SELECT v.id, to_char(v.cuando, 'YYYY-MM-DD HH24:MI'), r.nombre, v.operador, p.orden, p.lugar, p.nombre, v.latitud, v.longitud, v.precision_m, v.distancia_m, v.foto_clase, v.foto_confianza, v.coherencia, v.cruce->'cruce'->'dudas', v.notas FROM visitas_campo v JOIN paradas_campo p ON p.id = v.parada_id JOIN rutas_campo r ON r.id = p.ruta_id ORDER BY v.id", &[]).await.map_err(interno)?;
+    let filas = e.bd.query("SELECT v.id, to_char(v.cuando, 'YYYY-MM-DD HH24:MI'), r.nombre, v.operador, p.orden, p.lugar, p.nombre, v.latitud, v.longitud, v.precision_m, v.distancia_m, v.foto_clase, v.foto_confianza, v.coherencia, v.cruce->'cruce'->'dudas', v.notas, r.demo FROM visitas_campo v JOIN paradas_campo p ON p.id = v.parada_id JOIN rutas_campo r ON r.id = p.ruta_id ORDER BY v.id", &[]).await.map_err(interno)?;
     let mut w = csv::WriterBuilder::new().terminator(csv::Terminator::CRLF).from_writer(Vec::new());
-    w.write_record(["visita", "cuando", "ruta", "operador", "parada", "lugar_poblado", "nombre", "latitud", "longitud", "precision_m", "distancia_al_punto_m", "foto_clase", "foto_confianza", "coherencia", "dudas", "notas"]).map_err(interno)?;
+    w.write_record(["visita", "cuando", "ruta", "operador", "parada", "lugar_poblado", "nombre", "latitud", "longitud", "precision_m", "distancia_al_punto_m", "foto_clase", "foto_confianza", "coherencia", "dudas", "notas", "demostracion"]).map_err(interno)?;
     let t = |x: Option<f64>, d: usize| x.map(|v| format!("{v:.d$}")).unwrap_or_default();
     for f in &filas {
         let dudas = f.get::<_, Option<Value>>(14).and_then(|d| d.as_array().map(|a| a.iter().filter_map(|x| x.as_str()).collect::<Vec<_>>().join("; "))).unwrap_or_default();
         w.write_record([f.get::<_, i64>(0).to_string(), f.get(1), f.get(2), f.get(3), f.get::<_, i32>(4).to_string(), f.get(5), f.get(6), t(f.get(7), 6), t(f.get(8), 6), t(f.get::<_, Option<f32>>(9).map(f64::from), 0), t(f.get::<_, Option<f32>>(10).map(f64::from), 0),
-            f.get::<_, Option<String>>(11).unwrap_or_default(), t(f.get::<_, Option<f32>>(12).map(f64::from), 2), f.get(13), dudas, f.get(15)]).map_err(interno)?;
+            f.get::<_, Option<String>>(11).unwrap_or_default(), t(f.get::<_, Option<f32>>(12).map(f64::from), 2), f.get(13), dudas, f.get(15), if f.get::<_, bool>(16) { "sí".to_string() } else { "no".to_string() }]).map_err(interno)?;
     }
     let cuerpo = w.into_inner().map_err(interno)?;
     use axum::http::header;

@@ -19,10 +19,12 @@ const { entrar } = require('./_sesion.js');
   ok('existe el grupo «Operadores de campo» y se le asigna', !!grupo && (await api('/api/usuarios/' + uid, { grupo_id: grupo.id }))[0] === 200, grupo && grupo.secciones.join(','));
   // El coordinador arma la ruta desde la pantalla.
   await p.click('nav > button[data-s=operadores]'); await p.waitForSelector('#campocoord:not([hidden])'); await p.waitForFunction(() => document.querySelector('#crdep').options.length > 5);
-  await p.fill('#crnombre', 'Prueba de campo, Sololá'); await p.selectOption('#croperador', String(uid)); await p.selectOption('#crdep', '07'); await p.waitForFunction(() => document.querySelector('#crmun').options.length > 5); await p.selectOption('#crmun', '0701');
+  // El armado de la ruta es un asistente: operador → paradas → encuesta → revisar y crear → seguimiento.
+  await p.click('#crpasos button[data-paso="1"]'); await p.click('#crsig'); await p.waitForSelector('#aviso.mal'); ok('el asistente no deja avanzar sin operador y nombre', await p.isVisible('#crnombre'));
+  await p.fill('#crnombre', 'Prueba de campo, Sololá'); await p.selectOption('#croperador', String(uid)); await p.click('#crsig'); await p.selectOption('#crdep', '07'); await p.waitForFunction(() => document.querySelector('#crmun').options.length > 5); await p.selectOption('#crmun', '0701');
   await p.waitForSelector('#crlugares input'); const total = await p.locator('#crlugares input').count(); await p.fill('#crbuscar', 'san'); await p.waitForTimeout(200); const filtrados = await p.locator('#crlugares input').count(); await p.click('#crtodos');
-  await p.fill('#crform', 'https://ejemplo.net/encuesta?l={lugar}'); await p.click('#crcrear'); await p.waitForSelector('#aviso.mal'); ok('un formulario fuera de los servicios admitidos se rechaza', /servicios/.test(await p.textContent('#aviso')), (await p.textContent('#aviso')).slice(0, 90));
-  await p.fill('#crform', 'https://forms.office.com/r/PRUEBA?lugar={lugar}&lat={latitud}&lon={longitud}&v={visita}&op={operador}'); await p.click('#crcrear'); await p.waitForFunction(() => /Ruta creada/.test(document.querySelector('#aviso').textContent));
+  await p.click('#crsig'); await p.fill('#crform', 'https://ejemplo.net/encuesta?l={lugar}'); await p.click('#crsig'); ok('el paso 4 resume la ruta antes de crearla', /Prueba de campo/.test(await p.textContent('#crresumen')) && new RegExp('<b>' + filtrados + '</b>').test(await p.innerHTML('#crresumen'))); await p.click('#crcrear'); await p.waitForFunction(() => /servicios/.test(document.querySelector('#aviso').textContent)); ok('un formulario fuera de los servicios admitidos se rechaza', /servicios/.test(await p.textContent('#aviso')), (await p.textContent('#aviso')).slice(0, 90));
+  await p.click('#crpasos button[data-paso="3"]'); await p.fill('#crform', 'https://forms.office.com/r/PRUEBA?lugar={lugar}&lat={latitud}&lon={longitud}&v={visita}&op={operador}'); await p.click('#crpasos button[data-paso="4"]'); await p.click('#crcrear'); await p.waitForFunction(() => /Ruta creada/.test(document.querySelector('#aviso').textContent));
   const creada = await p.textContent('#aviso'); ok('la ruta se crea con las paradas marcadas y se ordena', filtrados > 1 && filtrados < total && new RegExp(filtrados + ' paradas').test(creada), `${creada} (${filtrados} de ${total} lugares)`);
   const datos = (await api('/api/campo', null, 'GET'))[1], ruta = datos.rutas.find(r => r.nombre === 'Prueba de campo, Sololá'), par = ruta.paradas;
   await p.screenshot({ path: `${dir}/101-campo-coordinacion.png`, fullPage: false });
@@ -33,26 +35,35 @@ const { entrar } = require('./_sesion.js');
   ok('el operador ve solo su menú', menu.join(',') === 'mapa,campo,acerca,perfil', menu.join(','));
   ok('el operador no puede crear rutas ni hacer otros cambios', (await apiOp('/api/campo/rutas', { nombre: 'x', operador_id: uid, lugares: [par[0].lugar] }))[0] === 403 && (await apiOp('/api/tableros', { definicion: { titulo: 'x', territorio: { nivel: 'pais' }, piezas: [{ tipo: 'tarjeta', indicador: 'poblacion_actual' }] } }))[0] === 403);
   await o.click('#menu'); await o.click('nav > button[data-s=campo]'); await o.waitForSelector('#campoparadas .parada');
-  ok('ve su ruta con las paradas en orden', (await o.locator('#campoparadas .parada').count()) === par.length && (await o.locator('#campomapa .marca-parada').count()) === par.length);
+  await o.waitForSelector('#campomapa .marca-parada'); ok('ve su ruta con las paradas en orden', (await o.locator('#campoparadas .parada').count()) === par.length && (await o.locator('#campomapa .marca-parada').count()) === par.length, (await o.locator('#campoparadas .parada').count()) + ' / ' + (await o.locator('#campomapa .marca-parada').count()) + ' de ' + par.length);
   // Visita 1: en el lugar, con foto.
   await o.locator('#campoparadas button[data-visitar]').first().click(); await o.waitForFunction(() => /del punto/.test(document.querySelector('#cvpos').textContent));
   ok('el dispositivo entrega la posición sola', /± 14 m/.test(await o.textContent('#cvpos')), (await o.textContent('#cvpos')).trim());
-  if (fotoVivienda) await o.setInputFiles('#cvfoto', fotoVivienda); else await o.setInputFiles('#cvfoto', { name: 'fachada.png', mimeType: 'image/png', buffer: await o.locator('#campomapa').screenshot() });
-  await o.waitForSelector('#cvvista img');
+  await o.click('#cvsig'); if (fotoVivienda) await o.setInputFiles('#cvfoto', fotoVivienda); else await o.setInputFiles('#cvfoto', { name: 'fachada.png', mimeType: 'image/png', buffer: await o.locator('#campomapa').screenshot() });
+  await o.waitForSelector('#cvvista img'); await o.click('#cvsig');
   await o.fill('#cvnotas', 'Vivienda de un nivel.'); await o.click('#cvregistrar'); await o.waitForSelector('#cvresultado .veredicto');
   const v1 = (await o.textContent('#cvresultado')).replace(/\s+/g, ' ').trim(); ok('la visita se registra y se cruza', /Visita n\.º \d+/.test(v1) && /posición a \d+ m del punto/.test(v1), v1.slice(0, 260));
   const enlace = await o.getAttribute('#cvabrir', 'href'); ok('el enlace a la encuesta lleva el lugar, la posición y el número de visita', new RegExp(`lugar=${par[0].lugar}&lat=\\d+\\.\\d{6}&lon=-\\d+\\.\\d{6}&v=\\d+&op=${u}$`).test(enlace), enlace);
   if (fotoVivienda) ok('la foto de una vivienda cuenta a favor', /la foto parece una vivienda/.test(v1) && /ya se descartó/.test(v1));
   await o.screenshot({ path: `${dir}/102-campo-visita-movil.png` }); await o.click('#campovisita .cerrar');
   // Con una foto de comercio en el lugar correcto, la visita se marca para revisar.
-  if (fotoComercio) { await o.locator('#campoparadas button[data-visitar]').first().click(); await o.waitForFunction(() => /del punto/.test(document.querySelector('#cvpos').textContent)); await o.setInputFiles('#cvfoto', fotoComercio); await o.waitForSelector('#cvvista img');
+  if (fotoComercio) { await o.locator('#campoparadas button[data-visitar]').first().click(); await o.waitForFunction(() => /del punto/.test(document.querySelector('#cvpos').textContent)); await o.click('#cvsig'); await o.setInputFiles('#cvfoto', fotoComercio); await o.waitForSelector('#cvvista img'); await o.click('#cvsig');
     await o.click('#cvregistrar'); await o.waitForSelector('#cvresultado .veredicto'); const vc = (await o.textContent('#cvresultado')).replace(/\s+/g, ' ');
     ok('la foto de un comercio marca la visita para revisar', /Conviene revisar/.test(vc) && /parece un comercio/.test(vc), vc.slice(0, 230)); await o.screenshot({ path: `${dir}/102b-campo-foto-comercio.png` }); await o.click('#campovisita .cerrar'); }
   // Visita 2: lejos del punto asignado.
   await ctxOp.setGeolocation({ latitude: par[1].latitud + 0.2, longitude: par[1].longitud, accuracy: 30 });
-  await o.locator('#campoparadas button[data-visitar]').nth(1).click(); await o.waitForFunction(() => /del punto/.test(document.querySelector('#cvpos').textContent)); await o.click('#cvregistrar'); await o.waitForSelector('#cvresultado .veredicto.revisar');
+  await o.locator('#campoparadas button[data-visitar]').nth(1).click(); await o.waitForFunction(() => /del punto/.test(document.querySelector('#cvpos').textContent)); await o.click('#cvsig'); await o.click('#cvsig'); await o.click('#cvregistrar'); await o.waitForSelector('#cvresultado .veredicto.revisar');
   ok('una visita lejos del lugar se marca para revisar', /km del lugar poblado asignado/.test(await o.textContent('#cvresultado')), (await o.textContent('#cvresultado .veredicto')).replace(/\s+/g, ' ').slice(0, 200));
   await o.click('#campovisita .cerrar'); await o.waitForSelector('#campoparadas .parada.revisar'); await o.screenshot({ path: `${dir}/103-campo-ruta-movil.png`, fullPage: true });
+  // Recorrido de demostración: paradas reales, dos visitas ficticias y posición simulada solo ahí.
+  await ctxOp.clearPermissions(); await o.click('#campodemo'); await o.waitForSelector('#campodemoaviso:not([hidden])'); await o.waitForSelector('#campoparadas .parada.revisar');
+  ok('la demostración trae la ruta con dos visitas de muestra', (await o.locator('#campoparadas .parada').count()) === 6 && (await o.locator('#campoparadas .parada.coherente').count()) === 1 && (await o.locator('#campoparadas .parada.revisar').count()) === 1);
+  await o.locator('#campoparadas button[data-visitar]').nth(2).click(); await o.waitForFunction(() => /Sin posición/.test(document.querySelector('#cvpos').textContent)); await o.click('#cvsimular'); await o.click('#cvsig'); await o.click('#cvsig');
+  ok('el paso 3 dice qué se va a registrar', /simulada/.test(await o.textContent('#cvresumen'))); await o.click('#cvregistrar'); await o.waitForSelector('#cvresultado .veredicto');
+  ok('en la demostración la visita se registra con posición simulada y muestra el enlace de la encuesta', /posición a \d+ m/.test(await o.textContent('#cvresultado')) && /DEMOSTRACION\?lugar=0701/.test(await o.getAttribute('#cvabrir', 'href')));
+  await o.screenshot({ path: `${dir}/105-campo-demostracion.png` }); await o.click('#campovisita .cerrar');
+  ok('fuera de la demostración no se admite posición simulada', (await apiOp('/api/campo/visitas', { parada_id: par[2].id, simulada: true }))[1].simulada === false);
+  await ctxOp.grantPermissions(['geolocation']);
   // Sin sesión no se ve nada; el coordinador ve las visitas y las descarga.
   const anon = await (await nav.newContext()).newPage(); await anon.goto(base); ok('sin sesión no hay acceso', (await pedir(anon)('/api/campo', null, 'GET'))[0] === 401 && (await pedir(anon)('/api/campo/visitas', { parada_id: par[0].id }))[0] === 401);
   await p.click('nav > button[data-s=mapa]'); await p.click('nav > button[data-s=operadores]'); await p.waitForFunction(() => /n\.º \d+/.test(document.querySelector('#tvisitas').textContent));

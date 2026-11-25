@@ -2,6 +2,18 @@
 
 Cada versión es un release de GitHub sobre el historial de commits.
 
+## v0.16.4 · 25-nov-2026
+- Mapa, dos fallos corregidos: (1) al recargar, el navegador dejaba marcadas casillas de capas que
+  no se dibujaban; ahora se aplican. (2) Tras pasar por «Lugares poblados», el mapa dejaba de
+  responder a los clics: el lienzo de los puntos quedaba encima aunque estuviera vacío; ahora se
+  retira. La capa de carreteras ya no recibe el puntero (no tapa las fichas) y la vía que está bajo
+  el puntero se nombra en la leyenda. Prueba con clic real: `mapa_capas_y_niveles.js`.
+- «Operadores de campo» es ahora un asistente de cinco pasos: operador, paradas, encuesta, revisar
+  y crear, seguimiento. El registro de una visita también va por pasos: posición, foto, registrar,
+  resultado y encuesta.
+- Recorrido de demostración en «Mi ruta de campo»: seis lugares poblados reales de Sololá y dos
+  visitas ficticias, rotuladas; solo ahí se admite una posición simulada.
+
 ## v0.16.3 · 24-nov-2026
 - Sin sesión ya no aparecen en el menú las secciones que piden entrar («Recibir envío», «Revisar
   pendientes», «Equivalencias», «Operadores de campo»), y los paneles para cargar archivos y los

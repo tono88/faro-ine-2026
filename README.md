@@ -3,7 +3,7 @@
 # FARO · Que cada dato llegue a puerto
 
 Datatón INE 2026 · Categoría 2: Tecnológica y ciencias de datos.
-Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.16.3.
+Equipo **La Sociedad de Almas**: Estuardo Sandoval · Ana Echeverría · Alejandro Sandoval. Versión 0.16.4.
 
 FARO es un portal para que el INE **pida, reciba y homologue** registros administrativos de otras
 instituciones con un formato único, y para aprovechar esos registros junto con el censo, el
@@ -120,8 +120,10 @@ Secciones: *Mapa*, *Población y crecimiento*, *Red vial*, *Seguridad alimentari
 ### 3. Trabajo de campo
 
 - **Asignación de operadores** a puestos con la menor distancia total (método húngaro, exacto).
-- **Rutas.** Quien coordina arma la ruta de cada operador con lugares poblados del censo; el
-  portal ordena las paradas para acortar el recorrido.
+- **Rutas.** Quien coordina arma la ruta de cada operador con un asistente de cinco pasos
+  (operador, paradas, encuesta, revisar y crear, seguimiento); el portal ordena las paradas.
+- **Recorrido de demostración**, para ver el proceso paso a paso sin preparar nada: lugares reales
+  de Sololá y visitas ficticias, rotuladas.
 - **Visitas desde el teléfono.** El operador entra con su usuario, ve sus paradas y registra cada
   visita: el teléfono entrega la posición, una foto del lugar se clasifica y se descarta, y se abre
   la encuesta de **Microsoft Forms** con el lugar, la posición y el número de visita ya escritos.
@@ -211,8 +213,9 @@ En el propio portal:
   por el error realmente observado en 1,020 casos.
 - **Los filtros de un tablero no se aplicaban al tablero ya creado**: ahora son una barra propia
   que actúa sobre todas las piezas, también en la vista publicada.
-- **El clic sobre el mapa dejó de abrir la ficha** en algunas pantallas: corregido y cubierto por
-  una prueba con clic real.
+- **El clic sobre el mapa dejó de abrir la ficha** en algunas pantallas, y más tarde después de ver
+  «Lugares poblados» (un lienzo vacío quedaba encima): corregido las dos veces y cubierto por
+  pruebas con clic real.
 - **Los menús por grupo no ocultaban bien sus botones**: corregido.
 - **Los pendientes mostraban observaciones de envíos analizados con reglas anteriores**: ahora
   cada pendiente dice si viene de un envío así, y el envío se vuelve a subir.

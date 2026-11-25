@@ -217,6 +217,15 @@ Agregado después (v0.16.3): visibilidad por permiso. `puede(seccion)` en `index
 `.nota-acceso`. Al agregar un panel de carga o un botón que cambie datos: ponerle `data-requiere`.
 `POST /api/balance` pide sesión. Prueba: `.faro/pruebas/visibilidad_sin_sesion.js`.
 
+Agregado después (v0.16.4): mapa: `soltarLienzos()` (un `L.canvas` vacío sigue recibiendo clics: se quita
+al cambiar de nivel o apagar una capa); `.leaflet-encima-pane canvas { pointer-events:none }` (las capas
+de lienzo de ese panel NO pueden ser interactivas; la vía bajo el puntero se nombra con
+`viaBajoElPuntero`); al cargar se aplican las casillas `#capa*` marcadas. Prueba con clic real:
+`.faro/pruebas/mapa_capas_y_niveles.js` (correrla junto a `clic_real_mapa.js` al tocar el mapa).
+Asistentes: `asistente(cont, {...})` (lista `.pasos` + bloques `.paso[data-paso]`), usado en
+`#campocoord` (5 pasos) y en el diálogo `#campovisita` (4 pasos). Demostración: `rutas_campo.demo`,
+`POST/DELETE /api/campo/demo`, `simulada` solo vale en rutas demo; siempre rotulada.
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)

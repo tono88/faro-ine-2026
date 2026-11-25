@@ -209,6 +209,11 @@ y cómo repetirlo.
    visita a 247 m del punto salió «coherente» y otra a 22 km, «conviene revisar», con la razón.
    Nada se rechaza solo: el supervisor decide.
 
+11b. **Dos fallos del mapa que las pruebas no veían.** Las casillas de capas que el navegador deja
+   marcadas al recargar no se dibujaban, y después de ver «Lugares poblados» el mapa dejaba de
+   responder: un lienzo vacío quedaba encima y se quedaba con los clics. Los reportó el equipo al
+   usar el portal; ahora hay una prueba con clic real que recorre esos pasos.
+
 ## Lo que ya no hay que hacer a mano
 
 12. **Lo que una persona decide una vez no se vuelve a preguntar**, sea un lugar ("El puerto" es San

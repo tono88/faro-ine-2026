@@ -65,7 +65,12 @@ la solicitud: vuelva a subir ese archivo y sus observaciones se actualizan.
 
 ### Trabajo de campo: de la ruta a la visita comprobada
 
-**Quien coordina** (en «Operadores de campo»):
+**Para verlo sin preparar nada:** en «Mi ruta de campo», «Cargar recorrido de demostración» trae seis
+lugares poblados reales de Sololá con dos visitas ficticias ya registradas (una que coincide y otra
+lejos del punto). En las demás paradas puede registrar una visita paso a paso; si su dispositivo no
+entrega la posición, la demostración ofrece una simulada. Todo queda rotulado como demostración.
+
+**Quien coordina** (en «Operadores de campo», un asistente de cinco pasos):
 1. Cree a cada encuestador en «Usuarios» con el rol *Operador de campo* y póngalo en el grupo
    «Operadores de campo».
 2. En «Rutas de campo y visitas» escriba el nombre de la ruta, elija el operador y el municipio, y

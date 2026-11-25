@@ -44,6 +44,7 @@
   h2 { font-size:17px; margin:0 0 8px; color:var(--azul-oscuro); } p.nota { color:var(--gris); font-size:14px; margin:6px 0 12px; max-width:95ch; }
   label { display:block; font-weight:600; margin:10px 0 4px; font-size:14px; }
   select, input[type=text], input[type=password], input[type=number], input[type=file], input[type=search], input[type=url] { width:100%; max-width:520px; padding:8px 10px; font:inherit; border:1px solid #8a96a3; border-radius:7px; background:#fff; color:var(--tinta); }
+  a.accion { background:var(--azul); color:#fff; border-radius:7px; padding:9px 16px; font-weight:600; text-decoration:none; display:inline-block; } a.accion.suave { background:var(--cielo); color:var(--azul-oscuro); } a.accion.chico { padding:6px 12px; font-size:14px; }
   button.accion { background:var(--azul); color:#fff; border:0; border-radius:7px; padding:9px 16px; font:inherit; font-weight:600; cursor:pointer; margin-top:12px; }
   button.accion:hover { background:var(--azul-oscuro); }
   button.accion:disabled { opacity:.5; cursor:wait; } button.chico { padding:4px 10px; margin:0 4px 4px 0; font-size:14px; font-weight:500; }
@@ -82,6 +83,7 @@
   .ficha-flotante .graficas { display:grid; grid-template-columns:1fr 1fr; gap:10px; } .ficha-flotante .mini { grid-template-columns:repeat(4, 1fr); } .ficha-flotante .mini b { font-size:15px; } .ficha-flotante .mini small { font-size:11px; }
   @media (max-width: 1250px) { .ficha-flotante .graficas { grid-template-columns:1fr; } .ficha-flotante .mini { grid-template-columns:1fr 1fr; } }
   .acceso .quien { display:flex; gap:8px; align-items:center; } .acceso .quien b { color:var(--azul-oscuro); } [hidden] { display:none !important; }
+  .leaflet-encima-pane canvas { pointer-events:none; }
   #aviso-clave { background:#fff7e6; border:1px solid #f3d9a4; border-radius:8px; padding:8px 12px; margin-bottom:14px; }
   .mini { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0; } .mini div { background:var(--cielo); border-radius:8px; padding:7px 9px; } .mini b { display:block; font-size:17px; color:var(--azul-oscuro); font-variant-numeric:tabular-nums; } .mini small { color:var(--gris); font-size:12px; line-height:1.3; display:block; }
   .ficha-flotante h3, dialog h3 { font-size:13px; margin:12px 0 4px; color:var(--azul-oscuro); } .ficha-flotante svg { width:100%; height:auto; display:block; }
@@ -101,6 +103,12 @@
   .pieza svg { width:100%; height:auto; display:block; } .pieza .tabla { max-height:340px; }
   .barrah { display:grid; grid-template-columns:minmax(90px, 34%) 1fr auto; gap:8px; align-items:center; font-size:13px; margin:3px 0; } .barrah i { display:block; height:14px; border-radius:3px; background:var(--azul); min-width:2px; } .barrah span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .barrah b { font-variant-numeric:tabular-nums; }
   @media (max-width: 1100px) { .tablero { grid-template-columns:repeat(2, minmax(0, 1fr)); } } @media (max-width: 700px) { .tablero { grid-template-columns:1fr; } .pieza, .pieza.tarjeta { grid-column:span 1; } }
+  .pasos { list-style:none; display:flex; flex-wrap:wrap; gap:6px; margin:0 0 14px; padding:0; counter-reset:none; } .pasos li { flex:1 1 120px; }
+  .pasos button, .pasos span { display:flex; align-items:center; gap:8px; width:100%; border:1px solid var(--borde); background:#fff; border-radius:22px; padding:6px 12px 6px 6px; font:inherit; font-size:13.5px; color:var(--gris); cursor:pointer; text-align:left; min-height:36px; } .pasos span { cursor:default; }
+  .pasos b { flex:none; width:24px; height:24px; border-radius:50%; background:#e3e8ee; color:var(--gris); display:grid; place-items:center; font-size:12.5px; }
+  .pasos button[aria-current=step] { border-color:var(--azul); color:var(--azul-oscuro); font-weight:600; background:var(--cielo); } .pasos button[aria-current=step] b { background:var(--azul); color:#fff; }
+  .pasos button.hecho b { background:var(--ok); color:#fff; } .pasos button:disabled { opacity:.55; cursor:default; }
+  .paso > h2, .paso > h3 { margin-top:0; } .pasos-nav { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:16px; border-top:1px solid var(--borde); padding-top:12px; } .pasos-nav .accion { margin:0; }
   .paradas { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px; margin-bottom:16px; }
   .parada { background:#fff; border:1px solid var(--borde); border-left:5px solid #c2c9d2; border-radius:var(--radio); padding:12px 14px; display:flex; flex-direction:column; gap:4px; } .parada.coherente { border-left-color:var(--ok); } .parada.revisar { border-left-color:#f5a623; } .parada.sin_datos { border-left-color:var(--celeste); }
   .parada h3 { margin:0; font-size:15px; color:var(--azul-oscuro); } .parada small { color:var(--gris); } .parada .acc { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; } .parada .acc .accion { margin:0; text-decoration:none; }
@@ -253,7 +261,7 @@
         <div class="panel">
           <h2>Capas</h2>
           <label class="opcion"><input type="checkbox" id="capavias"> Carreteras principales y secundarias, por tipo y superficie</label>
-          <p class="nota" id="leyendavias" hidden style="margin:2px 0 6px 26px"><b style="color:#b3261e">━</b> principal · <b style="color:#c77700">━</b> secundaria · <b style="color:#c77700">┅</b> sin pavimentar · <b style="color:#8a96a3">━</b> superficie sin anotar. Toque una vía para ver su nombre y tipo.</p>
+          <p class="nota" id="leyendavias" hidden style="margin:2px 0 6px 26px"><b style="color:#b3261e">━</b> principal · <b style="color:#c77700">━</b> secundaria · <b style="color:#c77700">┅</b> sin pavimentar · <b style="color:#8a96a3">━</b> superficie sin anotar. Pase el puntero sobre una vía para ver su nombre y tipo. <b id="viacerca" style="display:block;color:var(--azul-oscuro)"></b></p>
           <label class="opcion"><input type="checkbox" id="capaenlaces"> Enlaces viales que probablemente faltan, con los caminos ya mapeados a su alrededor</label>
           <label class="opcion"><input type="checkbox" id="capalugares"> Lugares poblados sin conexión vial</label>
           <label class="opcion"><input type="checkbox" id="capahuella"> Huella construida, bloques de 1 km (satélite)</label>
@@ -363,44 +371,58 @@
   </section>
 
   <section id="operadores">
-    <div class="panel">
-      <h2>Asignar operadores de campo al puesto más conveniente</h2>
+    <div class="titulo"><h2>Operadores de campo: de la ruta a la visita comprobada</h2><p>Un asistente de cinco pasos. Los cuatro primeros arman la ruta de un operador; el quinto es el seguimiento de lo que va registrando en campo. Puede ir y volver entre pasos: nada se guarda hasta «Crear la ruta».</p></div>
+    <div class="panel con-sesion" id="campocoord" hidden>
+      <ol class="pasos" id="crpasos" aria-label="Pasos para armar una ruta">
+        <li><button type="button" data-paso="1"><b>1</b> Operador</button></li><li><button type="button" data-paso="2"><b>2</b> Paradas</button></li><li><button type="button" data-paso="3"><b>3</b> Encuesta</button></li>
+        <li><button type="button" data-paso="4"><b>4</b> Revisar y crear</button></li><li><button type="button" data-paso="5"><b>5</b> Seguimiento</button></li></ol>
+      <div class="paso" data-paso="1"><h2>Paso 1 · ¿Para quién es la ruta?</h2>
+        <p class="nota">Cada encuestador entra con su propio usuario. Si todavía no existe, créelo en «Usuarios» con el rol <b>Operador de campo</b> y póngalo en el grupo «Operadores de campo».</p>
+        <div class="filtros"><div><label for="croperador">Operador</label><select id="croperador"></select></div>
+          <div style="flex:2 1 260px"><label for="crnombre">Nombre de la ruta</label><input type="text" id="crnombre" maxlength="120" placeholder="Por ejemplo: Encuesta de hogares, Sololá, semana 48" style="max-width:none"></div></div>
+        <details class="como"><summary>Antes de armar rutas: repartir operadores entre puestos (opcional)</summary>
       <p class="nota">Reparte a los operadores entre los puestos de modo que la suma de distancias casa–puesto sea la menor posible (cálculo exacto). La distancia es en línea recta entre centroides de lugares poblados del Censo 2018, no por carretera. Dónde vive cada operador no se guarda en el servidor.</p>
       <label for="csvops">Operadores (CSV: operador, lugar; o operador, longitud, latitud)</label><input type="file" id="csvops" accept=".csv">
       <label for="csvpuestos">Puestos (CSV: puesto, lugar, operadores)</label><input type="file" id="csvpuestos" accept=".csv">
       <p class="nota"><code>lugar</code> es el código de lugar poblado del INE (siete dígitos). Use un identificador en vez del nombre del operador. Para probar: <a href="/ejemplos/operadores_ficticios.csv">operadores de ejemplo</a> y <a href="/ejemplos/puestos_ficticios.csv">puestos de ejemplo</a> (ficticios).</p>
       <button class="accion" id="asignar">Calcular asignación</button>
-    </div>
-    <div class="panel" id="asigres" hidden>
-      <div class="tarjetas" id="asigtarjetas"></div>
+
+          <div id="asigres" hidden style="margin-top:12px"><div class="tarjetas" id="asigtarjetas"></div>
       <p class="nota" id="asignota"></p>
       <button class="accion chico" id="asigcsv">Descargar CSV</button>
       <div class="tabla" style="margin-top:12px"><table id="tasig"></table></div>
       <p class="proc" data-proc="operadores"></p>
-    </div>
-    <div class="panel con-sesion" id="campocoord" hidden>
-      <h2>Rutas de campo y visitas</h2>
-      <p class="nota">Cada operador entra con su usuario, ve su ruta en «Mi ruta de campo» y registra cada visita: el teléfono entrega la posición, la foto del lugar se clasifica y se descarta, y se abre la encuesta con el lugar y la posición ya escritos. Aquí se arman las rutas y se revisan las visitas. Las paradas son lugares poblados del Censo 2018; el orden lo propone el portal para acortar el recorrido (en línea recta, no por carretera).</p>
-      <div class="filtros">
-        <div style="flex:2 1 240px"><label for="crnombre">Nombre de la ruta</label><input type="text" id="crnombre" maxlength="120" placeholder="Por ejemplo: Encuesta de hogares, Sololá, semana 48" style="max-width:none"></div>
-        <div><label for="croperador">Operador</label><select id="croperador"></select></div>
-        <div><label for="crdep">Departamento</label><select id="crdep"></select></div>
-        <div><label for="crmun">Municipio</label><select id="crmun" disabled></select></div>
+</div></details>
       </div>
-      <label for="crform">Dirección del formulario de la encuesta (opcional)</label><input type="url" id="crform" maxlength="1500" placeholder="https://forms.office.com/r/…?r1={lugar}&amp;r2={latitud}&amp;r3={longitud}" style="max-width:none">
-      <details class="como"><summary>Cómo conectar Microsoft Forms</summary><ol>
+      <div class="paso" data-paso="2" hidden><h2>Paso 2 · ¿Qué lugares debe visitar?</h2>
+        <p class="nota">Las paradas son lugares poblados del Censo 2018. Elija el municipio y marque los lugares; el orden de visita lo propone el portal para acortar el recorrido (en línea recta, no por carretera).</p>
+        <div class="filtros"><div><label for="crdep">Departamento</label><select id="crdep"></select></div><div><label for="crmun">Municipio</label><select id="crmun" disabled></select></div></div>
+        <label>Lugares poblados del municipio <span class="nota" id="crcuenta"></span></label>
+        <input type="search" id="crbuscar" placeholder="Filtrar por nombre" aria-label="Filtrar lugares poblados" style="max-width:320px"> <button class="accion chico suave" id="crtodos" type="button">Marcar los que se ven</button> <button class="accion chico suave" id="crninguno" type="button">Quitar todos</button>
+        <div class="casillas" id="crlugares" style="max-height:240px;overflow:auto;border:1px solid var(--borde);border-radius:8px;margin-top:6px"><span class="nota">Elija un municipio.</span></div>
+      </div>
+      <div class="paso" data-paso="3" hidden><h2>Paso 3 · ¿Dónde está la encuesta?</h2>
+        <p class="nota">Opcional. Si la encuesta está en Microsoft Forms, pegue su dirección: al registrar cada visita, el operador la abre con el lugar, la posición y el número de visita ya escritos. Si lo deja vacío, la ruta sirve igual para registrar visitas.</p>
+        <label for="crform">Dirección del formulario</label><input type="url" id="crform" maxlength="1500" placeholder="https://forms.office.com/r/…?r1={lugar}&amp;r2={latitud}&amp;r3={longitud}" style="max-width:none">
+        <details class="como"><summary>Cómo conectar Microsoft Forms</summary><ol>
         <li>En Microsoft Forms abra la encuesta, menú «…» → <b>Obtener dirección URL rellenada previamente</b> (o «Get Pre-filled URL»).</li>
         <li>Escriba en las preguntas de control un texto que reconozca (por ejemplo LUGAR, LATITUD, LONGITUD, VISITA) y copie el enlace.</li>
         <li>Péguelo aquí y cambie cada texto por su marcador: <code>{lugar}</code> (código INE del lugar poblado), <code>{nombre}</code>, <code>{municipio}</code>, <code>{latitud}</code>, <code>{longitud}</code>, <code>{precision}</code> (metros), <code>{operador}</code>, <code>{fecha}</code> y <code>{visita}</code> (número de la visita en FARO).</li>
         <li>Al registrar la visita, el operador recibe el enlace ya lleno. Las respuestas de Forms traen el número de visita, así que se unen con la tabla de visitas de FARO (botón «Descargar visitas»).</li></ol>
         <p class="nota">FARO no lee las respuestas del formulario: para eso haría falta una cuenta de Microsoft 365 del INE. Servicios admitidos: <span id="crservicios"></span> (se cambian con <code>FARO_FORMULARIOS</code>).</p></details>
-      <label>Paradas: lugares poblados del municipio <span class="nota" id="crcuenta"></span></label>
-      <input type="search" id="crbuscar" placeholder="Filtrar por nombre" aria-label="Filtrar lugares poblados" style="max-width:320px"> <button class="accion chico suave" id="crtodos" type="button">Marcar los que se ven</button> <button class="accion chico suave" id="crninguno" type="button">Quitar todos</button>
-      <div class="casillas" id="crlugares" style="max-height:220px;overflow:auto;border:1px solid var(--borde);border-radius:8px;margin-top:6px"><span class="nota">Elija un municipio.</span></div>
-      <button class="accion" id="crcrear">Crear ruta</button> <a class="accion suave" id="crcsv" href="/api/campo/visitas.csv" style="text-decoration:none;display:inline-block">Descargar visitas (CSV)</a>
-      <h3>Rutas</h3><div class="tabla"><table id="trutas"></table></div>
-      <h3>Visitas registradas</h3><div class="tabla"><table id="tvisitas"></table></div>
-      <p class="nota" id="crmodelo"></p>
+</div>
+      <div class="paso" data-paso="4" hidden><h2>Paso 4 · Revise y cree la ruta</h2>
+        <div id="crresumen"></div>
+        <p style="margin:12px 0 0"><button class="accion" id="crcrear">Crear la ruta</button></p>
+      </div>
+      <div class="paso" data-paso="5" hidden><h2>Paso 5 · Seguimiento</h2>
+        <p class="nota">Lo que cada operador va registrando desde «Mi ruta de campo». Una visita marcada «conviene revisar» trae su razón; decide quien coordina.</p>
+        <h3 style="margin-top:0">Rutas</h3><div class="tabla"><table id="trutas"></table></div>
+        <h3>Visitas registradas</h3><div class="tabla"><table id="tvisitas"></table></div>
+        <p style="margin:10px 0 0"><a class="accion suave" id="crcsv" href="/api/campo/visitas.csv" style="text-decoration:none;display:inline-block">Descargar visitas (CSV)</a> <button class="accion suave" id="crdemo" type="button">Ver un recorrido de demostración</button></p>
+        <p class="nota" id="crmodelo"></p>
+      </div>
+      <div class="pasos-nav"><button class="accion suave" id="cratras" type="button">← Anterior</button><span class="nota" id="crdonde"></span><button class="accion" id="crsig" type="button">Siguiente →</button></div>
     </div>
   </section>
   <section id="campo">
@@ -408,7 +430,9 @@
     <div class="aviso-suave" id="campoinseguro" hidden>Esta página se abrió sin conexión segura (HTTPS): los teléfonos no entregan la posición a páginas sin HTTPS. Puede registrar la visita, pero quedará marcada «sin posición». Pida a quien administra el portal que lo publique con HTTPS.</div>
     <div class="panel">
       <div class="filtros" style="align-items:flex-end"><div style="flex:1 1 260px"><label for="camporuta" style="margin-top:0">Ruta</label><select id="camporuta" style="max-width:none"></select></div>
-        <div><button class="accion chico suave" id="campoubicar" style="margin:0">Ver dónde estoy</button></div></div>
+        <div><button class="accion chico suave" id="campoubicar" style="margin:0">Ver dónde estoy</button> <button class="accion chico suave" id="campodemo" style="margin:0">Cargar recorrido de demostración</button> <button class="accion chico suave" id="campodemofuera" style="margin:0" hidden>Quitar la demostración</button></div></div>
+      <div class="aviso-suave" id="campodemoaviso" hidden><b>Recorrido de demostración.</b> Los lugares son lugares poblados reales de Sololá; las dos visitas ya registradas y el formulario son ficticios, para ver el proceso paso a paso. Pruebe «Registrar visita» en una parada pendiente: si su dispositivo no entrega la posición, puede usar una simulada. Estas visitas salen rotuladas como demostración en la tabla.</div>
+      <ol class="pasos solo-lectura" aria-label="Cómo es una visita"><li><span><b>1</b> Ver la ruta</span></li><li><span><b>2</b> Llegar a la parada</span></li><li><span><b>3</b> Posición y foto</span></li><li><span><b>4</b> Resultado del cruce</span></li><li><span><b>5</b> Abrir la encuesta</span></li></ol>
       <div class="tarjetas" id="campotarjetas" style="margin-top:12px"></div>
       <div id="campomapa" style="height:340px;border-radius:var(--radio);border:1px solid var(--borde);margin-top:12px" role="img" aria-label="Mapa de la ruta"></div>
       <p class="nota" id="camponota"></p>
@@ -654,15 +678,17 @@
 <dialog id="campovisita" aria-labelledby="cvtitulo"><button class="cerrar" aria-label="Cerrar" onclick="this.closest('dialog').close()">×</button>
   <h2 id="cvtitulo" style="margin-right:30px">Registrar visita</h2>
   <p class="nota" id="cvlugar" style="margin-top:0"></p>
-  <div id="cvpaso">
-    <h3>1 · Posición</h3><p id="cvpos" class="nota" aria-live="polite">Pidiendo la posición al dispositivo…</p><button class="accion chico suave" id="cvreintentar" type="button">Volver a pedir la posición</button>
-    <h3>2 · Foto del lugar (opcional)</h3>
+  <ol class="pasos" id="cvpasos" aria-label="Pasos para registrar la visita"><li><button type="button" data-paso="1"><b>1</b> Posición</button></li><li><button type="button" data-paso="2"><b>2</b> Foto</button></li><li><button type="button" data-paso="3"><b>3</b> Registrar</button></li><li><button type="button" data-paso="4" disabled><b>4</b> Resultado y encuesta</button></li></ol>
+  <div class="paso" data-paso="1"><h3>Paso 1 · ¿Dónde está?</h3><p class="nota" style="margin-top:0">El teléfono entrega su posición; la primera vez pide permiso.</p>
+    <p id="cvpos" aria-live="polite">Pidiendo la posición al dispositivo…</p><button class="accion chico suave" id="cvreintentar" type="button">Volver a pedir la posición</button> <button class="accion chico suave" id="cvsimular" type="button" hidden>Usar una posición simulada (demostración)</button></div>
+  <div class="paso" data-paso="2" hidden><h3>Paso 2 · Foto del lugar (opcional)</h3>
     <p class="nota" style="margin-top:0">Fotografíe la fachada, sin personas. La foto se reduce en su teléfono, se clasifica en el servidor (vivienda, comercio u otra cosa) y se descarta: no se guarda.</p>
-    <input type="file" id="cvfoto" accept="image/*" capture="environment" aria-label="Foto del lugar"><div id="cvvista"></div>
-    <h3>3 · Observación (opcional)</h3><textarea id="cvnotas" rows="2" maxlength="500" placeholder="Sin nombres ni datos de personas" aria-label="Observación"></textarea>
-    <p style="margin:12px 0 0"><button class="accion" id="cvregistrar" type="button">Registrar visita</button></p>
-  </div>
-  <div id="cvresultado" aria-live="polite"></div>
+    <input type="file" id="cvfoto" accept="image/*" capture="environment" aria-label="Foto del lugar"><div id="cvvista"></div></div>
+  <div class="paso" data-paso="3" hidden><h3>Paso 3 · Observación y registro</h3><div id="cvresumen" class="nota"></div>
+    <label for="cvnotas">Observación (opcional)</label><textarea id="cvnotas" rows="2" maxlength="500" placeholder="Sin nombres ni datos de personas"></textarea>
+    <p style="margin:12px 0 0"><button class="accion" id="cvregistrar" type="button">Registrar visita</button></p></div>
+  <div class="paso" data-paso="4" hidden><h3>Paso 4 · Resultado y encuesta</h3><div id="cvresultado" aria-live="polite"></div></div>
+  <div class="pasos-nav" id="cvnav"><button class="accion suave" id="cvatras" type="button">← Anterior</button><span></span><button class="accion" id="cvsig" type="button">Siguiente →</button></div>
 </dialog>
 <dialog id="detalle" aria-labelledby="dettitulo"><button class="cerrar" aria-label="Cerrar" onclick="this.closest('dialog').close()">×</button><div id="detcuerpo"></div></dialog>
 <div id="aviso" role="status"></div>
@@ -986,6 +1012,7 @@ async function cambiarNivel(n, enfocar) {
   }
   [[capaDep, 'departamento'], [capaNivelLugar, 'lugar']].forEach(([c, k]) => { if (c) n === k ? c.addTo(mapa) : mapa.removeLayer(c); });
   n === 'departamento' ? mapa.removeLayer(capaMuni) : capaMuni.addTo(mapa);
+  soltarLienzos();
   if (n === 'lugar') capaNivelLugar.bringToFront();
   if (enfocar) mapa.fitBounds(enfocar.getBounds(), {maxZoom: 12}); else if (n === 'departamento') mapa.fitBounds(capaDep.getBounds());
   if (n === 'departamento' && aislado?.tipo === 'municipio') aislado = null;
@@ -1214,16 +1241,26 @@ async function iniciarMapa() {
     capa.on({click: () => ficha(f.properties).catch(x => aviso(x.message, true)), mouseover: () => capa.setStyle({weight:2.2, color:'#07306b'}), mouseout: () => capa.setStyle(!dentro(f.properties) ? FUERA : nivel === 'lugar' ? {weight:.7, color:'#9fb3c8'} : {weight:.6, color:'#fff'})}); }}).addTo(mapa);
   mapa.fitBounds(capaMuni.getBounds()); pintarMapa();
 }
-async function capaOpcional(marcada, actual, crear) { if (!mapa) return actual; if (!marcada) { if (actual) mapa.removeLayer(actual); return actual; } if (!actual) actual = await crear(); actual.addTo(mapa); return actual; }
+// Un lienzo (capa dibujada en «canvas») sigue ocupando el mapa aunque ya no tenga nada dibujado, y se
+// queda con los clics que iban para los polígonos de abajo. Al quitar una capa se retiran los lienzos vacíos.
+function soltarLienzos() { if (!mapa) return; mapa.eachLayer(c => { if (c instanceof L.Canvas && !Object.keys(c._layers || {}).length) mapa.removeLayer(c); }); }
+async function capaOpcional(marcada, actual, crear) { if (!mapa) return actual; if (!marcada) { if (actual) mapa.removeLayer(actual); soltarLienzos(); return actual; } if (!actual) actual = await crear(); actual.addTo(mapa); return actual; }
 $('#indicador').onchange = pintarMapa;
 // Carreteras por tipo y superficie. Grosor = jerarquía; color = clase; trazo continuo = pavimentada,
 // punteado = sin pavimentar, gris = nadie anotó la superficie en el mapa.
 let capaVias;
 const NOMBRE_VIA = {motorway:'Autopista', trunk:'Troncal', primary:'Primaria', secondary:'Secundaria', tertiary:'Terciaria'}, NOMBRE_SUPERFICIE = {pavimentada:'pavimentada', sin_pavimentar:'sin pavimentar', sin_dato:'superficie sin anotar en el mapa'};
-$('#capavias').onchange = async e => { capaVias = await capaOpcional(e.target.checked, capaVias, async () => { const g = await (await fetch('/capas/red_vial_principal.geojson')).json(), lienzoVias = L.canvas({padding:.3, pane:'encima'});
-  return L.geoJSON(g, {renderer: lienzoVias, style: f => { const p = f.properties, pri = p.clase === 'principal'; return {color: p.superficie === 'sin_dato' ? '#8a96a3' : pri ? '#b3261e' : '#c77700', weight: pri ? 3 : 1.6, opacity:.95, dashArray: p.superficie === 'sin_pavimentar' ? '5 5' : null}; },
-    onEachFeature: (f, c) => c.bindPopup(`<b>${esc(f.properties.nombre || 'Vía sin nombre en el mapa')}</b><br>${esc(NOMBRE_VIA[f.properties.tipo.replace('_link', '')] || f.properties.tipo)} · ${NOMBRE_SUPERFICIE[f.properties.superficie]}<br><small>© colaboradores de OpenStreetMap</small>`)}); });
-  $('#leyendavias').hidden = !e.target.checked; };
+let geoVias = null;
+$('#capavias').onchange = async e => { capaVias = await capaOpcional(e.target.checked, capaVias, async () => { geoVias = await (await fetch('/capas/red_vial_principal.geojson')).json();
+  // Caja de cada tramo, para buscar rápido cuál está bajo el puntero.
+  geoVias.features.forEach(f => { let a = 180, b = 90, c = -180, d = -90; f.geometry.coordinates.forEach(([x, y]) => { a = Math.min(a, x); b = Math.min(b, y); c = Math.max(c, x); d = Math.max(d, y); }); f.caja = [a, b, c, d]; });
+  return L.geoJSON(geoVias, {renderer: L.canvas({padding:.3, pane:'encima'}), interactive: false, style: f => { const p = f.properties, pri = p.clase === 'principal'; return {color: p.superficie === 'sin_dato' ? '#8a96a3' : pri ? '#b3261e' : '#c77700', weight: pri ? 3 : 1.6, opacity:.95, dashArray: p.superficie === 'sin_pavimentar' ? '5 5' : null}; }}); });
+  $('#leyendavias').hidden = !e.target.checked; $('#viacerca').textContent = ''; };
+// La capa no recibe clics (para no tapar las fichas): la vía que está bajo el puntero se nombra en la leyenda.
+function viaBajoElPuntero(ev) { if (!geoVias || !capaVias || !mapa.hasLayer(capaVias)) return; const p = mapa.latLngToContainerPoint(ev.latlng), m = mapa.containerPointToLatLng([p.x + 7, p.y + 7]), tol = Math.max(Math.abs(m.lng - ev.latlng.lng), Math.abs(m.lat - ev.latlng.lat)), x = ev.latlng.lng, y = ev.latlng.lat; let mejor = null, dmin = tol * tol;
+  for (const f of geoVias.features) { const c = f.caja; if (x < c[0] - tol || x > c[2] + tol || y < c[1] - tol || y > c[3] + tol) continue; const g = f.geometry.coordinates;
+    for (let i = 1; i < g.length; i++) { const ax = g[i - 1][0], ay = g[i - 1][1], bx = g[i][0] - ax, by = g[i][1] - ay, t = Math.max(0, Math.min(1, ((x - ax) * bx + (y - ay) * by) / (bx * bx + by * by || 1))), d = (x - ax - t * bx) ** 2 + (y - ay - t * by) ** 2; if (d < dmin) { dmin = d; mejor = f.properties; } } }
+  $('#viacerca').textContent = mejor ? `Bajo el puntero: ${mejor.nombre || 'vía sin nombre en el mapa'} · ${(NOMBRE_VIA[mejor.tipo.replace('_link', '')] || mejor.tipo).toLowerCase()} · ${NOMBRE_SUPERFICIE[mejor.superficie]}.` : ''; }
 $('#capaenlaces').onchange = async e => { capaEnlaces = await capaOpcional(e.target.checked, capaEnlaces, async () => {
   const [enl, ctx] = await Promise.all([fetch('/capas/red_vial_enlaces.geojson').then(x => x.json()), fetch('/capas/red_vial_contexto.geojson').then(x => x.ok ? x.json() : {type:'FeatureCollection', features:[]})]);
   // Primero los caminos ya mapeados (gris oscuro: red principal; morado: tramo suelto); encima, el enlace propuesto.
@@ -1583,6 +1620,15 @@ $('#tabpublicados').onclick = clicGaleria; $('#tabborradores').onclick = clicGal
 // Enlace directo a un tablero: /#tablero=12 abre la vista publicada.
 async function abrirDeEnlace() { const m = /^#tablero=(\d+)$/.exec(location.hash); if (!m) return false; document.querySelector('nav button[data-s=tableros]').click(); try { await abrirGuardado(m[1], false); } catch (x) { aviso(x.message, true); } return true; }
 window.addEventListener('hashchange', abrirDeEnlace);
+// ---- Asistente por pasos (se usa para armar una ruta y para registrar una visita) ----
+// `cont` contiene una lista .pasos y bloques .paso[data-paso]; `alCambiar(n)` permite pintar el paso al llegar.
+function asistente(cont, {validar = () => true, alCambiar = () => {}, anterior, siguiente} = {}) { let actual = 1; const total = cont.querySelectorAll(':scope > .paso').length;
+  const ir = n => { n = Math.max(1, Math.min(total, n)); for (let k = actual; k < n; k++) { const falta = validar(k, n); if (falta !== true) { aviso(falta, true); n = k; break; } } actual = n;
+    cont.querySelectorAll(':scope > .paso').forEach(p => p.hidden = +p.dataset.paso !== actual); cont.querySelectorAll(':scope > .pasos button').forEach(b => { +b.dataset.paso === actual ? b.setAttribute('aria-current', 'step') : b.removeAttribute('aria-current'); b.classList.toggle('hecho', +b.dataset.paso < actual); });
+    if (anterior) anterior.disabled = actual === 1; if (siguiente) siguiente.hidden = actual >= total; alCambiar(actual, total); };
+  cont.querySelector(':scope > .pasos').onclick = e => { const b = e.target.closest('button[data-paso]'); if (b && !b.disabled) ir(+b.dataset.paso); };
+  if (anterior) anterior.onclick = () => ir(actual - 1); if (siguiente) siguiente.onclick = () => ir(actual + 1);
+  return {ir, paso: () => actual}; }
 // ---- Trabajo de campo: ruta del operador, registro de visitas y coordinación ----
 // La posición la entrega el propio teléfono (API de geolocalización del navegador) en el momento de
 // registrar la visita; la foto se reduce aquí mismo antes de enviarla y el servidor no la guarda.
@@ -1591,13 +1637,13 @@ const NOMBRE_CRUCE = {coherente:'Coherente', revisar:'Conviene revisar', sin_dat
 const metros = d => d == null ? '—' : d < 1000 ? num(Math.round(d)) + ' m' : num(d / 1000) + ' km';
 const rutaActual = () => campoDatos && campoDatos.rutas.find(r => String(r.id) === $('#camporuta').value);
 async function campo() {
-  campoDatos = await api('/api/campo'); $('#campoinseguro').hidden = window.isSecureContext;
+  campoDatos = await api('/api/campo'); $('#campoinseguro').hidden = window.isSecureContext; $('#campodemofuera').hidden = !campoDatos.rutas.some(r => r.demo && yo && r.operador_id === yo.id);
   const sel = $('#camporuta'), antes = sel.value; sel.innerHTML = campoDatos.rutas.map(r => `<option value="${r.id}">${esc(r.nombre)}${campoDatos.coordina ? ' · ' + esc(r.operador) : ''}</option>`).join(''); if (antes && campoDatos.rutas.some(r => String(r.id) === antes)) sel.value = antes;
   pintarRuta();
 }
 function pintarRuta() {
-  const r = rutaActual(), cont = $('#campoparadas');
-  if (!r) { $('#campotarjetas').innerHTML = ''; cont.innerHTML = '<div class="panel"><p class="nota" style="margin:0">Todavía no tiene una ruta asignada. Las rutas las arma quien coordina el trabajo de campo, en «Operadores de campo».</p></div>'; $('#camponota').textContent = ''; if (campoCapa) campoCapa.clearLayers(); return; }
+  const r = rutaActual(), cont = $('#campoparadas'); $('#campodemoaviso').hidden = !(r && r.demo);
+  if (!r) { $('#campotarjetas').innerHTML = ''; cont.innerHTML = '<div class="panel"><p class="nota" style="margin:0">Todavía no tiene una ruta asignada. Las rutas las arma quien coordina el trabajo de campo, en «Operadores de campo». Para ver cómo funciona, use «Cargar recorrido de demostración».</p></div>'; $('#camponota').textContent = ''; if (campoCapa) campoCapa.clearLayers(); return; }
   const hechas = r.paradas.filter(p => p.visita), revisar = hechas.filter(p => p.visita.coherencia === 'revisar').length;
   $('#campotarjetas').innerHTML = [[r.paradas.length, 'paradas'], [hechas.length, 'visitadas'], [revisar, 'por revisar'], [num(r.largo_km) + ' km', 'recorrido en línea recta']].map(([n, t]) => `<div class="tarjeta"><b>${n}</b><small>${t}</small></div>`).join('');
   $('#camponota').textContent = `Ruta de ${r.operador}, creada el ${r.creada} por ${r.creada_por}. ${r.con_formulario ? 'Tiene formulario: al registrar cada visita se abre la encuesta con el lugar y la posición ya escritos.' : 'No tiene formulario asociado.'}`;
@@ -1622,15 +1668,22 @@ function pedirPosicion() { return new Promise((bien, mal) => {
   navigator.geolocation.getCurrentPosition(p => bien({lat: p.coords.latitude, lon: p.coords.longitude, precision: p.coords.accuracy}),
     e => mal(new Error(e.code === 1 ? 'no dio permiso para usar la posición' : e.code === 3 ? 'el dispositivo tardó demasiado en dar la posición' : 'no se pudo obtener la posición')), {enableHighAccuracy: true, timeout: 20000, maximumAge: 0}); }); }
 $('#camporuta').onchange = pintarRuta;
+async function cargarDemostracion() { const r = await api('/api/campo/demo', {method:'POST'}); await campo(); $('#camporuta').value = String(r.ruta); pintarRuta(); aviso('Recorrido de demostración cargado: lugares reales, visitas ficticias.'); }
+$('#campodemo').onclick = () => cargarDemostracion().catch(x => aviso(x.message, true));
+$('#campodemofuera').onclick = async () => { try { await api('/api/campo/demo', {method:'DELETE'}); aviso('Demostración quitada.'); await campo(); } catch (x) { aviso(x.message, true); } };
 $('#campoubicar').onclick = async () => { try { const p = await pedirPosicion(); campoYo = [p.lat, p.lon]; pintarRuta(); aviso(`Posición recibida (± ${num(Math.round(p.precision))} m).`); } catch (x) { aviso('Sin posición: ' + x.message + '.', true); } };
 async function posicionDeVisita() { const r = rutaActual(), p = r && r.paradas.find(x => x.id === cvParada); $('#cvpos').textContent = 'Pidiendo la posición al dispositivo…';
-  try { cvPos = await pedirPosicion(); campoYo = [cvPos.lat, cvPos.lon]; const d = p ? distanciaM([cvPos.lon, cvPos.lat], [p.longitud, p.latitud]) : null;
+  cvSimulada = false; try { cvPos = await pedirPosicion(); campoYo = [cvPos.lat, cvPos.lon]; const d = p ? distanciaM([cvPos.lon, cvPos.lat], [p.longitud, p.latitud]) : null;
     $('#cvpos').innerHTML = `<b>${cvPos.lat.toFixed(5)}, ${cvPos.lon.toFixed(5)}</b> (± ${num(Math.round(cvPos.precision))} m)${d == null ? '' : ' · a ' + metros(d) + ' del punto del lugar poblado'}`; }
-  catch (x) { cvPos = null; $('#cvpos').innerHTML = `<span style="color:var(--alerta)">Sin posición: ${esc(x.message)}.</span> Puede registrar la visita igual; quedará marcada para revisar.`; } }
+  catch (x) { cvPos = null; $('#cvpos').innerHTML = `<span style="color:var(--alerta)">Sin posición: ${esc(x.message)}.</span> Puede registrar la visita igual; quedará marcada para revisar.${rutaActual()?.demo ? ' En la demostración puede usar una posición simulada.' : ''}`; } }
 const distanciaM = (a, b) => { const R = 6371008.8, r = Math.PI / 180, dlat = (b[1] - a[1]) * r, dlon = (b[0] - a[0]) * r, h = Math.sin(dlat / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin(dlon / 2) ** 2; return 2 * R * Math.asin(Math.min(1, Math.sqrt(h))); };
-$('#campoparadas').onclick = e => { const b = e.target.closest('button[data-visitar]'); if (!b) return; const r = rutaActual(), p = r.paradas.find(x => x.id === +b.dataset.visitar); cvParada = p.id; cvPos = null; cvFoto = '';
-  $('#cvlugar').textContent = `${p.orden}. ${p.nombre}, ${p.municipio || ''} · lugar poblado ${p.lugar}`; $('#cvfoto').value = ''; $('#cvvista').innerHTML = ''; $('#cvnotas').value = ''; $('#cvresultado').innerHTML = ''; $('#cvpaso').hidden = false; $('#cvregistrar').disabled = false;
+let cvSimulada = false, cvAsistente = null;
+function resumenDeVisita() { $('#cvresumen').innerHTML = `Va a registrar: posición ${cvSimulada ? '<b>simulada (demostración)</b>' : cvPos ? `<b>${cvPos.lat.toFixed(5)}, ${cvPos.lon.toFixed(5)}</b> (± ${num(Math.round(cvPos.precision))} m)` : '<b style="color:var(--alerta)">sin posición</b>'} · foto ${cvFoto ? '<b>lista</b>' : '<b>sin foto</b>'}.`; }
+$('#campoparadas').onclick = e => { const b = e.target.closest('button[data-visitar]'); if (!b) return; const r = rutaActual(), p = r.paradas.find(x => x.id === +b.dataset.visitar); cvParada = p.id; cvPos = null; cvFoto = ''; cvSimulada = false;
+  $('#cvlugar').textContent = `${p.orden}. ${p.nombre}, ${p.municipio || ''} · lugar poblado ${p.lugar}`; $('#cvfoto').value = ''; $('#cvvista').innerHTML = ''; $('#cvnotas').value = ''; $('#cvresultado').innerHTML = ''; $('#cvregistrar').disabled = false; $('#cvsimular').hidden = !r.demo; $('#cvnav').hidden = false; [1, 2, 3].forEach(k => $(`#cvpasos button[data-paso="${k}"]`).disabled = false);
+  cvAsistente = asistente($('#campovisita'), {anterior: $('#cvatras'), siguiente: $('#cvsig'), alCambiar: n => { if (n === 3) resumenDeVisita(); $('#cvsig').hidden = n >= 3; }}); $('#cvpasos button[data-paso="4"]').disabled = true; cvAsistente.ir(1);
   $('#campovisita').showModal(); posicionDeVisita(); };
+$('#cvsimular').onclick = () => { cvSimulada = true; cvPos = null; $('#cvpos').innerHTML = '<b>Posición simulada</b>: a unos 170 m del punto del lugar poblado. Solo existe en el recorrido de demostración y la visita queda rotulada así.'; };
 $('#cvreintentar').onclick = posicionDeVisita;
 // La foto se reduce a 640 px de lado mayor antes de salir del teléfono: pesa poco y no lleva los metadatos del original.
 $('#cvfoto').onchange = async e => { const f = e.target.files[0]; cvFoto = ''; $('#cvvista').innerHTML = ''; if (!f) return;
@@ -1638,15 +1691,18 @@ $('#cvfoto').onchange = async e => { const f = e.target.files[0]; cvFoto = ''; $
     const url = c.toDataURL('image/jpeg', .82); cvFoto = url.split(',')[1]; $('#cvvista').innerHTML = `<img src="${url}" alt="Foto que se enviará"><small class="nota">${c.width} × ${c.height} px · ${num(Math.round(cvFoto.length * .75 / 1024))} KB</small>`; }
   catch { aviso('No se pudo leer esa foto.', true); } };
 $('#cvregistrar').onclick = async () => { $('#cvregistrar').disabled = true;
-  try { const r = await api('/api/campo/visitas', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({parada_id: cvParada, latitud: cvPos && cvPos.lat, longitud: cvPos && cvPos.lon, precision_m: cvPos && cvPos.precision, foto: cvFoto, notas: $('#cvnotas').value})}), c = r.cruce, lista = (t, xs) => xs.length ? `<div><b>${t}</b><ul>${xs.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
-    $('#cvpaso').hidden = true;
+  try { const r = await api('/api/campo/visitas', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({parada_id: cvParada, latitud: cvPos && cvPos.lat, longitud: cvPos && cvPos.lon, precision_m: cvPos && cvPos.precision, foto: cvFoto, notas: $('#cvnotas').value, simulada: cvSimulada})}), c = r.cruce, lista = (t, xs) => xs.length ? `<div><b>${t}</b><ul>${xs.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
+    $('#cvpasos button[data-paso="4"]').disabled = false; cvAsistente.ir(4); $('#cvnav').hidden = true; [1, 2, 3].forEach(k => $(`#cvpasos button[data-paso="${k}"]`).disabled = true);
     $('#cvresultado').innerHTML = `<div class="veredicto ${c.coherencia}"><b class="t">Visita n.º ${r.id}: ${NOMBRE_CRUCE[c.coherencia]}</b>${lista('Coincide', c.a_favor)}${lista('Conviene revisar', c.dudas)}${lista('Contexto', c.notas)}</div>
       ${r.foto && r.foto.escenas ? `<p class="nota">Lo que el modelo ve en la foto: ${r.foto.escenas.map(([n, p]) => `${esc(n)} ${num(p * 100)} %`).join(' · ')}. La foto ya se descartó.</p>` : r.foto && r.foto.aviso ? `<p class="nota">${esc(r.foto.aviso)}.</p>` : ''}
-      ${r.formulario ? `<p><a class="accion" id="cvabrir" target="_blank" rel="noopener" href="${esc(r.formulario)}" style="text-decoration:none;display:inline-block">Abrir la encuesta</a></p><p class="nota">Se abre con el lugar, la posición y el número de visita ya escritos.</p>` : '<p class="nota">Esta ruta no tiene formulario asociado.</p>'}`;
+      ${r.formulario ? `<p><a class="accion" id="cvabrir" target="_blank" rel="noopener" href="${esc(r.formulario)}" style="text-decoration:none;display:inline-block">Abrir la encuesta</a></p><p class="nota">Se abre con el lugar, la posición y el número de visita ya escritos.${r.demo ? ' En la demostración el enlace es de muestra: ese formulario no existe.' : ''}</p><p class="nota" style="word-break:break-all"><code>${esc(r.formulario)}</code></p>` : '<p class="nota">Esta ruta no tiene formulario asociado.</p>'}`;
     campo().catch(() => {}); }
   catch (x) { aviso(x.message, true); $('#cvregistrar').disabled = false; } };
 // Coordinación: armar rutas y revisar visitas (dentro de «Operadores de campo»).
-let crLugares = [], crMarcados = new Set();
+let crLugares = [], crMarcados = new Set(), crAsistente = null;
+function resumenDeRuta() { const op = $('#croperador').selectedOptions[0], mun = $('#crmun').selectedOptions[0], nombres = crLugares.filter(l => crMarcados.has(l.codigo)).map(l => l.nombre);
+  $('#crresumen').innerHTML = `<div class="tabla"><table><tbody><tr><td>Ruta</td><td><b>${esc($('#crnombre').value)}</b></td></tr><tr><td>Operador</td><td>${esc(op ? op.textContent : '')}</td></tr><tr><td>Municipio</td><td>${esc(mun ? mun.textContent : '')}, ${esc($('#crdep').selectedOptions[0]?.textContent || '')}</td></tr>
+    <tr><td>Paradas</td><td><b>${nombres.length}</b>: ${nombres.slice(0, 12).map(esc).join(', ')}${nombres.length > 12 ? '…' : ''}</td></tr><tr><td>Encuesta</td><td>${$('#crform').value.trim() ? '<code style="word-break:break-all">' + esc($('#crform').value.trim()) + '</code>' : 'sin formulario'}</td></tr></tbody></table></div><p class="nota">Al crearla, el portal ordena las paradas y la ruta aparece en «Mi ruta de campo» del operador.</p>`; }
 async function campoCoordinar() {
   const panel = $('#campocoord'); if (!yo || yo.rol === 'consulta' || yo.rol === 'operador') { panel.hidden = true; return; }
   let d; try { d = await api('/api/campo'); } catch { panel.hidden = true; return; } panel.hidden = !d.coordina; if (!d.coordina) return; campoDatos = d;
@@ -1654,8 +1710,11 @@ async function campoCoordinar() {
   $('#crservicios').textContent = d.formularios_admitidos.join(', ');
   $('#crmodelo').textContent = d.clasificador ? 'Clasificador de fotos instalado: ' + d.clasificador + '. Su resultado nunca decide: solo marca la visita para que alguien la revise.' : 'El clasificador de fotos no está instalado en este servidor: las visitas se registran y se cruzan con la posición, el satélite y el censo, pero la foto no se evalúa.';
   if (!$('#crdep').options.length) { const g = await geoDeMunicipios(), deps = [...new Map(g.features.map(f => [f.properties.departamento_codigo, f.properties.departamento])).entries()].sort((a, b) => a[1].localeCompare(b[1])); $('#crdep').innerHTML = '<option value="">Elija…</option>' + deps.map(([c, n]) => `<option value="${esc(c)}">${esc(n)}</option>`).join(''); }
+  if (!crAsistente) crAsistente = asistente(panel, {anterior: $('#cratras'), siguiente: $('#crsig'), alCambiar: (n, total) => { if (n === 4) resumenDeRuta(); $('#crdonde').textContent = `Paso ${n} de ${total}`; $('#crsig').hidden = n >= 4; },
+    validar: (k, destino) => destino === 5 ? true : k === 1 ? ($('#croperador').value && $('#crnombre').value.trim() ? true : 'Elija el operador y escriba el nombre de la ruta.') : k === 2 ? (crMarcados.size ? (crMarcados.size <= 80 ? true : 'Una ruta lleva hasta 80 paradas: divida el municipio en varias rutas.') : 'Marque al menos un lugar poblado.') : true});
+  if (!panel.dataset.listo) { panel.dataset.listo = '1'; crAsistente.ir(d.rutas.length ? 5 : 1); }
   const visitadas = r => r.paradas.filter(p => p.visita).length;
-  tabla('#trutas', [{t:'Ruta', f:r => `<b>${esc(r.nombre)}</b><br><small>creada el ${esc(r.creada)} por ${esc(r.creada_por)}</small>`}, {t:'Operador', f:r => esc(r.operador)}, {t:'Paradas (cantidad)', num:1, f:r => num(r.paradas.length)}, {t:'Visitadas (cantidad)', num:1, f:r => num(visitadas(r))},
+  tabla('#trutas', [{t:'Ruta', f:r => `<b>${esc(r.nombre)}</b>${r.demo ? ' <span class="etq alerta">demostración</span>' : ''}<br><small>creada el ${esc(r.creada)} por ${esc(r.creada_por)}</small>`}, {t:'Operador', f:r => esc(r.operador)}, {t:'Paradas (cantidad)', num:1, f:r => num(r.paradas.length)}, {t:'Visitadas (cantidad)', num:1, f:r => num(visitadas(r))},
     {t:'Por revisar (cantidad)', num:1, f:r => num(r.paradas.filter(p => p.visita && p.visita.coherencia === 'revisar').length)}, {t:'Recorrido (km)', num:1, f:r => num(r.largo_km)}, {t:'Formulario', f:r => r.con_formulario ? 'sí' : 'no'},
     {t:'', f:r => `<button class="accion chico suave" data-verruta="${r.id}">Ver</button><button class="accion chico suave" data-borrarruta="${r.id}">Borrar</button>`}], d.rutas, 'Todavía no hay rutas.');
   const visitas = d.rutas.flatMap(r => r.paradas.filter(p => p.visita).map(p => ({r, p, v: p.visita}))).sort((a, b) => b.v.id - a.v.id);
@@ -1672,7 +1731,8 @@ $('#crlugares').onchange = e => { if (e.target.value) { e.target.checked ? crMar
 $('#crtodos').onclick = () => { document.querySelectorAll('#crlugares input').forEach(c => crMarcados.add(c.value)); pintarLugaresRuta(); }; $('#crninguno').onclick = () => { crMarcados = new Set(); pintarLugaresRuta(); };
 $('#crcrear').onclick = async () => { if (!crMarcados.size) return aviso('Marque al menos un lugar poblado.', true); if (crMarcados.size > 80) return aviso('Una ruta lleva hasta 80 paradas: divida el municipio en varias rutas.', true);
   try { const r = await api('/api/campo/rutas', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({nombre: $('#crnombre').value, operador_id: +$('#croperador').value, formulario: $('#crform').value.trim(), lugares: [...crMarcados]})});
-    aviso(`Ruta creada: ${r.paradas} paradas, ${num(r.largo_km)} km en línea recta.`); crMarcados = new Set(); pintarLugaresRuta(); $('#crnombre').value = ''; campoCoordinar(); } catch (x) { aviso(x.message, true); } };
+    aviso(`Ruta creada: ${r.paradas} paradas, ${num(r.largo_km)} km en línea recta.`); crMarcados = new Set(); pintarLugaresRuta(); $('#crnombre').value = ''; await campoCoordinar(); crAsistente.ir(5); } catch (x) { aviso(x.message, true); } };
+$('#crdemo').onclick = async () => { try { document.querySelector('nav button[data-s=campo]').click(); await cargarDemostracion(); } catch (x) { aviso(x.message, true); } };
 $('#trutas').onclick = async e => { const v = e.target.closest('button[data-verruta]'), b = e.target.closest('button[data-borrarruta]');
   try { if (v) { document.querySelector('nav button[data-s=campo]').click(); await campo(); $('#camporuta').value = v.dataset.verruta; pintarRuta(); }
     if (b && confirm('¿Borrar esta ruta? Se borran también sus visitas registradas.')) { await api('/api/campo/rutas/' + b.dataset.borrarruta, {method:'DELETE'}); aviso('Ruta borrada.'); campoCoordinar(); } } catch (x) { aviso(x.message, true); } };
@@ -1959,7 +2019,9 @@ $('#pobdesde').onchange = $('#pobhasta').onchange = $('#pobextender').onchange =
 $('#anio').onchange = () => crecimiento().catch(e => aviso(e.message, true));
 // La lista de envíos pide sesión: se carga al entrar a "Recibir envío", no al abrir la página.
 estado().then(cargarSolicitudes).catch(e => aviso(e.message, true));
-iniciarMapa().catch(e => aviso(e.message, true));
+// Al recargar, el navegador puede dejar marcadas las casillas de capas: se aplica lo que muestran.
+iniciarMapa().then(async () => { if (!mapa) return; let t = 0; mapa.on('mousemove', ev => { const ahora = Date.now(); if (ahora - t > 90) { t = ahora; viaBajoElPuntero(ev); } });
+  for (const c of document.querySelectorAll('input[type=checkbox][id^=capa]')) if (c.checked && c.onchange) await c.onchange({target: c}); }).catch(e => aviso(e.message, true));
 verSesion().catch(() => {}).then(abrirDeEnlace);
 </script>
 </body>
