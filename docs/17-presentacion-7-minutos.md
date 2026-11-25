@@ -5,8 +5,11 @@ Misión, visión y objetivos: [`25-identidad.md`](25-identidad.md).
 
 **La presentación en PDF que pide la nota conceptual está en
 [`entregables/FARO-presentacion.pdf`](../entregables/FARO-presentacion.pdf)** (13 diapositivas 16:9,
-con capturas tomadas del portal). Se regenera con
-`node scripts/entregables/generar_presentacion.js <url> <usuario> <contraseña>`. Este documento es el
+con capturas tomadas del portal). La misma presentación está en PowerPoint, **editable**, en
+[`entregables/FARO-presentacion.pptx`](../entregables/FARO-presentacion.pptx): textos, tablas y formas
+nativos, colores en el tema y las notas del orador de cada diapositiva. Las dos se regeneran con
+`node scripts/entregables/generar_presentacion.js <url> <usuario> <contraseña>` (el PowerPoint
+necesita la biblioteca `pptxgenjs`). Este documento es el
 guion hablado.
 
 ## El mensaje en una frase
@@ -18,7 +21,7 @@ adivinar nada, y deja prueba de cada paso.**
 
 | Minuto | Tema | Idea que debe quedar |
 |---|---|---|
-| 0:00–0:40 | El problema, con las palabras de la Gerencia | No hay un estándar para enviar datos; «Puerto de San José» llega escrito de diez maneras |
+| 0:00–0:40 | Los problemas, con las palabras del INE | Son diez y tienen la misma raíz: datos que ya existen, pero no llegan en una forma que se pueda usar (la misma lista del README) |
 | 0:40–2:00 | Demostración 1: pedir, recibir, homologar | No adivina; lo que una persona decide queda aprendido para siempre |
 | 2:00–2:50 | Demostración 2: territorio | Del país al lugar poblado; la mancha urbana sobre la foto satelital; red vial como grafo |
 | 2:50–3:40 | Demostración 3: trabajo de campo, en un teléfono | El operador ve su ruta, el teléfono da la posición, la foto se comprueba y se abre Microsoft Forms ya lleno |
@@ -34,7 +37,7 @@ Cada diapositiva lleva al pie el criterio de evaluación al que responde.
 | # | Diapositiva | Minuto | Criterio que apoya | Qué se dice |
 |---|---|---|---|---|
 | 1 | Portada | 0:00 | — | Nombre, lema, equipo |
-| 2 | El problema, con las palabras del INE | 0:10 | Aplicabilidad (20 %) | El mismo municipio llega escrito de cuatro maneras; cinco necesidades del INE |
+| 2 | Los problemas que atiende | 0:10 | Aplicabilidad (20 %) | Diez necesidades con la misma raíz, y quién planteó cada una (sale de la tabla del README); un ejemplo rápido: el mismo municipio llega escrito de cuatro maneras |
 | 3 | La respuesta | 0:40 | Innovación (15 %) | Pide, recibe, homologa, aprovecha; el sistema no adivina |
 | 4 | Demostración 1: registros | 1:00 | Funcionalidad (25 %) | **En vivo**: una institución sube su archivo; el analista decide un pendiente |
 | 5 | Demostración 2: territorio | 2:00 | Funcionalidad | **En vivo**: ficha de un municipio, animación, red vial |

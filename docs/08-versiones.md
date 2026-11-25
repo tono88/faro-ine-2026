@@ -15,6 +15,9 @@ estadístico y legalidad). Detalle en [`26-conformidad-nota-conceptual.md`](26-c
   conformidad (`docs/26`); guía para explicar y defender el código (`docs/28`); guion y plan de
   grabación del video (`docs/16`); guion que deja una instalación nueva lista para demostrar
   (`preparar_demo.js`).
+- **Presentación también en PowerPoint, editable** (`entregables/FARO-presentacion.pptx`), del mismo
+  contenido que el PDF. La diapositiva de problemas ya no gira en torno a un solo ejemplo: lista los
+  diez problemas de la tabla del README, con quién planteó cada uno.
 - **Ninguna contraseña en el código.** La inicial del administrador la da la instalación
   (`FARO_CLAVE_INICIAL`; con Docker sigue siendo `admin`; si falta, se genera al azar); `DATABASE_URL`
   ya no tiene valor por omisión; los guiones de prueba leen su clave del entorno.

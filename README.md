@@ -482,14 +482,14 @@ LICENCIA.md             autoría del equipo y licencia al INE
 | [26 Conformidad con la nota conceptual](docs/26-conformidad-nota-conceptual.md) | [27 Componentes de terceros y licencias](docs/27-componentes-de-terceros.md) |
 | [28 Guía para explicar y defender el código](docs/28-defensa-del-codigo.md) | [Autoría y licencia](LICENCIA.md) |
 | [Documento técnico (PDF)](entregables/FARO-documento-tecnico.pdf) | [Manual de usuario gráfico (PDF)](entregables/FARO-manual-de-usuario.pdf) |
-| [Presentación para el jurado (PDF)](entregables/FARO-presentacion.pdf) | |
+| [Presentación para el jurado (PDF)](entregables/FARO-presentacion.pdf) | [Presentación editable (PowerPoint)](entregables/FARO-presentacion.pptx) |
 
 ## Entregables
 
 | Lo que pide la nota conceptual | Dónde está |
 |---|---|
 | Repositorio con el código y la documentación | <https://github.com/tono88/faro-ine-2026> (historial desde el 23-nov-2026) |
-| Presentación en PDF para la exposición | [`entregables/FARO-presentacion.pdf`](entregables/FARO-presentacion.pdf); guion hablado en [`docs/17`](docs/17-presentacion-7-minutos.md) |
+| Presentación en PDF para la exposición | [`entregables/FARO-presentacion.pdf`](entregables/FARO-presentacion.pdf) (y la misma, editable, en [PowerPoint](entregables/FARO-presentacion.pptx)); guion hablado en [`docs/17`](docs/17-presentacion-7-minutos.md) |
 | Video demostrativo de 2 a 3 minutos | Guion y plan de grabación en [`docs/16`](docs/16-guion-video.md); el video se entrega por el medio que indique el INE |
 | Además | [Manual de usuario gráfico](entregables/FARO-manual-de-usuario.pdf) · [documento técnico](entregables/FARO-documento-tecnico.pdf) · [matriz de conformidad](docs/26-conformidad-nota-conceptual.md) |
 
@@ -556,7 +556,8 @@ Cada uno conserva su licencia original.
   hay internet.
 - **Base de datos**: PostgreSQL 16 (licencia PostgreSQL). Imágenes de Docker oficiales `rust`,
   `debian` y `postgres`.
-- **Solo para pruebas y para generar los PDF** (no forman parte del portal): Playwright y Chromium;
+- **Solo para pruebas y para generar los entregables** (no forman parte del portal): Playwright y
+  Chromium; `pptxgenjs` (MIT) para la presentación en PowerPoint;
   `pdftotext` para leer un informe de SESAN; PyTorch para exportar el modelo una vez.
 - **Modelo de fotos**: Places365-ResNet18, de MIT CSAIL, usado sin cambios (pesos CC BY; código MIT).
   Cita: Zhou, Lapedriza, Khosla, Oliva y Torralba (2017), *Places: A 10 million Image Database for

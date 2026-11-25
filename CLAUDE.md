@@ -261,6 +261,9 @@ ya la pone. `FARO_ESCUCHA` también vale sin Docker (127.0.0.1 por omisión; el 
 `datos/crudo/manifiesto.jsonl` e `inventario_ine.csv` SÍ se versionan (valor por omisión de `faro fuentes`).
 Entregables: `scripts/entregables/` → `terceros.js` (docs/27), `preparar_demo.js <url> <clave>` (instalación
 nueva lista para demostrar, todo ficticio), `generar_presentacion.js`, `generar_manual.js`, `generar_pdf.js`.
+`generar_presentacion.js` escribe PDF y PPTX del mismo contenido (lista `D`); el PPTX necesita `pptxgenjs`
+(en esta nube: `NODE_PATH=<scratchpad>/npm/node_modules:$NODE_PATH`). La diapositiva de problemas se lee de la
+tabla «Los problemas que atiende» del README (decisión del equipo: NO centrarla en el ejemplo de San José).
 `LICENCIA.md`: autoría + licencia al INE; la licencia para terceros es decisión pendiente del equipo.
 `docs/28`: guía para defender el código. `docs/16`: guion y plan de grabación del video (siguiente paso).
 Prueba de clon limpio: `scratchpad/clon_limpio.sh`. Tres auditorías con agentes (citas, documentos, legal):

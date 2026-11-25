@@ -83,6 +83,7 @@ o con `cargo tree`.
 | Imágenes de Docker `rust:1-bookworm` y `debian:bookworm-slim` | — | Software libre (Debian; Rust: MIT o Apache-2.0) | Compilar y ejecutar el portal |
 | [Places365-ResNet18](http://places2.csail.mit.edu) (MIT CSAIL) | — | Pesos: CC BY; código: MIT | `datos/modelos/` ([procedencia](../datos/modelos/PROCEDENCIA.md)): clasificador de fotos del trabajo de campo, sin cambios |
 | [Playwright](https://playwright.dev) y Chromium | — | Apache-2.0 / BSD | Solo para las pruebas de pantalla y para generar los PDF; no forman parte del portal |
+| [pptxgenjs](https://gitbrent.github.io/PptxGenJS/) | 4 | MIT | Solo para generar la presentación editable en PowerPoint; no forma parte del portal |
 | [PyTorch](https://pytorch.org) y torchvision | — | BSD de 3 cláusulas | Solo en `scripts/modelo/exportar.py`, para convertir el modelo a ONNX una vez; no forman parte del portal |
 
 ## 4. Servicios que el navegador consulta (opcionales, gratuitos)
