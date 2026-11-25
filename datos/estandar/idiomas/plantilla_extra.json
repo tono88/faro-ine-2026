@@ -1,0 +1,28 @@
+{
+ "que_es": "Textos de la pantalla que la cosecha automática (scripts/idiomas/extraer.js) no alcanza: frases con un dato en medio ({0}) y estados poco comunes. Se suman a la plantilla tal como están. Se editan a mano.",
+ "textos": [
+  "#-#-# #:# · a # km del punto",
+  "#-#-# #:# · a # m del punto",
+  "<1/> producto(s); precios entre <2>Q#</2> y <3>Q#</3>; media <4>Q#</4>, mediana <5>Q#</5>, moda <6>Q#</6>. Con código de barras en común entre tiendas: <7/>. Comparados entre dos muestreos: <8/>, de ellos <9/> con cambio de # % o más.",
+  "<1/> producto(s); precios entre <2>Q#</2> y <3>Q#</3>; media <4>Q#</4>, mediana <5>Q#</5>, moda <6>Q#</6>. Con código de barras en común entre tiendas: <7/>. Comparados entre dos muestreos: <8/>.",
+  "<1/> producto(s); precios entre <2>Q#</2> y <3>Q#</3>; media <4>Q#</4>, mediana <5>Q#</5>, moda <6>Q#</6>. Con código de barras en común entre tiendas: <7/>. Comparados entre dos muestreos: <8>calculando…</8>.",
+  "<1/> producto(s); precios entre <2>Q#</2> y <3>Q#</3>; media <4>Q#</4>, mediana <5>Q#</5>, moda <6>Q#</6>. Con código de barras en común entre tiendas: <7>calculando…</7>. Comparados entre dos muestreos: <8>calculando…</8>.",
+  "<1/># o más hab.",
+  "<1>Tenga en cuenta:</1> la tabla no trae porcentajes de utilización: cada derivado se calcula sobre toda la cantidad procesada. Los que salen juntos del mismo proceso se obtienen a la vez; los que son usos alternativos no se suman (las tasas suman # %).",
+  "Clasificador de fotos instalado: {0}. Su resultado nunca decide: solo marca la visita para que alguien la revise.",
+  "Pide {0} columnas ({1} obligatorias, {2} para pareo, {3} con dato personal protegido): {4}",
+  "Precio promedio del INE a #-# (serie desde #-#). Precios publicados por tiendas: # — active el muestreo de alimentos en \"Muestreos automáticos\" para llenarlos.",
+  "Precio promedio del INE a #-# (serie desde #-#). Precios publicados por tiendas: #.",
+  "Serie de # a # en ha",
+  "Serie de # a # en hab.",
+  "Tasas de la FAO para Guatemala: {0} derivados de {1} productos primarios. El INE reporta <1>{2}</1> de {3} procesadas en {4}.",
+  "Usuario {0} · rol {1}.",
+  "borrador · # % de la pantalla",
+  "envía por {0}",
+  "la posición está a # km del lugar poblado asignado",
+  "la posición está a # m del lugar poblado asignado",
+  "{0} · código INE {1}",
+  "{0} · lugar poblado {1}",
+  "{0} · lugar poblado {1} · techo más frecuente: {2} ({3} %)"
+ ]
+}

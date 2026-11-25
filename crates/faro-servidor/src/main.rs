@@ -334,6 +334,9 @@ async fn main() -> Result<(), String> {
         .route("/capas", get(api_capas))
         .route("/capas/:archivo", get(capa))
         .route("/api/registros_municipio", get(api_registros_municipio))
+        .route("/idiomas.js", get(|| async { ([("content-type", "text/javascript; charset=utf-8"), ("cache-control", "no-cache")], include_str!("../web/idiomas.js")) }))
+        .route("/api/idiomas", get(api_idiomas))
+        .route("/api/idiomas/:codigo", get(api_idioma))
         .route("/vendor/leaflet.js", get(|| async { ([("content-type", "text/javascript; charset=utf-8"), ("cache-control", "public, max-age=86400")], include_str!("../web/vendor/leaflet.js")) }))
         .route("/vendor/leaflet.css", get(|| async { ([("content-type", "text/css; charset=utf-8"), ("cache-control", "public, max-age=86400")], include_str!("../web/vendor/leaflet.css")) }))
         // Tope general de 20 MB; solo la recepción de envíos admite archivos grandes.
@@ -488,6 +491,65 @@ fn huella_de_reglas(sol: &Solicitud) -> String {
 #[cfg(test)]
 mod pruebas_de_reglas {
     use super::*;
+
+    /// Marcas (`<1>`, `</1>`, `<1/>`), datos (`{0}`) y números (`#`) de una clave o de su traducción.
+    fn piezas_de(texto: &str) -> (Vec<String>, Vec<String>, usize) {
+        let (mut marcas, mut datos) = (Vec::new(), Vec::new());
+        let c: Vec<char> = texto.chars().collect();
+        let mut i = 0;
+        while i < c.len() {
+            if c[i] == '<' {
+                if let Some(f) = c[i..].iter().position(|x| *x == '>').map(|p| i + p) {
+                    let dentro: String = c[i + 1..f].iter().collect();
+                    if !dentro.is_empty() && dentro.trim_matches('/').chars().all(|x| x.is_ascii_digit()) {
+                        marcas.push(dentro);
+                        i = f + 1;
+                        continue;
+                    }
+                }
+            } else if c[i] == '{' && i + 2 < c.len() && c[i + 1].is_ascii_digit() && c[i + 2] == '}' {
+                datos.push(c[i + 1].to_string());
+            }
+            i += 1;
+        }
+        marcas.sort();
+        datos.sort();
+        (marcas, datos, texto.matches('#').count())
+    }
+
+    #[test]
+    fn el_codigo_de_idioma_no_deja_salir_de_la_carpeta() {
+        assert!(codigo_de_idioma("en") && codigo_de_idioma("cak"));
+        for malo in ["", "e", "EN", "espa", "../x", "en.json", "e/", "é"] {
+            assert!(!codigo_de_idioma(malo), "{malo:?} no es un código de idioma");
+        }
+    }
+
+    /// Cada traducción conserva las piezas de su clave: si no, el portal la descartaría en silencio.
+    /// En kaqchikel, además, no entra ningún término que no esté en el glosario con fuente.
+    #[test]
+    fn los_diccionarios_conservan_marcas_numeros_y_datos() {
+        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../datos/estandar/idiomas");
+        let leer = |n: &str| -> Value { serde_json::from_str(&std::fs::read_to_string(dir.join(n)).unwrap()).unwrap_or_else(|e| panic!("{n}: {e}")) };
+        let plantilla: std::collections::HashSet<String> = leer("plantilla.json")["textos"].as_array().unwrap().iter().map(|x| x.as_str().unwrap().to_string()).collect();
+        assert!(plantilla.len() > 1500, "la plantilla debe traer los textos de la pantalla");
+        let glosario: std::collections::HashSet<String> = csv::Reader::from_path(dir.join("cak_glosario.csv")).unwrap().records().flatten().map(|r| r[1].to_string()).collect();
+        for (codigo, minimo) in [("en", 0.99), ("cak", 0.0)] {
+            let dic = leer(&format!("{codigo}.json"));
+            let hechos = textos_traducidos(&dic);
+            for (clave, valor) in &hechos {
+                let valor = valor.as_str().unwrap();
+                assert_eq!(piezas_de(clave), piezas_de(valor), "{codigo}: «{clave}» → «{valor}»");
+                assert!(plantilla.contains(clave), "{codigo}: «{clave}» ya no es un texto de la pantalla (correr scripts/idiomas/comprobar.js --podar)");
+                if codigo == "cak" {
+                    assert!(glosario.contains(valor) || glosario.contains(valor.trim_end_matches('…')), "kaqchikel sin fuente en el glosario: «{clave}» → «{valor}»");
+                }
+            }
+            let cubre = hechos.len() as f64 / plantilla.len() as f64;
+            assert!(cubre >= minimo, "{codigo} cubre {:.1} % de la pantalla y se anuncia como completo", cubre * 100.0);
+        }
+        assert_eq!(leer("cak.json")["estado"], "borrador", "el kaqchikel sigue siendo borrador hasta que lo revise una persona hablante");
+    }
 
     #[test]
     fn una_celda_protegida_no_se_puede_despejar_por_resta() {
@@ -1987,6 +2049,58 @@ async fn api_balance(State(e): State<Compartido>, cabeceras: HeaderMap, Query(q)
         None => None,
     };
     Ok(Json(json!({ "primarios": primarios, "filas": tasas.len(), "balance": balance })))
+}
+
+/// Carpeta de los diccionarios de la interfaz: un archivo por idioma (`en.json`, `cak.json`) y la
+/// plantilla con todos los textos de la pantalla en español.
+fn carpeta_idiomas() -> PathBuf {
+    PathBuf::from(var("FARO_ESTANDAR", "datos/estandar")).join("idiomas")
+}
+
+/// El código de un idioma: dos o tres letras minúsculas (ISO 639). Nada más llega al disco.
+fn codigo_de_idioma(codigo: &str) -> bool {
+    (2..=3).contains(&codigo.len()) && codigo.bytes().all(|b| b.is_ascii_lowercase())
+}
+
+/// Las traducciones que sí están hechas (las vacías se dejan en el archivo para quien revisa).
+fn textos_traducidos(dic: &Value) -> serde_json::Map<String, Value> {
+    dic["textos"].as_object().map(|t| t.iter().filter(|(_, v)| v.as_str().is_some_and(|x| !x.trim().is_empty())).map(|(k, v)| (k.clone(), v.clone())).collect()).unwrap_or_default()
+}
+
+/// Idiomas disponibles para la interfaz, con su estado y cuánto de la pantalla cubren.
+/// El español es el idioma de origen; los datos no se traducen en ningún idioma.
+async fn api_idiomas() -> Json<Value> {
+    let dir = carpeta_idiomas();
+    let leer = |nombre: &str| std::fs::read_to_string(dir.join(nombre)).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok());
+    let plantilla: std::collections::HashSet<String> = leer("plantilla.json").and_then(|p| p["textos"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(str::to_string)).collect())).unwrap_or_default();
+    let mut idiomas = vec![json!({ "codigo": "es", "nombre": "Español", "estado": "origen", "cobertura_pct": 100 })];
+    let mut archivos: Vec<String> = std::fs::read_dir(&dir).map(|d| d.flatten().filter_map(|a| a.file_name().into_string().ok()).collect()).unwrap_or_default();
+    archivos.sort();
+    for archivo in archivos {
+        let Some(codigo) = archivo.strip_suffix(".json").filter(|c| codigo_de_idioma(c)) else { continue };
+        let Some(dic) = leer(&archivo) else { continue };
+        let hechos = textos_traducidos(&dic);
+        let de_la_plantilla = hechos.keys().filter(|k| plantilla.contains(*k)).count();
+        idiomas.push(json!({
+            "codigo": codigo, "nombre": dic["nombre"].as_str().unwrap_or(codigo), "nombre_es": dic["nombre_es"], "estado": dic["estado"].as_str().unwrap_or("borrador"),
+            "revisado_por": dic["revisado_por"], "nota": dic["nota"], "textos": hechos.len(), "de_la_plantilla": de_la_plantilla,
+            "cobertura_pct": if plantilla.is_empty() { Value::Null } else { json!((de_la_plantilla as f64 * 1000.0 / plantilla.len() as f64).round() / 10.0) },
+        }));
+    }
+    // Primero el idioma de origen, luego los completos y al final los borradores.
+    idiomas.sort_by_key(|i| match i["estado"].as_str() { Some("origen") => 0, Some("borrador") => 2, _ => 1 });
+    Json(json!({ "idiomas": idiomas, "textos_de_la_pantalla": plantilla.len(), "regla": "Se traduce la interfaz. Los nombres oficiales, los valores de los catálogos, las cifras y las citas se muestran como los publica su fuente." }))
+}
+
+/// El diccionario de un idioma, sin las entradas vacías. Se lee del disco en cada pedido: quien
+/// corrige una traducción la ve al recargar la página, sin reiniciar el servidor.
+async fn api_idioma(Ruta(codigo): Ruta<String>) -> Res<Response> {
+    if !codigo_de_idioma(&codigo) { return Err(pedido("el código de idioma son dos o tres letras minúsculas")); }
+    let texto = std::fs::read_to_string(carpeta_idiomas().join(format!("{codigo}.json"))).map_err(|_| pedido("este servidor no tiene ese idioma"))?;
+    let mut dic: Value = serde_json::from_str(&texto).map_err(|e| interno(format!("el diccionario «{codigo}» no es JSON válido: {e}")))?;
+    let hechos = textos_traducidos(&dic);
+    dic["textos"] = Value::Object(hechos);
+    Ok(([("cache-control", "no-cache")], Json(dic)).into_response())
 }
 
 /// Calculadora con las tasas de extracción de FAO para Guatemala, contrastadas con las cuentas de

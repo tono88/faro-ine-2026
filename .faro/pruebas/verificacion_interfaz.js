@@ -6,6 +6,9 @@
 // Uso: NO_PROXY=localhost node verificacion_interfaz.js http://localhost:8082
 const { chromium } = require('playwright'); const fs = require('fs'); const path = require('path'); const { entrar } = require('./_sesion');
 const raiz = path.resolve(__dirname, '../..'), cap = path.join(raiz, 'entregables/capturas/interfaz');
+// Con FARO_IDIOMA=en (u otro idioma) se hace la misma revisión con la pantalla traducida; el informe
+// y las capturas del repositorio son los de la pantalla en español y no se reescriben.
+const enOtroIdioma = !!process.env.FARO_IDIOMA && process.env.FARO_IDIOMA !== 'es';
 const PANTALLAS = [
   { id: 'laptop-1366', nombre: 'Laptop 15.6" HD (1366×768)', w: 1366, h: 768, tactil: false },
   { id: 'laptop-1920', nombre: 'Laptop 15.6" Full HD (1920×1080)', w: 1920, h: 1080, tactil: false },
@@ -17,7 +20,7 @@ const PANTALLAS = [
 (async () => {
   const base = process.argv[2]; fs.mkdirSync(cap, { recursive: true }); const b = await chromium.launch(); const filas = []; const detalle = []; let problemas = 0;
   for (const pt of PANTALLAS) {
-    const ctx = await b.newContext({ viewport: { width: pt.w, height: pt.h }, deviceScaleFactor: 1, hasTouch: pt.tactil, isMobile: pt.tactil && pt.w < 700 }); const p = await ctx.newPage(); const errores = []; p.on('pageerror', e => errores.push(String(e).slice(0, 160)));
+    const ctx = await b.newContext({ viewport: { width: pt.w, height: pt.h }, deviceScaleFactor: 1, hasTouch: pt.tactil, isMobile: pt.tactil && pt.w < 700 }); if (process.env.FARO_IDIOMA) await ctx.addInitScript(i => { try { localStorage.setItem('faro_idioma', i); } catch (_) {} }, process.env.FARO_IDIOMA); const p = await ctx.newPage(); const errores = []; p.on('pageerror', e => errores.push(String(e).slice(0, 160)));
     await p.goto(base); await p.waitForSelector('#lienzo path.leaflet-interactive'); await entrar(p);
     const menuOculto = await p.isVisible('#menu'); const secciones = await p.locator('nav > button[data-s]').evaluateAll(bs => bs.filter(x => !x.hidden).map(x => x.dataset.s));
     const tot = { secciones: secciones.length, desbordes: 0, fuera: 0, chico: 0, toque: 0 };
@@ -33,7 +36,7 @@ const PANTALLAS = [
         return { pagina: document.documentElement.scrollWidth > ancho + 1, fuera: fuera.slice(0, 3).map(d), nfuera: fuera.length, chico: chico.slice(0, 2).map(d), nchico: chico.length, toque: toque.slice(0, 3).map(e => d(e) + ' ' + Math.round(e.getBoundingClientRect().height) + 'px'), ntoque: toque.length }; }, pt.tactil);
       tot.desbordes += m.pagina ? 1 : 0; tot.fuera += m.nfuera; tot.chico += m.nchico; tot.toque += m.ntoque;
       if (m.pagina || m.nfuera || m.nchico || m.ntoque) detalle.push(`| ${pt.nombre} | ${s} | ${m.pagina ? 'la página se desborda a lo ancho. ' : ''}${m.nfuera ? 'se salen: ' + m.fuera.join('; ') + '. ' : ''}${m.nchico ? 'texto menor de 11 px: ' + m.chico.join('; ') + '. ' : ''}${m.ntoque ? 'controles bajos: ' + m.toque.join('; ') : ''} |`);
-      if (['mapa', 'tableros', 'rubros'].includes(s) && ['laptop-1366', 'tableta-vertical', 'celular'].includes(pt.id)) await p.screenshot({ path: path.join(cap, `${pt.id}-${s}.jpg`), type: 'jpeg', quality: 68 });
+      if (['mapa', 'tableros', 'rubros'].includes(s) && ['laptop-1366', 'tableta-vertical', 'celular'].includes(pt.id) && !enOtroIdioma) await p.screenshot({ path: path.join(cap, `${pt.id}-${s}.jpg`), type: 'jpeg', quality: 68 });
     }
     // Clic real en el mapa.
     if (menuOculto) await p.click('#menu'); await p.click('nav > button[data-s=mapa]'); await p.waitForTimeout(900);
@@ -75,6 +78,6 @@ Mapa, tableros y precios por rubro en laptop de 15.6", tableta y celular: \`entr
 - Las tablas anchas se desplazan dentro de su propio marco, con el encabezado fijo.
 - Colores y tipografía del INE (#0051b3, #4d9ae1, Noto Sans); el foco del teclado siempre es visible.
 `;
-  fs.writeFileSync(path.join(raiz, 'docs/20-verificacion-interfaz.md'), md);
+  if (!enOtroIdioma) fs.writeFileSync(path.join(raiz, 'docs/20-verificacion-interfaz.md'), md); else console.log(detalle.join('\n'));
   console.log(problemas ? `PROBLEMAS: ${problemas}` : 'sin hallazgos'); await b.close();
 })();

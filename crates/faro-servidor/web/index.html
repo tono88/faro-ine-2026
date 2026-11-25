@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/vendor/leaflet.css">
+<script src="/idiomas.js"></script>
 <style>
   /* Paleta y tipografía tomadas del sitio del INE (azules #0051b3 y #4d9ae1, texto #313131, Noto Sans). */
   :root { --azul:#0051b3; --azul-oscuro:#07306b; --celeste:#4d9ae1; --cielo:#e8f1fb; --tinta:#313131; --gris:#5b6672; --fondo:#f4f6f9; --borde:#d9dfe6; --ok:#1a7f4b; --alerta:#a15c00; --mal:#b3261e; --radio:10px; }
@@ -228,6 +229,18 @@
   @media (max-width: 700px) { header #recorrido { padding:5px 9px 5px 5px; font-size:12.5px; } header .rec-largo, header .acceso .quien > span { display:none; } header .rec-corto { display:inline; } header .acceso button { padding-left:10px; padding-right:10px; } }
   @media print { button.recorrer, .barra-rec, #recfondo, #recfoco, #recglobo { display:none !important; } }
   @media (prefers-reduced-motion: no-preference) { nav button, button.accion { transition:background .15s; } }
+  /* Idioma de la interfaz (idiomas.js): se traduce la pantalla, nunca los datos. */
+  .idioma { position:relative; flex:none; } header .idioma + .acceso { margin-left:0; }
+  #idiomabtn { display:flex; align-items:center; gap:5px; border:1px solid var(--borde); background:#fff; color:var(--azul-oscuro); border-radius:999px; padding:4px 10px 4px 7px; font:inherit; font-size:13px; cursor:pointer; }
+  #idiomabtn:hover, #idiomabtn[aria-expanded="true"] { background:var(--cielo); border-color:var(--celeste); } #idiomabtn svg { width:17px; height:17px; display:block; } #idiomabtn b { font-weight:600; letter-spacing:.3px; }
+  #idiomalista { position:absolute; right:0; top:calc(100% + 9px); z-index:2600; width:264px; background:#fff; border:1px solid var(--borde); border-radius:10px; box-shadow:0 12px 32px rgba(7,48,107,.2); padding:6px; }
+  #idiomalista button { display:flex; flex-direction:column; align-items:flex-start; gap:1px; width:100%; border:0; background:none; padding:8px 10px; border-radius:7px; font:inherit; color:var(--tinta); text-align:left; cursor:pointer; }
+  #idiomalista button:hover, #idiomalista button:focus-visible { background:var(--fondo); } #idiomalista button[aria-selected="true"] { background:var(--cielo); } #idiomalista button[aria-selected="true"] span { font-weight:600; color:var(--azul-oscuro); }
+  #idiomalista small { color:var(--gris); font-size:12px; } #idiomalista p { margin:6px 4px 2px; padding:8px 6px 4px; border-top:1px solid var(--borde); font-size:12px; line-height:1.4; color:var(--gris); }
+  #aviso-idioma { background:#fff7e6; border:1px solid #f5a623; border-radius:var(--radio); padding:10px 14px; margin-bottom:14px; font-size:14px; }
+  @media (max-width: 400px) { #idiomabtn b { display:none; } header { gap:6px; } }
+  @media (max-width: 700px) { #idiomabtn { padding:5px 7px; } #idiomalista { position:fixed; left:10px; right:10px; top:58px; width:auto; } #idiomalista button { min-height:44px; } }
+  @media print { .idioma { display:none !important; } }
 </style>
 </head>
 <body>
@@ -236,6 +249,7 @@
   <div class="marca"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0051b3"/><path d="M26 21 5 12v17z" fill="#f5a623" opacity=".9"/><path d="M38 21 59 12v17z" fill="#f5a623" opacity=".9"/><path d="M32 8l8 8H24z" fill="#fff"/><rect x="26" y="16" width="12" height="8" rx="1" fill="#ffd27a"/><path d="M27 26h10l4 28H23z" fill="#fff"/><path d="M26.1 34h11.8l.9 6H25.2z" fill="#4d9ae1"/><path d="M24.4 46h15.2l.6 4H23.8z" fill="#4d9ae1"/><rect x="18" y="54" width="28" height="4" rx="2" fill="#fff"/></svg><div><h1>FARO</h1></div></div>
   <span><b>Que cada dato llegue a puerto.</b> Registros administrativos, territorio y precios · Datatón INE 2026</span>
   <button class="recorrer" id="recorrido" title="Recorrido guiado: le muestra, paso a paso, qué hay en esta pantalla y para qué sirve" aria-label="Recorrido guiado">Recorrido<span class="rec-largo">&nbsp;guiado</span></button>
+  <div class="idioma"><button id="idiomabtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="idiomalista" aria-label="Idioma de la pantalla" title="Idioma de la pantalla: español, inglés o kaqchikel. Los datos no se traducen."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg><b data-no-traducir>ES</b></button><div id="idiomalista" role="listbox" aria-label="Idiomas disponibles" hidden></div></div>
   <div class="acceso" id="acceso"><button class="accion" id="entrar" style="margin:0" aria-label="Iniciar sesión"><span class="rec-largo">Iniciar sesión</span><span class="rec-corto">Entrar</span></button></div>
 </header>
 <nav aria-label="Secciones">
@@ -693,7 +707,7 @@
       <h2 style="margin-top:14px">Qué se ha hecho</h2>
       <ul id="hecho"></ul>
       <p class="nota" style="margin-bottom:0">Prototipo del Datatón INE 2026, categoría 2. Equipo: Estuardo Sandoval, Ana Echeverría y Alejandro Sandoval. No es un producto oficial del INE.</p></div>
-    <div class="panel"><h2>Fuentes y citas</h2><p class="nota">Fuente principal: Instituto Nacional de Estadística (INE), Guatemala. Cada archivo descargado queda registrado con su dirección, fecha y huella.</p><div id="citas"></div></div>
+    <div class="panel"><h2>Fuentes y citas</h2><p class="nota">Fuente principal: Instituto Nacional de Estadística (INE), Guatemala. Cada archivo descargado queda registrado con su dirección, fecha y huella.</p><div id="citas" data-no-traducir></div></div>
   </section>
 
   <section id="capas">
@@ -878,7 +892,7 @@ async function construido() {
   tabla('#tcons', [{t:'Municipio', f:f => `<b>${esc(f.municipio)}</b>, ${esc(f.departamento)} <small>${esc(f.codigo)}</small>`}, {t:'1975–2020', f:f => chispa(f.serie)},
     {t:String(r.desde), num:1, f:f => `${num(f.edificaciones_inicial)} ha`}, {t:'2020', num:1, f:f => `${num(f.edificaciones_final)} ha`}, {t:'Nuevas hectáreas', num:1, f:f => `+${num(f.cambio_absoluto)}`},
     {t:'Construido, anual', num:1, f:f => `${num(f.tasa_anual_pct)} %`}, {t:'Población, anual', num:1, f:f => f.poblacion_tasa_anual_pct == null ? '' : `${num(f.poblacion_tasa_anual_pct)} %`},
-    {t:'Proyección (recta)', num:1, f:f => `${num(f.proyeccion)} ± ${num(f.proyeccion_margen)} ha <small>(${f.anio_proyectado})</small>`}, {t:'Con tasa constante', num:1, f:f => f.proyeccion_tasa_constante == null ? '' : `${num(f.proyeccion_tasa_constante)} ha`}, {t:'Confianza', f:f => `<span class="etq clic ${f.confianza === 'alta' ? 'ok' : f.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(f.codigo)}" title="Ver los estadísticos">${esc(f.confianza)}</span>`}], r.municipios, 'Sin datos.');
+    {t:'Proyección (recta)', num:1, f:f => `${num(f.proyeccion)} ± ${num(f.proyeccion_margen)} ha <small>(${f.anio_proyectado})</small>`}, {t:'Con tasa constante', num:1, f:f => f.proyeccion_tasa_constante == null ? '' : `${num(f.proyeccion_tasa_constante)} ha`}, {t:'Confianza', f:f => `<span data-ctx="confianza" class="etq clic ${f.confianza === 'alta' ? 'ok' : f.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(f.codigo)}" title="Ver los estadísticos">${esc(f.confianza)}</span>`}], r.municipios, 'Sin datos.');
   $('#tcons').querySelectorAll('tbody tr').forEach((tr, i) => { if (r.municipios[i]) { tr.classList.add('clic'); tr.dataset.det = r.municipios[i].codigo; tr.title = 'Ver la animación del crecimiento'; } });
 }
 $('#tcons').onclick = e => { const t = e.target.closest('[data-det]'); if (t) detalle(t.dataset.det).catch(x => aviso(x.message, true)); };
@@ -1181,7 +1195,7 @@ async function ficha(p) {
     ${d.edades ? `<h3>Edad y sexo, ${d.anio_actual} y 2018 (proyecciones del INE)</h3>${piramide(d.edades, d.anio_actual, 2018)}` : ''}
     ${d.talla ? `<h3>Desnutrición crónica en escolares</h3><p class="nota" style="margin:0"><b>${esc(d.talla.retardo_en_talla_pct)} %</b> con retardo en talla (${num(d.talla.escolares_evaluados)} escolares evaluados, ${esc(d.talla.censo)}) · vulnerabilidad <span class="etq ${/alta/.test(d.talla.vulnerabilidad) ? 'mal' : d.talla.vulnerabilidad === 'moderada' ? 'alerta' : 'ok'}">${esc(d.talla.vulnerabilidad)}</span>. Fuente: SESAN, Censo de Talla.</p>` : ''}
     ${d.cif ? `<h3>Inseguridad alimentaria aguda en ${esc(d.departamento)} (dato del departamento)</h3><p class="nota" style="margin:0">Área en <b>Fase ${esc(d.cif.fase_area)}</b> de la CIF: ${num(d.cif.fase3_o_superior)} personas (${esc(d.cif.fase3_o_superior_pct)} %) en Fase 3 o superior, ${esc(d.cif.periodo)}. Fuente: SESAN, CIF Guatemala.</p>` : ''}
-    ${a ? `<p class="nota" style="margin:4px 0">Proyección a ${a.anio_proyectado}: <b>${num(a.proyeccion)} ha</b>, entre ${num(a.proyeccion - a.proyeccion_margen_80)} y ${num(a.proyeccion + a.proyeccion_margen_80)} en 8 de cada 10 casos (al 95 %: ± ${num(a.proyeccion_margen)})${a.proyeccion_tasa_constante != null ? `. Con tasa constante: ${num(a.proyeccion_tasa_constante)} ha` : ''} · confianza <span class="etq clic ${a.confianza === 'alta' ? 'ok' : a.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(d.codigo)}">${esc(a.confianza)}</span></p>` : ''}
+    ${a ? `<p class="nota" style="margin:4px 0">Proyección a ${a.anio_proyectado}: <b>${num(a.proyeccion)} ha</b>, entre ${num(a.proyeccion - a.proyeccion_margen_80)} y ${num(a.proyeccion + a.proyeccion_margen_80)} en 8 de cada 10 casos (al 95 %: ± ${num(a.proyeccion_margen)})${a.proyeccion_tasa_constante != null ? `. Con tasa constante: ${num(a.proyeccion_tasa_constante)} ha` : ''} · confianza <span data-ctx="confianza" class="etq clic ${a.confianza === 'alta' ? 'ok' : a.confianza === 'media' ? 'alerta' : 'mal'}" data-det="${esc(d.codigo)}">${esc(a.confianza)}</span></p>` : ''}
     ${reg ? `<h3>Registros recibidos</h3><ul style="margin:0;padding-left:18px;font-size:13px">${reg}</ul>` : ''}
     ${d.proveedores.length ? `<h3>Proveedores de construcción</h3><p class="nota" style="margin:0">${d.proveedores.slice(0, 6).map(esc).join(' · ')}${d.proveedores.length > 6 ? ` y ${d.proveedores.length - 6} más` : ''}</p>` : ''}
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="accion chico" data-det="${esc(d.codigo)}" style="margin:0">▶ Ver crecimiento</button><button class="accion chico suave" data-solo="${esc(d.codigo)}" data-nombre="${esc(d.nombre)}" style="margin:0">Ver solo este municipio</button><a class="accion chico suave" style="margin:0;text-decoration:none;display:inline-block;border-radius:7px;padding:4px 10px" href="/reporte?municipio=${esc(d.codigo)}" target="_blank" rel="noopener">Exportar reporte</a></div>`;
@@ -1436,6 +1450,7 @@ const HECHO = [
   ['Precios', 'Precio de referencia con la regla de la Dirección de Precios; materiales de construcción contra la canasta del IPMC, con 116 proveedores perfilados; búsqueda en los precios de referencia ya emitidos por el INE; precios publicados por rubro (supermercado, ferretería, tecnología, farmacia, hogar, vehículos) leídos por muestreos automáticos, con comparación por código de barras y alertas de cambios atípicos; canasta básica alimentaria (precio del INE frente al publicado); calculadora de derivados para la Hoja de Balance de Alimentos con las tasas de la FAO.'],
   ['Mapa y capas', 'Un mapa con tres niveles (departamento, municipio y lugar poblado), todos los indicadores y capas publicadas en GeoJSON y CSV para un portal o un SIG.'],
   ['Un portal que se explica solo', 'Recorrido guiado en las 24 secciones, con un botón siempre a la vista; manual de usuario gráfico; funciona en laptop, tableta y teléfono.'],
+  ['Idiomas e inclusión', 'La pantalla en español y en inglés, y en kaqchikel como borrador que solo usa términos tomados de una fuente abierta revisada por hablantes. Se traduce la interfaz, nunca los datos: nombres oficiales, cifras y citas salen iguales. Es un diccionario fijo que vive en el servidor, sin servicios de traducción.'],
   ['Proceso y trazabilidad', 'Cada descarga con fuente, fecha y huella; cada decisión con quién y cuándo; cada cifra con su cita.'],
   ['Protección y cumplimiento', 'Solo agregados; conteos pequeños ocultos para quien no es analista; bitácora de acciones (los administradores la consultan en «Usuarios»); cuentas por rol, grupo e institución; análisis de conformidad legal norma por norma.'],
 ];
@@ -1964,7 +1979,7 @@ const deInstitucion = () => !!yo && yo.rol === 'institucion';
 // ¿Quien está en pantalla puede hacer cambios en esa sección? (analista o administrador, y su grupo la incluye).
 const puede = sec => !!yo && (yo.rol === 'admin' || (yo.rol === 'institucion' && sec === 'recibir') || (yo.rol === 'analista' && (!yo.secciones || yo.secciones.includes(sec))));
 function pintarSesion() {
-  $('#acceso').innerHTML = yo ? `<span class="quien"><span><b>${esc(yo.nombre)}</b> · ${esc(deInstitucion() ? 'envía por ' + yo.institucion : ROL[yo.rol] || yo.rol)}</span><button class="accion chico suave" id="salir" style="margin:0" aria-label="Cerrar sesión"><span class="rec-largo">Cerrar sesión</span><span class="rec-corto">Salir</span></button></span>` : '<button class="accion" id="entrar" style="margin:0" aria-label="Iniciar sesión"><span class="rec-largo">Iniciar sesión</span><span class="rec-corto">Entrar</span></button>';
+  $('#acceso').innerHTML = yo ? `<span class="quien"><span><b data-no-traducir>${esc(yo.nombre)}</b> · <span id="mirol">${esc(deInstitucion() ? 'envía por ' + yo.institucion : ROL[yo.rol] || yo.rol)}</span></span><button class="accion chico suave" id="salir" style="margin:0" aria-label="Cerrar sesión"><span class="rec-largo">Cerrar sesión</span><span class="rec-corto">Salir</span></button></span>` : '<button class="accion" id="entrar" style="margin:0" aria-label="Iniciar sesión"><span class="rec-largo">Iniciar sesión</span><span class="rec-corto">Entrar</span></button>';
   document.querySelectorAll('.con-sesion').forEach(x => x.hidden = !yo); document.querySelectorAll('.solo-admin').forEach(x => x.hidden = !(yo && yo.rol === 'admin'));
   $('#aviso-clave').hidden = !(yo && yo.debe_cambiar);
   // Si su grupo limita las secciones, el menú muestra solo esas (los administradores ven todo).
@@ -2008,14 +2023,14 @@ $('#tgrupos').onclick = async e => { const ed = e.target.closest('button[data-ed
 const instituciones = () => [...new Set(solicitudes.map(s => s.institucion))].sort();
 $('#urol').onchange = () => { $('#uinstcaja').hidden = $('#urol').value !== 'institucion'; $('#uinst').innerHTML = instituciones().map(i => `<option>${esc(i)}</option>`).join(''); };
 const ACCION = {envio_recibido:'Envío recibido', envio_borrado:'Envío eliminado', equivalencia_confirmada:'Equivalencia confirmada', cuenta_creada:'Cuenta creada', cuenta_cambiada:'Cuenta cambiada', tablero_publicado:'Tablero publicado', tablero_retirado:'Tablero retirado', ruta_de_campo_creada:'Ruta de campo creada', ruta_de_campo_borrada:'Ruta de campo eliminada', visita_de_campo:'Visita de campo registrada'};
-async function bitacoraVer() { tabla('#tbitacora', [{t:'Cuándo', f:f => esc(f.cuando)}, {t:'Quién', f:f => esc(f.quien)}, {t:'Qué hizo', f:f => esc(ACCION[f.accion] || f.accion.replace(/_/g, ' '))}, {t:'Detalle', f:f => esc(f.detalle)}], await api('/api/bitacora'), 'Todavía no hay acciones registradas.'); }
+async function bitacoraVer() { tabla('#tbitacora', [{t:'Cuándo', f:f => esc(f.cuando)}, {t:'Quién', f:f => `<span data-no-traducir>${esc(f.quien)}</span>`}, {t:'Qué hizo', f:f => esc(ACCION[f.accion] || f.accion.replace(/_/g, ' '))}, {t:'Detalle', f:f => esc(f.detalle)}], await api('/api/bitacora'), 'Todavía no hay acciones registradas.'); }
 async function usuarios() {
   bitacoraVer().catch(() => {});
   const g = await api('/api/grupos'); grupos = g.grupos; seccionesPosibles = g.secciones;
   tabla('#tgrupos', [{t:'Grupo', f:f => `<b>${esc(f.nombre)}</b><br><small>${esc(f.descripcion)}</small>`}, {t:'Secciones a las que entra', f:f => `<small>${f.secciones.filter(x => x !== 'perfil').map(x => esc(NOMBRE_SECCION[x] || x)).join(' · ')}</small>`},
     {t:'Usuarios (cantidad)', num:1, f:f => num(f.usuarios)}, {t:'', f:f => `<button class="accion chico suave" data-ed="${f.id}">Editar</button><button class="accion chico suave" data-bo="${f.id}">Borrar</button>`}], grupos, 'Sin grupos.');
   const l = await api('/api/usuarios');
-  tabla('#tusuarios', [{t:'Usuario', f:f => `<b>${esc(f.usuario)}</b>${f.debe_cambiar ? ' <span class="etq alerta">contraseña inicial</span>' : ''}`}, {t:'Nombre', f:f => esc(f.nombre)},
+  tabla('#tusuarios', [{t:'Usuario', f:f => `<b>${esc(f.usuario)}</b>${f.debe_cambiar ? ' <span class="etq alerta">contraseña inicial</span>' : ''}`}, {t:'Nombre', f:f => `<span data-no-traducir>${esc(f.nombre)}</span>`},
     {t:'Rol', f:f => `<select data-rol="${f.id}" aria-label="Rol de ${esc(f.usuario)}" style="max-width:170px;padding:4px">${Object.entries(ROL).map(([k, v]) => `<option value="${k}" ${k === f.rol ? 'selected' : ''}>${v}</option>`).join('')}</select>`},
     {t:'Institución', f:f => f.rol !== 'institucion' ? '<small>—</small>' : `<select data-inst="${f.id}" aria-label="Institución de ${esc(f.usuario)}" style="max-width:150px;padding:4px">${f.institucion ? '' : '<option value="">(elija)</option>'}${instituciones().map(i => `<option ${i === f.institucion ? 'selected' : ''}>${esc(i)}</option>`).join('')}</select>`},
     {t:'Grupo', f:f => `<select data-grupo="${f.id}" aria-label="Grupo de ${esc(f.usuario)}" style="max-width:210px;padding:4px"><option value="0">(sin grupo: todo lo de su rol)</option>${grupos.map(g => `<option value="${g.id}" ${g.id === f.grupo_id ? 'selected' : ''}>${esc(g.nombre)}</option>`).join('')}</select>`},
@@ -2051,6 +2066,7 @@ const RECORRIDOS = {
     {t:'Bienvenido a FARO', x:'FARO ayuda al INE a pedir, recibir y homologar los registros de otras instituciones, y a ver el territorio y los precios con fuentes citadas. Este recorrido dura un minuto.'},
     {en:'nav, #menu', t:'El menú', x:'Todo está agrupado en cinco bloques: panorama, registros administrativos, territorio, precios y datos. Lo que pide una cuenta solo aparece al iniciar sesión.'},
     {en:'#recorrido', t:'Este botón, siempre a mano', x:'En cualquier pantalla, «Recorrido guiado» le explica paso a paso lo que tiene delante. Cada sección tiene además su propio botón ámbar.'},
+    {en:'#idiomabtn', t:'El idioma de la pantalla', x:'El portal se lee en español y en inglés, y en kaqchikel como borrador que solo usa términos con fuente. Cambia la pantalla, nunca los datos: los nombres oficiales, las cifras y las citas se muestran como los publica su fuente.'},
     {en:'#acceso', t:'Iniciar sesión', x:'Sin cuenta se ve todo lo público. Con cuenta, cada quien ve lo suyo: el personal del INE recibe y revisa; una institución sube solo sus archivos; un operador ve su ruta.'},
     {en:'section.activa .titulo', t:'Cada pantalla se explica sola', x:'Arriba de cada sección hay una frase que dice qué muestra y de dónde sale. Las cifras llevan su fuente y su fecha; lo que no es oficial está rotulado.'},
   ],
@@ -2289,7 +2305,9 @@ estado().then(cargarSolicitudes).catch(e => aviso(e.message, true));
 // Al recargar, el navegador puede dejar marcadas las casillas de capas: se aplica lo que muestran.
 iniciarMapa().then(async () => { if (!mapa) return; let t = 0; mapa.on('mousemove', ev => { const ahora = Date.now(); if (ahora - t > 90) { t = ahora; viaBajoElPuntero(ev); } });
   for (const c of document.querySelectorAll('input[type=checkbox][id^=capa]')) if (c.checked && c.onchange) await c.onchange({target: c}); }).catch(e => aviso(e.message, true));
-verSesion().catch(() => {}).then(abrirDeEnlace);
+// Tras cambiar de idioma (la página se recarga) se vuelve a la sección en la que se estaba.
+function volverASeccion() { let s; try { s = sessionStorage.getItem('faro_seccion'); sessionStorage.removeItem('faro_seccion'); } catch (_) {} const b = s && !location.hash && document.querySelector(`nav > button[data-s="${s}"]`); if (b && !b.hidden && b.getAttribute('aria-selected') !== 'true') b.click(); }
+verSesion().catch(() => {}).then(abrirDeEnlace).then(volverASeccion);
 </script>
 </body>
 </html>

@@ -1,0 +1,72 @@
+es,cak,en,uso,proyecto,fuente,mensaje,licencia
+Activo,Tzijïl,Active,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutSupport.ftl,gpu-active,MPL 2.0
+Anterior,Chi rij,Back,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/browserContext.ftl,main-context-menu-back-mac.label,MPL 2.0
+Archivo,Yakb'äl,File,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/menubar.ftl,menu-file.label,MPL 2.0
+Buscar,Tikanöx,Find,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/browser.ftl,toolbar-button-find.label,MPL 2.0
+Cambiar contraseña,Tijal ewan tzij,Change password,pantalla,Mozilla Accounts (fxa-content-server-l10n),https://github.com/mozilla/fxa-content-server-l10n/blob/main/locale/cak/settings.ftl,pw-change-header.title,MPL 2.0
+Cancelar,Tiq'at,Cancel,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,login-item-cancel-button,MPL 2.0
+Cargando…,Nisamäj…,Loading…,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutAddons.ftl,release-notes-loading,MPL 2.0
+Cerrar,Titz'apïx,Close,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/browser.ftl,browser-window-close-button.tooltiptext,MPL 2.0
+Cerrar sesión,Titz'apïx molojri'ïl,Sign out,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/sync.ftl,fxa-signout-dialog2-button,MPL 2.0
+Contraseña,Ewan tzij,Password,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,login-item-password-label,MPL 2.0
+Copiar enlace,Tiwachib'ëx Ximoj,Copy Link,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/browserContext.ftl,main-context-menu-copy-link-simple.label,MPL 2.0
+Creado,Xtz'uk,Created,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,login-item-timeline-action-created,MPL 2.0
+Cuenta,Rub'i' taqoya'l,Account,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/accounts.ftl,account-connection-title-2,MPL 2.0
+Descripción,Tzijoxikil,Description,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutSupport.ftl,gpu-description,MPL 2.0
+Deshacer,Titzolïx,Undo,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutAddons.ftl,pending-uninstall-undo-button,MPL 2.0
+Editar,Nuk'b'äl,Edit,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,login-item-edit-button,MPL 2.0
+Eliminar,Tiyuj,Remove,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,about-logins-login-item-remove-button,MPL 2.0
+Estado,B'anikil,Status,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutSupport.ftl,support-remote-features-status,MPL 2.0
+Formato,B'anikil,Format,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutSupport.ftl,media-device-format,MPL 2.0
+Guardar,Tiyak,Save,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,about-logins-login-item-save-changes-button,MPL 2.0
+Imprimir,Titz'ajb'äx,Print,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/browser.ftl,navbar-print.label,MPL 2.0
+Iniciar sesión,Titikirisäx molojri'ïl,Log in,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,master-password-reload-button.label,MPL 2.0
+Nombre,B'i'aj,Name,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/places.ftl,places-view-sort-col-name.label,MPL 2.0
+Rehacer,Tikamulüx,Redo,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/global/textActions.ftl,text-action-redo.label,MPL 2.0
+Salir,Titz'apïx Molojri'ïl,Sign out,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/preferences/preferences.ftl,sync-sign-out2.label,MPL 2.0
+Siguiente,Jun chik,Forward,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/browserContext.ftl,main-context-menu-forward-mac.label,MPL 2.0
+Sincronizar ahora,Tixim Wakami,Sync now,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/appmenu.ftl,appmenuitem-fxa-toolbar-sync-now2,MPL 2.0
+Título,B'i'aj,Title,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/newtab/newtab.ftl,newtab-topsites-title-label,MPL 2.0
+Todo,Ronojel,All,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/printing/printUI.ftl,printui-page-range-all,MPL 2.0
+Ubicación,K'ojlib'äl,Location,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/preferences/preferences.ftl,permissions-location2.label,MPL 2.0
+Ver,Titz'et,View,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/places.ftl,places-view.label,MPL 2.0
+Vista previa,Nab'ey tzub'al,Preview,pantalla,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/newtab/newtab.ftl,newtab-topsites-preview-button,MPL 2.0
+Idioma,Ch'ab'äl,Language,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/preferences/preferences.ftl,language-header,MPL 2.0
+Idiomas,Taq ch'ab'äl,Languages,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutAddons.ftl,addon-category-locale,MPL 2.0
+Español,Kaxlan ch'ab'äl,Spanish,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/intl/languageNames.ftl,language-name-es,MPL 2.0
+Inglés,Q'anchi',English,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/intl/languageNames.ftl,language-name-en,MPL 2.0
+Kakchiquel,Kaqchikel,Kaqchikel,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/intl/languageNames.ftl,language-name-cak,MPL 2.0
+Sí,Ja',Yes,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutSupport.ftl,yes,MPL 2.0
+No,Manäq,No,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutSupport.ftl,no,MPL 2.0
+Hoy,Wakami,Today,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,about-logins-list-section-today,MPL 2.0
+Ayuda,To'ïk,Help,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,about-logins-menu-menuitem-help,MPL 2.0
+Abrir,Tijaq,Open,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/downloads.ftl,downloads-unblock-button-open.label,MPL 2.0
+Nuevo,K'ak'a',New,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/browserContext.ftl,main-context-menu-new-feature-badge,MPL 2.0
+Copiar,Tiwachib'ëx,Copy,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,login-item-copy-username-button-text,MPL 2.0
+Compartir,Tikomonïx,Share,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/browser.ftl,toolbar-button-share-tab.label,MPL 2.0
+Seguridad,Jikomal,,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/preferences/preferences.ftl,security-header,MPL 2.0
+Error,Sachoj,Error,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutSupport.ftl,policies-error,MPL 2.0
+Ajustes,Taq nuk'ulem,Settings,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/appmenu.ftl,appmenuitem-settings.label,MPL 2.0
+Herramientas,Samajib'äl,Tools,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/menubar.ftl,menu-tools.label,MPL 2.0
+Exportar,Tik'wäx el,Export,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,about-logins-export-file-picker-export-button,MPL 2.0
+Importar,Tijik',Import,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,about-logins-import-file-picker-import-button,MPL 2.0
+Agregar,Titz'aqatisäx,Add,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/newtab/newtab.ftl,newtab-topsites-add-button,MPL 2.0
+Continuar,Titikïr chik el,Continue,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/global/wizard.ftl,wizard-macos-button-next.label,MPL 2.0
+Reintentar,Titojtob'ëx chik,Retry,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/downloads.ftl,downloads-cmd-retry.tooltiptext,MPL 2.0
+Limpiar,Tijosq'ïx,Clear,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/browser.ftl,trustpanel-clear-cookies-subview-button-clear,MPL 2.0
+Ordenar,Ticholajïx,Sort,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/places.ftl,places-view-menu-sort.label,MPL 2.0
+Historial,Natab'äl,History,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/appmenu.ftl,appmenuitem-history.label,MPL 2.0
+Descargas,Taq qasanïk,Downloads,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/appmenu.ftl,appmenuitem-downloads.label,MPL 2.0
+Detalles,Taq b'anikil,Details,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutAddons.ftl,details-addon-button,MPL 2.0
+Más información,Tetamäx ch'aqa' chik,Learn more,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,about-logins-vulnerable-alert-learn-more-link,MPL 2.0
+Elegir archivo…,Ticha' Yakb'äl…,Choose File…,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/places.ftl,places-cmd-restore-from-file.label,MPL 2.0
+Cámara,Elesäy wachib'äl,Camera,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/browser.ftl,popup-select-camera-icon.tooltiptext,MPL 2.0
+Permisos,Taq ya'oj q'ij,Permissions,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutAddons.ftl,permissions-addon-button,MPL 2.0
+Ninguno,Majun,None,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/printing/printUI.ftl,printui-margins-none,MPL 2.0
+Finalizar,Tik'is,Finish,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/global/wizard.ftl,wizard-linux-button-finish.label,MPL 2.0
+Nombre de usuario,Rub'i' okisanel,Username,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,login-item-username-label,MPL 2.0
+Tipo,Ruwäch,Type,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/about/aboutSupport.ftl,support-addons-type,MPL 2.0
+General,Chijun,General,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/preferences/preferences.ftl,pane-general-title,MPL 2.0
+Mostrar contraseña,Tik'ut ewan tzij,Show password,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,login-item-password-reveal-checkbox.aria-label,MPL 2.0
+Ocultar contraseña,Tewäx ewan tzij,Hide password,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/browser/browser/aboutLogins.ftl,login-item-password-conceal-checkbox.aria-label,MPL 2.0
+Guatemala,Guatemala,Guatemala,reserva,Firefox (firefox-l10n),https://github.com/mozilla-l10n/firefox-l10n/blob/main/cak/toolkit/toolkit/intl/regionNames.ftl,region-name-gt,MPL 2.0

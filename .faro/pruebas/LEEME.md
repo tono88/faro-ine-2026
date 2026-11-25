@@ -15,3 +15,10 @@ están en `docs/20-verificacion-interfaz.md` y en `docs/08-versiones.md`.
 Ejemplo:
 
     FARO_CLAVE_PRUEBA=<una clave de prueba> NO_PROXY=localhost node .faro/pruebas/clic_real_mapa.js http://localhost:8082
+
+Idiomas de la pantalla:
+
+- `idiomas.js` cambia a inglés y a kaqchikel y comprueba que la interfaz se traduce y que los
+  nombres de los departamentos, las cifras y las citas **no cambian** (37 comprobaciones).
+- `FARO_IDIOMA=en node .faro/pruebas/verificacion_interfaz.js <url>` repite la revisión por tamaño
+  de pantalla con la pantalla en inglés (no reescribe el informe ni las capturas).
