@@ -14,7 +14,9 @@ categoría 2). Están numerados en la carpeta [`00-ENTREGABLES/`](00-ENTREGABLES
 |---|---|---|
 | 1 | **Enlace al repositorio con el código fuente y la documentación** | Este repositorio: <https://github.com/tono88/faro-ine-2026> · documentación en este README y en [`docs/`](docs/) |
 | 2 | **Presentación en formato PDF** para la exposición ante el jurado | [`00-ENTREGABLES/2-Presentacion-FARO.pdf`](00-ENTREGABLES/2-Presentacion-FARO.pdf) |
-| 3 | **Video demostrativo de 2 a 3 minutos**, como respaldo de la demostración en vivo | [`00-ENTREGABLES/3-Video-demostrativo-FARO.mp4`](00-ENTREGABLES/3-Video-demostrativo-FARO.mp4) (2:55) |
+| 3 | **Video demostrativo de 2 a 3 minutos**, como respaldo de la demostración en vivo | [`00-ENTREGABLES/3-Video-demostrativo-FARO.mp4`](00-ENTREGABLES/3-Video-demostrativo-FARO.mp4) (2:56, con narración) · en YouTube: <https://youtu.be/hl3m2-BnxEU> |
+
+<p align="center"><a href="https://youtu.be/hl3m2-BnxEU"><img src="docs/identidad/video-miniatura.jpg" alt="Ver el video demostrativo de FARO en YouTube (2:56)" width="640"></a><br><b><a href="https://youtu.be/hl3m2-BnxEU">▶ Ver el video demostrativo en YouTube (2:56)</a></b></p>
 
 Además, aunque la nota no lo pide, la carpeta lleva el **documento técnico** como apoyo para quien
 evalúa: [`00-ENTREGABLES/4-Documento-tecnico-FARO.pdf`](00-ENTREGABLES/4-Documento-tecnico-FARO.pdf).
@@ -626,7 +628,7 @@ LICENCIA.md             autoría del equipo y licencia al INE
 |---|---|
 | Repositorio con el código y la documentación | <https://github.com/tono88/faro-ine-2026> (historial desde el 23-nov-2026) |
 | Presentación en PDF para la exposición | [`entregables/FARO-presentacion.pdf`](entregables/FARO-presentacion.pdf) (y la misma, editable, en [PowerPoint](entregables/FARO-presentacion.pptx)); guion hablado en [`docs/17`](docs/17-presentacion-7-minutos.md) |
-| Video demostrativo de 2 a 3 minutos | Clip de 2:55 grabado del portal, sin voz, en [`entregables/FARO-video-demo.mp4`](entregables/FARO-video-demo.mp4), con sus [subtítulos](entregables/FARO-video-demo.srt); guion de la narradora y plan de montaje en [`docs/16`](docs/16-guion-video.md) |
+| Video demostrativo de 2 a 3 minutos | Video de 2:56 con la narración del equipo: [`entregables/FARO-video-narrado.mp4`](entregables/FARO-video-narrado.mp4) y [YouTube](https://youtu.be/hl3m2-BnxEU). Queda también el clip sin voz (2:55), [`entregables/FARO-video-demo.mp4`](entregables/FARO-video-demo.mp4), con sus [subtítulos](entregables/FARO-video-demo.srt); guion de la narradora y plan de montaje en [`docs/16`](docs/16-guion-video.md) |
 | *Material de apoyo (no es entregable)* | [Manual de usuario gráfico](entregables/FARO-manual-de-usuario.pdf) · [documento técnico](entregables/FARO-documento-tecnico.pdf) · [matriz de conformidad](docs/26-conformidad-nota-conceptual.md) · [preguntas probables y respuestas](entregables/FARO-preguntas-y-respuestas.pdf) |
 
 ## Limitaciones y posibles mejoras

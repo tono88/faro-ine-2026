@@ -4,6 +4,9 @@ Cada versión es un release de GitHub sobre el historial de commits.
 
 ## v0.22.0 · 25-nov-2026 · Guía para evaluadores, comparador, certificación y más fuentes
 
+- **Video con narración (26-nov).** El equipo grabó la voz sobre el clip: `entregables/FARO-video-narrado.mp4`
+  (2:56) y <https://youtu.be/hl3m2-BnxEU>. Es el entregable 3; el clip sin voz se conserva.
+
 - **Guía para evaluadores.** «Antes y ahora» pasa a llamarse así y es lo primero del menú, en rojo,
   visible para cualquiera: abre con una tabla de qué revisar en cada criterio de la nota
   conceptual y dónde está. Existe para el concurso: `FARO_GUIA_EVALUACION=0` la quita.

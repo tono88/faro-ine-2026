@@ -372,6 +372,10 @@ Encabezado: `.marca .para` («for» + `/vendor/ine-horizontal.svg`), pedido expr
 después de regenerar cualquier entregable**). Portal en línea del equipo: https://faro.test-tecnodyne.site/.
 Idiomas: al extraer, la plantilla cambia según la base usada; se conserva lo anterior y se suma lo nuevo.
 Prueba: `.faro/pruebas/comparar_y_certificar.js`.
+Video final con narración (26-nov, lo grabó el equipo): `entregables/FARO-video-narrado.mp4` y
+https://youtu.be/hl3m2-BnxEU; es el entregable 3 (NO se regenera con `grabar_video.js`, que solo hace el clip sin
+voz `FARO-video-demo.mp4`, que se conserva). Miniatura del README: `docs/identidad/video-miniatura.jpg`
+(GitHub no muestra `<iframe>`: se enlaza con la imagen).
 
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
@@ -388,8 +392,7 @@ Prueba: `.faro/pruebas/comparar_y_certificar.js`.
    PROBOSQUE 2024; SAT parque vehicular (solo nombres de municipio: buen caso de homologación).
    Bloqueados desde la nube (Cloudflare): MINFIN, datos.gob.gt, SIGSA/MSPAS, MEM, MIDES, CONAP.
 6. Entregables: presentación, manual, documento técnico y clip del video, hechos (se regeneran al
-   cerrar versión). Falta la **narración** del video (la graba el equipo; guion en `docs/16`; no hay
-   sintetizador de voz en esta nube), invitar al jurado al repositorio y la nota de consentimiento
+   cerrar versión). La narración del video ya está (26-nov). Falta invitar al jurado al repositorio y la nota de consentimiento
    (lista en `docs/26`, sección 8).
 7. De la v0.16.0: medir el clasificador con fotos de campo del INE; bajar los pesos del sitio oficial
    de Places365 y comparar la huella; publicar con HTTPS para el trabajo de campo; decidir el umbral de

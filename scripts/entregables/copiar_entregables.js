@@ -5,7 +5,7 @@ const fs = require('fs'), path = require('path'), crypto = require('crypto');
 const raiz = path.resolve(__dirname, '../..'), de = path.join(raiz, 'entregables'), a = path.join(raiz, '00-ENTREGABLES');
 const LISTA = [
   ['FARO-presentacion.pdf', '2-Presentacion-FARO.pdf', 'Presentación en formato PDF para la exposición ante el jurado (16 diapositivas)', true],
-  ['FARO-video-demo.mp4', '3-Video-demostrativo-FARO.mp4', 'Video demostrativo de 2 a 3 minutos, grabado del portal en marcha', true],
+  ['FARO-video-narrado.mp4', '3-Video-demostrativo-FARO.mp4', 'Video demostrativo de 2 a 3 minutos (2:56), con narración; también en YouTube: <https://youtu.be/hl3m2-BnxEU>', true],
   ['FARO-documento-tecnico.pdf', '4-Documento-tecnico-FARO.pdf', 'Documento técnico. **No lo pide la nota**: se agrega como apoyo para quien evalúa (ficha, conformidad, arquitectura, verificación, seguridad y fuentes)', false],
 ];
 fs.mkdirSync(a, { recursive: true });
@@ -30,8 +30,8 @@ ${filas.join('\n')}
 cada criterio de la nota conceptual y dónde está. Portal en línea: <https://faro.test-tecnodyne.site/> (despliegue del
 equipo); para instalarlo en su máquina, vea «Cómo desplegarlo» en el [\`README.md\`](../README.md).
 
-El video no lleva narración grabada: sus subtítulos y el guion de la narradora están en
-[\`entregables/FARO-video-demo.srt\`](../entregables/FARO-video-demo.srt) y [\`docs/16-guion-video.md\`](../docs/16-guion-video.md).
+El video lleva la narración del equipo. La versión sin voz, con sus subtítulos, sigue en
+[\`entregables/FARO-video-demo.mp4\`](../entregables/FARO-video-demo.mp4); el guion está en [\`docs/16-guion-video.md\`](../docs/16-guion-video.md).
 
 Otro material de apoyo, que no es entregable: manual de usuario, presentación editable y
 preguntas probables, en [\`entregables/\`](../entregables/) y [\`docs/\`](../docs/).

@@ -9,6 +9,7 @@ técnicas durante la demostración en vivo**. No es la presentación: es el port
 
 | Pieza | Dónde | Estado |
 |---|---|---|
+| **Video final, con narración** | [`entregables/FARO-video-narrado.mp4`](../entregables/FARO-video-narrado.mp4) · 1920×1080, **2:56**, narrado por el equipo sobre el clip, con la narradora en cámara · en YouTube: <https://youtu.be/hl3m2-BnxEU> · es el que va en `00-ENTREGABLES/` | **Hecho (26-nov)** |
 | Clip de fondo, sin voz | [`entregables/FARO-video-demo.mp4`](../entregables/FARO-video-demo.mp4) · 1920×1080, 30 cuadros por segundo, H.264, **2:55**, con pista de audio en silencio | Hecho |
 | Subtítulos con los tiempos reales | [`entregables/FARO-video-demo.srt`](../entregables/FARO-video-demo.srt) | Hecho |
 | Línea de tiempo por escena (con el texto de cada una) | [`entregables/FARO-video-demo-tiempos.json`](../entregables/FARO-video-demo-tiempos.json) | Hecho |

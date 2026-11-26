@@ -57,7 +57,7 @@ equipo todavía debe hacer. Categoría 2: Tecnológica y ciencias de datos.
 |---|---|
 | Enlace al repositorio con el código fuente y la documentación | Listo: <https://github.com/tono88/faro-ine-2026> |
 | Presentación en formato PDF para la exposición | Lista: [`entregables/FARO-presentacion.pdf`](../entregables/FARO-presentacion.pdf), 14 diapositivas y 2 de apéndice; guion en `17`. La misma, editable, en `entregables/FARO-presentacion.pptx` |
-| Video demostrativo de 2 a 3 minutos | Clip listo: [`entregables/FARO-video-demo.mp4`](../entregables/FARO-video-demo.mp4), 2:55, grabado del portal en marcha, con subtítulos. **Falta la narración**, que el equipo graba y monta (`16-guion-video.md`) |
+| Video demostrativo de 2 a 3 minutos | **Hecho, con narración** (2:56): [`00-ENTREGABLES/3-Video-demostrativo-FARO.mp4`](../00-ENTREGABLES/3-Video-demostrativo-FARO.mp4) y <https://youtu.be/hl3m2-BnxEU>. Grabado del portal en marcha y narrado por el equipo. El clip sin voz, con subtítulos, queda en `entregables/FARO-video-demo.mp4` | Cumple |
 | (Adicionales del equipo) | Manual de usuario gráfico (37 páginas), documento técnico, esta matriz, guía para defender el código |
 
 ## 5. Términos y condiciones
@@ -137,8 +137,7 @@ hizo.
 - [ ] **Dar acceso al repositorio a los correos del jurado** (lo pide el lineamiento de control de
       versiones).
 - [ ] **Enviar la nota de consentimiento firmada**, si el INE la pidió.
-- [ ] **Grabar la narración** del video y montarla sobre el clip (`16-guion-video.md`); entregarlo
-      por el medio que indique el INE.
+- [x] **Narración del video grabada y montada** (26-nov): `entregables/FARO-video-narrado.mp4` y YouTube.
 - [ ] **Entregar** el enlace al repositorio y la presentación en PDF antes del jueves 26 a las 09:00.
 - [ ] Ensayar la presentación con reloj (7 minutos) y las preguntas de `30` (55 preguntas y 29 de
       seguimiento; en PDF: `entregables/FARO-preguntas-y-respuestas.pdf`), `17` y `28`.
