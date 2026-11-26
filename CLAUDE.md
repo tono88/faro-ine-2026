@@ -377,6 +377,13 @@ https://youtu.be/hl3m2-BnxEU; es el entregable 3 (NO se regenera con `grabar_vid
 voz `FARO-video-demo.mp4`, que se conserva). Miniatura del README: `docs/identidad/video-miniatura.jpg`
 (GitHub no muestra `<iframe>`: se enlaza con la imagen).
 
+Arreglo del 26-nov (solo programa; sin tocar video ni documentos, por pedido del equipo): **no usar `<datalist>`**.
+En iPhone (navegador de Messenger/Safari) la lista nativa tapa el campo y el teclado no deja seguir. Se usa
+`sugerir(campo, opciones, alElegir)` (lista `.sugerencias` en el flujo, debajo del campo; se elige con `pointerdown`
+y el campo suelta el foco) en «Comparar territorios» (`compAgregar`, `compSugerir`; en teléfono el campo sube al
+tope) y en «Revisar pendientes» (`sugerirCatalogo`; `listaCatalogo` devuelve la lista). Guion de teléfono en la
+prueba `comparar_y_certificar.js`.
+
 ## Pendiente, en orden
 1. (Hecho en v0.15.1–v0.15.2; el equipo debe volver a subir sus archivos por la pantalla para que
    su base tome las reglas nuevas.)

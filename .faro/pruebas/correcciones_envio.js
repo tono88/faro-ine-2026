@@ -11,7 +11,7 @@ const { chromium } = require('playwright');
   await p.screenshot({ path: dir + '/5-pendientes.png', fullPage: true });
   // código 37 en Escuintla: buscar en la lista del catálogo
   const campo = p.locator('#tpend tr', { hasText: '37' }).locator('input.buscar'); await campo.focus(); await p.waitForTimeout(600);
-  console.log('opciones Escuintla:', await p.locator('datalist#cat-municipio-05 option').count());
+  console.log('opciones Escuintla:', await p.locator('#tpend .sugerencias li').count());
   await campo.fill('0510 Iztapa'); await campo.dispatchEvent('change'); await p.waitForTimeout(700);
   await p.locator('#tpend tr', { hasText: 'Camotan' }).locator('button[data-c]').first().click(); await p.waitForTimeout(700);
   await p.locator('#tpend tr', { hasText: 'Cuatrimoto' }).locator('button', { hasText: 'otro' }).click(); await p.waitForTimeout(700);

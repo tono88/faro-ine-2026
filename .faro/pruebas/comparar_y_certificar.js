@@ -15,8 +15,17 @@ const { chromium } = require('playwright'); const { entrar, CLAVE } = require('.
   await p.click('nav > button[data-s=mejoras]'); await p.waitForSelector('.mejora');
   ok('la guía trae los seis criterios con su peso', (await p.locator('.guia-criterios tbody tr').count()) === 6 && /25 %/.test(await p.textContent('.guia-criterios')));
   if (dir) await p.screenshot({ path: dir + '/guia-evaluadores.png' });
-  await p.click('.guia-criterios a[href="#comparar"]'); await p.waitForSelector('#complista option', { state: 'attached' });
+  await p.click('.guia-criterios a[href="#comparar"]'); await p.waitForSelector('#compbuscar');
   ok('un enlace de la guía lleva a la sección', (await p.evaluate(() => document.querySelector('section.activa').id)) === 'comparar');
+  // Como en un teléfono: se escribe una parte del nombre y se toca la sugerencia; el campo queda libre y sin foco.
+  await p.click('#compbuscar'); await p.keyboard.type('jutia', { delay: 30 }); await p.waitForSelector('.sugerencias li');
+  const sug = await p.$$eval('#compbuscar + .sugerencias li', c => c.map(x => x.textContent));
+  ok('al escribir aparecen sugerencias debajo del campo', sug.length > 0 && sug[0] === 'Jutiapa, Jutiapa' && await p.evaluate(() => { const c = document.querySelector('#compbuscar').getBoundingClientRect(), u = document.querySelector('#compbuscar + .sugerencias').getBoundingClientRect(); return u.top >= c.bottom - 1; }), sug.slice(0, 3).join(' | '));
+  await p.dispatchEvent('#compbuscar + .sugerencias li', 'pointerdown');
+  ok('al tocar una sugerencia se agrega, el campo queda vacío y suelta el foco (el teclado se cierra)', (await p.locator('#compelegidos span').count()) === 1 && (await p.inputValue('#compbuscar')) === '' && await p.evaluate(() => document.activeElement.id !== 'compbuscar' && document.querySelector('#compbuscar + .sugerencias').hidden));
+  await p.click('#compbuscar'); await p.keyboard.type('comapa', { delay: 30 }); await p.keyboard.press('Enter'); await p.waitForTimeout(200);
+  ok('el segundo territorio también se puede escribir y elegir (con Intro)', (await p.locator('#compelegidos span').count()) === 2 && await p.isVisible('#compresultado'));
+  await p.click('#compelegidos button[data-quitar]'); await p.click('#compelegidos button[data-quitar]'); await p.waitForTimeout(150);
   const agregar = async t => { await p.fill('#compbuscar', t); await p.dispatchEvent('#compbuscar', 'input'); await p.waitForTimeout(250); };
   await agregar('Mixco, Guatemala'); ok('con un solo territorio todavía no compara', !(await p.isVisible('#compresultado')));
   await agregar('Villa Nueva, Guatemala'); await p.waitForSelector('#tcomp tbody tr');

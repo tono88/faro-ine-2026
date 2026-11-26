@@ -60,6 +60,8 @@
   th { background:var(--cielo); color:var(--azul-oscuro); position:sticky; top:0; font-weight:600; z-index:1; } td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
   tbody tr:hover { background:#fafcff; }
   .tabla-ancha { overflow-x:auto; max-width:100%; }
+  /* Sugerencias propias, en el flujo de la página (debajo del campo): la lista nativa <datalist> se traba en iPhone y el teclado tapa el campo. */
+  .sugerencias { list-style:none; margin:4px 0 0; padding:4px; background:#fff; border:1px solid var(--borde); border-radius:10px; max-height:264px; overflow-y:auto; text-align:left; } .sugerencias li { padding:9px 10px; border-radius:7px; cursor:pointer; font-size:14px; } .sugerencias li:hover, .sugerencias li[aria-selected=true] { background:var(--cielo); } #compbuscar { scroll-margin-top:12px; } #tpend .sugerencias { min-width:220px; }
   .tabla { overflow:auto; max-height:520px; border:1px solid var(--borde); border-radius:8px; }
   a { color:var(--azul); } code { background:var(--cielo); padding:1px 5px; border-radius:4px; font-size:.92em; }
   .etq { display:inline-block; padding:1px 9px; border-radius:10px; font-size:12px; font-weight:600; background:#e6ebf0; white-space:nowrap; }
@@ -570,7 +572,7 @@
     <div class="panel">
       <div class="niveles" role="group" aria-label="Nivel a comparar" id="compnivel"><button type="button" data-n="municipio" aria-pressed="true">Municipios</button><button type="button" data-n="departamento" aria-pressed="false">Departamentos</button></div>
       <label for="compbuscar">Agregar un territorio</label>
-      <input type="text" id="compbuscar" list="complista" placeholder="Escriba el nombre y elíjalo de la lista" autocomplete="off"><datalist id="complista"></datalist>
+      <input type="text" id="compbuscar" placeholder="Escriba el nombre y elíjalo de la lista" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done">
       <div class="comp-elegidos" id="compelegidos"></div>
       <p class="nota" id="compnota">Elija al menos dos territorios para compararlos.</p>
     </div>
@@ -854,7 +856,7 @@ async function pendientes() {
   // Para lugares: lista del catálogo oficial (dentro del departamento o municipio, si se conoce) en vez de escribir el código de memoria.
   const otro = f => f.nivel === 'valor' ? '' : (f.nivel === 'lugar_poblado' && !f.contexto)
     ? `<input type="text" placeholder="otro código" aria-label="Otro código para ${esc(f.valor)}" style="max-width:110px;padding:4px" ${datos(f)}>`
-    : `<input type="text" class="buscar" list="cat-${esc(f.nivel)}-${esc(f.contexto)}" placeholder="buscar en el catálogo…" aria-label="Buscar en el catálogo el lugar de ${esc(f.valor)}" style="max-width:230px;padding:4px" ${datos(f)}>`;
+    : `<input type="text" class="buscar" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="buscar en el catálogo…" aria-label="Buscar en el catálogo el lugar de ${esc(f.valor)}" style="max-width:230px;padding:4px" ${datos(f)}>`;
   tabla('#tpend', [
     {t:'Texto recibido', f:f => `<b>${esc(f.valor)}</b><br><small>${esc(f.columna)}</small>${f.reglas_anteriores ? `<br><span class="etq alerta" title="Este envío se analizó antes de que cambiaran las reglas de su solicitud">reglas anteriores · envío n.º ${f.envios.join(', ')}</span>` : ''}`},
     {t:'En', f:f => f.nivel === 'valor' ? `variable <b>${esc(f.contexto)}</b>` : esc(f.contexto_nombre || (f.contexto ? 'código ' + f.contexto : '(sin nivel superior)'))},
@@ -868,13 +870,9 @@ async function pendientes() {
 }
 // Las listas del catálogo se piden la primera vez que se usa cada una.
 const listas = {};
-async function listaCatalogo(nivel, contexto) {
+function listaCatalogo(nivel, contexto) {
   const id = `cat-${nivel}-${contexto}`;
-  if (listas[id]) return; listas[id] = true;
-  const lugares = await api(`/api/catalogo/${encodeURIComponent(nivel)}?padre=${encodeURIComponent(contexto)}`);
-  const dl = document.createElement('datalist'); dl.id = id;
-  dl.innerHTML = lugares.map(l => `<option value="${esc(l.codigo)} ${esc(l.nombre)}${!contexto && l.padre_nombre ? ' — ' + esc(l.padre_nombre) : ''}"></option>`).join('');
-  document.body.appendChild(dl);
+  return listas[id] || (listas[id] = api(`/api/catalogo/${encodeURIComponent(nivel)}?padre=${encodeURIComponent(contexto)}`).then(lugares => lugares.map(l => `${l.codigo} ${l.nombre}${!contexto && l.padre_nombre ? ' — ' + l.padre_nombre : ''}`)).catch(x => { delete listas[id]; throw x; }));
 }
 async function confirmar(d, codigo) {
   try {
@@ -2321,7 +2319,6 @@ async function comparar() {
 const compTodos = () => compNivel === 'municipio' ? geoMuni.features.map(f => f.properties) : compDeps;
 const compRotulo = p => compNivel === 'municipio' ? `${p.nombre}, ${p.departamento}` : p.nombre;
 function compPintar() {
-  $('#complista').innerHTML = compTodos().map(p => `<option value="${esc(compRotulo(p))}">`).join('');
   document.querySelectorAll('#compnivel button').forEach(b => b.setAttribute('aria-pressed', b.dataset.n === compNivel));
   const ps = compSel.map(c => compTodos().find(p => p.codigo === c)).filter(Boolean);
   $('#compelegidos').innerHTML = ps.map((p, i) => `<span data-no-traducir><i style="background:${COMP_COLOR[i]}"></i>${esc(compRotulo(p))}<button type="button" data-quitar="${esc(p.codigo)}" aria-label="Quitar">×</button></span>`).join('');
@@ -2338,7 +2335,23 @@ function compPintar() {
   setTimeout(() => { mapaComp.invalidateSize(); mapaComp.fitBounds(capaComp.getBounds().pad(.35)); }, 60);
 }
 $('#compnivel').onclick = e => { const b = e.target.closest('button'); if (!b || b.dataset.n === compNivel) return; compNivel = b.dataset.n; compSel = []; compPintar(); };
-$('#compbuscar').oninput = e => { const p = compTodos().find(p => compRotulo(p) === e.target.value); if (!p) return; e.target.value = ''; if (compSel.includes(p.codigo)) return; if (compSel.length >= 4) { aviso('Se comparan hasta cuatro territorios a la vez.', true); return; } compSel.push(p.codigo); compPintar(); };
+// Sugerencias de un campo de texto: lista propia debajo del campo. Devuelve si hay algo que mostrar.
+function sugerir(campo, opciones, alElegir) {
+  let ul = campo.nextElementSibling; if (!ul || !ul.classList.contains('sugerencias')) { ul = document.createElement('ul'); ul.className = 'sugerencias'; ul.setAttribute('role', 'listbox'); ul.setAttribute('data-no-traducir', ''); campo.after(ul); }
+  const q = basicoJs(campo.value), hallados = (q ? opciones.filter(o => basicoJs(o).includes(q)) : opciones.slice()).sort((a, b) => (basicoJs(b).startsWith(q) - basicoJs(a).startsWith(q)) || a.localeCompare(b, 'es')).slice(0, 8);
+  ul.innerHTML = hallados.map((o, i) => `<li role="option" aria-selected="${i === 0}">${esc(o)}</li>`).join(''); ul.hidden = !hallados.length;
+  // Se elige al tocar: se evita que el campo pierda y recupere el foco (en iPhone eso reabre el teclado sobre el campo).
+  ul.onpointerdown = e => { const li = e.target.closest('li'); if (!li) return; e.preventDefault(); ul.hidden = true; alElegir(li.textContent); };
+  return hallados;
+}
+const cerrarSugerencias = campo => { const ul = campo.nextElementSibling; if (ul && ul.classList.contains('sugerencias')) ul.hidden = true; };
+function compAgregar(rotulo) { const campo = $('#compbuscar'), p = compTodos().find(p => compRotulo(p) === rotulo); if (!p) return false; campo.value = ''; cerrarSugerencias(campo); campo.blur();
+  if (compSel.includes(p.codigo)) return true; if (compSel.length >= 4) { aviso('Se comparan hasta cuatro territorios a la vez.', true); return true; } compSel.push(p.codigo); compPintar(); return true; }
+const compSugerir = () => sugerir($('#compbuscar'), compTodos().map(compRotulo), compAgregar);
+$('#compbuscar').oninput = e => { if (!compAgregar(e.target.value)) compSugerir(); };
+$('#compbuscar').onfocus = e => { compSugerir(); if (matchMedia('(max-width: 700px)').matches) $('#comparar').style.minHeight = '170vh'; if (matchMedia('(max-width: 700px)').matches) [60, 380].forEach(ms => setTimeout(() => { if (document.activeElement === e.target) e.target.scrollIntoView({block:'start'}); }, ms)); }; // el campo sube arriba: el teclado tapa la mitad inferior
+$('#compbuscar').onblur = e => setTimeout(() => { cerrarSugerencias(e.target); $('#comparar').style.minHeight = ''; }, 150);
+$('#compbuscar').onkeydown = e => { if (e.key === 'Enter') { const li = e.target.nextElementSibling?.querySelector('li'); if (li && !e.target.nextElementSibling.hidden) { e.preventDefault(); compAgregar(li.textContent); } } else if (e.key === 'Escape') cerrarSugerencias(e.target); };
 $('#compelegidos').onclick = e => { const b = e.target.closest('button[data-quitar]'); if (!b) return; compSel = compSel.filter(c => c !== b.dataset.quitar); compPintar(); };
 $('#compcsv').onclick = () => { const ps = compSel.map(c => compTodos().find(p => p.codigo === c)), q = s => '"' + String(s).replace(/"/g, '""') + '"';
   const lineas = [['indicador', 'unidad', ...ps.map(p => compRotulo(p) + ' (' + p.codigo + ')')].map(q).join(',')].concat(INDICADORES.map(ind => [ind.t, ind.u, ...ps.map(p => { const v = ind.f(p); return v == null || !isFinite(v) ? '' : v; })].map(q).join(',')));
@@ -2366,9 +2379,10 @@ $('#enviar').onclick = async () => {
 $('#tpend').onclick = e => { const b = e.target.closest('button[data-c]'); if (b) confirmar(b.dataset, b.dataset.c); };
 const codigoDe = t => t.trim().split(/\s+/)[0];
 $('#tpend').onkeydown = e => { if (e.key === 'Enter' && e.target.matches('input[data-v]') && e.target.value.trim()) confirmar(e.target.dataset, codigoDe(e.target.value)); };
-$('#tpend').addEventListener('focusin', e => { if (e.target.matches('input.buscar')) listaCatalogo(e.target.dataset.n, e.target.dataset.x).catch(x => aviso(x.message, true)); });
-// Al elegir una opción de la lista (código + nombre) se confirma sin más pasos.
-$('#tpend').addEventListener('change', e => { if (e.target.matches('input.buscar') && /^\d+ \S/.test(e.target.value)) confirmar(e.target.dataset, codigoDe(e.target.value)); });
+const sugerirCatalogo = campo => listaCatalogo(campo.dataset.n, campo.dataset.x).then(lista => { if (document.activeElement === campo) sugerir(campo, lista, texto => { campo.value = texto; campo.blur(); confirmar(campo.dataset, codigoDe(texto)); }); }).catch(x => aviso(x.message, true));
+$('#tpend').addEventListener('focusin', e => { if (e.target.matches('input.buscar')) sugerirCatalogo(e.target); });
+$('#tpend').addEventListener('input', e => { if (e.target.matches('input.buscar')) sugerirCatalogo(e.target); });
+$('#tpend').addEventListener('focusout', e => { if (e.target.matches('input.buscar')) setTimeout(() => cerrarSugerencias(e.target), 150); });
 $('#sync').onclick = async () => { $('#sync').disabled = true; try { const r = await api('/api/ine/sincronizar', {method:'POST'}); aviso(`${r.conjuntos} conjuntos; ${r.nuevos} nuevos, ${r.cambiados} con cambios.`); ine(); estado(); } catch (e) { aviso(e.message, true); ine(); } finally { $('#sync').disabled = false; } };
 $('#cargaredif').onclick = async () => {
   const f = $('#csvedif').files[0];
